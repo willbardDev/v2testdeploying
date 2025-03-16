@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: '/auth/login-1', // Custom sign-in page
+    signIn: '/auth/login', // Custom sign-in page
   },
   providers: [
     CredentialsProvider({

@@ -36,7 +36,7 @@ export const Signin1 = () => {
         <Image
           height={35}
           width={110}
-          src={`${ASSET_IMAGES}/logo.png`}
+          src={`${ASSET_IMAGES}/logos/logo.png`}
           alt='Jumbo React'
         />
       </Div>
