@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 
-module.exports = {
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  //disable: process.env.NODE_ENV === "development", // Disable PWA in dev mode
+});
+
+module.exports = withPWA({
+  restricreactStrictMode: true,
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
     NEXTAUTH_SECRET: 'Wxh7ucB6n1ZpL2uSInvk/5Hl5WzgFFuPBhVfy0x6DG0U=',
@@ -10,7 +18,7 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/en-US/dashboards/misc',
+        destination: '/en-US/dashboards',
         permanent: true,
       },
     ];
@@ -25,4 +33,4 @@ module.exports = {
       },
     ],
   },
-};
+});

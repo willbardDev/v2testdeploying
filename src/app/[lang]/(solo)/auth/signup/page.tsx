@@ -6,7 +6,7 @@ import { Div } from '@jumbo/shared';
 import { Card, CardContent, Typography, alpha } from '@mui/material';
 import Image from 'next/image';
 
-export default function Signup2Page() {
+export default function Signup() {
   return (
     <Div
       sx={{
@@ -72,7 +72,7 @@ export default function Signup2Page() {
                 <Link
                   underline='none'
                   passHref
-                  href={'/auth/login-2'}
+                  href={'/auth/signin'}
                   color={'inherit'}
                 >
                   Sign in
@@ -86,7 +86,7 @@ export default function Signup2Page() {
                   height={35}
                   width={110}
                   src={`${ASSET_IMAGES}/logo-white.png`}
-                  alt='Jumbo React'
+                  alt='ProsERP'
                 />
               </Link>
             </Div>

@@ -5,7 +5,7 @@ export function authMiddleware(request: NextRequest) {
 
   if (!token) {
     const url = request.nextUrl.clone();
-    url.pathname = `/auth/login`;
+    url.pathname = `/auth/signin`;
     return NextResponse.redirect(url);
   }
 
@@ -19,7 +19,7 @@ export function anonymousMiddleware(req: NextRequest) {
 
   if (accessToken) {
     const url = req.nextUrl.clone();
-    url.pathname = `/dashboards/crypto`; // Redirect logged-in users to dashboard
+    url.pathname = `/dashboards`; // Redirect logged-in users to dashboard
     return NextResponse.redirect(url);
   }
 

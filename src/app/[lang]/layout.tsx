@@ -82,8 +82,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en-US' }];
 }
 export const metadata: Metadata = {
-  title: 'Jumbo - Admin Dashboard',
+  title: 'ProsERP',
   icons: `${ASSET_IMAGES}/favicon.ico`,
+   keywords: `Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions`
 };
 
 export default async function RootLayout(
