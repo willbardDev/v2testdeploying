@@ -5,17 +5,17 @@ export const sidebarTheme: ThemeOptions = {
   // type: 'light',
   palette: {
     primary: {
-      main: '#7352C7',
-      light: '#A67FFB',
+      main: '#2113AD',
+      light: '#2113AD',
       dark: '#5E3BB7',
-      contrastText: '#FFF',
-    },
-    secondary: {
+      contrastText: '#FFF'
+  },
+  secondary: {
       main: '#E44A77',
       light: '#FF7EA6',
       dark: '#DF295E',
-      contrastText: '#FFF',
-    },
+      contrastText: '#FFF'
+  },
     error: {
       main: '#E73145',
       light: '#FF6A70',
@@ -51,9 +51,9 @@ export const sidebarTheme: ThemeOptions = {
       default: '#F5F7FA',
     },
     action: {
-      active: '#475259',
-      hover: '#F5F7FA',
-    },
+      active: '#2113AD',
+      hover: '#2113AD',
+  },
   },
   jumboComponents: {
     JumboNavbar: {

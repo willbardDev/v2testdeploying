@@ -42,14 +42,14 @@ export const mainTheme: ThemeOptions = {
 
   palette: {
     primary: {
-      main: '#7352C7',
-      light: '#A67FFB',
-      dark: '#5E3BB7',
+      main: '#2113AD',
+      light: '#567FFB',
+      dark: '#473bb7',
       contrastText: '#FFF',
     },
     secondary: {
       main: '#E44A77',
-      light: '#FF7EA6',
+      light: '#E44A77',
       dark: '#DF295E',
       contrastText: '#FFF',
     },

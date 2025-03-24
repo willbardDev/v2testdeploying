@@ -5,7 +5,7 @@ export async function getMenus(locale: string) {
   const { sidebar } = dictionary;
   return [
     {
-      label: 'Quick Links',
+      label: sidebar.menu.quickLinks,
       path: `/${locale}/quick-links`,
       icon: 'quickLaunch'
     },
@@ -36,17 +36,22 @@ export async function getMenus(locale: string) {
     },
 
     {
-      label: sidebar.menu.card,
+      label: sidebar.menu.pos,
       children: [
         {
-          path: `/${locale}/widgets`,
-          label: sidebar.menuItem.widgets,
-          icon: 'widget',
+          path: `/${locale}/pos/sales-counters`,
+          label: sidebar.menuItem.salesCounter,
+          icon: 'counter',
         },
         {
-          path: `/${locale}/metrics`,
-          label: sidebar.menuItem.metrics,
-          icon: 'metric',
+          path: `/${locale}/pos/proformas`,
+          label: sidebar.menuItem.proformas,
+          icon: 'proforma',
+        },
+        {
+          path: `/${locale}/pos/reports`,
+          label: sidebar.menuItem.reports,
+          icon: 'barcharts',
         },
       ],
     },

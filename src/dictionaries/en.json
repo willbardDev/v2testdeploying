@@ -58,10 +58,12 @@
     "phone": "Phone",
     "address": "Address",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "logout": "Logout"
   },
   "forms": {
-    "submit": "Submit"
+    "submit": "Submit",
+    "clear": "Clear"
   },
   "branding": {
     "tagline": "Simplified Management and Control"
