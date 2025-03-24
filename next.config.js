@@ -8,7 +8,7 @@ const withPWA = require("next-pwa")({
 });
 
 module.exports = withPWA({
-  restricreactStrictMode: true,
+  reactStrictMode: true,
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
     NEXTAUTH_SECRET: 'Wxh7ucB6n1ZpL2uSInvk/5Hl5WzgFFuPBhVfy0x6DG0U=',

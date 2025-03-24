@@ -83,8 +83,13 @@ export async function generateStaticParams() {
 }
 export const metadata: Metadata = {
   title: 'ProsERP',
-  icons: `${ASSET_IMAGES}/favicon.ico`,
-   keywords: `Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions`
+  icons: `${ASSET_IMAGES}/logos/favicon.ico`,
+  manifest: `/manifest.json`,
+  other: {
+    "msapplication-TileColor": "#6200EE",
+    "theme-color": "#2113AD",
+  },
+  keywords: `Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions`
 };
 
 export default async function RootLayout(
