@@ -1,5 +1,5 @@
+import { getMenus } from '@/utilities/constants/menu-items';
 import { NextResponse } from 'next/server';
-import { getMenus } from './menu-items';
 
 // To handle a GET request to /api/menus
 export async function GET(req: Request, props: { params: Promise<{ locale: string }> }) {

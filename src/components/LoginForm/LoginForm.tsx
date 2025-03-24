@@ -33,7 +33,7 @@ const LoginForm = () => {
     });
 
     if (response?.ok) {
-      router.push('/dashboards');
+      router.push('/dashboard');
       router.refresh();
     } else {
       enqueueSnackbar('invalid email or password!', {

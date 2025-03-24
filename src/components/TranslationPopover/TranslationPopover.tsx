@@ -13,11 +13,12 @@ const TranslationPopover = () => {
     [key: string]: { name: string; flag: string };
   } = {
     'en-US': { name: 'English', flag: 'GB' },
-    'ar-SA': { name: 'Arabic (العربية)', flag: 'SA' },
-    'fr-FR': { name: 'French', flag: 'FR' },
-    'zh-CN': { name: 'Chinese', flag: 'CN' },
-    'es-ES': { name: 'Spanish', flag: 'ES' },
-    'it-IT': { name: 'Italian', flag: 'IT' },
+    'sw-TZ': { name: 'Swahili', flag: 'TZ' },
+    //'ar-SA': { name: 'Arabic (العربية)', flag: 'SA' },
+    // 'fr-FR': { name: 'French', flag: 'FR' },
+    // 'zh-CN': { name: 'Chinese', flag: 'CN' },
+    // 'es-ES': { name: 'Spanish', flag: 'ES' },
+    // 'it-IT': { name: 'Italian', flag: 'IT' },
   };
 
   // Extract language code from pathname
