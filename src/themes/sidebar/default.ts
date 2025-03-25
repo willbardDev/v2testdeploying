@@ -6,7 +6,7 @@ export const sidebarTheme: ThemeOptions = {
   palette: {
     primary: {
       main: '#2113AD',
-      light: '#2113AD',
+      light: '#A67FFB',
       dark: '#5E3BB7',
       contrastText: '#FFF'
   },
@@ -16,59 +16,59 @@ export const sidebarTheme: ThemeOptions = {
       dark: '#DF295E',
       contrastText: '#FFF'
   },
-    error: {
+  error: {
       main: '#E73145',
       light: '#FF6A70',
       dark: '#AD001E',
-      contrastText: '#FFF',
-    },
-    warning: {
+      contrastText: '#FFF'
+  },
+  warning: {
       main: '#F39711',
       light: '#FFC84C',
       dark: '#BB6900',
-      contrastText: '#FFF',
-    },
-    info: {
+      contrastText: '#FFF'
+  },
+  info: {
       main: '#2EB5C9',
       light: '#6FE7FC',
       dark: '#008598',
-      contrastText: '#FFF',
-    },
-    success: {
+      contrastText: '#FFF'
+  },
+  success: {
       main: '#3BD2A2',
       light: '#78FFD3',
       dark: '#00A073',
-      contrastText: '#FFF',
-    },
-    text: {
+      contrastText: '#FFF'
+  },
+  text: {
       primary: '#475259',
       secondary: '#8595A6',
       disabled: '#A2B2C3',
-    },
+  },
     divider: '#DEE2E6',
     background: {
       paper: '#FFFFFF',
       default: '#F5F7FA',
     },
     action: {
-      active: '#2113AD',
-      hover: '#2113AD',
-  },
+      active: '#475259',
+      hover: '#F5F7FA',
+    },
   },
   jumboComponents: {
     JumboNavbar: {
       nav: {
         action: {
-          active: '#7352C7',
-          hover: '#7352C7',
+          active: '#2113AD',
+          hover: '#2113AD',
         },
         background: {
-          active: alpha('#7352C7', 0.15),
-          hover: '#E9ECEF',
+          active: alpha('#2113AD', .15),
+          hover: "#E9ECEF"
         },
         tick: {
-          active: '#7352C7',
-          hover: '#ADB5BD',
+          active: '#2113AD',
+          hover: "#ADB5BD"
         },
       },
     },
