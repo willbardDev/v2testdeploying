@@ -1,4 +1,4 @@
-export const publicPaths = ['/auth/login'];
+export const publicPaths = ['/auth/signin'];
 
 export const anonymousPaths = [
     '/auth/signin',

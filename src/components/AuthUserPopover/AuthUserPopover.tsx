@@ -57,7 +57,7 @@ const AuthUserPopover = () => {
           />
           <Typography variant={'h5'}>{authUser.name}</Typography>
           <Typography variant={'body1'} color='text.secondary'>
-            {authUser.handle}
+            {authUser?.handle}
           </Typography>
         </Div>
         <Divider />

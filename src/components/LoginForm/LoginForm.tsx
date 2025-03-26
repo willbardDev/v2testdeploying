@@ -6,8 +6,7 @@ import {
   JumboOutlinedInput,
 } from '@jumbo/vendors/react-hook-form';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { IconButton, InputAdornment, Stack, Typography } from '@mui/material';
+import { Button, IconButton, InputAdornment, Stack, Typography } from '@mui/material';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
@@ -59,7 +58,7 @@ const LoginForm = () => {
           fullWidth
           fieldName={'email'}
           label={'Email'}
-          defaultValue='demo@example.com'
+          //defaultValue='demo@example.com'
         />
         <JumboOutlinedInput
           fieldName={'password'}
@@ -78,7 +77,7 @@ const LoginForm = () => {
             </InputAdornment>
           }
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
-          defaultValue={'zab#723'}
+          //defaultValue={'zab#723'}
         />
 
         <Stack
@@ -97,7 +96,7 @@ const LoginForm = () => {
             </Link>
           </Typography>
         </Stack>
-        <LoadingButton
+        <Button
           fullWidth
           type='submit'
           variant='contained'
@@ -105,7 +104,7 @@ const LoginForm = () => {
           loading={loading}
         >
           {'Login'}
-        </LoadingButton>
+        </Button>
       </Stack>
     </JumboForm>
   );

@@ -19,7 +19,7 @@ export function anonymousMiddleware(req: NextRequest) {
 
   if (accessToken) {
     const url = req.nextUrl.clone();
-    url.pathname = `/dashboards`; // Redirect logged-in users to dashboard
+    url.pathname = `/dashboard`; // Redirect logged-in users to dashboard
     return NextResponse.redirect(url);
   }
 

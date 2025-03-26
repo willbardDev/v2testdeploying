@@ -1,10 +1,11 @@
-import NextAuth, { User } from 'next-auth';
+import NextAuth, { NextAuthOptions, User } from 'next-auth';
+import api from '@/lib/axios'
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions =  {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: '/auth/login', // Custom sign-in page
+    signIn: '/auth/signin', // Custom sign-in page
   },
   providers: [
     CredentialsProvider({
@@ -22,16 +23,20 @@ const handler = NextAuth({
           throw new Error('No credentials provided');
         }
 
-        const { email, password } = credentials;
         // Simulate user validation (replace this with your real logic)
-        if (email === 'demo@example.com' && password === 'zab#723') {
-          const user: User = {
-            id: 1,
-            name: 'David Tim',
-            email,
-            role: 'admin',
-            accessToken: 'replace-your-token',
-          };
+
+        const {data : authData} = await api.get('/sanctum/csrf-cookie').then(async response => {
+            return await api.post('/login', credentials);
+        })
+
+        if (!!authData?.authUser?.user?.name && !!authData?.authUser?.user?.email) {
+          console.log(authData.authUser);
+          const user : User = {
+            id: authData?.authUser?.user?.id,
+            accessToken: authData?.token,
+            authUser: authData?.authUser,
+            authOrganization: authData?.authOrganization
+          }
           return user;
         }
 
@@ -40,6 +45,21 @@ const handler = NextAuth({
       },
     }),
   ],
-});
+  callbacks: {
+    async jwt({ token,user}) {
+      // Persist the OAuth access_token to the token right after signin
+      return token
+    },
+
+    async session({ session,token,user}) {
+      // Send properties to the client, like an access_token from a provider.
+      session.user = user
+      return session
+    },
+
+  },
+}
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

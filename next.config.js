@@ -18,7 +18,7 @@ module.exports = withPWA({
     return [
       {
         source: '/',
-        destination: '/en-US/dashboards',
+        destination: '/en-US/dashboard',
         permanent: true,
       },
     ];

@@ -17,6 +17,7 @@ import { SidebarToggleButton } from '../SidebarToggleButton';
 import { Search } from './Search';
 import { SearchIconButtonOnSmallScreen } from './SearchIconButtonOnSmallScreen';
 import { ThemeModeOption } from './ThemeModeOptions';
+import { useSession } from 'next-auth/react';
 
 function Header() {
   const { isSidebarStyle } = useSidebarState();
@@ -27,6 +28,9 @@ function Header() {
   const isBelowLg = useMediaQuery(
     theme.breakpoints.down(headerOptions?.drawerBreakpoint ?? 'xl')
   );
+  const {data:session} = useSession();
+
+  console.log(JSON.stringify(session));
   const handleSearchVisibility = React.useCallback((value: boolean) => {
     setSearchVisibility(value);
   }, []);
@@ -43,7 +47,7 @@ function Header() {
         <TranslationPopover />
         <SearchIconButtonOnSmallScreen onClick={handleSearchVisibility} />
         <NotificationsPopover />
-        <AuthUserPopover />
+        <AuthUserPopover/>
       </Stack>
     </React.Fragment>
   );

@@ -2,6 +2,7 @@
 import { JumboConfigContextType } from '@jumbo/types';
 import React from 'react';
 import { JumboConfigContext } from './JumboConfigContext';
+import { SessionProvider } from 'next-auth/react';
 
 type JumboConfigProviderProps = JumboConfigContextType & {
   children: React.ReactNode;
@@ -9,9 +10,11 @@ type JumboConfigProviderProps = JumboConfigContextType & {
 
 function JumboConfigProvider({ children, ...props }: JumboConfigProviderProps) {
   return (
-    <JumboConfigContext.Provider value={{ ...props }}>
-      {children}
-    </JumboConfigContext.Provider>
+    <SessionProvider>
+      <JumboConfigContext.Provider value={{ ...props }}>
+        {children}
+      </JumboConfigContext.Provider>
+    </SessionProvider>
   );
 }
 

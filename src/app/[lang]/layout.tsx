@@ -81,15 +81,19 @@ declare module '@mui/material/styles' {
 export async function generateStaticParams() {
   return [{ lang: 'en-US' }];
 }
+
 export const metadata: Metadata = {
-  title: 'ProsERP',
-  icons: `${ASSET_IMAGES}/logos/favicon.ico`,
-  manifest: `/manifest.json`,
+  title: "ProsERP",
+  icons: {
+    icon: "/assets/images/logos/favicon.ico", // Fallback icon
+    shortcut: "/assets/images/logos/favicon.ico",
+  },
+  manifest: "/manifest.json",
   other: {
     "msapplication-TileColor": "#6200EE",
     "theme-color": "#2113AD",
+    keywords: "Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions",
   },
-  keywords: `Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions`
 };
 
 export default async function RootLayout(
