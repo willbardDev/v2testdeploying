@@ -3,6 +3,7 @@ import api from '@/lib/axios'
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions =  {
+  
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/signin', // Custom sign-in page
