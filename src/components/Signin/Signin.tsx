@@ -73,9 +73,6 @@ export const Signin = () => {
               >
                 {'Sign In'}
               </Typography>
-              <Typography variant={'body1'} mb={2}>
-                {'By signing in, you can avail full features of the Jumbo.'}
-              </Typography>
               <Typography variant={'body1'}>
                 <Link
                   underline='none'
