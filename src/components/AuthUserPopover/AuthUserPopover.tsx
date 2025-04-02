@@ -15,12 +15,14 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react'; // Import useSession from next-auth/react
 import React from 'react';
-import { authUser } from './data';
 
 const AuthUserPopover = () => {
   const { theme } = useJumboTheme();
+
+  // Use useSession to get the session data
+  const { data: session } = useSession();
 
   const logout = React.useCallback(() => {
     (async () => {
@@ -30,12 +32,15 @@ const AuthUserPopover = () => {
     })();
   }, []);
 
+  // Ensure that session.user is not undefined
+  const user = session?.user;
+
   return (
     <ThemeProvider theme={theme}>
       <JumboDdPopover
         triggerButton={
           <Avatar
-            src={authUser?.profile_pic}
+            src={''} // Assuming the user object has a profile_pic field
             sizes={'small'}
             sx={{ boxShadow: 23, cursor: 'pointer' }}
           />
@@ -47,17 +52,15 @@ const AuthUserPopover = () => {
             display: 'flex',
             alignItems: 'center',
             flexDirection: 'column',
-            p: (theme) => theme.spacing(2.5),
+            p: theme => theme.spacing(2.5),
           }}
         >
           <Avatar
-            src={authUser?.profile_pic}
-            alt={authUser.name}
             sx={{ width: 60, height: 60, mb: 2 }}
           />
-          <Typography variant={'h5'}>{authUser.name}</Typography>
-          <Typography variant={'body1'} color='text.secondary'>
-            {authUser?.handle}
+          <Typography noWrap={true} variant={'h5'}>{user?.name}</Typography>
+          <Typography noWrap={true} variant={'body1'} color='text.secondary'>
+            {user?.email}
           </Typography>
         </Div>
         <Divider />
@@ -65,23 +68,11 @@ const AuthUserPopover = () => {
           <List disablePadding sx={{ pb: 1 }}>
             <ListItemButton>
               <ListItemIcon sx={{ minWidth: 36 }}>
-                <PersonOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary='Profile' sx={{ my: 0 }} />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <EditOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText primary='Edit Profile' sx={{ my: 0 }} />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon sx={{ minWidth: 36 }}>
                 <RepeatOutlinedIcon />
               </ListItemIcon>
               <ListItemText
                 // onClick={() => navigate('/samples/content-layout')}
-                primary='Switch User'
+                primary='Switch Organization'
                 sx={{ my: 0 }}
               />
             </ListItemButton>
