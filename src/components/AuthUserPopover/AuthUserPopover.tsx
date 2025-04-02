@@ -18,11 +18,8 @@ import {
 import { signOut, useSession } from 'next-auth/react'; // Import useSession from next-auth/react
 import React from 'react';
 
-const AuthUserPopover = () => {
+const AuthUserPopover = ({session}:any) => {
   const { theme } = useJumboTheme();
-
-  // Use useSession to get the session data
-  const { data: session } = useSession();
 
   const logout = React.useCallback(() => {
     (async () => {

@@ -28,7 +28,6 @@ function Header() {
   );
   const {data:session} = useSession();
 
-  console.log(JSON.stringify(session));
   const handleSearchVisibility = React.useCallback((value: boolean) => {
     setSearchVisibility(value);
   }, []);
@@ -45,7 +44,7 @@ function Header() {
         <TranslationPopover />
         {/* <SearchIconButtonOnSmallScreen onClick={handleSearchVisibility} /> */}
         {/* <NotificationsPopover /> */}
-        <AuthUserPopover/>
+        <AuthUserPopover session={session}/>
       </Stack>
     </React.Fragment>
   );
