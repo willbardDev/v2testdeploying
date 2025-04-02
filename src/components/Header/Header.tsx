@@ -5,9 +5,7 @@ import {
   useSidebarState,
 } from '@jumbo/components/JumboLayout/hooks';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-
 import { SIDEBAR_STYLES } from '@jumbo/utilities/constants';
-
 import { TranslationPopover } from '@/components/TranslationPopover';
 import { Stack, useMediaQuery } from '@mui/material';
 import React from 'react';
