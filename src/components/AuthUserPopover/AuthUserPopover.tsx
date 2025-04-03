@@ -1,9 +1,8 @@
+import { getDictionary } from '@/app/[lang]/dictionaries';
 import { JumboDdPopover } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import RepeatOutlinedIcon from '@mui/icons-material/RepeatOutlined';
 import {
   Avatar,
@@ -15,10 +14,21 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import { signOut, useSession } from 'next-auth/react'; // Import useSession from next-auth/react
+import { signOut } from 'next-auth/react';
 import React from 'react';
 
-const AuthUserPopover = ({session}:any) => {
+interface AuthUserPopoverProps {
+  session: any;
+  lang: string;
+  dictionary: {
+    commons: {
+      switchOrganization: string;
+      logout: string;
+    };
+  };
+}
+
+const AuthUserPopover = ({ session, lang, dictionary }: AuthUserPopoverProps) => {
   const { theme } = useJumboTheme();
 
   const logout = React.useCallback(() => {
@@ -29,7 +39,6 @@ const AuthUserPopover = ({session}:any) => {
     })();
   }, []);
 
-  // Ensure that session.user is not undefined
   const user = session?.user;
 
   return (
@@ -37,7 +46,7 @@ const AuthUserPopover = ({session}:any) => {
       <JumboDdPopover
         triggerButton={
           <Avatar
-            src={''} // Assuming the user object has a profile_pic field
+            src={''}
             sizes={'small'}
             sx={{ boxShadow: 23, cursor: 'pointer' }}
           />
@@ -69,7 +78,7 @@ const AuthUserPopover = ({session}:any) => {
               </ListItemIcon>
               <ListItemText
                 // onClick={() => navigate('/samples/content-layout')}
-                primary='Switch Organization'
+                primary={dictionary.commons.switchOrganization}
                 sx={{ my: 0 }}
               />
             </ListItemButton>
@@ -77,7 +86,7 @@ const AuthUserPopover = ({session}:any) => {
               <ListItemIcon sx={{ minWidth: 36 }}>
                 <LogoutIcon />
               </ListItemIcon>
-              <ListItemText primary='Logout' sx={{ my: 0 }} />
+              <ListItemText primary={dictionary.commons.logout} sx={{ my: 0 }} />
             </ListItemButton>
           </List>
         </nav>

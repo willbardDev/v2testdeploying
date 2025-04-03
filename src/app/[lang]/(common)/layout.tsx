@@ -6,23 +6,25 @@ import { getMenus } from '@/services';
 import { Params } from '@/types/paramsType';
 import { JumboLayout, JumboLayoutProvider } from '@jumbo/components';
 import { MenuItems } from '@jumbo/types';
+import { getDictionary } from '@/app/[lang]/dictionaries';
 import React from 'react';
 
-export default async function CommonLayout(
-  props: {
-    children: React.ReactNode;
-  } & Params
-) {
-  const params = await props.params;
+interface CommonLayoutProps {
+  children: React.ReactNode;
+  params: {
+    lang: string;
+  };
+}
 
-  const { children } = props;
-
+export default async function CommonLayout({ children, params }: CommonLayoutProps) {
   const { lang } = params;
   const menus: MenuItems = await getMenus(lang);
+  const dictionary = await getDictionary(lang);
+
   return (
     <JumboLayoutProvider layoutConfig={defaultLayoutConfig}>
       <JumboLayout
-        header={<Header />}
+        header={<Header lang={lang} dictionary={dictionary} />}
         footer={<Footer lang={lang} />}
         sidebar={<Sidebar menus={menus} />}
       >

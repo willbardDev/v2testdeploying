@@ -59,7 +59,8 @@
     "address": "Address",
     "cancel": "Cancel",
     "close": "Close",
-    "logout": "Logout"
+    "logout": "Logout",
+    "switchOrganization": "Switch Organization"
   },
   "forms": {
     "submit": "Submit",

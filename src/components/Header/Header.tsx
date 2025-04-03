@@ -1,5 +1,4 @@
 'use client';
-import { NotificationsPopover } from '@/components/NotificationsPopover';
 import {
   useJumboLayout,
   useSidebarState,
@@ -13,11 +12,10 @@ import { AuthUserPopover } from '../AuthUserPopover';
 import { Logo } from '../Logo';
 import { SidebarToggleButton } from '../SidebarToggleButton';
 import { Search } from './Search';
-import { SearchIconButtonOnSmallScreen } from './SearchIconButtonOnSmallScreen';
 import { ThemeModeOption } from './ThemeModeOptions';
 import { useSession } from 'next-auth/react';
 
-function Header() {
+function Header({ lang, dictionary }: { lang: string; dictionary: any }) {
   const { isSidebarStyle } = useSidebarState();
 
   const [searchVisibility, setSearchVisibility] = React.useState(false);
@@ -44,7 +42,7 @@ function Header() {
         <TranslationPopover />
         {/* <SearchIconButtonOnSmallScreen onClick={handleSearchVisibility} /> */}
         {/* <NotificationsPopover /> */}
-        <AuthUserPopover session={session}/>
+        <AuthUserPopover session={session} lang={lang} dictionary={dictionary}/>
       </Stack>
     </React.Fragment>
   );
