@@ -17,11 +17,12 @@ import { validationSchema } from './validation';
 const LoginForm = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
   const [values, setValues] = React.useState({
     password: '',
     showPassword: false,
   });
-  const router = useRouter();
+
   const handleLogin = async (data: { email: string; password: string }) => {
     setLoading(true);
     const response = await signIn('credentials', {
@@ -41,12 +42,14 @@ const LoginForm = () => {
       setLoading(false);
     }
   };
+
   const handleClickShowPassword = () => {
     setValues({
       ...values,
       showPassword: !values.showPassword,
     });
   };
+
   return (
     <JumboForm
       validationSchema={validationSchema}

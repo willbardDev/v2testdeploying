@@ -144,7 +144,7 @@ export const Signin = () => {
                     backgroundColor: '#23272b',
                   },
                 }}
-                aria-label='Twitter'
+                aria-label='Google'
               >
                 <Google fontSize='small' />
               </IconButton>

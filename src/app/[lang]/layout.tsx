@@ -15,6 +15,7 @@ import {
 } from '@jumbo/components';
 import { CssBaseline } from '@mui/material';
 import Link from 'next/link';
+import Providers from '../providers';
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -110,17 +111,20 @@ export default async function RootLayout(
     <html lang={lang} data-lt-installed='true'>
       <body cz-shortcut-listen='true'>
         <div id='root'>
-          <AppRouterCacheProvider>
-            <JumboConfigProvider LinkComponent={Link}>
-              <JumboTheme init={CONFIG.THEME}>
-                <CssBaseline />
-                <JumboDialogProvider>
-                  <JumboDialog />
-                  <AppSnackbar>{children}</AppSnackbar>
-                </JumboDialogProvider>
-              </JumboTheme>
-            </JumboConfigProvider>
-          </AppRouterCacheProvider>
+          <Providers>
+            <AppRouterCacheProvider>
+              <JumboConfigProvider LinkComponent={Link}>
+                <JumboTheme init={CONFIG.THEME}>
+                  <CssBaseline />
+                  <JumboDialogProvider>
+                    <JumboDialog />
+                    <AppSnackbar>{children}</AppSnackbar>
+                  </JumboDialogProvider>
+                </JumboTheme>
+              </JumboConfigProvider>
+            </AppRouterCacheProvider>
+          </Providers>
+
         </div>
       </body>
     </html>

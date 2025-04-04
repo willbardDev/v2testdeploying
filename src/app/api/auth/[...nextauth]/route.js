@@ -1,75 +1,65 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import api from '@/lib/axios';
+import axios from '@/lib/config';
 
 export const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/auth/signin',
-  },
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
       async authorize(credentials) {
-        if (!credentials) {
-          throw new Error('No credentials provided');
-        }
-      
-        const { data: authData } = await api.get('/sanctum/csrf-cookie').then(async () => {
-          return await api.post('/login', credentials);
-        });
-
-        if (authData?.authUser?.user?.id) {
+        try {
+          // 1. Get CSRF token
+          await axios.get('/sanctum/csrf-cookie');
+          
+          // 2. Authenticate (matches your existing login flow)
+          const { data } = await axios.post('/login', credentials);
+          console.log(data)
+          
+          if (!data?.token || !data?.authUser) return null;
+          
+          // 3. Return exactly what your configAuth expects
           return {
-            authUser: {
-              id: authData.authUser.user.id,
-              name: authData.authUser.user.name,
-              email: authData.authUser.user.email,
-              phone: authData.authUser.user.phone,
-              roles: authData.authUser.user.roles,
-              organization_roles: authData.authUser.organization_roles,
-              permissions: authData.authUser.permissions,
-            },
-            accessToken: authData.token,
+            token: data.token,
+            user: data.authUser.user,
+            organization: data.authOrganization,
+            organization_roles: data.authUser.organization_roles,
+            permissions: data.authUser.permissions
           };
+        } catch (error) {
+          return null;
         }
-
-        return null; // If validation fails
       }
-    }),
+    })
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Merge user data into token
       if (user) {
-        token.accessToken = user.accessToken;
-        token.authUser = user.authUser;
+        return {
+          ...token,
+          accessToken: user.token,
+          authUser: user.user,
+          authOrganization: user.organization,
+          organization_roles: user.organization_roles,
+          permissions: user.permissions
+        };
       }
       return token;
     },
-  
     async session({ session, token }) {
-      if (token.authUser) {
-        session.user = {
-          id: token.authUser.id,
-          name: token.authUser.name,
-          email: token.authUser.email,
-          roles: token.authUser.roles,
-          permissions: token.authUser.permissions,
-        };
-      }
-      session.accessToken = token.accessToken;
-      return session;
-    },
-  },
-  session: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // Update session every day
-    strategy: 'jwt', // Use JWT instead of database sessions
-  },
+      // Make available to client components
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          ...token.authUser,
+          organization_roles: token.organization_roles,
+          permissions: token.permissions
+        },
+        organization: token.authOrganization,
+        accessToken: token.accessToken
+      };
+    }
+  }
 };
 
 const handler = NextAuth(authOptions);
