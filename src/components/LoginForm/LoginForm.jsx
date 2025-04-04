@@ -13,32 +13,61 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { Link } from '../NextLink';
 import { validationSchema } from './validation';
+import { useJumboAuth } from '@jumbo/hooks/useJumboAuth';
+import axios from '@/lib/config';
 
 const LoginForm = () => {
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
+  const { setAuthData } = useJumboAuth();
   const [values, setValues] = React.useState({
     password: '',
     showPassword: false,
   });
 
-  const handleLogin = async (data: { email: string; password: string }) => {
+  const handleLogin = async (data) => {
     setLoading(true);
-    const response = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-      accessToken: 'ksdjfweirjsljLKDJfksdjfew',
-    });
-
-    if (response?.ok) {
-      router.push('/dashboard');
-      router.refresh();
-    } else {
-      enqueueSnackbar('invalid email or password!', {
-        variant: 'error',
+    try {
+      // 1. Get CSRF token
+      await axios.get('/sanctum/csrf-cookie');
+      
+      // 2. Perform login
+      const loginResponse = await axios.post('/login', {
+        email: data.email,
+        password: data.password,
       });
+
+      // 3. Prepare auth data
+      const authData = {
+        token: loginResponse.data.token,
+        authUser: loginResponse.data.authUser,
+        authOrganization: loginResponse.data.authOrganization,
+        permissions: loginResponse.data.authUser.permissions,
+      };
+
+      // 4. Store auth data (will persist via AuthProvider)
+      setAuthData(authData);
+
+      // 5. Sign in with NextAuth
+      const response = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+        callbackUrl: '/dashboard',
+      });
+
+      if (response?.error) {
+        throw new Error(response.error);
+      }
+
+      // 6. Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      enqueueSnackbar(error.message || 'Invalid email or password', { 
+        variant: 'error' 
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -61,7 +90,6 @@ const LoginForm = () => {
           fullWidth
           fieldName={'email'}
           label={'Email'}
-          //defaultValue='demo@example.com'
         />
         <JumboOutlinedInput
           fieldName={'password'}
@@ -80,7 +108,6 @@ const LoginForm = () => {
             </InputAdornment>
           }
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
-          //defaultValue={'zab#723'}
         />
 
         <Stack
@@ -90,7 +117,7 @@ const LoginForm = () => {
         >
           <JumboCheckbox
             fieldName='rememberMe'
-            label={'Remeber Me'}
+            label={'Remember Me'}
             defaultChecked
           />
           <Typography textAlign={'right'} variant={'body1'}>
@@ -104,9 +131,9 @@ const LoginForm = () => {
           type='submit'
           variant='contained'
           size='large'
-          loading={loading}
+          disabled={loading}
         >
-          {'Login'}
+          {loading ? 'Logging in...' : 'Login'}
         </Button>
       </Stack>
     </JumboForm>

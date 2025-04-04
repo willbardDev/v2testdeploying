@@ -1,4 +1,6 @@
-import { getDictionary } from '@/app/[lang]/dictionaries';
+// components/AuthUserPopover.jsx
+'use client';
+import React from 'react';
 import { JumboDdPopover } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
@@ -13,61 +15,65 @@ import {
   ListItemText,
   ThemeProvider,
   Typography,
+  Chip,
+  Stack
 } from '@mui/material';
 import { signOut } from 'next-auth/react';
-import React from 'react';
+import { useJumboAuth } from '@jumbo/hooks/useJumboAuth';
 
-interface AuthUserPopoverProps {
-  session: any;
-  lang: string;
-  dictionary: {
-    commons: {
-      switchOrganization: string;
-      logout: string;
-    };
-  };
-}
-
-const AuthUserPopover = ({ session, lang, dictionary }: AuthUserPopoverProps) => {
+export const AuthUserPopover = ({ dictionary }) => {
   const { theme } = useJumboTheme();
+  const { authData, setAuthData } = useJumboAuth();
 
   const logout = React.useCallback(() => {
     (async () => {
       await signOut({
         callbackUrl: 'http://localhost:3000/en-US/auth/login-1',
       });
+      setAuthData(null);
     })();
-  }, []);
+  }, [setAuthData]);
 
-  const user = session?.user;
+  // Safely access nested data
+  const user = authData?.authUser?.user || {};
+  const organization = authData?.authOrganization?.organization || {};
+
+  if (!user.name) return null;
 
   return (
     <ThemeProvider theme={theme}>
       <JumboDdPopover
         triggerButton={
           <Avatar
-            src={''}
+            src={user.avatar}
             sizes={'small'}
             sx={{ boxShadow: 23, cursor: 'pointer' }}
           />
         }
         sx={{ ml: 3 }}
       >
-        <Div
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-            p: theme => theme.spacing(2.5),
-          }}
-        >
-          <Avatar
-            sx={{ width: 60, height: 60, mb: 2 }}
-          />
-          <Typography noWrap={true} variant={'h5'}>{user?.name}</Typography>
-          <Typography noWrap={true} variant={'body1'} color='text.secondary'>
-            {user?.email}
+        <Div sx={{
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          p: theme => theme.spacing(2.5),
+        }}>
+          <Avatar src={user.avatar} sx={{ width: 60, height: 60, mb: 2 }} />
+          <Typography noWrap variant={'h5'}>{user.name}</Typography>
+          <Typography noWrap variant={'body1'} color='text.secondary'>
+            {user.email}
           </Typography>
+          
+          {organization.name && (
+            <Stack direction="row" alignItems="center" spacing={1} mt={1}>
+              <Chip 
+                label={organization.name} 
+                size="small" 
+                color="primary" 
+                variant="outlined"
+              />
+            </Stack>
+          )}
         </Div>
         <Divider />
         <nav>
@@ -77,7 +83,6 @@ const AuthUserPopover = ({ session, lang, dictionary }: AuthUserPopoverProps) =>
                 <RepeatOutlinedIcon />
               </ListItemIcon>
               <ListItemText
-                // onClick={() => navigate('/samples/content-layout')}
                 primary={dictionary.commons.switchOrganization}
                 sx={{ my: 0 }}
               />
@@ -94,5 +99,3 @@ const AuthUserPopover = ({ session, lang, dictionary }: AuthUserPopoverProps) =>
     </ThemeProvider>
   );
 };
-
-export { AuthUserPopover };

@@ -1,10 +1,8 @@
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import type { Metadata } from 'next';
-
 import { AppSnackbar } from '@/components/AppSnackbar';
 import { CONFIG } from '@/config';
 import '@/styles/style.css';
-import { Params } from '@/types/paramsType';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import '@assets/fonts/noir-pro/styles.css';
 import {
@@ -16,67 +14,15 @@ import {
 import { CssBaseline } from '@mui/material';
 import Link from 'next/link';
 import Providers from '../providers';
+import { AuthProvider } from '@jumbo/hooks/useJumboAuth';
+import { AuthInitializer } from '@/components/AuthInitializer/AuthInitializer';
+import { ReactNode } from 'react';
 
-declare module '@mui/material/styles' {
-  interface Theme {
-    type: 'light' | 'semi-dark' | 'dark';
-    sidebar: {
-      bgimage: string;
-      overlay: {
-        bgcolor: string;
-        bgimage: string;
-        opacity: number;
-      };
-    };
-    jumboComponents: {
-      JumboNavbar: {
-        nav: {
-          action: {
-            active: string;
-            hover: string;
-          };
-          background: {
-            active: string;
-            hover: string;
-          };
-          tick: {
-            active: string;
-            hover: string;
-          };
-        };
-      };
-    };
-  }
-  // allow configuration using `createTheme`
-  interface ThemeOptions {
-    type?: 'light' | 'semi-dark' | 'dark';
-    sidebar?: {
-      bgimage?: string;
-      overlay?: {
-        bgcolor?: string;
-        bgimage?: string;
-        opacity?: number;
-      };
-    };
-    jumboComponents?: {
-      JumboNavbar?: {
-        nav?: {
-          action?: {
-            active?: string;
-            hover?: string;
-          };
-          background?: {
-            active?: string;
-            hover?: string;
-          };
-          tick?: {
-            active?: string;
-            hover?: string;
-          };
-        };
-      };
-    };
-  }
+interface RootLayoutProps {
+  children: ReactNode;
+  params: {
+    lang: string;
+  };
 }
 
 export async function generateStaticParams() {
@@ -86,7 +32,7 @@ export async function generateStaticParams() {
 export const metadata: Metadata = {
   title: "ProsERP",
   icons: {
-    icon: "/assets/images/logos/favicon.ico", // Fallback icon
+    icon: "/assets/images/logos/favicon.ico",
     shortcut: "/assets/images/logos/favicon.ico",
   },
   manifest: "/manifest.json",
@@ -97,16 +43,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout(
-  props: {
-    children: React.ReactNode;
-  } & Params
-) {
-  const params = await props.params;
-
-  const { children } = props;
-
+export default function RootLayout({ children, params }: RootLayoutProps) {
   const { lang } = params;
+
   return (
     <html lang={lang} data-lt-installed='true'>
       <body cz-shortcut-listen='true'>
@@ -117,14 +56,17 @@ export default async function RootLayout(
                 <JumboTheme init={CONFIG.THEME}>
                   <CssBaseline />
                   <JumboDialogProvider>
-                    <JumboDialog />
-                    <AppSnackbar>{children}</AppSnackbar>
+                    <AuthProvider>
+                      <AuthInitializer>
+                        <JumboDialog />
+                        <AppSnackbar>{children}</AppSnackbar>
+                      </AuthInitializer>
+                    </AuthProvider>
                   </JumboDialogProvider>
                 </JumboTheme>
               </JumboConfigProvider>
             </AppRouterCacheProvider>
           </Providers>
-
         </div>
       </body>
     </html>

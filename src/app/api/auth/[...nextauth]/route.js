@@ -7,21 +7,16 @@ export const authOptions = {
     CredentialsProvider({
       async authorize(credentials) {
         try {
-          // 1. Get CSRF token
           await axios.get('/sanctum/csrf-cookie');
-          
-          // 2. Authenticate (matches your existing login flow)
           const { data } = await axios.post('/login', credentials);
-          console.log(data)
           
           if (!data?.token || !data?.authUser) return null;
           
-          // 3. Return exactly what your configAuth expects
+          // Store all auth data in a server session
           return {
             token: data.token,
-            user: data.authUser.user,
+            authUser: data.authUser,
             organization: data.authOrganization,
-            organization_roles: data.authUser.organization_roles,
             permissions: data.authUser.permissions
           };
         } catch (error) {
@@ -32,36 +27,36 @@ export const authOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Merge user data into token
       if (user) {
+        // Store ONLY the essential references in JWT
         return {
           ...token,
           accessToken: user.token,
-          authUser: user.user,
-          authOrganization: user.organization,
-          organization_roles: user.organization_roles,
-          permissions: user.permissions
+          userId: user.authUser.id,
+          orgId: user.organization?.id,
         };
       }
       return token;
     },
     async session({ session, token }) {
-      // Make available to client components
+      // Client-side will get the full data from initial login
       return {
         ...session,
+        accessToken: token.accessToken,
         user: {
           ...session.user,
-          ...token.authUser,
-          organization_roles: token.organization_roles,
-          permissions: token.permissions
-        },
-        organization: token.authOrganization,
-        accessToken: token.accessToken
+          id: token.userId,
+        }
       };
     }
+  },
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: '/login',
   }
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
