@@ -1,8 +1,9 @@
+import OrganizationsList from '@/components/Organizations/OrganizationsList'
 import React from 'react'
 
 function page() {
   return (
-    <div>Organizations will go here</div>
+    <OrganizationsList/>
   )
 }
 
