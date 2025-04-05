@@ -76,16 +76,14 @@ export const AuthUserPopover = ({ dictionary }) => {
             {user.email}
           </Typography>
           
-          {organization.name && (
-            <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-              <Chip 
-                label={organization.name} 
-                size="small" 
-                color="primary" 
-                variant="outlined"
-              />
-            </Stack>
-          )}
+          <Stack direction="row" alignItems="center" spacing={1} mt={1}>
+            <Chip 
+              label={organization.name} 
+              size="small" 
+              color="primary" 
+              variant="outlined"
+            />
+          </Stack>
         </Div>
         <Divider />
         <nav>
