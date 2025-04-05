@@ -55,6 +55,22 @@ export async function getMenus(locale: string) {
         },
       ],
     },
+
+    {
+      label: sidebar.menu.organizations,
+      children: [
+        {
+          path: `/${locale}/organizations`,
+          label: sidebar.menuItem.organizations,
+          icon: 'organizations',
+        },
+        {
+          path: `/${locale}/invitations`,
+          label: sidebar.menuItem.invitations,
+          icon: 'invitations',
+        },
+      ],
+    },
     
   ];
 }

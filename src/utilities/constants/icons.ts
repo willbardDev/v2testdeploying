@@ -6,24 +6,13 @@ import {
   ChecklistRtlOutlined,
   PointOfSaleOutlined,
   RequestQuoteOutlined,
-  AssessmentOutlined
+  AssessmentOutlined,
+  CorporateFareOutlined,
+  ShareOutlined
 } from '@mui/icons-material';
 
 import { SxProps, Theme } from '@mui/material';
 import { IconType } from 'react-icons';
-import {
-  RiAdvertisementLine,
-  RiBuildingLine,
-  RiListView,
-  RiLockPasswordLine,
-  RiMailLine,
-  RiMoneyDollarCircleLine,
-  RiNotificationLine,
-  RiSecurePaymentLine,
-  RiShieldKeyholeLine,
-  RiTeamLine,
-  RiUser6Line,
-} from 'react-icons/ri';
 type Icon = {
   name: string;
   Component: SvgIconComponent | IconType;
@@ -58,6 +47,14 @@ const APP_ICONS: Icon[] = [
   },{
     name: 'barcharts',
     Component: AssessmentOutlined,
+    props: { sx: { fontSize: 20 } },
+  },{
+    name: 'organizations',
+    Component: CorporateFareOutlined,
+    props: { sx: { fontSize: 20 } },
+  },{
+    name: 'invitations',
+    Component: ShareOutlined,
     props: { sx: { fontSize: 20 } },
   }
 ];

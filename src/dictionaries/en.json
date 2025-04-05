@@ -47,9 +47,11 @@
       "measurementUnits": "Measurement Units",
       "subscriptions": "Subscriptions",
       "troubleshooting": "Troubleshooting",
-      "invitations": "Invitations"
+      "invitations": "Invitations",
+      "organizations": "Organizations"
     }
   },
+
   "commons": {
     "email": "Email",
     "password": "Password",
@@ -62,15 +64,15 @@
     "logout": "Logout",
     "switchOrganization": "Switch Organization"
   },
+
   "forms": {
     "submit": "Submit",
     "clear": "Clear"
   },
+  
   "branding": {
     "tagline": "Simplified Management and Control"
   },
-
-
 
   "settingSidebar": {
     "menu": {
@@ -95,6 +97,7 @@
       "notifications": "Notificaitons"
     }
   },
+
   "widgets": {
     "title": {
       "cryptoPortfolio": "Crypto portfolio balance",
@@ -214,6 +217,7 @@
       "files": "Files"
     }
   },
+
   "extraPages": {
     "title": {
       "abouts": "Abouts",
@@ -222,12 +226,14 @@
       "pricePlan": "Price Plan"
     }
   },
+
   "views": {
     "title": {
       "projects": "Projects",
       "users": "Users"
     }
   },
+
   "modules": {
     "title": {
       "basicCalendar": "Basic Calendar",
@@ -258,6 +264,7 @@
       "geoLocationMap": "Geo Location Map"
     }
   },
+
   "extensions": {
     "title": {
       "sweetAlerts": "Sweet Alerts",
