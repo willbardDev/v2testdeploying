@@ -2,7 +2,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div>Approvals will go here</div>
+    <div>Quick links will be here</div>
   )
 }
 

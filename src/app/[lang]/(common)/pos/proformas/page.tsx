@@ -2,7 +2,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div>page</div>
+    <div>Proformas will go here</div>
   )
 }
 
