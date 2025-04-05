@@ -16,7 +16,8 @@ import Link from 'next/link';
 import Providers from '../providers';
 import { AuthProvider } from '@jumbo/hooks/useJumboAuth';
 import { AuthInitializer } from '@/components/AuthInitializer/AuthInitializer';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
+import { Spinner } from '@/components/Spinner';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -59,7 +60,11 @@ export default function RootLayout({ children, params }: RootLayoutProps) {
                     <AuthProvider>
                       <AuthInitializer>
                         <JumboDialog />
-                        <AppSnackbar>{children}</AppSnackbar>
+                        <AppSnackbar>
+                          <Suspense fallback={<Spinner/>}>
+                            {children}
+                          </Suspense>
+                        </AppSnackbar>
                       </AuthInitializer>
                     </AuthProvider>
                   </JumboDialogProvider>
