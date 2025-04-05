@@ -1,4 +1,3 @@
-// components/AuthUserPopover.jsx
 'use client';
 import React from 'react';
 import { JumboDdPopover } from '@jumbo/components';
@@ -16,29 +15,42 @@ import {
   ThemeProvider,
   Typography,
   Chip,
-  Stack
+  Stack,
+  CircularProgress
 } from '@mui/material';
 import { signOut } from 'next-auth/react';
-import { useJumboAuth } from '@jumbo/hooks/useJumboAuth';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 export const AuthUserPopover = ({ dictionary }) => {
   const { theme } = useJumboTheme();
-  const { authData, setAuthData } = useJumboAuth();
+  const authContext = useJumboAuth();
+
+  if (!authContext) {
+    console.error('Auth context not available');
+    return null;
+  }
+
+  const { authData, isLoading, setAuthValues } = authContext;
 
   const logout = React.useCallback(() => {
     (async () => {
       await signOut({
         callbackUrl: 'http://localhost:3000/en-US/auth/login-1',
       });
-      setAuthData(null);
+      setAuthValues({ authToken: null, authUser: null, authOrganization: null });
     })();
-  }, [setAuthData]);
+  }, [setAuthValues]);
 
-  // Safely access nested data
-  const user = authData?.authUser?.user || {};
-  const organization = authData?.authOrganization?.organization || {};
+  if (isLoading) {
+    return <CircularProgress size={24} />;
+  }
 
-  if (!user.name) return null;
+  if (!authData?.authUser) {
+    return null;
+  }
+
+  const user = authData.authUser.user;
+  const organization = authData.authOrganization?.organization || {};
 
   return (
     <ThemeProvider theme={theme}>

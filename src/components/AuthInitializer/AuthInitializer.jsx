@@ -1,11 +1,10 @@
-// components/AuthInitializer/AuthInitializer.js
 'use client';
 import { useEffect } from 'react';
 import axios from '../../lib/config';
-import { useJumboAuth } from '@jumbo/hooks/useJumboAuth';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 export const AuthInitializer = ({ children }) => {
-  const { authData, setAuthData } = useJumboAuth();
+  const { authData, setAuthValues } = useJumboAuth();
 
   useEffect(() => {
     if (authData?.token) {
@@ -14,11 +13,11 @@ export const AuthInitializer = ({ children }) => {
       })
       .catch((error) => {
         if (error.response?.status === 401) {
-          setAuthData(null);
+          setAuthValues(null);
         }
       });
     }
-  }, [authData, setAuthData]);
+  }, [authData, setAuthValues]);
 
   return children;
 };

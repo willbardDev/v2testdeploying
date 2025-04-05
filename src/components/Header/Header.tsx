@@ -13,9 +13,8 @@ import { Logo } from '../Logo';
 import { SidebarToggleButton } from '../SidebarToggleButton';
 import { Search } from './Search';
 import { ThemeModeOption } from './ThemeModeOptions';
-import { useSession } from 'next-auth/react';
 
-function Header({ lang, dictionary }: { lang: string; dictionary: any }) {
+function Header({ dictionary }: { dictionary: any }) {
   const { isSidebarStyle } = useSidebarState();
 
   const [searchVisibility, setSearchVisibility] = React.useState(false);
@@ -24,7 +23,6 @@ function Header({ lang, dictionary }: { lang: string; dictionary: any }) {
   const isBelowLg = useMediaQuery(
     theme.breakpoints.down(headerOptions?.drawerBreakpoint ?? 'xl')
   );
-  const {data:session} = useSession();
 
   const handleSearchVisibility = React.useCallback((value: boolean) => {
     setSearchVisibility(value);
@@ -42,7 +40,7 @@ function Header({ lang, dictionary }: { lang: string; dictionary: any }) {
         <TranslationPopover />
         {/* <SearchIconButtonOnSmallScreen onClick={handleSearchVisibility} /> */}
         {/* <NotificationsPopover /> */}
-        <AuthUserPopover session={session} lang={lang} dictionary={dictionary}/>
+        <AuthUserPopover dictionary={dictionary}/>
       </Stack>
     </React.Fragment>
   );

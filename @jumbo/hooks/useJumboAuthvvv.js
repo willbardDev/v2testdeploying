@@ -1,4 +1,3 @@
-// hooks/useJumboAuth.js
 'use client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useJumboAuth = () => {
+export const useJumdddboAuthdd = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useJumboAuth must be used within an AuthProvider');

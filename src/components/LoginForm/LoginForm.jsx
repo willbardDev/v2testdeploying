@@ -13,14 +13,14 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { Link } from '../NextLink';
 import { validationSchema } from './validation';
-import { useJumboAuth } from '@jumbo/hooks/useJumboAuth';
 import axios from '@/lib/config';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 const LoginForm = () => {
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
-  const { setAuthData } = useJumboAuth();
+  const { setAuthValues } = useJumboAuth();
   const [values, setValues] = React.useState({
     password: '',
     showPassword: false,
@@ -40,14 +40,15 @@ const LoginForm = () => {
 
       // 3. Prepare auth data
       const authData = {
-        token: loginResponse.data.token,
+        authToken: loginResponse.data.token, // Changed from token to authToken
         authUser: loginResponse.data.authUser,
         authOrganization: loginResponse.data.authOrganization,
-        permissions: loginResponse.data.authUser.permissions,
+        isAuthenticated: true,
+        isLoading: false,
       };
 
-      // 4. Store auth data (will persist via AuthProvider)
-      setAuthData(authData);
+      // 4. Store auth data using setAuthValues
+      setAuthValues(authData);
 
       // 5. Sign in with NextAuth
       const response = await signIn('credentials', {

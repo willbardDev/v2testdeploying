@@ -24,7 +24,7 @@ export default async function CommonLayout({ children, params }: CommonLayoutPro
   return (
     <JumboLayoutProvider layoutConfig={defaultLayoutConfig}>
       <JumboLayout
-        header={<Header lang={lang} dictionary={dictionary} />}
+        header={<Header dictionary={dictionary} />}
         footer={<Footer lang={lang} />}
         sidebar={<Sidebar menus={menus} />}
       >
