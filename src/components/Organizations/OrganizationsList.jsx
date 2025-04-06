@@ -102,10 +102,9 @@ const OrganizationsList = ({ initialData, initialParams, user }) => {
         <TextField
           variant="outlined"
           size="small"
-          placeholder="Search organizations..."
+          placeholder="Search...."
           defaultValue={params.keyword}
           onChange={handleSearchChange}
-          sx={{ width: 300 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -122,9 +121,7 @@ const OrganizationsList = ({ initialData, initialParams, user }) => {
               /* Add dialog open logic here */
             }}
             sx={{
-              border: '1px solid',
               borderColor: 'divider',
-              borderRadius: 1,
               '&:hover': {
                 borderColor: 'primary.main',
                 backgroundColor: 'action.hover',
