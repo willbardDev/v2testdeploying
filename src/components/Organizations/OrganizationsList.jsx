@@ -81,10 +81,13 @@ const OrganizationsList = ({ initialData, initialParams, user }) => {
   };
 
   useEffect(() => {
-    if (params.page !== initialParams.page || params.keyword !== initialParams.keyword) {
+    if (
+      params.page !== initialParams.page ||
+      params.keyword !== initialParams.keyword
+    ) {
       fetchOrganizations();
     }
-  }, [params]);
+  }, [params.page, params.keyword]);
 
   return (
     <Card sx={{ p: 3 }}>
