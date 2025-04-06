@@ -32,6 +32,6 @@
     ".next/types/**/*.ts",
     "**/*.d.ts",
     "next.config.js"
-, "src/app/api/auth/[...nextauth]/route.js", "src/app/auth-providers/BasicAuth/BasicAuth.js", "src/app/helpers/style-helpers.js", "src/app/helpers/input-sanitization-helpers.js", "src/app/helpers/init-firebase.js", "@jumbo/hooks/useJumboAuthvvv.js", "src/components/AuthInitializer/AuthInitializer.jsx", "src/components/AuthUserPopover/AuthUserPopover.jsx", "src/components/LoginForm/LoginForm.jsx"  ],
+, "src/app/api/auth/[...nextauth]/route.js", "src/app/auth-providers/BasicAuth/BasicAuth.js", "src/app/helpers/style-helpers.js", "src/app/helpers/input-sanitization-helpers.js", "src/app/helpers/init-firebase.js", "@jumbo/hooks/useJumboAuthvvv.js", "src/components/AuthInitializer/AuthInitializer.jsx", "src/components/AuthUserPopover/AuthUserPopover.jsx", "src/components/LoginForm/LoginForm.jsx", "src/components/Organizations/OrganizationsList.jsx", "src/app/[lang]/(common)/organizations/page.jsx"  ],
   "exclude": ["node_modules"]
 }

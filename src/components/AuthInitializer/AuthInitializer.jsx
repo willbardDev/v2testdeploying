@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import axios from '../../lib/config';
+import axios from '../../lib/services/config';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 export const AuthInitializer = ({ children }) => {

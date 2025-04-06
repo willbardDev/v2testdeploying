@@ -13,8 +13,8 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { Link } from '../NextLink';
 import { validationSchema } from './validation';
-import axios from '@/lib/config';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import axios from '@/lib/services/config';
 
 const LoginForm = () => {
   const [loading, setLoading] = React.useState(false);
@@ -29,18 +29,14 @@ const LoginForm = () => {
   const handleLogin = async (data) => {
     setLoading(true);
     try {
-      // 1. Get CSRF token
       await axios.get('/sanctum/csrf-cookie');
-      
-      // 2. Perform login
       const loginResponse = await axios.post('/login', {
         email: data.email,
         password: data.password,
       });
 
-      // 3. Prepare auth data
       const authData = {
-        authToken: loginResponse.data.token, // Changed from token to authToken
+        authToken: loginResponse.data.token,
         authUser: loginResponse.data.authUser,
         authOrganization: loginResponse.data.authOrganization,
         isAuthenticated: true,

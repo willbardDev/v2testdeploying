@@ -18,7 +18,7 @@ import {
   Stack,
   CircularProgress
 } from '@mui/material';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 export const AuthUserPopover = ({ dictionary }) => {
@@ -30,7 +30,7 @@ export const AuthUserPopover = ({ dictionary }) => {
     return null;
   }
 
-  const { authData, isLoading, setAuthValues } = authContext;
+  const { setAuthValues } = authContext;
 
   const logout = React.useCallback(() => {
     (async () => {
@@ -41,16 +41,12 @@ export const AuthUserPopover = ({ dictionary }) => {
     })();
   }, [setAuthValues]);
 
-  if (isLoading) {
-    return <CircularProgress size={24} />;
-  }
+  const { data: session } = useSession();
+  const user = session?.user;
 
-  if (!authData?.authUser) {
+  if (!user) {
     return null;
   }
-
-  const user = authData.authUser.user;
-  const organization = authData.authOrganization?.organization || {};
 
   return (
     <ThemeProvider theme={theme}>
@@ -78,7 +74,7 @@ export const AuthUserPopover = ({ dictionary }) => {
           
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
             <Chip 
-              label={organization.name} 
+              label={session.organization_name} 
               size="small" 
               color="primary" 
               variant="outlined"

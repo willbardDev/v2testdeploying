@@ -45,8 +45,8 @@ export const metadata: Metadata = {
 };
 
 // app/layout.tsx (RootLayout)
-export default function RootLayout({ children, params }: RootLayoutProps) {
-  const { lang } = params;
+export default async function RootLayout({ children, params }: RootLayoutProps) {
+  const { lang } = await params;
 
   return (
     <html lang={lang} data-lt-installed='true'>

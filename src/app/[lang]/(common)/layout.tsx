@@ -17,7 +17,7 @@ interface CommonLayoutProps {
 }
 
 export default async function CommonLayout({ children, params }: CommonLayoutProps) {
-  const { lang } = params;
+  const { lang }: any = await params;
   const menus: MenuItems = await getMenus(lang);
   const dictionary = await getDictionary(lang);
 

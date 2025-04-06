@@ -1,10 +1,15 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import axios from '@/lib/config';
+import axios from '@/lib/services/config';
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
       async authorize(credentials) {
         try {
           await axios.get('/sanctum/csrf-cookie');
@@ -12,14 +17,18 @@ export const authOptions = {
           
           if (!data?.token || !data?.authUser) return null;
           
-          // Store all auth data in a server session
+          // Return only essential data
           return {
+            id: data.authUser.user.id,
+            name: data.authUser.user.name,
+            email: data.authUser.user.email,
             token: data.token,
-            authUser: data.authUser,
-            organization: data.authOrganization,
-            permissions: data.authUser.permissions
+            organization_id: data.authOrganization?.organization.id,
+            organization_name: data.authOrganization.organization.name,
+            organization_website: data.authOrganization.organization.website
           };
         } catch (error) {
+          console.error('Authentication error:', error);
           return null;
         }
       }
@@ -28,34 +37,36 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Store ONLY the essential references in JWT
         return {
           ...token,
           accessToken: user.token,
-          userId: user.authUser.id,
-          orgId: user.organization?.id,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email
+          },
+          organization_id: user.organization_id,
+          organization_name: user.organization_name
         };
       }
       return token;
     },
     async session({ session, token }) {
-      // Client-side will get the full data from initial login
-      return {
-        ...session,
-        accessToken: token.accessToken,
-        user: {
-          ...session.user,
-          id: token.userId,
-        }
-      };
+      session.accessToken = token.accessToken;
+      session.user = token.user;
+      session.organization_id = token.organization_id;
+      session.organization_name = token.organization_name
+      return session;
     }
   },
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60,
   },
   pages: {
     signIn: '/login',
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);

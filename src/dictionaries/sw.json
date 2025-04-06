@@ -13,7 +13,7 @@
       "tools": "Zana",
       "prosControl": "Udhibiti wa Pros",
       "organizations": "Mashirika",
-      "switchOrganization": "Badilisha Shirika" 
+      "switchOrganization": "Badilisha Shirika"
     },
     "menuItem": {
       "dashboard": "Dashibodi",
@@ -48,7 +48,8 @@
       "measurementUnits": "Vipimo",
       "subscriptions": "Usajili",
       "troubleshooting": "Kutatua Matatizo",
-      "invitations": "Mialiko"
+      "invitations": "Mialiko",
+      "organizations": "Mashirika"
     }
   },
   "commons": {

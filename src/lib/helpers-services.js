@@ -1,4 +1,4 @@
-import axios from "./config";
+import axios from "./services/config";
 
 const helperServices = {};
 
