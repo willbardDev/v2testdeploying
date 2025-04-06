@@ -19,12 +19,14 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@jumbo/utilities/constants/permissions';
 
 const OrganizationListItem = ({ organization }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const { authData } = useJumboAuth();
+  const {checkOrganizationPermission} = useJumboAuth();
 
   const isCurrentOrganization = authData?.authOrganization?.organization?.id === organization.id;
 
@@ -123,21 +125,25 @@ const OrganizationListItem = ({ organization }) => {
         >
           {isCurrentOrganization && (
             <>
-              <Tooltip title="Edit organization">
-                <IconButton component={Link} href={`/organizations/edit/${organization.id}`}>
-                  <Edit fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) &&
+                <Tooltip title="Edit organization">
+                  <IconButton component={Link} href={`/organizations/edit/${organization.id}`}>
+                    <Edit fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              }
 
-              <Tooltip title="Organization profile">
-                <IconButton
-                  onClick={() =>
-                    router.push(`/organizations/profile/${organization.id}`)
-                  }
-                >
-                  <Info fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {checkOrganizationPermission(PERMISSIONS.ORGANIZATION_PROFILE) &&
+                <Tooltip title="Organization profile">
+                  <IconButton
+                    onClick={() =>
+                      router.push(`/organizations/profile/${organization.id}`)
+                    }
+                  >
+                    <Info fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              }
 
               <Tooltip title="Go to dashboard">
                 <IconButton component={Link} href="/dashboard">
