@@ -41,9 +41,12 @@ declare module '@mui/material/styles' {
           };
         };
       };
+      JumboSearch?: {
+        background?: string;
+      };
     };
   }
-  // allow configuration using `createTheme`
+
   interface ThemeOptions {
     type?: 'light' | 'semi-dark' | 'dark';
     sidebar?: {
@@ -70,6 +73,9 @@ declare module '@mui/material/styles' {
             hover?: string;
           };
         };
+      };
+      JumboSearch?: {
+        background?: string;
       };
     };
   }
