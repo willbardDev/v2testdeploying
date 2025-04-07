@@ -1,7 +1,7 @@
 'use client';
 import { useJumboLayout } from '@jumbo/components/JumboLayout/hooks';
 import { SIDEBAR_VIEWS } from '@jumbo/utilities/constants';
-import styled from '@mui/material/styles/styled';
+import { styled } from '@mui/material';
 
 const SidebarHeaderDiv = styled('div')(({ theme }) => {
   const { sidebarOptions } = useJumboLayout();

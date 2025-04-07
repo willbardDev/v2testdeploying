@@ -1,6 +1,5 @@
 import { useJumboFooterTheme } from '@jumbo/components/JumboTheme/hooks';
-import { Box } from '@mui/material';
-import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import { Box, ThemeProvider } from '@mui/material';
 import React from 'react';
 import { useJumboLayout } from '../../hooks';
 

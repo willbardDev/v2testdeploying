@@ -5,8 +5,7 @@ import {
   useJumboTheme,
 } from '@jumbo/components/JumboTheme/hooks';
 
-import { Box } from '@mui/material';
-import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import { Box, ThemeProvider } from '@mui/material';
 import { useJumboLayout } from '../../hooks';
 
 import { Div } from '@jumbo/shared';

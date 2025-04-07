@@ -5,8 +5,7 @@ import {
   useJumboTheme,
 } from '@jumbo/components/JumboTheme/hooks';
 import { SIDEBAR_VARIANTS } from '@jumbo/utilities/constants';
-import { Box, Drawer } from '@mui/material';
-import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import { Box, Drawer, ThemeProvider } from '@mui/material';
 import {
   useDrawerVariant,
   useJumboLayout,

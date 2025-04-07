@@ -1,5 +1,6 @@
 'use client';
-import styled from '@mui/material/styles/styled';
+
+import { styled } from "@mui/material";
 
 const Div = styled('div')({});
 
