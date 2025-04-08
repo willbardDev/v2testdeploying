@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ListItem, ListItemText, Stack, Zoom } from "@mui/material";
 import ToolbarAction from "@jumbo/components/JumboList/components/JumboListToolbar/ToolbarAction";
 import useJumboList, { JumboListContextType } from '../../hooks/useJumboList';
@@ -12,7 +12,6 @@ const JumboListToolbar: React.FC<JumboListToolbarProps> = ({
     children,
     bulkActions,
     hidePagination = false,
-    hideItemsPerPage = false,
     action,
     actionTail
 }) => {

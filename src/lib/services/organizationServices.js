@@ -11,7 +11,6 @@ organizationServices.getList = async ({queryKey}) => {
             ...queryParams
         }
     });
-    console.log(data)
     return data;
 };
 
