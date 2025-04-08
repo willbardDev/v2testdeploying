@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ReactNode, useEffect } from 'react';
 import { ListItem, ListItemText, Stack, Zoom } from "@mui/material";
 import ToolbarAction from "@jumbo/components/JumboList/components/JumboListToolbar/ToolbarAction";

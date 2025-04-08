@@ -48,6 +48,7 @@ interface AuthContextType extends AuthState {
   setAuthValues: (values: Partial<AuthState>, options?: { delay?: number }) => void;
   startAuthLoading: () => void;
   stopAuthLoading: () => void;
+  authData: any,
   setOnlyAuthAccessData: (data: Partial<AuthState['onlyAuthAccessData']>) => void;
   setOnlyNotAuthAccessData: (data: Partial<AuthState['onlyNotAuthAccessData']>) => void;
   checkPermission: (permissions: string | string[], mustHaveAll?: boolean) => boolean;

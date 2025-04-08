@@ -42,12 +42,6 @@ interface JumboRqListProps<TData = any> {
     disableTransition?: boolean;
 }
 
-interface QueryKeyParams {
-    queryParams?: Record<string, any>;
-    page: number;
-    limit: number;
-}
-
 interface QueryData {
     data: any[];
     totalCount: number;
@@ -55,119 +49,104 @@ interface QueryData {
 
 const JumboRqList = React.forwardRef<{ refresh: () => Promise<void> }, JumboRqListProps>(
     (props, ref) => {
-    const {
-        queryOptions,
-        itemsPerPage = 10,
-        service,
-        primaryKey,
-        itemsPerPageOptions,
-        toolbar,
-        multiSelectOptions,
-        onSelectionChange,
-        renderItem,
-        noDataPlaceholder,
-        wrapperComponent,
-        wrapperSx,
-        component,
-        sx,
-        componentElement,
-        itemSx,
-        transition,
-        view,
-        onRefresh = () => {},
-    } = props;
+        const {
+            queryOptions,
+            itemsPerPage = 10,
+            service,
+            primaryKey,
+            itemsPerPageOptions,
+            toolbar,
+            multiSelectOptions,
+            onSelectionChange,
+            renderItem,
+            noDataPlaceholder,
+            wrapperComponent,
+            wrapperSx,
+            component,
+            sx,
+            componentElement,
+            itemSx,
+            transition,
+            view,
+            onRefresh = () => {},
+        } = props;
 
-    const listRef = React.useRef<any>(null);
-    const queryClient = useQueryClient();
-    
-    const queryKey = React.useMemo(() => [
-        queryOptions.queryKey,
-        { queryParams: queryOptions.queryParams, page: 1, limit: itemsPerPage }
-    ], [queryOptions.queryKey, queryOptions.queryParams, itemsPerPage]);
+        const listRef = React.useRef<any>(null);
+        const queryClient = useQueryClient();
 
-    const queryFn = React.useCallback(() => service(queryKey[1]), [service, queryKey]);
+        const [page, setPage] = React.useState(1);
+        const [limit, setLimit] = React.useState(itemsPerPage);
 
-    const listQuery = useQuery({
-        queryKey,
-        queryFn,
-    });
+        const queryKey = React.useMemo(() => [
+            ...queryOptions.queryKey,
+            { ...queryOptions.queryParams, page, limit }
+          ], [queryOptions.queryKey, queryOptions.queryParams, page, limit]);
 
-    React.useImperativeHandle(ref, () => ({
-        async refresh() {
-            listRef.current?.resetSelection();
-            await queryClient.invalidateQueries({ queryKey: queryOptions.queryKey });
-            await listQuery.refetch();
-            onRefresh();
-        },
-    }));
+        const queryFn = React.useCallback(() => {
+            return service({
+                ...queryOptions.queryParams,
+                page,
+                limit
+            });
+        }, [service, queryOptions.queryParams, page, limit]);
 
-    const handlePageChange = React.useCallback((pageNumber: number) => {
-        const newKey: QueryKey = [
-            queryOptions.queryKey,
-            {
-                queryParams: queryOptions.queryParams,
-                page: pageNumber + 1,
-                limit: itemsPerPage
-            }
-        ];
-        queryClient.setQueryData(queryKey, newKey);
-    }, [queryOptions.queryParams, itemsPerPage, queryClient, queryOptions.queryKey, queryKey]);
+        const listQuery = useQuery({
+            queryKey,
+            queryFn,
+        });
 
-    const handleItemsPerPageChange = React.useCallback(async (newValue: number) => {
-        const newKey: QueryKey = [
-            queryOptions.queryKey,
-            {
-                queryParams: queryOptions.queryParams,
-                page: 1,
-                limit: newValue
-            }
-        ];
-        queryClient.setQueryData(queryKey, newKey);
-        await queryClient.invalidateQueries({ queryKey: queryOptions.queryKey });
-        await listQuery.refetch();
-        onRefresh();
-    }, [queryClient, queryOptions.queryKey, queryKey, listQuery, onRefresh, queryOptions.queryParams]);
+        React.useImperativeHandle(ref, () => ({
+            async refresh() {
+                listRef.current?.resetSelection?.();
+                await queryClient.invalidateQueries({ queryKey });
+                await listQuery.refetch();
+                onRefresh();
+            },
+        }));
 
-    const queryData: QueryData = React.useMemo(() => {
-        const dataArray = getArrayElementFromKey(listQuery?.data, queryOptions?.dataKey);
-        if (!Array.isArray(dataArray)) {
+        const handlePageChange = React.useCallback((pageNumber: number) => {
+            setPage(pageNumber + 1);
+        }, []);
+
+        const handleItemsPerPageChange = React.useCallback((newValue: number) => {
+            setLimit(newValue);
+            setPage(1);
+        }, []);
+
+        const queryData: QueryData = React.useMemo(() => {
+            const dataArray = getArrayElementFromKey(listQuery?.data, queryOptions?.dataKey);
             return {
-                data: [],
-                totalCount: 0,
+                data: Array.isArray(dataArray) ? dataArray : [],
+                totalCount: getArrayElementFromKey(listQuery?.data, queryOptions.countKey) || 0,
             };
-        }
-        return {
-            data: dataArray,
-            totalCount: getArrayElementFromKey(listQuery?.data, queryOptions.countKey) || 0,
-        };
-    }, [listQuery.data, queryOptions.dataKey, queryOptions.countKey]);
+        }, [listQuery.data, queryOptions.dataKey, queryOptions.countKey]);
 
-    return (
-        <JumboList
-            ref={listRef}
-            data={queryData.data}
-            primaryKey={primaryKey}
-            renderItem={renderItem}
-            itemsPerPage={itemsPerPage}
-            totalCount={queryData.totalCount}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-            itemsPerPageOptions={itemsPerPageOptions}
-            toolbar={toolbar}
-            onSelectionChange={onSelectionChange}
-            multiSelectOptions={multiSelectOptions}
-            noDataPlaceholder={noDataPlaceholder}
-            isLoading={listQuery.isLoading}
-            wrapperComponent={wrapperComponent}
-            wrapperSx={wrapperSx}
-            componentElement={componentElement}
-            itemSx={itemSx}
-            component={component}
-            sx={sx}
-            // transition={transition}
-            view={view}
-        />
-    );
-});
+        return (
+            <JumboList
+                ref={listRef}
+                data={queryData.data}
+                primaryKey={primaryKey}
+                renderItem={renderItem}
+                itemsPerPage={limit}
+                totalCount={queryData.totalCount}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                itemsPerPageOptions={itemsPerPageOptions}
+                toolbar={toolbar}
+                onSelectionChange={onSelectionChange}
+                multiSelectOptions={multiSelectOptions}
+                noDataPlaceholder={noDataPlaceholder}
+                isLoading={listQuery.isLoading}
+                wrapperComponent={wrapperComponent}
+                wrapperSx={wrapperSx}
+                componentElement={componentElement}
+                itemSx={itemSx}
+                component={component}
+                sx={sx}
+                view={view}
+            />
+        );
+    }
+);
 
 export default JumboRqList;

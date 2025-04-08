@@ -19,7 +19,7 @@ export const authOptions = {
           
           // Return only essential data
           return {
-            id: data.authUser.user.id,
+            userId: data.authUser.user.id,
             name: data.authUser.user.name,
             email: data.authUser.user.email,
             token: data.token,
@@ -41,10 +41,10 @@ export const authOptions = {
           ...token,
           accessToken: user.token,
           user: {
-            id: user.id,
+            id: user.userId,
             name: user.name,
             email: user.email
-          },
+          },      
           organization_id: user.organization_id,
           organization_name: user.organization_name
         };

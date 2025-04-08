@@ -4,7 +4,6 @@ import {
   Avatar,
   Badge,
   Box,
-  Button,
   Chip,
   Grid,
   IconButton,
@@ -17,13 +16,11 @@ import { Dashboard, Edit, Info } from '@mui/icons-material';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@jumbo/utilities/constants/permissions';
 
 const OrganizationListItem = ({ organization }) => {
   const router = useRouter();
-  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const { authData } = useJumboAuth();
   const {checkOrganizationPermission} = useJumboAuth();

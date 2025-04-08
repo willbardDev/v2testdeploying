@@ -2,22 +2,16 @@ import axios from "./config";
 
 const organizationServices = {};
 
-// lib/services/organizationServices.js
-organizationServices.getList = async ({ page, limit, keyword = '', id, token }) => {
-    const { data } = await axios.get("/organizations", {
-      params: {
-        page,
-        limit,
-        keyword,
-        user_id: id
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      withCredentials: true
+organizationServices.getList = async ({queryKey}) => {
+    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
+    const {data} = await axios.get("/organizations", {
+        params: {
+            page: page,
+            limit: limit,
+            ...queryParams
+        }
     });
+    console.log(data)
     return data;
 };
 
