@@ -53,6 +53,10 @@ export const authOptions = {
           },      
           organization_id: user.organization_id,
           organization_name: user.organization_name,
+          permissions: user.permissions,
+          auth_permissions: user.auth_permissions,
+          // organization_roles: user.organization_roles,
+          // active_subscriptions: user.active_subscriptions
         };
       }
       return token;
