@@ -11,11 +11,6 @@ export const AuthInitializer = ({ children }) => {
       axios.get('/api/auth/validate', {
         headers: { Authorization: `Bearer ${authData.token}` }
       })
-      .catch((error) => {
-        if (error.response?.status === 401) {
-          setAuthValues(null);
-        }
-      });
     }
   }, [authData, setAuthValues]);
 

@@ -1,4 +1,5 @@
 'use client';
+
 import { LoginForm } from '@/components/LoginForm';
 import { Link } from '@/components/NextLink';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';

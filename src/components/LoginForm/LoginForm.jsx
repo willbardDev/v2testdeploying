@@ -42,12 +42,18 @@ const LoginForm = () => {
       const session = await getSession();
       
       setAuthValues({
-        authUser: { user: session.user },
+        authUser: { 
+          user: session.user,
+          organization_roles: session.organization_roles,
+          permissions: session.permissions,
+        },
         authOrganization: { 
           organization: {
             id: session.organization_id,
-            name: session.organization_name
-          }
+            name: session.organization_name,
+            active_subscriptions: session.active_subscriptions
+          },
+          permissions: session.auth_permissions,
         },
         isAuthenticated: true,
         isLoading: false,

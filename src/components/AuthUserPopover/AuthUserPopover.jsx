@@ -30,19 +30,19 @@ export const AuthUserPopover = ({ dictionary }) => {
     return null;
   }
 
-  const { setAuthValues } = authContext;
+  const { setAuthValues, authData, authOrganization } = authContext;
 
   const logout = React.useCallback(() => {
     (async () => {
       await signOut({
-        callbackUrl: 'http://localhost:3000/en-US/auth/login-1',
+        callbackUrl: 'http://localhost:3000/en-US/auth/signin',
       });
       setAuthValues({ authToken: null, authUser: null, authOrganization: null });
     })();
   }, [setAuthValues]);
 
-  const { data: session } = useSession();
-  const user = session?.user;
+  const user = authData?.authUser?.user;
+  const organization = authOrganization?.organization;
 
   if (!user) {
     return null;
@@ -74,7 +74,7 @@ export const AuthUserPopover = ({ dictionary }) => {
           
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
             <Chip 
-              label={session.organization_name} 
+              label={organization.name} 
               size="small" 
               color="primary" 
               variant="outlined"

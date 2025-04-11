@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from 'next';
 import '@/styles/style.css';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';

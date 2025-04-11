@@ -16,6 +16,8 @@ export const authOptions = {
           const { data } = await axios.post('/login', credentials);
           
           if (!data?.token || !data?.authUser) return null;
+
+          console.log(data, 'datasssssaaa')
           
           // Return only essential data
           return {
@@ -27,7 +29,9 @@ export const authOptions = {
             organization_name: data.authOrganization.organization.name,
             organization_website: data.authOrganization.organization.website,
             permissions: data.authUser.permissions,
-            organization_roles: data.authUser.organization_roles,
+            auth_permissions: data.authOrganization.permissions,
+            organization_roles: data.authUser.user.organization_roles,
+            active_subscriptions: data.authOrganization.organization.active_subscriptions
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -49,8 +53,6 @@ export const authOptions = {
           },      
           organization_id: user.organization_id,
           organization_name: user.organization_name,
-          permissions: user.permissions,
-          organization_roles: user.organization_roles,
         };
       }
       return token;
@@ -60,7 +62,9 @@ export const authOptions = {
       session.permissions = token.permissions,
       session.organization_roles = token.organization_roles,
       session.organization_id = token.organization_id;
-      session.organization_name = token.organization_name
+      session.organization_name = token.organization_name,
+      session.active_subscriptions = token.active_subscriptions,
+      session.auth_permissions = token.auth_permissions
       return session;
     }
   },

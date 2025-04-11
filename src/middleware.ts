@@ -39,7 +39,11 @@ export async function middleware(request: NextRequest) {
 
   // Check authentication
   if (!token) {
-    const loginUrl = new URL('/login', request.url);
+    if (pathname === `/${activeLocale}/signin`) {
+      return NextResponse.next();
+    }
+  
+    const loginUrl = new URL(`/${activeLocale}/auth/signin`, request.url);
     loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }

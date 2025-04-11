@@ -54,9 +54,12 @@ export async function anonymousMiddleware(request: NextRequest) {
   });
 
   if (token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+    const pathname = request.nextUrl.pathname;
+    if (pathname !== '/dashboard') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
