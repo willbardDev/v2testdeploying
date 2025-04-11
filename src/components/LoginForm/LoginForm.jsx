@@ -6,21 +6,20 @@ import {
   JumboOutlinedInput,
 } from '@jumbo/vendors/react-hook-form';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, IconButton, InputAdornment, Stack, Typography } from '@mui/material';
-import { signIn } from 'next-auth/react';
+import { Button, CircularProgress, IconButton, InputAdornment, Stack, Typography } from '@mui/material';
+import { getSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import { Link } from '../NextLink';
 import { validationSchema } from './validation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import axios from '@/lib/services/config';
 
 const LoginForm = () => {
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const router = useRouter();
   const { setAuthValues } = useJumboAuth();
+  const router = useRouter();
   const [values, setValues] = React.useState({
     password: '',
     showPassword: false,
@@ -29,36 +28,31 @@ const LoginForm = () => {
   const handleLogin = async (data) => {
     setLoading(true);
     try {
-      await axios.get('/sanctum/csrf-cookie');
-      const loginResponse = await axios.post('/login', {
-        email: data.email,
-        password: data.password,
-      });
-
-      const authData = {
-        authToken: loginResponse.data.token,
-        authUser: loginResponse.data.authUser,
-        authOrganization: loginResponse.data.authOrganization,
-        isAuthenticated: true,
-        isLoading: false,
-      };
-
-      // 4. Store auth data using setAuthValues
-      setAuthValues(authData);
-
-      // 5. Sign in with NextAuth
       const response = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
         callbackUrl: '/dashboard',
       });
-
+  
       if (response?.error) {
         throw new Error(response.error);
       }
-
-      // 6. Redirect to dashboard
+  
+      const session = await getSession();
+      
+      setAuthValues({
+        authUser: { user: session.user },
+        authOrganization: { 
+          organization: {
+            id: session.organization_id,
+            name: session.organization_name
+          }
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      });
+  
       router.push('/dashboard');
     } catch (error) {
       enqueueSnackbar(error.message || 'Invalid email or password', { 
@@ -68,6 +62,7 @@ const LoginForm = () => {
       setLoading(false);
     }
   };
+
 
   const handleClickShowPassword = () => {
     setValues({
@@ -130,7 +125,7 @@ const LoginForm = () => {
           size='large'
           disabled={loading}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? <CircularProgress/> : 'Login'}
         </Button>
       </Stack>
     </JumboForm>

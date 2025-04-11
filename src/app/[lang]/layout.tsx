@@ -1,23 +1,10 @@
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+// app/layout.tsx
 import type { Metadata } from 'next';
-import { AppSnackbar } from '@/components/AppSnackbar';
-import { CONFIG } from '@/config';
 import '@/styles/style.css';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import '@assets/fonts/noir-pro/styles.css';
-import {
-  JumboConfigProvider,
-  JumboDialog,
-  JumboDialogProvider,
-  JumboTheme,
-} from '@jumbo/components';
-import { CssBaseline } from '@mui/material';
-import Link from 'next/link';
-import Providers from '../providers';
-import { AuthInitializer } from '@/components/AuthInitializer/AuthInitializer';
-import { ReactNode, Suspense } from 'react';
-import { Spinner } from '@/components/Spinner';
-import { JumboAuthProvider } from '../providers/JumboAuthProvider';
+import { ReactNode } from 'react';
+import { Providers } from '../providers';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -44,34 +31,15 @@ export const metadata: Metadata = {
   },
 };
 
-// app/layout.tsx (RootLayout)
 export default async function RootLayout({ children, params }: RootLayoutProps) {
-  const { lang } = await params;
+  const { lang } = params;
 
   return (
     <html lang={lang} data-lt-installed='true'>
       <body cz-shortcut-listen='true'>
         <div id='root'>
           <Providers>
-            <JumboAuthProvider>
-              <AppRouterCacheProvider>
-                <JumboConfigProvider LinkComponent={Link}>
-                  <JumboTheme init={CONFIG.THEME}>
-                    <CssBaseline />
-                    <JumboDialogProvider>
-                      <AuthInitializer>
-                        <JumboDialog />
-                        <AppSnackbar>
-                          <Suspense fallback={<Spinner/>}>
-                            {children}
-                          </Suspense>
-                        </AppSnackbar>
-                      </AuthInitializer>
-                    </JumboDialogProvider>
-                  </JumboTheme>
-                </JumboConfigProvider>
-              </AppRouterCacheProvider>
-            </JumboAuthProvider>
+            {children}
           </Providers>
         </div>
       </body>

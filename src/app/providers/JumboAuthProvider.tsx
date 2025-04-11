@@ -1,4 +1,5 @@
 'use client'
+import { useSession } from 'next-auth/react';
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo } from 'react';
 
 // Types
@@ -155,6 +156,9 @@ export const JumboAuthProvider = ({
         ...init(restProps),
         isLoading: true
     });
+
+    const { data } = useSession();
+  console.log(data, 'main session')
 
   // Load from localStorage on initial render
   useEffect(() => {

@@ -1,4 +1,3 @@
-// lib/services/config.ts
 import baseAxios from "axios";
 
 // Timezone utility function (can be moved to a separate utils file if needed)

@@ -51,7 +51,7 @@ interface OrganizationsListProps {
 const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const router = useRouter();
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
-  const { checkPermission } = useJumboAuth();
+  const { checkPermission, authData } = useJumboAuth();
 
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
@@ -77,8 +77,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   }, [user.id]);
 
   const renderOrganization = useCallback((organization: Organization) => {
-    console.log(organization)
-    return organization ? (
+    return !organization ? (
       <OrganizationListItem organization={organization} />
     ) : (
       <Alert variant="outlined" severity="info">

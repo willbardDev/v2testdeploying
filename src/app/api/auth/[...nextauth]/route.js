@@ -25,7 +25,9 @@ export const authOptions = {
             token: data.token,
             organization_id: data.authOrganization?.organization.id,
             organization_name: data.authOrganization.organization.name,
-            organization_website: data.authOrganization.organization.website
+            organization_website: data.authOrganization.organization.website,
+            permissions: data.authUser.permissions,
+            organization_roles: data.authUser.organization_roles,
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -46,14 +48,17 @@ export const authOptions = {
             email: user.email
           },      
           organization_id: user.organization_id,
-          organization_name: user.organization_name
+          organization_name: user.organization_name,
+          permissions: user.permissions,
+          organization_roles: user.organization_roles,
         };
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
       session.user = token.user;
+      session.permissions = token.permissions,
+      session.organization_roles = token.organization_roles,
       session.organization_id = token.organization_id;
       session.organization_name = token.organization_name
       return session;
@@ -65,6 +70,24 @@ export const authOptions = {
   },
   pages: {
     signIn: '/login',
+  },
+  cookies: {
+    sessionToken: {
+      name: 
+        process.env.NODE_ENV === 'production' 
+          ? '__Secure-next-auth.session-token' 
+          : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' 
+          ? '.proserp.co.tz'
+          : undefined,
+        maxAge: 24 * 60 * 60,
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
