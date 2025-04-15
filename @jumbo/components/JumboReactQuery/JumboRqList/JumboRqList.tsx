@@ -6,7 +6,7 @@ import { getArrayElementFromKey } from '@jumbo/utilities/systemHelpers';
 import { JumboListProps } from '@jumbo/types/JumboListProps';
 
 interface QueryOptions<TQueryKey extends QueryKey> {
-    queryKey: TQueryKey;
+    queryKey: string;
     queryParams?: Record<string, any>;
     countKey?: string;
     dataKey: string;
@@ -78,7 +78,7 @@ const JumboRqList = React.forwardRef<{ refresh: () => Promise<void> }, JumboRqLi
         const [limit, setLimit] = React.useState(itemsPerPage);
 
         const queryKey = React.useMemo(() => [
-            ...queryOptions.queryKey,
+            queryOptions.queryKey,
             { ...queryOptions.queryParams, page, limit }
           ], [queryOptions.queryKey, queryOptions.queryParams, page, limit]);
 

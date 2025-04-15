@@ -10,9 +10,9 @@ import { useRouter } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PROS_CONTROL_PERMISSIONS } from '@jumbo/utilities/constants/prosControlPermissions';
 import Link from 'next/link';
-import organizationServices from '@/lib/services/organizationServices';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
+import organizationServices from '@/lib/services/organizationServices';
 
 interface User {
   id: string;
@@ -25,15 +25,14 @@ interface Organization {
   [key: string]: any;
 }
 
-interface QueryOptions<TQueryKey extends unknown[]> {
-  queryKey: TQueryKey;
+interface QueryOptions<TQueryKey> {
+  queryKey: string;
   queryParams: {
     id?: string;
     keyword: string;
   };
   countKey: string;
   dataKey: string;
-  refetchOrganizations?: () => void;
 }
 
 interface OrganizationListContextType {
@@ -51,33 +50,29 @@ interface OrganizationsListProps {
 const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const router = useRouter();
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
-  const { checkPermission, authData } = useJumboAuth();
+  const { checkPermission } = useJumboAuth();
 
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
-  const [queryOptions, setQueryOptions] = useState<QueryOptions<[string, { id?: string; keyword: string }]>>(() => {
-    const initialQueryParams = { id: user.id, keyword: '' };
-    return {
-      queryKey: ['organizations', initialQueryParams],
-      queryParams: initialQueryParams,
-      countKey: 'total',
-      dataKey: 'data',
-    };
+  const [queryOptions, setQueryOptions] = useState<
+    QueryOptions<[string, { id?: string; keyword: string }]>
+  >({
+    queryKey: 'organizations',
+    queryParams: { id: user.id, keyword: '' },
+    countKey: 'total',
+    dataKey: 'data',
   });
 
-  useEffect(() => {
-    setQueryOptions((prev) => {
-      const newQueryParams = { ...prev.queryParams, id: user.id };
-      return {
-        ...prev,
-        queryKey: ['organizations', newQueryParams],
-        queryParams: newQueryParams,
-      };
-    });
-  }, [user.id]);
+  React.useEffect(() => {
+    setQueryOptions(prev => ({
+      ...prev,
+      queryKey: 'organizations',
+      queryParams: { ...prev.queryParams, id: user.id },
+    }));
+  }, [user]);
 
   const renderOrganization = useCallback((organization: Organization) => {
-    return !organization ? (
+    return organization ? (
       <OrganizationListItem organization={organization} />
     ) : (
       <Alert variant="outlined" severity="info">
@@ -90,14 +85,14 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   }, []);
 
   const handleOnChange = useCallback((keyword: string) => {
-    setQueryOptions((prev) => {
-      const newQueryParams = { ...prev.queryParams, keyword };
-      return {
-        ...prev,
-        queryKey: ['organizations', newQueryParams],
-        queryParams: newQueryParams,
-      };
-    });
+    setQueryOptions(prev => ({
+      ...prev,
+      queryKey: 'organizations',
+      queryParams: {
+        ...prev.queryParams,
+        keyword,
+      },
+    }));
   }, []);
 
   const refetchOrganizations = useCallback(() => {

@@ -26,7 +26,6 @@ organizationServices.getUsers = async ({queryKey}) => {
     return data;
 };
 
-
 organizationServices.getOptions = async () => {
     const {data} = await axios.get('organizations/get_options');
     return data
