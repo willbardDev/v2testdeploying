@@ -1,4 +1,5 @@
 'use client'
+import axios from '@/lib/services/config';
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo } from 'react';
 
 // Types
@@ -29,6 +30,7 @@ interface AuthOrganization {
 }
 
 interface AuthState {
+  authToken: string | null;
   authUser: AuthUser | null;
   authOrganization: AuthOrganization | null;
   isLoading: boolean;
@@ -47,7 +49,6 @@ interface AuthContextType extends AuthState {
   setAuthValues: (values: Partial<AuthState>, options?: { delay?: number }) => void;
   startAuthLoading: () => void;
   stopAuthLoading: () => void;
-  authData: any,
   setOnlyAuthAccessData: (data: Partial<AuthState['onlyAuthAccessData']>) => void;
   setOnlyNotAuthAccessData: (data: Partial<AuthState['onlyNotAuthAccessData']>) => void;
   checkPermission: (permissions: string | string[], mustHaveAll?: boolean) => boolean;
@@ -62,6 +63,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 // Initial state function
 const init = (restProps: any): AuthState => ({
+  authToken: "not-set",
   authUser: null,
   authOrganization: null,
   isLoading: true,
@@ -85,6 +87,7 @@ const authReducer = (state: AuthState, action: any): AuthState => {
       if (!authUser && !authToken) {
         return {
           ...state,
+          authToken: null,
           authUser: null,
           authOrganization: null,
           isLoading: false,
@@ -148,10 +151,10 @@ export const JumboAuthProvider = ({
   providerProps?: any;
   [key: string]: any;
 }) => {
-  const [authData, dispatch] = useReducer(authReducer, {
-    ...init(restProps),
-    isLoading: true
-  });
+    const [authData, dispatch] = useReducer(authReducer, {
+        ...init(restProps),
+        isLoading: true
+    });
 
   // Load from localStorage on initial render
   useEffect(() => {
@@ -160,10 +163,11 @@ export const JumboAuthProvider = ({
       if (storedData) {
         try {
           const parsedData = JSON.parse(storedData);
-          if (parsedData?.authUser) {
+          if (parsedData?.authToken && parsedData?.authUser) {
             dispatch({
               type: "set-auth-values",
               payload: {
+                authToken: parsedData.authToken,
                 authUser: parsedData.authUser,
                 authOrganization: parsedData.authOrganization || null,
                 isLoading: false
@@ -186,23 +190,26 @@ export const JumboAuthProvider = ({
   // Single effect to persist changes to localStorage
   useEffect(() => {
     if (typeof window !== 'undefined' && !authData.isLoading) {
-      if (authData.authUser) {
+      if (authData.authToken && authData.authToken !== "not-set") {
         localStorage.setItem('authData', JSON.stringify({
+          authToken: authData.authToken,
           authUser: authData.authUser,
           authOrganization: authData.authOrganization
         }));
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.authToken;
       } else {
         localStorage.removeItem('authData');
       }
     }
-  }, [authData.authUser, authData.authOrganization, authData.isLoading]);
+  }, [authData.authToken, authData.authUser, authData.authOrganization, authData.isLoading]);
 
   const setAuthValues = useCallback((authValues: Partial<AuthState>, options?: { delay?: number }) => {
-    const { authUser, isLoading, isAuthenticated, onlyAuthAccessData, onlyNotAuthAccessData, ...restValues } = authValues;
+    const { authToken, authUser, isLoading, isAuthenticated, onlyAuthAccessData, onlyNotAuthAccessData, ...restValues } = authValues;
 
     const action = {
       type: "set-auth-values",
       payload: {
+        authToken,
         authUser,
         ...restValues
       }
@@ -363,6 +370,7 @@ export const JumboAuthProvider = ({
       authData 
     };
   }, [
+    authData.authToken,
     authData.authUser,
     authData.authOrganization,
     authData.isLoading,

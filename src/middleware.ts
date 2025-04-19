@@ -31,6 +31,7 @@ export async function middleware(request: NextRequest) {
 
   // Get the JWT token securely
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  console.log(token?.accessToken,'ssssss')
 
   // Anonymous paths (like login page)
   if (isAnonymousPath(pathname, activeLocale)) {

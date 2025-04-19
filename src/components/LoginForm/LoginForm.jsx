@@ -47,6 +47,7 @@ const LoginForm = () => {
           organization_roles: session.organization_roles,
           permissions: session.permissions,
         },
+        authToken: session.accessToken,
         authOrganization: { 
           organization: {
             id: session.organization_id,
