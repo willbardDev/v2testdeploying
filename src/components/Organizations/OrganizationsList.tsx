@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useRef, useCallback, useState } from 'react';
-import { Alert, Card, Stack, Typography } from '@mui/material';
+import React, { createContext, useRef, useCallback, useEffect, useState } from 'react';
+import { Alert, Card, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
+import { AddOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -12,7 +13,6 @@ import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqLi
 import JumboSearch from '@jumbo/components/JumboSearch';
 import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
-import OrganizationActionTail from './OrganizationActionTail';
 
 interface User {
   id: string;
@@ -129,9 +129,13 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
                     onChange={handleOnChange}
                     value={queryOptions.queryParams.keyword}
                   />
-                  {canAddOrganization && 
-                    <OrganizationActionTail/>
-                  }
+                  {canAddOrganization && (
+                    <Tooltip title='New Organization'>
+                      <IconButton onClick={() => router.push('/organizations/create')}>
+                        <AddOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Stack>
               }
             />
