@@ -3,6 +3,7 @@ import { authMiddleware, anonymousMiddleware } from '@/middleware/auth';
 import { isPublicPath, isAnonymousPath } from '@/utilities/helpers/path';
 import { match } from '@formatjs/intl-localematcher';
 import Negotiator from 'negotiator';
+import { prefixLocale } from './middleware/locale';
 
 // Locale configuration
 const headers = { 'accept-language': 'en-US,en;q=0.5' };
@@ -18,39 +19,26 @@ export const activeLocale = match(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // --- Locale Handling ---
-  const localeResponse = handleLocalePrefix(request);
-  if (localeResponse) return localeResponse;
+  // 1. Handle locale redirection
+  const localeResponse = prefixLocale(request);
+  if (localeResponse) {
+    return NextResponse.redirect(localeResponse);
+  }
 
-  // --- Path Classification ---
-  if (isPublicPath(pathname, activeLocale)) {
+  // 2. Public paths (assets, etc.)
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
-  if (isAnonymousPath(pathname, activeLocale)) {
+  // 3. Authentication pages (login/signup)
+  if (isAnonymousPath(pathname)) {
     return anonymousMiddleware(request);
   }
 
-  // --- Protected Routes ---
+  // 4. All other routes require authentication
   return authMiddleware(request);
 }
 
-// Helper function for locale redirection
-function handleLocalePrefix(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const pathLocale = pathname.split('/')[1];
-  
-  if (!locales.includes(pathLocale)) {
-    const locale = activeLocale || defaultLocale;
-    const newUrl = new URL(`/${locale}${pathname}`, request.url);
-    return NextResponse.redirect(newUrl);
-  }
-  
-  return null;
-}
-
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|assets|locales).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets).*)'],
 };
