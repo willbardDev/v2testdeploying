@@ -13,6 +13,7 @@ import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqLi
 import JumboSearch from '@jumbo/components/JumboSearch';
 import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
+import OrganizationActionTail from './OrganizationActionTail';
 
 interface User {
   id: string;
@@ -129,13 +130,9 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
                     onChange={handleOnChange}
                     value={queryOptions.queryParams.keyword}
                   />
-                  {canAddOrganization && (
-                    <Tooltip title='New Organization'>
-                      <IconButton onClick={() => router.push('/organizations/create')}>
-                        <AddOutlined />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  {canAddOrganization && 
+                    <OrganizationActionTail/>
+                  }
                 </Stack>
               }
             />
