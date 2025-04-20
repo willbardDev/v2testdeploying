@@ -14,6 +14,9 @@ interface AuthUser {
 
 interface AuthOrganization {
   organization?: {
+    id: string;
+    name: string;
+    roles: any;
     active_subscriptions?: Array<{
       modules: Array<{
         id: string;

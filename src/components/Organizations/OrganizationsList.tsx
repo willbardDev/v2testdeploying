@@ -3,7 +3,6 @@
 import React, { createContext, useRef, useCallback, useEffect, useState } from 'react';
 import { Alert, Card, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
-import OrganizationListItem from './OrganizationListItem';
 import { AddOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
@@ -13,6 +12,7 @@ import Link from 'next/link';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import organizationServices from '@/lib/services/organizationServices';
+import { OrganizationListItem } from './OrganizationListItem';
 
 interface User {
   id: string;

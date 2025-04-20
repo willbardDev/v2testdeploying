@@ -1,0 +1,191 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import styled from "@emotion/styled";
+import { Avatar, Badge, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { DashboardOutlined, Edit, Info, KeyboardArrowRightOutlined } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
+import { useSnackbar } from 'notistack';
+import { useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Span } from '@jumbo/shared';
+import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
+
+interface OrganizationRole {
+  id: string;
+  name: string;
+  [key: string]: any;
+}
+
+interface Organization {
+  id: string;
+  name?: string;
+  website?: string;
+  logo_path?: string;
+  roles?: OrganizationRole[];
+}
+
+interface OrganizationListItemProps {
+  organization: Organization;
+}
+
+const Item = styled(Span)(({ theme }) => ({
+  padding: theme.spacing(0, 1),
+}));
+
+export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ organization }) => {
+  const router = useRouter();
+  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+
+  const isAuthOrganization = authOrganization?.organization?.id === organization.id;
+  const roles = organization.roles || [];
+  const rolesCount = roles.length;
+
+  useEffect(() => {
+    if (!authUser?.user) {
+      router.push('/login');
+    }
+  }, [authUser, router]);
+
+  if (isLoading) {
+    return <BackdropSpinner message="Loading organization..." />;
+  }
+
+  return (
+    <Grid
+      container
+      sx={{
+        borderTop: 1,
+        borderColor: 'divider',
+      }}
+      spacing={1}
+      my={1}
+      paddingLeft={2.5}
+    >
+      <Grid size={{xs: 12, md: 6}}>
+        <Stack direction={'row'} alignItems={'center'}>
+          <Item>
+            <Badge
+              overlap="circular"
+              variant="dot"
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              sx={{
+                '.MuiBadge-badge': {
+                  border: '2px solid #FFF',
+                  height: '14px',
+                  width: '14px',
+                  borderRadius: '50%',
+                  bgcolor: isAuthOrganization ? "success.main" : "gray"
+                }
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 56,
+                  height: 56
+                }}
+                alt={organization.name || 'Organization logo'}
+                src={organization?.logo_path || '/assets/images/logo-symbol.png'}
+              />
+            </Badge>
+          </Item>
+          <Item>
+            <Tooltip title={`Load ${organization.name}`}>
+              <Typography 
+                sx={{ cursor: 'pointer' }} 
+                variant={"h6"} 
+                mb={0.5}
+              >
+                {organization.name || 'Unnamed Organization'}
+              </Typography>
+            </Tooltip>
+            {organization.website && (
+              <Typography variant={"body1"} color="text.secondary">
+                {organization.website}
+              </Typography>
+            )}
+          </Item>
+        </Stack>
+      </Grid>
+      
+      <Grid 
+        size={{xs: rolesCount > 2 ? 12 : 6, md: 6, lg: 3}}
+        >
+        <Typography variant={"h6"} mt={1} lineHeight={1.25}>
+          Roles:
+        </Typography>
+        {roles.length > 0 ? (
+          <JumboChipsGroup
+            chips={roles}
+            mapKeys={{ label: "name" }}
+            spacing={1}
+            size="small"
+            max={3}
+          />
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No roles assigned
+          </Typography>
+        )}
+      </Grid>
+      
+      <Grid
+        size={{xs: rolesCount > 2 ? 12 : 6, md: 12, lg: 3}}
+        sx={{
+          paddingRight: 2,
+          display: 'flex',
+          alignItems: 'end',
+          justifyContent: 'flex-end'
+        }}
+      >
+        {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) && (
+          <Link href={`/organizations/edit/${organization.id}`} passHref>
+            <IconButton>
+              <Tooltip title={`Edit ${organization.name}`} disableInteractive>
+                <Edit />
+              </Tooltip>
+            </IconButton>
+          </Link>
+        )}
+        
+        {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_PROFILE) && (
+          <IconButton onClick={() => router.push(`/organizations/profile/${organization.id}`)}>
+            <Tooltip title={`${organization.name} Profile`} disableInteractive>
+              <Info />
+            </Tooltip>
+          </IconButton>
+        )}
+        
+        {isAuthOrganization ? (
+          <Link href={'/dashboard'} passHref>
+            <IconButton>
+              <Tooltip title={`${organization.name} Dashboard`} disableInteractive>
+                <DashboardOutlined />
+              </Tooltip>
+            </IconButton>
+          </Link>
+        ) : (
+          <LoadingButton 
+            sx={{ borderRadius: 100 }} 
+            type='button' 
+            loading={isLoading}
+          >
+            <Tooltip title={`Load ${organization.name}`} disableInteractive>
+              <KeyboardArrowRightOutlined />
+            </Tooltip>
+          </LoadingButton>
+        )}
+      </Grid>
+    </Grid>
+  );
+};
