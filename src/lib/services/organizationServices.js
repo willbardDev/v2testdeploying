@@ -1,133 +1,127 @@
 import axios from "./config";
 
-const organizationServices = {};
-
-organizationServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/organizations", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+const organizationServices = {
+  // GET METHODS
+  getList: async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get("/organizations", {
+      params: { page, limit, ...queryParams }
     });
     return data;
-};
+  },
 
-organizationServices.getUsers = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length-1];
-    const { data } = await axios.get(`/organizations/${queryParams.organizationId}/users`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams,
-        }
+  getUsers: async (organizationId, params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get(`/organizations/${organizationId}/users`, {
+      params: { page, limit, ...queryParams }
     });
     return data;
+  },
+
+  getOptions: async () => {
+    const { data } = await axios.get("organizations/get_options");
+    return data;
+  },
+
+  getPermissionOptions: async (id) => {
+    const { data } = await axios.get(`organizations/${id}/permission_options`);
+    return data;
+  },
+
+  getRoles: async (organizationId) => {
+    const { data } = await axios.get(`/organizations/${organizationId}/roles`);
+    return data;
+  },
+
+  // POST/PUT METHODS (with CSRF protection)
+  create: async (organization) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const formData = buildFormData(organization);
+    const { data } = await axios.post("/organizations", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return data;
+  },
+
+  update: async (organization) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const formData = buildFormData(organization);
+    const { data } = await axios.post(
+      `/organizations/update/${organization.id}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data;
+  },
+
+  addInvitee: async (organizationId, email) => {
+    const { data } = await axios.get(
+      `/organizations/${organizationId}/user_to_invite?email=${email}`
+    );
+    return data;
+  },
+
+  addRole: async (roleData) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const { data } = await axios.post(
+      `/organizations/${roleData.organization_id}/new-role`,
+      roleData
+    );
+    return data;
+  },
+
+  inviteUsers: async (organizationId, invitationsData) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const { data } = await axios.post(
+      `/organizations/${organizationId}/invite_users`,
+      { invitees: invitationsData }
+    );
+    return data;
+  },
+
+  saveUserRoles: async (organizationId, userId, roleIds) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const { data } = await axios.put(
+      `/organizations/${organizationId}/edit-user-roles`,
+      { user_id: userId, role_ids: roleIds }
+    );
+    return data;
+  },
+
+  userDetachAction: async (organizationId, actionData) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const { data } = await axios.put(
+      `/organizations/${organizationId}/detach-user`,
+      actionData
+    );
+    return data;
+  },
+
+  userLeaveAction: async (organizationId, actionData) => {
+    await axios.get("/sanctum/csrf-cookie");
+    const { data } = await axios.put(
+      `/organizations/${organizationId}/detach-user`,
+      actionData
+    );
+    return data;
+  }
 };
 
-organizationServices.getOptions = async () => {
-    const {data} = await axios.get('organizations/get_options');
-    return data
+// Helper function for form data construction
+function buildFormData(data) {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value == null) return;
+    
+    if (key === "logo" || key === "organization_symbol") {
+      // Handle FileList or single File
+      const file = Array.isArray(value) ? value[0] : value;
+      if (file) formData.append(key, file);
+    } else {
+      formData.append(key, value !== "null" ? value : null);
+    }
+  });
+  return formData;
 }
-
-organizationServices.add = async(organization) => {
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const formData = new FormData();
-        Object.keys(organization).forEach((key) => {
-            if(key === 'logo' || key === 'organization_symbol') {
-                // If the value is a FileList (like it will be for file inputs),
-                // append the first file in the list.
-                formData.append(key, organization[key][0]);
-            } else {
-                formData.append(key, organization[key] !== 'null' ? organization[key] : null);
-            }
-        });
-
-        const {data} = await axios.post(`/organizations`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-         return data;
-     })
-}
-
-organizationServices.update = async(organization) => {
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const formData = new FormData();
-        Object.keys(organization).forEach((key) => {
-            if(key === 'logo' || key === 'organization_symbol') {
-                // If the value is a FileList (like it will be for file inputs),
-                // append the first file in the list.
-                formData.append(key, organization[key][0]);
-            } else {
-                formData.append(key, organization[key] !== 'null' ? organization[key] : null);
-            }
-        });
-
-        const {data} = await axios.post(`/organizations/update/${organization.id}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return data;
-    })
-}
-
-organizationServices.addInvitee = async(organization,email) => {
-    const {data} = await axios.get(`/organizations/${organization.id}/user_to_invite?email=${email}`)
-    return data;
-}
-
-organizationServices.addRole = async(roleData) => {
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/organizations/${roleData.organization_id}/new-role`,roleData);
-         return data;
-     })
-}
-
-organizationServices.permissionOptions = async(id) => {
-    const {data} = await axios.get(`organizations/${id}/permission_options`);
-    return data;
-}
-
-organizationServices.roles = async(organizationId) => {
-    const {data} = await axios.get(`/organizations/${organizationId}/roles`);
-    return data;
-}
-
-organizationServices.inviteUsers = async(organization,invitationsData) => {
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/organizations/${organization.id}/invite_users`,{invitees: invitationsData});
-         return data;
-     })
- }
-
- organizationServices.saveUserRoles = async(organization,user,selectedRoles) => {
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.put(`organizations/${organization.id}/edit-user-roles`,{
-            user_id: user.id,
-            role_ids: selectedRoles
-          });
-         return data;
-     })
- }
-
- organizationServices.userDetachAction = async(organization, data) => {
-    const action = data;
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/organizations/${organization.id}/detach-user`, action);
-        return data; 
-    })
- }
-
- organizationServices.userLeaveAction = async(organization, data) => {
-    const action = data;
-    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/organizations/${organization.id}/detach-user`, action);
-        return data; 
-    })
- }
 
 export default organizationServices;

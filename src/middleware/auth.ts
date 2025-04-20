@@ -1,47 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
+const COOKIE_NAME = process.env.NODE_ENV === 'production'
+  ? '__Secure-next-auth.session-token'
+  : 'next-auth.session-token';
+
 export async function authMiddleware(request: NextRequest) {
-  // Secure token retrieval with proper typing
+  // 1. Get token from secure HTTP-only cookie
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET!,
     cookieName: process.env.NODE_ENV === 'production'
       ? '__Secure-next-auth.session-token'
       : 'next-auth.session-token'
   });
 
-  // Handle unauthenticated requests
+  // 2. Handle unauthenticated requests
   if (!token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/auth/signin';
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    return createAuthRedirect(request);
   }
 
-  // Type-safe expiration check
-  if (token.exp && typeof token.exp === 'number') {
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    if (nowInSeconds > token.exp) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/auth/signin';
-      url.searchParams.set('error', 'SessionExpired');
-      return NextResponse.redirect(url);
-    }
-  }
-
-  // For API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const requestHeaders = new Headers(request.headers);
-    if (token.accessToken) {
-      requestHeaders.set('Authorization', `Bearer ${token.accessToken}`);
-    }
-    
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders
-      }
-    });
+  // 3. Check token expiration (if using JWT)
+  if (token.exp && Math.floor(Date.now() / 1000) > token.exp) {
+    return createAuthRedirect(request, 'SessionExpired');
   }
 
   return NextResponse.next();
@@ -50,17 +31,22 @@ export async function authMiddleware(request: NextRequest) {
 export async function anonymousMiddleware(request: NextRequest) {
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET!,
+    cookieName: COOKIE_NAME
   });
 
+  // Redirect authenticated users away from auth pages
   if (token) {
-    const pathname = request.nextUrl.pathname;
-    if (pathname !== '/dashboard') {
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
-    }
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
+}
+
+// --- Helpers ---
+function createAuthRedirect(request: NextRequest, error?: string) {
+  const url = new URL('/auth/signin', request.url);
+  url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+  if (error) url.searchParams.set('error', error);
+  return NextResponse.redirect(url);
 }
