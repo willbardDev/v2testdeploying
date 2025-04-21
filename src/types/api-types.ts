@@ -1,4 +1,3 @@
-// lib/types/api-types.ts
 export interface PaginatedResponse<T> {
     data: T[]
     meta: {
@@ -11,11 +10,9 @@ export interface PaginatedResponse<T> {
   export interface Organization {
     id: string
     name: string
-    // other fields...
   }
   
   export interface User {
     id: string
     name: string
-    // other fields...
   }

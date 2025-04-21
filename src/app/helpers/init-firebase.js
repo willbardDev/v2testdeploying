@@ -1,6 +1,5 @@
+import { getMessaging, onMessage } from "firebase/messaging";
 
-
-// Your Firebase configuration obtained from the Firebase console
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBIlSPh6GPPHdumTYmkuowo_8SXpHIVbmA",

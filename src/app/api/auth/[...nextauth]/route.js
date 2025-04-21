@@ -16,8 +16,6 @@ export const authOptions = {
           const { data } = await axios.post('/login', credentials);
           
           if (!data?.token || !data?.authUser) return null;
-
-          console.log(data, 'datasssssaaa')
           
           // Return only essential data
           return {

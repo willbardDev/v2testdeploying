@@ -1,0 +1,93 @@
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    [key: string]: any;
+  }
+  
+  export interface Organization {
+    id: string;
+    name: string;
+    email: string;
+    roles: any[];
+    active_subscriptions?: {
+      modules: {
+        id: string;
+        name: string;
+        settings?: {
+          id: string;
+          value: any;
+        }[];
+      }[];
+    }[];
+    [key: string]: any;
+  }
+  
+  export interface AuthUser {
+    id: string;
+    name: string;
+    email: string;
+    user: User;
+    [key: string]: any;
+  }
+  
+  export interface AuthOrganization {
+    organization: Organization;
+    [key: string]: any;
+  }
+  
+  export interface AuthState {
+    authToken: string | null;
+    authUser: AuthUser | null;
+    authOrganization: AuthOrganization | null;
+  }
+  
+  export interface AuthResponse {
+    data?: {
+      token?: string;
+      authUser?: AuthUser;
+      authOrganization?: AuthOrganization;
+      [key: string]: any;
+    };
+    status?: number;
+    hasError?: boolean;
+    error?: string;
+    [key: string]: any;
+  }
+  
+  export interface AuthConfig {
+    token?: string | null;
+    OrganizationId?: string | null;
+    currentUser?: AuthUser | null;
+    currentOrganization?: AuthOrganization | null;
+    refresh?: boolean;
+  }
+  
+  export interface TokenMetadata {
+    geolocation_accuracy?: number;
+    latitude?: number;
+    longitude?: number;
+    fcm_token?: string;
+    [key: string]: any;
+  }
+  
+  export interface BasicAuthContextType {
+    signUp: (
+      userData: any, 
+      successCallback: (data: any) => void, 
+      errorCallback: (error: any) => void
+    ) => Promise<void>;
+    signIn: (
+      email: string, 
+      password: string, 
+      successCallback: (data: any) => void, 
+      errorCallback: (error: any) => void
+    ) => Promise<void>;
+    logout: () => Promise<void>;
+    configAuth: (config: AuthConfig) => Promise<void>;
+    loadOrganization: (
+      organization_id: string, 
+      successCallback: (data: any) => void, 
+      errorCallback: (error: any) => void
+    ) => Promise<void>;
+  }
