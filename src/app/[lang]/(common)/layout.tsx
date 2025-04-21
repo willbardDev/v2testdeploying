@@ -3,7 +3,6 @@ import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { defaultLayoutConfig } from '@/config/layouts';
 import { getMenus } from '@/services';
-import { Params } from '@/types/paramsType';
 import { JumboLayout, JumboLayoutProvider } from '@jumbo/components';
 import { MenuItems } from '@jumbo/types';
 import { getDictionary } from '@/app/[lang]/dictionaries';

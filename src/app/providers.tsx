@@ -13,6 +13,8 @@ import { Suspense } from 'react';
 import { Spinner } from '@/components/Spinner';
 import { CONFIG } from '@/config';
 import { JumboAuthProvider } from './providers/JumboAuthProvider';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -26,27 +28,29 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <JumboAuthProvider>
-          <AppRouterCacheProvider>
-            <JumboConfigProvider LinkComponent={Link}>
-              <JumboTheme init={CONFIG.THEME}>
-                <CssBaseline />
-                <JumboDialogProvider>
-                  <AuthInitializer>
-                    <JumboDialog />
-                    <AppSnackbar>
-                      <Suspense fallback={<Spinner />}>
-                        {children}
-                      </Suspense>
-                    </AppSnackbar>
-                  </AuthInitializer>
-                </JumboDialogProvider>
-              </JumboTheme>
-            </JumboConfigProvider>
-          </AppRouterCacheProvider>
-        </JumboAuthProvider>
-      </QueryClientProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <QueryClientProvider client={queryClient}>
+          <JumboAuthProvider>
+            <AppRouterCacheProvider>
+              <JumboConfigProvider LinkComponent={Link}>
+                <JumboTheme init={CONFIG.THEME}>
+                  <CssBaseline />
+                  <JumboDialogProvider>
+                    <AuthInitializer>
+                      <JumboDialog />
+                      <AppSnackbar>
+                        <Suspense fallback={<Spinner />}>
+                          {children}
+                        </Suspense>
+                      </AppSnackbar>
+                    </AuthInitializer>
+                  </JumboDialogProvider>
+                </JumboTheme>
+              </JumboConfigProvider>
+            </AppRouterCacheProvider>
+          </JumboAuthProvider>
+        </QueryClientProvider>
+      </LocalizationProvider>
     </SessionProvider>
   );
 }

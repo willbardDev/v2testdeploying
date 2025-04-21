@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { DatePicker, LoadingButton } from '@mui/lab';
+import { LoadingButton } from '@mui/lab';
 import { Autocomplete, Box, Checkbox, Divider, FormHelperText, Grid, IconButton, Input, InputLabel, ListItem, ListItemAvatar, TextField, Tooltip, Typography, useTheme } from '@mui/material';
 import * as yup from "yup";
 import { CorporateFareOutlined, InfoRounded, ListOutlined } from '@mui/icons-material';
@@ -8,6 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 import organizationServices from '@/lib/services/organizationServices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
@@ -145,25 +146,24 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
   const { handleSubmit, register, setValue, watch, setError, formState: { errors } } = useForm<FormValues>({
     // resolver: yupResolver(validationSchema),
     defaultValues: {
-      id: organization?.id,
-      name: organization?.name || '',
-      email: organization?.email ?? null,
-      phone: organization?.phone || '',
-      tin: organization?.tin ?? null,
-      recording_start_date: organization?.recording_start_date || '',
-      address: organization?.address ?? null,
-      vat_registered: organization?.settings?.vat_registered ?? false,
-      vrn: organization?.settings?.vrn ?? null,
-      vat_percentage: organization?.settings?.vat_percentage ?? undefined,
-      symbol_path: organization?.settings?.symbol_path ?? null,
-      main_color: organization?.settings?.main_color ?? theme.palette.primary.main,
-      light_color: organization?.settings?.light_color ?? '#bec5da',
-      dark_color: organization?.settings?.dark_color ?? theme.palette.primary.dark,
-      contrast_text: organization?.settings?.contrast_text ?? theme.palette.primary.contrastText,
-      tagline: organization?.settings?.tagline ?? null,
-      country_code: organization?.country_code || '',
-      currency_code: selectedCurrency?.code || '',
-      website: organization?.website ?? null
+        id: organization?.id,
+        name: organization?.name || '',
+        email: organization?.email ?? null,
+        phone: organization?.phone || '',
+        tin: organization?.tin ?? null,
+        recording_start_date: organization?.recording_start_date || '',
+        address: organization ? organization.address :  null,
+        vat_registered : organization?.settings?.vat_registered ? organization.settings.vat_registered : false,
+        vrn : organization?.settings?.vrn ? organization.settings.vrn : null,
+        vat_percentage : organization?.settings?.vat_percentage ? organization.settings.vat_percentage : 18,
+        symbol_path: organization?.settings?.symbol_path  ? organization.settings.symbol_path : null,
+        main_color: organization?.settings?.main_color ? organization.settings?.main_color : theme.palette.primary.main,
+        light_color: organization?.settings?.light_color ? organization.settings?.light_color : '#bec5da',
+        dark_color: organization?.settings?.dark_color  ? organization.settings.dark_color : theme.palette.primary.dark,
+        contrast_text: organization?.settings?.contrast_text ? organization.settings?.contrast_text : theme.palette.primary.contrastText,
+        tagline : organization?.settings?.tagline ? organization.settings.tagline : null,
+        country_code: organization?.country_code,
+        currency_code: selectedCurrency?.code
     }
   });
 
@@ -328,7 +328,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                                         helperText: errors?.recording_start_date?.message
                                     }
                                 }}
-                                onChange={(newValue:Date) => {
+                                onChange={(newValue) => {
                                     setValue('recording_start_date', newValue ? newValue.toISOString() : "", {
                                         shouldDirty: true,
                                         shouldValidate: true
@@ -422,20 +422,21 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                             </Typography>
                             <Divider/>
                         </Grid>
-                        <Grid size={{xs: 12, md: 4, lg: 2}}>
+                        <Grid size={{xs: 12, md: 4, lg: 3}}>
                             <Typography variant='body1'>VAT Registered?</Typography>
                             <Checkbox
                                 checked={!!watch('vat_registered')}
+                                size='small'
                                 onChange={(e) => {
-                                const checked = e.target.checked;
-                                setValue('vat_registered', checked, {
-                                    shouldDirty: true,
-                                    shouldValidate: true
-                                });
+                                    const checked = e.target.checked;
+                                    setValue('vat_registered', checked, {
+                                        shouldDirty: true,
+                                        shouldValidate: true
+                                    });
                                 }} 
                             />
                         </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <TextField
                                 fullWidth
                                 label="VRN"
