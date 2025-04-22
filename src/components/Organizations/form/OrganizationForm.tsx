@@ -106,21 +106,16 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
   const canEditOrganization = canCreateOrganization || (organization && checkOrganizationPermission([PERMISSIONS.ORGANIZATION_UPDATE]));
 
   const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email('Enter a valid email')
-      .nullable(),
-    name: yup
-      .string()
-      .required('Organization Name is required'),
-    country_code: yup
-      .string()
-      .required('Organization Country is required'),
-    currency_code: yup.string().required("Currency code is required"),
+    id: yup.string().optional(),
+    name: yup.string().required('Organization Name is required'),
+    email: yup.string().email('Enter a valid email').nullable(),
     phone: yup
       .string()
       .required('Phone Number is required')
       .matches(/^\+?[0-9]{10,15}$/, 'Invalid phone number'),
+    tin: yup.string().nullable(),
+    recording_start_date: yup.string().required('Recording start date is required'),
+    address: yup.string().nullable(),
     website: yup
       .string()
       .matches(
@@ -128,10 +123,14 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         'Enter a correct URL!'
       )
       .nullable(),
-    recording_start_date: yup
-      .string()
-      .required('Recording start date is required'),
+    country_code: yup.string().required('Organization Country is required'),
+    currency_code: yup.string().required("Currency code is required"),
     vat_registered: yup.boolean(),
+    vrn: yup.string().when('vat_registered', {
+      is: true,
+      then: (schema) => schema.required('VRN is required when VAT registered'),
+      otherwise: (schema) => schema.nullable()
+    }),
     vat_percentage: yup.number().when('vat_registered', {
       is: true,
       then: (schema) => schema
@@ -140,11 +139,18 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         .required('VAT percentage is required'),
       otherwise: (schema) => schema.positive().optional()
     }),
+    symbol_path: yup.string().nullable(),
+    main_color: yup.string().required('Main color is required'),
+    light_color: yup.string().required('Light color is required'),
+    dark_color: yup.string().required('Dark color is required'),
+    contrast_text: yup.string().required('Contrast text is required'),
     tagline: yup.string().max(50, 'Tagline must be at most 50 characters').nullable(),
+    logo: yup.mixed().optional(),
+    organization_symbol: yup.mixed().optional()
   });
 
   const { handleSubmit, register, setValue, watch, setError, formState: { errors } } = useForm<FormValues>({
-    // resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
         id: organization?.id,
         name: organization?.name || '',
@@ -272,326 +278,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 }
             >
                 <form  autoComplete='off'>
-                    <Grid container spacing={2}>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Name"
-                                size='small'
-                                autoComplete='off'
-                                error={!!errors?.name}
-                                helperText={errors?.name?.message}
-                                {...register('name')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Email"
-                                size="small"
-                                autoComplete='off'
-                                error={!!errors?.email}
-                                helperText={errors?.email?.message}
-                                {...register('email')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Phone"
-                                size="small"
-                                autoComplete='off'
-                                error={!!errors?.phone}
-                                helperText={errors?.phone?.message}
-                                {...register('phone')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Website"
-                                size="small"
-                                error={!!errors?.website}
-                                helperText={errors?.website?.message}
-                                {...register('website')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4, lg: 4}}>
-                            <DatePicker
-                                label="Recording Start"
-                                defaultValue={organization ? dayjs(organization.recording_start_date) : null}
-                                slotProps={{
-                                    textField: {
-                                        size: 'small',
-                                        fullWidth: true,
-                                        error: !!errors?.recording_start_date,
-                                        helperText: errors?.recording_start_date?.message
-                                    }
-                                }}
-                                onChange={(newValue) => {
-                                    setValue('recording_start_date', newValue ? newValue.toISOString() : "", {
-                                        shouldDirty: true,
-                                        shouldValidate: true
-                                    });
-                                }}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4, lg: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Tax Identification Number"
-                                size="small"
-                                autoComplete='off'
-                                error={!!errors?.tin}
-                                helperText={errors?.tin?.message}
-                                {...register('tin')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <Autocomplete
-                                id="checkbox-countries"
-                                options={allCountries.sort((a, b) => a.name.localeCompare(b.name))}
-                                isOptionEqualToValue={(option, value) => option.code === value?.code}
-                                value={selectedCountry}
-                                getOptionLabel={(option) => `${option.name} (${option.code})`}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Country"
-                                        size="small"
-                                        autoComplete='off'
-                                        fullWidth
-                                        error={!!errors.country_code}
-                                        helperText={errors.country_code?.message}
-                                    />
-                                )}
-                                onChange={(e, newValue) => {
-                                    setSelectedCountry(newValue);
-                                    setValue('country_code', newValue ? newValue.code : '', {
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                    });
-                                    setValue('currency_code', newValue ? newValue.currency.code : '', {
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                    });
-                                    setSelectedCurrency(newValue?.currency || null);
-                                }}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <Autocomplete
-                                id="checkbox-currencies"
-                                options={CURRENCIES.sort((a, b) => a.name.localeCompare(b.name))}
-                                isOptionEqualToValue={(option, value) => option.code === value?.code}
-                                getOptionLabel={(option) => `${option.name_plural} (${option.code})`}
-                                value={selectedCurrency}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Currency"
-                                        size="small"
-                                        autoComplete='off'
-                                        fullWidth
-                                        error={!!errors.currency_code}
-                                        helperText={errors.currency_code?.message}
-                                    />
-                                )}
-                                onChange={(e, newValue) => {
-                                    setSelectedCurrency(newValue);
-                                    setValue('currency_code', newValue ? newValue.code : '', {
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                    });
-                                }}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, lg: 4}}>
-                            <TextField
-                                fullWidth
-                                label="Address"
-                                size="small"
-                                multiline={true}
-                                minRows={2}
-                                {...register('address')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12}} sx={{m: 1, mt: 3}}>
-                            <Typography variant='body1'>
-                                VAT Settings
-                            </Typography>
-                            <Divider/>
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4, lg: 3}}>
-                            <Typography variant='body1'>VAT Registered?</Typography>
-                            <Checkbox
-                                checked={!!watch('vat_registered')}
-                                size='small'
-                                onChange={(e) => {
-                                    const checked = e.target.checked;
-                                    setValue('vat_registered', checked, {
-                                        shouldDirty: true,
-                                        shouldValidate: true
-                                    });
-                                }} 
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 3}}>
-                            <TextField
-                                fullWidth
-                                label="VRN"
-                                size="small"
-                                error={!!errors?.vrn}
-                                helperText={errors?.vrn?.message}
-                                {...register('vrn')}
-                            />
-                        </Grid>
-                        <Grid size={{xs: 12, md: 2}}>
-                            <TextField
-                                fullWidth
-                                label="VAT Percentage"
-                                size="small"
-                                error={!!errors?.vat_percentage}
-                                helperText={errors?.vat_percentage?.message}
-                                InputProps={{ 
-                                    endAdornment: `%`
-                                }}
-                                {...register('vat_percentage')}
-                            />
-                        </Grid>
 
-                        <Grid size={{xs: 12}} sx={{m: 1, mt: 3}}>
-                            <Typography variant='body1'>
-                                Identity and Branding
-                            </Typography>
-                            <Divider/>
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <Input
-                                type="file"
-                                id="logo"
-                                error={!!errors?.logo}
-                                {...register("logo")}
-                            />
-                            {!errors?.logo ? (
-                                <InputLabel sx={{ mb: 1 }} id="logo-label" htmlFor={'logo'}>Organization Logo</InputLabel>
-                            ) : (
-                                <FormHelperText error={!!errors?.logo}>{errors?.logo?.message}</FormHelperText>
-                            )}
-                            {organization?.logo_path && (
-                                <ListItem alignItems='flex-start' sx={{ p: theme => theme.spacing(1, 3) }}>
-                                    <ListItemAvatar sx={{ mr: 2, overflow: "hidden", borderRadius: 2 }}>
-                                        <img 
-                                            width={"140"} 
-                                            height={"105"} 
-                                            style={{ verticalAlign: 'middle' }} 
-                                            alt={`${organization.name} logo`}
-                                            src={organization.logo_path}
-                                        />
-                                    </ListItemAvatar>
-                                </ListItem>
-                            )}
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <Input
-                                type="file"
-                                id="organization_symbol"
-                                error={!!errors?.organization_symbol}
-                                {...register("organization_symbol")}
-                            />
-                            {!errors?.organization_symbol ? (
-                                <InputLabel sx={{ mb: 1 }} id="symbol-label" htmlFor={'organization_symbol'}>Organization Symbol</InputLabel>
-                            ) : (
-                                <FormHelperText error={!!errors?.organization_symbol}>{errors?.organization_symbol?.message}</FormHelperText>
-                            )}
-                            {organization?.settings?.symbol_path && (
-                                <ListItem alignItems='flex-start' sx={{ p: theme => theme.spacing(1, 3) }}>
-                                    <ListItemAvatar sx={{ mr: 2, overflow: "hidden", borderRadius: 2 }}>
-                                        <img 
-                                            width={"140"} 
-                                            height={"105"} 
-                                            style={{ verticalAlign: 'middle' }} 
-                                            alt={`${organization.name} symbol`}
-                                            src={organization.settings.symbol_path}
-                                        />
-                                    </ListItemAvatar>
-                                </ListItem>
-                            )}
-                        </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
-                            <Div sx={{ mt: 1, mb: 1 }}>
-                                <InputLabel sx={{ mb: 1 }} id="main-color-label" htmlFor={'main_color'}>Main Color</InputLabel>
-                                <Input
-                                    fullWidth
-                                    type="color"
-                                    id="main_color"
-                                    value={watch('main_color')}
-                                    onChange={(e) => {
-                                        setValue('main_color', e.target.value);
-                                    }}
-                                />
-                            </Div>
-                            <Div sx={{ mt: 1, mb: 1 }}>
-                                <InputLabel sx={{ mb: 1 }} id="light-color-label" htmlFor={'light_color'}>Light Color</InputLabel>
-                                <Input
-                                    fullWidth
-                                    type="color"
-                                    id="light_color"
-                                    value={watch('light_color')}
-                                    onChange={(e) => {
-                                        setValue('light_color', e.target.value);
-                                    }}
-                                />
-                            </Div>
-                            <Div sx={{ mt: 1, mb: 1 }}>
-                                <InputLabel sx={{ mb: 1 }} id="dark-color-label" htmlFor={'dark_color'}>Dark Color</InputLabel>
-                                <Input
-                                    fullWidth
-                                    type="color"
-                                    id="dark_color"
-                                    value={watch('dark_color')}
-                                    onChange={(e) => {
-                                        setValue('dark_color', e.target.value);
-                                    }}
-                                />
-                            </Div>
-                            <Div sx={{ mt: 1, mb: 1 }}>
-                                <InputLabel sx={{ mb: 1 }} id="contrast-text-color-label" htmlFor={'contrast_text'}>Contrast Text Color</InputLabel>
-                                <Input
-                                    fullWidth
-                                    type="color"
-                                    id="contrast_text"
-                                    value={watch('contrast_text')}
-                                    onChange={(e) => {
-                                        setValue('contrast_text', e.target.value);
-                                    }}
-                                />
-                            </Div>
-                            <Div sx={{ mt: 3, mb: 1 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Tagline"
-                                    size="small"
-                                    error={!!errors?.tagline}
-                                    helperText={errors?.tagline?.message}
-                                    {...register('tagline')}
-                                />
-                            </Div>
-                        </Grid>
-                        <Grid size={{xs: 12}}>
-                            <Box display={'flex'} justifyContent={'flex-end'}>
-                                <LoadingButton
-                                    type="submit"
-                                    variant="contained"
-                                    size="small"
-                                    sx={{ mb: 3, display: 'flex' }}
-                                    loading={addOrganization.isPending || updateOrganization.isPending}
-                                >
-                                    Submit
-                                </LoadingButton>
-                            </Box>
-                        </Grid>
-                    </Grid>
                 </form>
             </JumboCardQuick>
         </React.Fragment>
