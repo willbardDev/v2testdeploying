@@ -22,6 +22,13 @@ export function isPublicPath(pathname: string, locale?: string) {
   return matchPathname(publicPaths, pathname, locale);
 }
 
-export function isAnonymousPath(pathname: string, locale?: string) {
-  return matchPathname(anonymousPaths, pathname, locale);
+// utilities/helpers/path.ts
+export function isAnonymousPath(path: string) {
+  const parts = path.split('/');
+  const possibleLocale = parts[1];
+  const pathWithoutLocale = parts.length > 2 && possibleLocale.length === 5
+    ? '/' + parts.slice(2).join('/')
+    : path;
+
+  return anonymousPaths.includes(pathWithoutLocale);
 }

@@ -45,8 +45,14 @@ export async function anonymousMiddleware(request: NextRequest) {
 
 // --- Helpers ---
 function createAuthRedirect(request: NextRequest, error?: string) {
+  const callbackPath = request.nextUrl.pathname;
+
+  if (callbackPath.includes('/auth/signin')) {
+    return NextResponse.next(); // 🛑 avoid redirect loop
+  }
+
   const url = new URL('/auth/signin', request.url);
-  url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+  url.searchParams.set('callbackUrl', callbackPath);
   if (error) url.searchParams.set('error', error);
   return NextResponse.redirect(url);
 }
