@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getToken } from 'firebase/messaging';
 import axios from '@/lib/services/config';
@@ -9,6 +9,10 @@ import authServices from '@/services/auth-services';
 // import { messaging } from '@/app/helpers/init-firebase';
 import { AuthConfig, AuthResponse, BasicAuthContextType, TokenMetadata } from '@/types/auth-types';
 import { BasicAuthContext } from './BasicAuthContext';
+
+export const useBasicAuth = (): BasicAuthContextType => {
+    return useContext(BasicAuthContext);
+};
 
 const BasicAuth = ({ children }: { children: React.ReactNode }) => {
     const { setAuthValues, startAuthLoading } = useJumboAuth();

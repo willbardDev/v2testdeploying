@@ -5,7 +5,7 @@ import { Autocomplete, Box, Checkbox, Divider, FormHelperText, Grid, IconButton,
 import * as yup from "yup";
 import { CorporateFareOutlined, InfoRounded, ListOutlined } from '@mui/icons-material';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -92,7 +92,7 @@ interface FormValues {
 
 const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null }) => {
   const { enqueueSnackbar } = useSnackbar();
-  const configAuth = useBasicAuth();
+  const { configAuth } = useBasicAuth();
   const { authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -176,13 +176,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
   const addOrganization = useMutation<any, Error, FormValues>({
     mutationFn: organizationServices.create,
     onSuccess: (data) => {
-    //   if (configAuth) {
-    //     configAuth({ 
-    //       token: data.token, 
-    //       currentOrganization: data.newOrganization, 
-    //       currentUser: data.authUser 
-    //     });
-    //   }
+      if (configAuth) {
+        configAuth({ 
+          token: data.token, 
+          currentOrganization: data.newOrganization, 
+          currentUser: data.authUser 
+        });
+      }
       router.push(`/organizations/profile/${data.newOrganization.organization.id}`);
       enqueueSnackbar(data.message, { variant: 'success' });
     },
@@ -247,6 +247,10 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
     }
   }, [authUser, organization]);
 
+  const saveHandler: SubmitHandler<FormValues> = (formData) => {
+    saveMutation(formData);
+  };
+
   return (
         <React.Fragment>
             {addOrganization.isPending && <BackdropSpinner message={"Please wait while we are setting up your organization..."} />}
@@ -277,7 +281,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                     </Span>
                 }
             >
-              <form autoComplete='off'>
+              <form onSubmit={handleSubmit(saveHandler)} autoComplete='off'>
                 <Grid container spacing={2}>
                       <Grid size={{xs: 12, md: 4}}>
                           <TextField
