@@ -11,7 +11,7 @@ type LogoProps = {
 const Logo = ({ mini = false, mode = 'light', sx }: LogoProps) => {
   return (
     <Div sx={{ display: 'inline-flex', ...sx }}>
-      <Link href={'/dashboards'}>
+      <Link href={'/'}>
         {!mini ? (
           <Image
             src={
