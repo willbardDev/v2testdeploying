@@ -1,7 +1,13 @@
-export interface User {
+  export interface User {
     id: string;
     name: string;
     email: string;
+    [key: string]: any;
+  }
+
+  interface OrganizationRole {
+    id: string;
+    name: string;
     [key: string]: any;
   }
   
@@ -9,7 +15,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    roles: any[];
+    roles?: OrganizationRole[]
     active_subscriptions?: {
       modules: {
         id: string;

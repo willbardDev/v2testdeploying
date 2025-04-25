@@ -14,20 +14,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
-
-interface OrganizationRole {
-  id: string;
-  name: string;
-  [key: string]: any;
-}
-
-interface Organization {
-  id: string;
-  name?: string;
-  website?: string;
-  logo_path?: string;
-  roles?: OrganizationRole[];
-}
+import { Organization } from '@/types/auth-types';
 
 interface OrganizationListItemProps {
   organization: Organization;

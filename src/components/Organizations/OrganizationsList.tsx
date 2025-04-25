@@ -13,17 +13,7 @@ import JumboSearch from '@jumbo/components/JumboSearch';
 import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-interface Organization {
-  id: string;
-  [key: string]: any;
-}
+import { Organization, User } from '@/types/auth-types';
 
 interface QueryOptions<TQueryKey> {
   queryKey: string;
