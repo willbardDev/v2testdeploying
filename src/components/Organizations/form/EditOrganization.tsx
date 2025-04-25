@@ -10,6 +10,7 @@ import axios from '@/lib/services/config';
 import OrganizationForm from '@/components/Organizations/form/OrganizationForm';
 import { useParams, useRouter } from 'next/navigation';
 import { Organization } from '@/types/auth-types';
+import { Typography } from '@mui/material';
 
 interface OrganizationResponse {
   organization: Organization;
@@ -59,10 +60,22 @@ const EditOrganization: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>{`Edit: ${data.organization.name}`}</title>
-      </Head>
-      <OrganizationForm organization={data.organization} />
+        <Head>
+            <title>{`Edit: ${data.organization.name}`}</title>
+        </Head>
+
+        <Typography
+            variant="h4" 
+            component="h1"
+            sx={{ 
+                mb: 3,
+                fontWeight: 'bold',
+                color: 'primary.main'
+            }}
+        >
+            Editing: {data.organization.name}
+        </Typography>
+        <OrganizationForm organization={data.organization} />
     </>
   );
 };
