@@ -24,10 +24,6 @@ interface JumboCardQuickProps extends Omit<CardProps, 'title'> {
   divider?: boolean;
 }
 
-const normalizeBackgroundColor = (color: string | string[]): string => {
-  return Array.isArray(color) ? color.join(', ') : color;
-};
-
 const JumboCardQuick: React.FC<JumboCardQuickProps> = ({
   title,
   subheader,
