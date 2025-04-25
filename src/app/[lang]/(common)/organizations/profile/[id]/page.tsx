@@ -1,8 +1,9 @@
+import OrganizationProfile from '@/components/Organizations/profile/OrganizationProfile'
 import React from 'react'
 
 function page() {
   return (
-    <div>Profile for Organization will be here</div>
+    <OrganizationProfile/>
   )
 }
 

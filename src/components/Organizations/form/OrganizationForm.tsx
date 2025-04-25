@@ -14,14 +14,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { Div, Span } from '@jumbo/shared';
 import Link from 'next/link';
-import { COUNTRIES } from '@jumbo/utilities/constants/countries';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { PROS_CONTROL_PERMISSIONS } from '@jumbo/utilities/constants/prosControlPermissions';
-import { PERMISSIONS } from '@jumbo/utilities/constants/permissions';
-import { CURRENCIES } from '@jumbo/utilities/constants/currencies';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useRouter } from 'next/navigation';
 import { useBasicAuth } from '@/app/auth-providers/BasicAuth/hooks';
+import { COUNTRIES } from '@/utilities/constants/countries';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { CURRENCIES } from '@/utilities/constants/currencies';
+import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 
 interface Organization {
   id?: string;

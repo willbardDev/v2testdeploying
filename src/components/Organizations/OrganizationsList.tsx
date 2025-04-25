@@ -7,12 +7,12 @@ import { AddOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { PROS_CONTROL_PERMISSIONS } from '@jumbo/utilities/constants/prosControlPermissions';
 import Link from 'next/link';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
+import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 
 interface User {
   id: string;

@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { Card, CardHeader, CardContent, CardProps, CardHeaderProps, CardContentProps } from "@mui/material";
 import { getBgColorStyle, getBgImageStyle } from '@jumbo/utilities/styleHelpers';
