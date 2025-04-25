@@ -1,8 +1,9 @@
+import EditOrganization from '@/components/Organizations/form/EditOrganization'
 import React from 'react'
 
 function page() {
   return (
-    <div>Edit Organization will go here</div>
+    <EditOrganization/>
   )
 }
 
