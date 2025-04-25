@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
 import { Organization } from '@/types/auth-types';
+import { useBasicAuth } from '@/app/auth-providers/BasicAuth/BasicAuth';
 
 interface OrganizationListItemProps {
   organization: Organization;
@@ -26,6 +27,7 @@ const Item = styled(Span)(({ theme }) => ({
 
 export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ organization }) => {
   const router = useRouter();
+  const { loadOrganization } = useBasicAuth();
   const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -40,6 +42,34 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       router.push('/login');
     }
   }, [authUser, router]);
+
+  const onLoad = async () => {
+    setIsLoading(true);
+    if (authOrganization?.organization?.id !== organization.id) {
+      await loadOrganization(
+        organization.id,
+        (response) => {
+          enqueueSnackbar(
+            `${organization.name} is loaded to an active organization`,
+            {
+              variant: 'success'
+            }
+          );
+        },
+        (error: Error) => {
+          enqueueSnackbar(
+            `Something went wrong`,
+            {
+              variant: 'error'
+            }
+          );
+        }
+      );
+      queryClient.clear();
+      setIsLoading(false);
+    }
+    window.location.href = '/dashboard';
+  };
 
   if (isLoading) {
     return <BackdropSpinner message="Loading organization..." />;
@@ -89,6 +119,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
           <Item>
             <Tooltip title={`Load ${organization.name}`}>
               <Typography 
+                onClick={onLoad}
                 sx={{ cursor: 'pointer' }} 
                 variant={"h6"} 
                 mb={0.5}
@@ -105,9 +136,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         </Stack>
       </Grid>
       
-      <Grid 
-        size={{xs: rolesCount > 2 ? 12 : 6, md: 6, lg: 3}}
-        >
+      <Grid size={{xs: rolesCount > 2 ? 12 : 6, md: 6, lg: 3}}>
         <Typography variant={"h6"} mt={1} lineHeight={1.25}>
           Roles:
         </Typography>
@@ -136,8 +165,8 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         }}
       >
         {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) && (
-          <Link href={`/organizations/edit/${organization.id}`} passHref>
-            <IconButton>
+          <Link href={`/organizations/edit/${organization.id}`} passHref legacyBehavior>
+            <IconButton component="a">
               <Tooltip title={`Edit ${organization.name}`} disableInteractive>
                 <Edit />
               </Tooltip>
@@ -154,8 +183,8 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         )}
         
         {isAuthOrganization ? (
-          <Link href={'/dashboard'} passHref>
-            <IconButton>
+          <Link href={'/dashboard'} passHref legacyBehavior>
+            <IconButton component="a">
               <Tooltip title={`${organization.name} Dashboard`} disableInteractive>
                 <DashboardOutlined />
               </Tooltip>
@@ -166,6 +195,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
             sx={{ borderRadius: 100 }} 
             type='button' 
             loading={isLoading}
+            onClick={onLoad}
           >
             <Tooltip title={`Load ${organization.name}`} disableInteractive>
               <KeyboardArrowRightOutlined />
