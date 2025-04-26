@@ -10,9 +10,9 @@ const organizationServices = {
     return data;
   },
 
-  getUsers: async (organizationId, params = {}) => {
+  getUsers: async ( params = {}) => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get(`/organizations/${organizationId}/users`, {
+    const { data } = await axios.get(`/organizations/${queryParams.organizationId}/users`, {
       params: { page, limit, ...queryParams }
     });
     return data;

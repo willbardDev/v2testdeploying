@@ -11,11 +11,10 @@ import { Div } from '@jumbo/shared';
 import { ContentLayoutContext, JumboContentLayoutProps } from '@jumbo/types/JumboContentLayout';
 
 const JumboContentLayout = ({ header, footer, sidebar, children, layoutOptions }: JumboContentLayoutProps) => {
-    const contentLayout = useJumboContentLayout() as ContentLayoutContext;
-    const { setContentLayout } = contentLayout;
+    const { setContentLayout, ...contentLayout } = useJumboContentLayout() as ContentLayoutContext;
 
     useEffect(() => {
-        if (layoutOptions) {
+        if (layoutOptions && setContentLayout) {
             setContentLayout(layoutOptions);
         }
     }, [layoutOptions, setContentLayout]);
