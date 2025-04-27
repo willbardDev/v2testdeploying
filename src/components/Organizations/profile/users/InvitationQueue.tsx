@@ -21,7 +21,7 @@ interface Invitee {
 
 interface InvitationQueueProps {
   invitees: Invitee[];
-  setinvitees: React.Dispatch<React.SetStateAction<Invitee[]>>;
+  setInvitees: React.Dispatch<React.SetStateAction<Invitee[]>>;
   organization: Organization;
 }
 
@@ -32,7 +32,7 @@ interface InvitationsData {
 
 export const InvitationQueue: React.FC<InvitationQueueProps> = ({ 
   invitees, 
-  setinvitees, 
+  setInvitees, 
   organization 
 }) => {
   const { hideDialog } = useJumboDialog();
@@ -91,7 +91,7 @@ export const InvitationQueue: React.FC<InvitationQueueProps> = ({
             {invitees.map((invitee) => (
               <InvitationQueueItem
                 key={invitee.email}
-                setinvitees={setinvitees}
+                setInvitees={setInvitees}
                 invitees={invitees}
                 invitee={invitee}
               />

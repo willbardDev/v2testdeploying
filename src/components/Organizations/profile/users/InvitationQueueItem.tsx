@@ -24,25 +24,25 @@ interface Invitee {
 
 interface InvitationQueueItemProps {
   invitee: Invitee;
-  setinvitees: React.Dispatch<React.SetStateAction<Invitee[]>>;
+  setInvitees: React.Dispatch<React.SetStateAction<Invitee[]>>;
   invitees: Invitee[];
 }
 
 export const InvitationQueueItem: React.FC<InvitationQueueItemProps> = ({ 
   invitee, 
-  setinvitees, 
+  setInvitees, 
   invitees 
 }) => {
   const [expanded, setExpanded] = useState(true);
   const [selectedRoles, setSelectedRoles] = useState<(number | string)[]>(invitee.selectedRoles);
 
   useEffect(() => {
-    setinvitees(prevInvitees => 
+    setInvitees(prevInvitees => 
       prevInvitees.map(item => 
         item.id === invitee.id ? { ...item, selectedRoles } : item
       )
     );
-  }, [selectedRoles, invitee.id, setinvitees]);
+  }, [selectedRoles, invitee.id, setInvitees]);
 
   const handleChecked = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked, value } = event.target;
@@ -78,7 +78,7 @@ export const InvitationQueueItem: React.FC<InvitationQueueItemProps> = ({
         <ListItemSecondaryAction>
           <IconButton 
             onClick={() => 
-              setinvitees(invitees.filter(item => item.email !== invitee.email))
+              setInvitees(invitees.filter(item => item.email !== invitee.email))
             }
             edge="end"
             aria-label="remove invitee"

@@ -1,3 +1,4 @@
+import { initializeApp } from "firebase/app";
 import { getMessaging, onMessage } from "firebase/messaging";
 
 // Your web app's Firebase configuration
@@ -11,11 +12,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const messaging = getMessaging(app);
+
+export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
 export const onMessageListener = () =>
   new Promise((resolve) => {
-   onMessage(messaging, (payload) => {  
+    if (!messaging) return;
+    onMessage(messaging, (payload) => {
       resolve(payload);
     });
-});
+  });

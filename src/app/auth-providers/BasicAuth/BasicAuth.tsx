@@ -6,7 +6,7 @@ import { getToken } from 'firebase/messaging';
 import axios from '@/lib/services/config';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import authServices from '@/services/auth-services';
-// import { messaging } from '@/app/helpers/init-firebase';
+import { messaging } from '@/app/helpers/init-firebase';
 import { AuthConfig, AuthResponse, BasicAuthContextType, TokenMetadata } from '@/types/auth-types';
 import { BasicAuthContext } from './BasicAuthContext';
 
@@ -63,7 +63,12 @@ const BasicAuth = ({ children }: { children: React.ReactNode }) => {
             setAuthValues({
                 authToken: token,
                 authUser: currentUser,
-                authOrganization: currentOrganization
+                authOrganization: currentOrganization ? {
+                organization: {
+                    ...currentOrganization.organization,
+                    roles: currentOrganization.organization.roles || []
+                }
+                } : null
             });
         }
 
@@ -90,27 +95,27 @@ const BasicAuth = ({ children }: { children: React.ReactNode }) => {
                 }
             };
 
-            // const getFCMToken = async () => {
-            //     try {
-            //         const permission = await Notification.requestPermission();
-            //         if (permission === "granted") {
-            //             const currentToken = await getToken(messaging, {
-            //                 vapidKey: "BE0EDrXQ7XCFZnkE3LpiSS3sag1jXpF3Vzb2c83R8HrRoKTknbDRcKHdCvC4dWjbZRA1zybLep2ozXiIO0oZniw"
-            //             });
-            //             if (currentToken) {
-            //                 setTokenMetadata((prev: TokenMetadata | null) => ({ 
-            //                     ...prev, 
-            //                     fcm_token: currentToken 
-            //                 }));
-            //             }
-            //         }
-            //     } catch (err) {
-            //         console.log('Error requesting token:', err);
-            //     }
-            //     await getLocation();
-            // };
+            const getFCMToken = async () => {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === "granted" && messaging) {
+                        const currentToken = await getToken(messaging, {
+                            vapidKey: "BE0EDrXQ7XCFZnkE3LpiSS3sag1jXpF3Vzb2c83R8HrRoKTknbDRcKHdCvC4dWjbZRA1zybLep2ozXiIO0oZniw"
+                        });
+                        if (currentToken) {
+                            setTokenMetadata((prev: TokenMetadata | null) => ({ 
+                                ...prev, 
+                                fcm_token: currentToken 
+                            }));
+                        }
+                    }
+                } catch (err) {
+                    console.log('Error requesting token:', err);
+                }
+                await getLocation();
+            };
 
-            // await getFCMToken();
+            await getFCMToken();
         }
     };
 

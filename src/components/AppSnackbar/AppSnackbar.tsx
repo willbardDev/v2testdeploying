@@ -1,19 +1,38 @@
 'use client';
-import { SnackbarProvider } from 'notistack';
-import React from 'react';
 
-const AppSnackbar = ({ children }: { children: React.ReactNode }) => {
+import React, { ReactNode } from 'react';
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import { IconButton } from '@mui/material';
+import { CloseOutlined } from '@mui/icons-material';
+import PushNotification from '@/shared/Information/PushNotification';
+
+interface SnackbarCloseButtonProps {
+  snackbarKey: string | number;
+}
+
+function SnackbarCloseButton({ snackbarKey }: SnackbarCloseButtonProps) {
+  const { closeSnackbar } = useSnackbar();
+
+  return (
+    <IconButton onClick={() => closeSnackbar(snackbarKey)} size="small" aria-label="close">
+      <CloseOutlined fontSize="small" sx={{ color: 'red' }} />
+    </IconButton>
+  );
+}
+
+interface AppSnackbarProps {
+  children: ReactNode;
+}
+
+export const AppSnackbar: React.FC<AppSnackbarProps> = ({ children }) => {
   return (
     <SnackbarProvider
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
-      }}
+      action={(snackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       maxSnack={3}
     >
       {children}
+      <PushNotification/>
     </SnackbarProvider>
   );
 };
-
-export { AppSnackbar };

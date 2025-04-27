@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import * as yup from "yup";
 import React, { useState } from 'react';
@@ -8,7 +8,7 @@ import { useSnackbar } from 'notistack';
 import { InvitationQueue } from './InvitationQueue';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "@/lib/services/config";
 import organizationServices from "@/lib/services/organizationServices";
 import { Organization } from "@/types/auth-types";
@@ -31,10 +31,8 @@ interface Invitee {
 
 export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) => {
   const [invitees, setInvitees] = useState<Invitee[]>([]);
-  const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  
-  // ValidationSchema
+
   const validationSchema = yup.object({
     email: yup.string()
       .required('Email is required')
@@ -46,104 +44,100 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
-    defaultValues: {
-      email: '',
-    }
+    defaultValues: { email: '' },
   });
 
-  const { data: organizationRoles, isLoading } = useQuery({
+  const { data: organizationRoles, isPending: isRolesLoading } = useQuery({
     queryKey: [`organizationRoles_${organization?.id}`],
     queryFn: async () => {
       const response = await axios.get(`/organizations/${organization.id}/roles`);
       return response.data;
     },
-    enabled: !!organization?.id
+    enabled: !!organization?.id,
   });
 
-  const addInvitee = async ({ email }: FormValues) => {
-    try {
-      setLoading(true);
-      const response = await organizationServices.addInvitee(organization?.id, email);
-
-      const user: Invitee = {
-        ...response.user,
-        id: response.user.id || Date.now(), // Ensure id is always defined
-        roles: organizationRoles,
+  const { mutate: addInvitee, isPending: isAddingInvitee } = useMutation({
+    mutationFn: async ({ email }: FormValues) => {
+      const response = await organizationServices.addInvitee(organization.id, email);
+      return response.user;
+    },
+    onSuccess: (user, variables) => {
+      const newInvitee: Invitee = {
+        ...user,
+        id: user.id || Date.now(),
+        roles: organizationRoles || [],
         selectedRoles: [],
       };
 
-      if (invitees.some(invitee => invitee.email === user.email)) {
+      if (invitees.some(invitee => invitee.email === newInvitee.email)) {
         enqueueSnackbar('User is already in the queued list', { variant: 'error' });
       } else {
-        setInvitees([...invitees, user]);
+        setInvitees(prev => [...prev, newInvitee]);
         reset();
       }
-    } catch (error: any) {
-      if (error?.response) {
-        if (error.response.status === 404) {
-          const user: Invitee = {
-            id: Date.now(), // Generate temporary id for unregistered users
-            name: 'Not Registered',
-            email: email,
-            selectedRoles: [],
-          };
+    },
+    onError: (error: any, variables) => {
+      if (error?.response?.status === 404) {
+        const fallbackUser: Invitee = {
+          id: Date.now(),
+          name: 'Not Registered',
+          email: variables.email,
+          selectedRoles: [],
+        };
 
-          let message;
-          if (invitees.some(invitee => invitee.email === user.email)) {
-            message = 'User is already in the queued list';
-            reset();
-          } else {
-            message = 'No user with that email was found. An invitation to register will be sent instead.';
-            setInvitees([...invitees, user]);
-            reset();
-          }
-
-          enqueueSnackbar(message, { variant: 'info' });
+        if (invitees.some(invitee => invitee.email === fallbackUser.email)) {
+          enqueueSnackbar('User is already in the queued list', { variant: 'error' });
+          reset();
         } else {
-          enqueueSnackbar(error.response?.data?.message || 'An error occurred', { variant: 'error' });
+          enqueueSnackbar('No user with that email was found. An invitation to register will be sent instead.', { variant: 'info' });
+          setInvitees(prev => [...prev, fallbackUser]);
           reset();
         }
       } else {
-        enqueueSnackbar('An error occurred', { variant: 'error' });
+        console.log(error?.response?.data?.message)
+        enqueueSnackbar(error?.response?.data?.message || 'An error occurred', { variant: 'error' });
+        reset();
       }
-    } finally {
-      setLoading(false);
     }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    addInvitee(data);
   };
 
-  if (isLoading) {
+  if (isRolesLoading) {
     return <LinearProgress />;
   }
 
   return (
-    <form onSubmit={handleSubmit(addInvitee)}>
-      <Grid container columnSpacing={1} paddingRight={1}>
-        <Grid size={{xs: 10}}>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Grid container columnSpacing={1} paddingRight={1} alignItems="center">
+        <Grid size={10}>
           <TextField
             label="Email"
             fullWidth
             size="small"
-            error={!!errors?.email}
-            helperText={errors?.email?.message}
+            error={!!errors.email}
+            helperText={errors.email?.message}
             {...register('email')}
           />
         </Grid>
-        <Grid size={{xs: 2}}>
+        <Grid size={2}>
           <LoadingButton 
             size="small"
             variant="contained"
             type="submit"
-            sx={{ mb: 4, display: 'flex' }}
-            loading={loading}
-            disabled={loading}
+            loading={isAddingInvitee}
+            fullWidth
           >
             Add
           </LoadingButton>
         </Grid>
       </Grid>
+
       <InvitationQueue 
         invitees={invitees}
-        setinvitees={setInvitees}
+        setInvitees={setInvitees}
         organization={organization}
       />
     </form>
