@@ -1,4 +1,4 @@
-import { JumboDdPopover, JumboIconButton } from '@jumbo/components';
+import { JumboIconButton } from '@jumbo/components';
 import {
   useJumboHeaderTheme,
   useJumboTheme,
@@ -22,6 +22,12 @@ import { NotificationBirthday } from './NotificationBirthday';
 import { NotificationInvitation } from './NotificationInvitation';
 import { NotificationPost } from './NotificationPost';
 import { NotificationSharedPost } from './NotificationSharedPost';
+import dynamic from 'next/dynamic';
+
+const JumboDdPopover = dynamic(() =>
+  import('@jumbo/components').then((mod) => mod.JumboDdPopover),
+  { ssr: false }
+);
 
 type NotificationTypeProps = {
   POSTING: React.ComponentType<{ item: NotificationsDataProps }>;

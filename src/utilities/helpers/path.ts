@@ -14,7 +14,8 @@ export function isPublicPath(pathname: string, locale?: string) {
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
-    pathname.startsWith('/assets/')
+    pathname.startsWith('/assets/') ||
+    pathname.startsWith('/firebase-messaging-sw.js')
   ) {
     return true;
   }

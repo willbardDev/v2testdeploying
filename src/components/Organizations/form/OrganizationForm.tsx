@@ -17,7 +17,6 @@ import Link from 'next/link';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useRouter } from 'next/navigation';
-import { useBasicAuth } from '@/app/auth-providers/BasicAuth/hooks';
 import { COUNTRIES } from '@/utilities/constants/countries';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CURRENCIES } from '@/utilities/constants/currencies';
@@ -92,8 +91,7 @@ interface FormValues {
 
 const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null }) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { configAuth } = useBasicAuth();
-  const { authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
+  const { configAuth, authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
   const theme = useTheme();

@@ -6,7 +6,6 @@ import { Button, Tooltip } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import { useOrganizationProfile } from '../OrganizationProfileProvider';
-import { useBasicAuth } from '@/app/auth-providers/BasicAuth/BasicAuth';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Organization } from '@/types/auth-types';
@@ -15,8 +14,7 @@ import { useRouter } from 'next/navigation';
 export const HeaderActions: React.FC = () => {
     const router = useRouter();
     const { organization }: { organization?: Organization } = useOrganizationProfile();
-    const { loadOrganization } = useBasicAuth();
-    const { authOrganization, checkOrganizationPermission } = useJumboAuth();
+    const { authOrganization, checkOrganizationPermission, loadOrganization } = useJumboAuth();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const { enqueueSnackbar } = useSnackbar();
 

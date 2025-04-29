@@ -1,8 +1,6 @@
 import { Div } from '@jumbo/shared';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import React from 'react';
-
-import { JumboDdPopover } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Button, CardActions, Divider, ThemeProvider } from '@mui/material';
 import { MessagesHeader } from './MessagesHeader';
@@ -11,6 +9,12 @@ import { MessagesTriggerButton } from './MessagesTriggerButton';
 import { SearchMessages } from './SearchMessages';
 import { SettingHeader } from './SettingHeader';
 import { SettingsList } from './SettingsList';
+import dynamic from 'next/dynamic';
+
+const JumboDdPopover = dynamic(() =>
+  import('@jumbo/components').then((mod) => mod.JumboDdPopover),
+  { ssr: false }
+);
 
 const MessagesPopover = () => {
   const [showSettings, setShowSettings] = React.useState<boolean>(false);

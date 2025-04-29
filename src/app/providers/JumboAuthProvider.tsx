@@ -1,6 +1,10 @@
 'use client'
 import axios from '@/lib/services/config';
-import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { getToken } from 'firebase/messaging';
+import { messaging } from '@/app/helpers/init-firebase';
+import authServices from '@/services/auth-services';
 
 // Types
 interface AuthUser {
@@ -48,8 +52,35 @@ interface AuthState {
   };
 }
 
+interface TokenMetadata {
+  latitude?: number;
+  longitude?: number;
+  geolocation_accuracy?: number;
+  fcm_token?: string;
+}
+
+interface AuthConfig {
+  token?: string | null;
+  OrganizationId?: string | null;
+  currentUser?: AuthUser | null;
+  currentOrganization?: AuthOrganization | null;
+  refresh?: boolean;
+}
+
+interface AuthResponse {
+  token?: string;
+  authUser?: {
+    user: AuthUser;
+    permissions?: string[];
+    organization_roles?: Array<{ name: string }>;
+  };
+  authOrganization?: AuthOrganization;
+  [key: string]: any;
+}
+
 interface AuthContextType extends AuthState {
-  setAuthValues: (values: Partial<AuthState>, options?: { delay?: number }) => void;
+  authData: AuthState;
+  setAuthValues: (values: Partial<AuthState>, options?: { persist?: boolean }) => void;
   startAuthLoading: () => void;
   stopAuthLoading: () => void;
   setOnlyAuthAccessData: (data: Partial<AuthState['onlyAuthAccessData']>) => void;
@@ -59,27 +90,40 @@ interface AuthContextType extends AuthState {
   organizationHasSubscribed: (modules: string | string[], mustHaveAll?: boolean) => boolean;
   moduleSetting: (setting: { module_id: string; id: string }) => any;
   hasOrganizationRole: (roles: string | string[], mustHaveAll?: boolean) => boolean;
+  refreshAuth: () => Promise<AuthResponse | null>;
+  configAuth: (config: AuthConfig) => Promise<void>;
+  resetAuth: () => void;
+  loadOrganization: (
+    organization_id: string,
+    successCallback: (data: any) => void,
+    errorCallback: (error: any) => void
+  ) => Promise<void>;
 }
 
 // Context
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // Initial state function
-const init = (restProps: any): AuthState => ({
-  authToken: "not-set",
-  authUser: null,
-  authOrganization: null,
-  isLoading: true,
-  isAuthenticated: false,
-  onlyAuthAccessData: {
-    routes: restProps?.onlyAuthAccessData?.routes ?? [],
-    fallbackPath: restProps?.onlyAuthAccessData?.fallbackPath ?? "/"
-  },
-  onlyNotAuthAccessData: {
-    routes: restProps?.onlyNotAuthAccessData?.routes ?? [],
-    fallbackPath: restProps?.onlyNotAuthAccessData?.fallbackPath ?? null
-  },
-});
+const init = (restProps: any): AuthState => {
+  const storedData = typeof window !== 'undefined' ? localStorage.getItem('authData') : null;
+  const parsedData = storedData ? JSON.parse(storedData) : null;
+
+  return {
+    authToken: parsedData?.authToken || null,
+    authUser: parsedData?.authUser || null,
+    authOrganization: parsedData?.authOrganization || null,
+    isLoading: true, // Start loading to allow async checks
+    isAuthenticated: false, // Will be set after validation
+    onlyAuthAccessData: {
+      routes: restProps?.onlyAuthAccessData?.routes ?? [],
+      fallbackPath: restProps?.onlyAuthAccessData?.fallbackPath ?? "/"
+    },
+    onlyNotAuthAccessData: {
+      routes: restProps?.onlyNotAuthAccessData?.routes ?? [],
+      fallbackPath: restProps?.onlyNotAuthAccessData?.fallbackPath ?? null
+    },
+  };
+};
 
 // Reducer
 const authReducer = (state: AuthState, action: any): AuthState => {
@@ -143,7 +187,13 @@ const authReducer = (state: AuthState, action: any): AuthState => {
   }
 };
 
-export const JumboAuthProvider = ({
+// Helper function to get stored auth data
+const getStoredAuthData = () => {
+  const storedData = localStorage.getItem('authData');
+  return storedData ? JSON.parse(storedData) : null;
+};
+
+export const JumboAuthProvider = ({ 
   children,
   providerComponent: ProviderComponent = React.Fragment,
   providerProps = {},
@@ -154,76 +204,34 @@ export const JumboAuthProvider = ({
   providerProps?: any;
   [key: string]: any;
 }) => {
-    const [authData, dispatch] = useReducer(authReducer, {
-        ...init(restProps),
-        isLoading: true
+  const [authData, dispatch] = useReducer(authReducer, {
+    ...init(restProps),
+    isLoading: true
+  });
+  const [tokenMetadata, setTokenMetadata] = useState<TokenMetadata | null>(null);
+  const queryClient = useQueryClient();
+
+  // Helper functions
+  const setAuthValues = useCallback((values: Partial<AuthState>, options: { persist?: boolean } = { persist: true }) => {
+    dispatch({
+      type: "set-auth-values",
+      payload: values
     });
 
-  // Load from localStorage on initial render
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedData = localStorage.getItem('authData');
-      if (storedData) {
-        try {
-          const parsedData = JSON.parse(storedData);
-          if (parsedData?.authToken && parsedData?.authUser) {
-            dispatch({
-              type: "set-auth-values",
-              payload: {
-                authToken: parsedData.authToken,
-                authUser: parsedData.authUser,
-                authOrganization: parsedData.authOrganization || null,
-                isLoading: false
-              }
-            });
-          } else {
-            localStorage.removeItem('authData');
-            dispatch({ type: "stop-loading" });
-          }
-        } catch (e) {
-          localStorage.removeItem('authData');
-          dispatch({ type: "stop-loading" });
-        }
-      } else {
-        dispatch({ type: "stop-loading" });
-      }
+    if (options.persist && values.authToken) {
+      const authDataToStore = {
+        authToken: values.authToken,
+        authUser: values.authUser || authData.authUser,
+        authOrganization: values.authOrganization
+      };
+
+      localStorage.setItem('authData', JSON.stringify(authDataToStore));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${values.authToken}`;
+    } else if (!values.authToken) {
+      localStorage.removeItem('authData');
+      delete axios.defaults.headers.common['Authorization'];
     }
-  }, []);
-
-  // Single effect to persist changes to localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !authData.isLoading) {
-      if (authData.authToken && authData.authToken !== "not-set") {
-        localStorage.setItem('authData', JSON.stringify({
-          authToken: authData.authToken,
-          authUser: authData.authUser,
-          authOrganization: authData.authOrganization
-        }));
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.authToken;
-      } else {
-        localStorage.removeItem('authData');
-      }
-    }
-  }, [authData.authToken, authData.authUser, authData.authOrganization, authData.isLoading]);
-
-  const setAuthValues = useCallback((authValues: Partial<AuthState>, options?: { delay?: number }) => {
-    const { authToken, authUser, isLoading, isAuthenticated, onlyAuthAccessData, onlyNotAuthAccessData, ...restValues } = authValues;
-
-    const action = {
-      type: "set-auth-values",
-      payload: {
-        authToken,
-        authUser,
-        ...restValues
-      }
-    };
-
-    if (options?.delay) {
-      setTimeout(() => dispatch(action), options.delay);
-    } else {
-      dispatch(action);
-    }
-  }, []);
+  }, [authData.authUser, authData.authOrganization]);
 
   const startAuthLoading = useCallback(() => {
     dispatch({ type: "start-loading" });
@@ -247,100 +255,204 @@ export const JumboAuthProvider = ({
     });
   }, []);
 
-  const checkPermission = useCallback((permissions: string | string[], mustHaveAll = false) => {
-    const { authUser } = authData;
-    const authPermissions = authUser?.permissions;
+  // Auth functions
+  const refreshAuth = useCallback(async () => {
+    try {
+      const storedData = getStoredAuthData();
+      console.log(storedData, 'refreeesshhh')
+
+      const currentToken = storedData?.authToken || null;
+      
+      const response: AuthResponse = await authServices.getCurrentUser();
+
+      if (response?.authUser?.user?.email) {
+        const authUser: AuthUser = {
+          ...response.authUser.user,
+          permissions: response.authUser.permissions || [],
+        };
+
+        setAuthValues({
+          authToken: currentToken,
+          authUser: authUser,
+          authOrganization: storedData.authOrganization || null
+        }, { persist: true });
+        return response;
+      }
+      resetAuth();
+      return null;
+    } catch (error) {
+      resetAuth();
+      return null;
+    }
+  }, [setAuthValues]);
+
+  const configAuth = useCallback(async ({
+    token,
+    OrganizationId,
+    currentUser = null,
+    currentOrganization = null,
+    refresh = false
+  }: AuthConfig) => {
+    const storedData = getStoredAuthData();
+    const effectiveToken = token || storedData?.authToken || null;
     
+    if (!effectiveToken) {
+      resetAuth();
+      return;
+    }
+    
+    axios.defaults.headers.common['Authorization'] = `Bearer ${effectiveToken}`;
+
+    if (OrganizationId && OrganizationId !== localStorage.getItem("OrganizationId")) {
+      localStorage.setItem("OrganizationId", OrganizationId);
+      axios.defaults.headers.common['X-OrganizationId'] = OrganizationId;
+    } else if (currentOrganization?.organization?.id && currentUser) {
+      localStorage.setItem("OrganizationId", currentOrganization.organization.id);
+      axios.defaults.headers.common['X-OrganizationId'] = currentOrganization.organization.id;
+
+      setAuthValues({
+        authToken: effectiveToken,
+        authUser: currentUser,
+        authOrganization: currentOrganization
+      }, { persist: true });
+    }
+
+    if ((effectiveToken && !currentUser) || refresh) {
+      await refreshAuth();
+    }
+
+    if (effectiveToken) {
+      const getLocation = async () => {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              console.log(position,'positionnnnnn')
+              setTokenMetadata((prev) => ({
+                ...prev,
+                geolocation_accuracy: position.coords.accuracy,
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              }));
+            },
+            (error) => console.error('Error getting location:', error)
+          );
+        }
+      };
+
+      const getFCMToken = async () => {
+        Notification.requestPermission().then(async(permission) => {
+          if (permission === "granted") {
+            return getToken(messaging, {vapidKey: "BE0EDrXQ7XCFZnkE3LpiSS3sag1jXpF3Vzb2c83R8HrRoKTknbDRcKHdCvC4dWjbZRA1zybLep2ozXiIO0oZniw"})
+              .then((currentToken) => {
+                if (currentToken) {
+                  setTokenMetadata(metadata => ({...metadata, fcm_token : currentToken}));
+                }
+              })
+              .catch((err) => {
+                console.log('An error occurred when requesting to receive the token.', err);
+              });
+          }
+        });
+        await getLocation();  
+      };
+
+      await getFCMToken();
+    }
+  }, [refreshAuth, setAuthValues]);
+
+  const resetAuth = useCallback(() => {
+    queryClient.clear();
+    localStorage.removeItem('authData');
+    localStorage.removeItem('OrganizationId');
+    setAuthValues({
+      authToken: null,
+      authUser: null,
+      authOrganization: null
+    }, { persist: false });
+    delete axios.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common['X-OrganizationId'];
+  }, [queryClient, setAuthValues]);
+
+  const loadOrganization = useCallback(async (
+    organization_id: string,
+    successCallback: (data: any) => void,
+    errorCallback: (error: any) => void
+  ) => {
+    try {
+      const response = await authServices.loadOrganization({ organization_id });
+      if (response?.data?.authOrganization?.organization && response?.data?.authUser?.user) {
+        await configAuth({
+          token: response?.data?.token,
+          currentUser: response.data.authUser,
+          currentOrganization: response.data.authOrganization
+        });
+      }
+      successCallback(response?.data);
+    } catch (error) {
+      errorCallback(error);
+    }
+  }, [configAuth]);
+
+  // Permission checkers (keep existing implementations)
+  const checkPermission = useCallback((permissions: string | string[], mustHaveAll = false) => {
+    const authPermissions = authData.authUser?.permissions;
     if (!authPermissions) return false;
 
     const permissionsArray = Array.isArray(permissions) ? permissions : [permissions];
+    const check = (permission: string) => 
+      authPermissions.some(authPermission => 
+        authPermission.toLowerCase() === permission.toLowerCase()
+      );
 
-    if (mustHaveAll) {
-      return permissionsArray.every(permission => 
-        authPermissions.some(authPermission => 
-          authPermission.toLowerCase() === permission.toLowerCase()
-        )
-      );
-    } else {
-      return permissionsArray.some(permission => 
-        authPermissions.some(authPermission => 
-          authPermission.toLowerCase() === permission.toLowerCase()
-        )
-      );
-    }
+    return mustHaveAll 
+      ? permissionsArray.every(check)
+      : permissionsArray.some(check);
   }, [authData.authUser]);
 
   const hasOrganizationRole = useCallback((roles: string | string[], mustHaveAll = false) => {
-    const { authUser } = authData;
-    const authRoles = authUser?.organization_roles;
-
+    const authRoles = authData.authUser?.organization_roles;
     if (!authRoles) return false;
 
     const rolesArray = Array.isArray(roles) ? roles : [roles];
+    const check = (role: string) => 
+      authRoles.some(authRole => 
+        authRole?.name.toLowerCase() === role.toLowerCase()
+      );
 
-    if (mustHaveAll) {
-      return rolesArray.every(role => 
-        authRoles.some(authRole => 
-          authRole?.name.toLowerCase() === role.toLowerCase()
-        )
-      );
-    } else {
-      return rolesArray.some(role => 
-        authRoles.some(authRole => 
-          authRole?.name.toLowerCase() === role.toLowerCase()
-        )
-      );
-    }
+    return mustHaveAll 
+      ? rolesArray.every(check)
+      : rolesArray.some(check);
   }, [authData.authUser]);
 
   const checkOrganizationPermission = useCallback((permissions: string | string[], mustHaveAll = false) => {
-    const { authOrganization } = authData;
-    const authPermissions = authOrganization?.permissions;
-
+    const authPermissions = authData.authOrganization?.permissions;
     if (!authPermissions) return false;
 
     const permissionsArray = Array.isArray(permissions) ? permissions : [permissions];
+    const check = (permission: string) => 
+      authPermissions.some(authPermission => 
+        authPermission.toLowerCase() === permission.toLowerCase()
+      );
 
-    if (mustHaveAll) {
-      return permissionsArray.every(permission => 
-        authPermissions.some(authPermission => 
-          authPermission.toLowerCase() === permission.toLowerCase()
-        )
-      );
-    } else {
-      return permissionsArray.some(permission => 
-        authPermissions.some(authPermission => 
-          authPermission.toLowerCase() === permission.toLowerCase()
-        )
-      );
-    }
+    return mustHaveAll 
+      ? permissionsArray.every(check)
+      : permissionsArray.some(check);
   }, [authData.authOrganization]);
 
   const organizationHasSubscribed = useCallback((modules: string | string[], mustHaveAll = false) => {
-    const { authOrganization } = authData;
-    const activeSubscriptions = authOrganization?.organization?.active_subscriptions;
-    
+    const activeSubscriptions = authData.authOrganization?.organization?.active_subscriptions;
     if (!activeSubscriptions) return false;
 
     const subscribedModules = activeSubscriptions.flatMap(
-      subscription => subscription.modules.flatMap(module => module.name)
+      sub => sub.modules.map(module => module.name.toLowerCase())
     );
-
     const modulesArray = Array.isArray(modules) ? modules : [modules];
 
-    if (mustHaveAll) {
-      return modulesArray.every(module => 
-        subscribedModules.some(subscribedModule => 
-          subscribedModule.toLowerCase() === module.toLowerCase()
-        )
-      );
-    } else {
-      return modulesArray.some(module => 
-        subscribedModules.some(subscribedModule => 
-          subscribedModule.toLowerCase() === module.toLowerCase()
-        )
-      );
-    }
+    return mustHaveAll
+      ? modulesArray.every(module => 
+          subscribedModules.includes(module.toLowerCase()))
+      : modulesArray.some(module => 
+          subscribedModules.includes(module.toLowerCase()));
   }, [authData.authOrganization]);
 
   const moduleSetting = useCallback((setting: { module_id: string; id: string }) => {
@@ -357,37 +469,69 @@ export const JumboAuthProvider = ({
     return undefined;
   }, [authData.authOrganization]);
 
-  const contextValue = useMemo(() => {
-    return {
-      ...authData,
-      setAuthValues,
-      setOnlyAuthAccessData,
-      setOnlyNotAuthAccessData,
-      startAuthLoading,
-      stopAuthLoading,
-      checkPermission,
-      checkOrganizationPermission,
-      organizationHasSubscribed,
-      moduleSetting,
-      hasOrganizationRole,
-      authData 
+  useEffect(() => {
+    if (tokenMetadata) {
+      authServices.updateAuthTokenMetaData(tokenMetadata);
+    }
+  }, [tokenMetadata?.longitude, tokenMetadata?.latitude, tokenMetadata?.fcm_token, tokenMetadata?.geolocation_accuracy]);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      startAuthLoading();
+      const storedData = getStoredAuthData();
+      const organizationId = localStorage.getItem("OrganizationId") || '';
+      
+      axios.defaults.headers.common['X-OrganizationId'] = organizationId;
+      
+      if (storedData?.authToken) {
+        await configAuth({ 
+          token: storedData.authToken, 
+          OrganizationId: storedData?.authOrganization?.organization?.id,
+          currentUser: storedData?.authUser,
+          currentOrganization: storedData?.authOrganization?.organization
+        });
+      } else {
+        resetAuth();
+      }
     };
-  }, [
-    authData.authToken,
-    authData.authUser,
-    authData.authOrganization,
-    authData.isLoading,
-    authData.isAuthenticated,
+
+    initializeAuth();
+  }, []);
+
+  // Context value
+  const contextValue = useMemo(() => ({
+    ...authData,
+    authData,
     setAuthValues,
-    setOnlyAuthAccessData,
-    setOnlyNotAuthAccessData,
     startAuthLoading,
     stopAuthLoading,
+    setOnlyAuthAccessData,
+    setOnlyNotAuthAccessData,
     checkPermission,
     checkOrganizationPermission,
     organizationHasSubscribed,
     moduleSetting,
-    hasOrganizationRole
+    hasOrganizationRole,
+    refreshAuth,
+    configAuth,
+    resetAuth,
+    loadOrganization
+  }), [
+    authData,
+    setAuthValues,
+    startAuthLoading,
+    stopAuthLoading,
+    setOnlyAuthAccessData,
+    setOnlyNotAuthAccessData,
+    checkPermission,
+    checkOrganizationPermission,
+    organizationHasSubscribed,
+    moduleSetting,
+    hasOrganizationRole,
+    refreshAuth,
+    configAuth,
+    resetAuth,
+    loadOrganization
   ]);
 
   return (

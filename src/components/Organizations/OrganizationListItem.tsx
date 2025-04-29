@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
 import { Organization } from '@/types/auth-types';
-import { useBasicAuth } from '@/app/auth-providers/BasicAuth/BasicAuth';
 
 interface OrganizationListItemProps {
   organization: Organization;
@@ -27,8 +26,7 @@ const Item = styled(Span)(({ theme }) => ({
 
 export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ organization }) => {
   const router = useRouter();
-  const { loadOrganization } = useBasicAuth();
-  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
+  const { authOrganization, authUser, loadOrganization, checkOrganizationPermission } = useJumboAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();

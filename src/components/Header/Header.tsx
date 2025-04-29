@@ -1,4 +1,5 @@
 'use client';
+
 import {
   useJumboLayout,
   useSidebarState,
@@ -8,11 +9,16 @@ import { SIDEBAR_STYLES } from '@jumbo/utilities/constants';
 import { TranslationPopover } from '@/components/TranslationPopover';
 import { Stack, useMediaQuery } from '@mui/material';
 import React from 'react';
-import { AuthUserPopover } from '../AuthUserPopover';
 import { Logo } from '../Logo';
 import { SidebarToggleButton } from '../SidebarToggleButton';
 import { Search } from './Search';
 import { ThemeModeOption } from './ThemeModeOptions';
+import dynamic from 'next/dynamic';
+
+const AuthUserPopover = dynamic(() =>
+  import('../AuthUserPopover').then((mod) => mod.AuthUserPopover),
+  { ssr: false }
+);
 
 function Header({ dictionary }: { dictionary: any }) {
   const { isSidebarStyle } = useSidebarState();

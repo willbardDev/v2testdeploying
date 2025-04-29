@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, onMessage } from "firebase/messaging";
+import { getMessaging, onMessage, isSupported } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -11,9 +11,19 @@ const firebaseConfig = {
   appId: "1:907299356831:web:b4c18d752233178797a2aa"
 };
 
+// Initialize Firebase App (safe even on server)
 const app = initializeApp(firebaseConfig);
 
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+let messaging: any = null;
+
+// Initialize messaging only in the browser
+if (typeof window !== "undefined") {
+  isSupported().then((supported) => {
+    if (supported) {
+      messaging = getMessaging(app);
+    }
+  });
+}
 
 export const onMessageListener = () =>
   new Promise((resolve) => {
@@ -22,3 +32,5 @@ export const onMessageListener = () =>
       resolve(payload);
     });
   });
+
+export { messaging };

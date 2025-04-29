@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { JumboDdPopover } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -16,10 +15,15 @@ import {
   Typography,
   Chip,
   Stack,
-  CircularProgress
 } from '@mui/material';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import dynamic from 'next/dynamic';
+
+const JumboDdPopover = dynamic(() =>
+  import('@jumbo/components').then((mod) => mod.JumboDdPopover),
+  { ssr: false }
+);
 
 export const AuthUserPopover = ({ dictionary }) => {
   const { theme } = useJumboTheme();
