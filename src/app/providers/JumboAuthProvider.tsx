@@ -112,8 +112,8 @@ const init = (restProps: any): AuthState => {
     authToken: parsedData?.authToken || null,
     authUser: parsedData?.authUser || null,
     authOrganization: parsedData?.authOrganization || null,
-    isLoading: true, // Start loading to allow async checks
-    isAuthenticated: false, // Will be set after validation
+    isLoading: true,
+    isAuthenticated: false,
     onlyAuthAccessData: {
       routes: restProps?.onlyAuthAccessData?.routes ?? [],
       fallbackPath: restProps?.onlyAuthAccessData?.fallbackPath ?? "/"
@@ -286,13 +286,7 @@ export const JumboAuthProvider = ({
     }
   }, [setAuthValues]);
 
-  const configAuth = useCallback(async ({
-    token,
-    OrganizationId,
-    currentUser = null,
-    currentOrganization = null,
-    refresh = false
-  }: AuthConfig) => {
+  const configAuth = useCallback(async ({ token, OrganizationId, currentUser = null, currentOrganization = null, refresh = false }: AuthConfig) => {
     const storedData = getStoredAuthData();
     const effectiveToken = token || storedData?.authToken || null;
     
@@ -326,7 +320,6 @@ export const JumboAuthProvider = ({
         if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              console.log(position,'positionnnnnn')
               setTokenMetadata((prev) => ({
                 ...prev,
                 geolocation_accuracy: position.coords.accuracy,
