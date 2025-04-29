@@ -25,7 +25,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import organizationServices from '@/lib/services/organizationServices';
 import axios from '@/lib/services/config';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import NewRoleForm from './NewRoleForm';
+import { NewRoleForm } from './NewRoleForm';
 
 interface Permission {
   id: number;
