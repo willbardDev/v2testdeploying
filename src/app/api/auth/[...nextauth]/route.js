@@ -12,30 +12,41 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
-          await axios.get('/sanctum/csrf-cookie');
+          const { cookies } = await import('next/headers');
+          const cookieString = cookies()
+            .getAll()
+            .map(c => `${c.name}=${c.value}`)
+            .join('; ');
+      
+          await axios.get('/sanctum/csrf-cookie', {
+            headers: {
+              Cookie: cookieString
+            }
+          });
+      
           const { data } = await axios.post('/login', credentials);
-          
+      
           if (!data?.token || !data?.authUser) return null;
-          
-          // Return only essential data
+      
           return {
             user_id: data.authUser.user.id,
             name: data.authUser.user.name,
             email: data.authUser.user.email,
             token: data.token,
-            organization_id: data.authOrganization?.organization.id,
-            organization_name: data.authOrganization.organization.name,
-            organization_website: data.authOrganization.organization.website,
+            organization_id: data.authOrganization?.organization?.id,
+            organization_name: data.authOrganization?.organization?.name,
+            organization_website: data.authOrganization?.organization?.website,
             permissions: data.authUser.permissions,
-            auth_permissions: data.authOrganization.permissions,
+            auth_permissions: data.authOrganization?.permissions,
             organization_roles: data.authUser.user.organization_roles,
-            active_subscriptions: data.authOrganization.organization.active_subscriptions
+            active_subscriptions: data.authOrganization?.organization?.active_subscriptions
           };
         } catch (error) {
           console.error('Authentication error:', error);
           return null;
         }
       }
+      
     })
   ],
   callbacks: {
