@@ -5,34 +5,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getToken } from 'firebase/messaging';
 import { messaging } from '@/app/helpers/init-firebase';
 import authServices from '@/services/auth-services';
+import { AuthOrganization } from '@/types/auth-types';
 
-// Types
 interface AuthUser {
   id: string;
   name: string;
   email: string;
   permissions?: string[];
   organization_roles?: Array<{ name: string }>;
-  [key: string]: any;
-}
-
-interface AuthOrganization {
-  organization?: {
-    id: string;
-    name: string;
-    roles: any;
-    active_subscriptions?: Array<{
-      modules: Array<{
-        id: string;
-        name: string;
-        settings?: Array<{
-          id: string;
-          value: any;
-        }>;
-      }>;
-    }>;
-  };
-  permissions?: string[];
   [key: string]: any;
 }
 

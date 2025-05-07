@@ -18,7 +18,8 @@
     id: string;
     name: string;
     email: string;
-    roles?: OrganizationRole[]
+    roles?: OrganizationRole[];
+    recording_start_date?: string | null;
     active_subscriptions?: {
       modules: {
         id: string;
@@ -42,6 +43,7 @@
   
   export interface AuthOrganization {
     organization: Organization;
+    permissions?: string[];
     [key: string]: any;
   }
   

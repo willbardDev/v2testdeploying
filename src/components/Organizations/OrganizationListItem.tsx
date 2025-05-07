@@ -37,7 +37,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
 
   useEffect(() => {
     if (!authUser?.user) {
-      router.push('/login');
+      router.push('/auth/signin');
     }
   }, [authUser, router]);
 

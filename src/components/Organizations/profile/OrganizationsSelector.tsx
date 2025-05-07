@@ -16,7 +16,7 @@ type OrganizationsSelectorProps = {
   onChange: (value: Organization | Organization[] | null) => void;
   multiple?: boolean;
   label?: string;
-  defaultValue?: string | null;
+  defaultValue?: number | null;
   frontError?: { message?: string } | null;
 };
 
@@ -39,7 +39,11 @@ const OrganizationsSelector = ({
 
   useEffect(() => {
     if (defaultValue !== null) {
-      const defaultOrg = allOrganizations.find((org) => org.id === defaultValue) || null;
+      const defaultOrg = allOrganizations.find((org) => 
+        typeof defaultValue === 'number' 
+          ? Number(org.id) === defaultValue 
+          : org.id === defaultValue
+      ) || null;
       setSelectedOrganizations(multiple ? (defaultOrg ? [defaultOrg] : []) : defaultOrg);
     }
   }, [defaultValue, allOrganizations, multiple]);
