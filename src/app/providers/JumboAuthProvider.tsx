@@ -8,9 +8,11 @@ import authServices from '@/services/auth-services';
 import { AuthOrganization } from '@/types/auth-types';
 
 interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
+  user:{
+    id: string;
+    name: string;
+    email: string;
+  }
   permissions?: string[];
   organization_roles?: Array<{ name: string }>;
   [key: string]: any;
@@ -236,10 +238,9 @@ export const JumboAuthProvider = ({
   }, []);
 
   // Auth functions
-  const refreshAuth = useCallback(async () => {
+  const refreshAuth = async () => {
     try {
       const storedData = getStoredAuthData();
-      console.log(storedData, 'refreeesshhh')
 
       const currentToken = storedData?.authToken || null;
       
@@ -247,14 +248,19 @@ export const JumboAuthProvider = ({
 
       if (response?.authUser?.user?.email) {
         const authUser: AuthUser = {
-          ...response.authUser.user,
+          ...response.authUser,
+          user: {
+            id: response.authUser.user.id,
+            name: response.authUser.user.name,
+            email: response.authUser.user.email
+          },
           permissions: response.authUser.permissions || [],
         };
 
         setAuthValues({
           authToken: currentToken,
           authUser: authUser,
-          authOrganization: storedData.authOrganization || null
+          authOrganization: response.authOrganization || null
         }, { persist: true });
         return response;
       }
@@ -264,7 +270,7 @@ export const JumboAuthProvider = ({
       resetAuth();
       return null;
     }
-  }, [setAuthValues]);
+  };
 
   const configAuth = useCallback(async ({ token, OrganizationId, currentUser = null, currentOrganization = null, refresh = false }: AuthConfig) => {
     const storedData = getStoredAuthData();
@@ -345,6 +351,17 @@ export const JumboAuthProvider = ({
     delete axios.defaults.headers.common['Authorization'];
     delete axios.defaults.headers.common['X-OrganizationId'];
   }, [queryClient, setAuthValues]);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("auth-token");
+    axios.defaults.headers.common['X-OrganizationId'] = localStorage.getItem("OrganizationId");
+    startAuthLoading();
+    if(token) {
+        configAuth({token});
+    } else {
+        resetAuth()
+    }
+  }, [startAuthLoading]);
 
   const loadOrganization = useCallback(async (
     organization_id: string,
