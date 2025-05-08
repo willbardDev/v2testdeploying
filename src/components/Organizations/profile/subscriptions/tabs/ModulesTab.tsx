@@ -17,49 +17,49 @@ function ModulesTab() {
   } = useSubscriptionFormContext();
 
   const handleModuleChange = (moduleId: number, newRate: string | number) => {
-    // setModulesSelected((existingModules) =>
-    //   existingModules.map((module) =>
-    //     module.id === moduleId
-    //       ? { ...module, monthly_rate: sanitizedNumber(newRate) || 0 }
-    //       : module
-    //   )
-    // );
+    setModulesSelected((existingModules) =>
+      existingModules.map((module) =>
+        module.id === moduleId
+          ? { ...module, monthly_rate: sanitizedNumber(newRate) || 0 }
+          : module
+      )
+    );
 
-    // setModuleValues((prevValues: Module) => {
-    //   const updatedValues = [...prevValues];
-    //   const moduleIndex = updatedValues.findIndex(
-    //     (module) => Number(module.id) === moduleId
-    //   );
+    setModuleValues((prevValues: Module) => {
+      const updatedValues = [...prevValues];
+      const moduleIndex = updatedValues.findIndex(
+        (module) => Number(module.id) === moduleId
+      );
 
-    //   if (moduleIndex !== -1) {
-    //     updatedValues[moduleIndex] = {
-    //       ...updatedValues[moduleIndex],
-    //       monthly_rate: sanitizedNumber(newRate) || 0,
-    //     };
-    //   }
+      if (moduleIndex !== -1) {
+        updatedValues[moduleIndex] = {
+          ...updatedValues[moduleIndex],
+          monthly_rate: sanitizedNumber(newRate) || 0,
+        };
+      }
 
-    //   return updatedValues;
-    // });
+      return updatedValues;
+    });
   };
 
   const handleCheckboxChange = (module: SubscriptionModule) => {
-    // setModulesSelected((existingModules) => {
-    //   const isModuleSelected = existingModules.some(
-    //     (presentModule: SubscriptionModule) => presentModule.id === module.id
-    //   );
+    setModulesSelected((existingModules) => {
+      const isModuleSelected = existingModules.some(
+        (presentModule: SubscriptionModule) => presentModule.id === module.id
+      );
 
-    //   if (isModuleSelected) {
-    //     return existingModules.filter(
-    //       (presentModule: SubscriptionModule) => presentModule.id !== module.id
-    //     );
-    //   } else {
-    //     const updatedModule = {
-    //       ...module,
-    //       monthly_rate: sanitizedNumber(module.monthly_rate) || 0,
-    //     };
-    //     return [...existingModules, updatedModule];
-    //   }
-    // });
+      if (isModuleSelected) {
+        return existingModules.filter(
+          (presentModule: SubscriptionModule) => presentModule.id !== module.id
+        );
+      } else {
+        const updatedModule = {
+          ...module,
+          monthly_rate: sanitizedNumber(module.monthly_rate) || 0,
+        };
+        return [...existingModules, updatedModule];
+      }
+    });
   };
 
   return (

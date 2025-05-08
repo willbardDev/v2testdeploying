@@ -69,17 +69,17 @@ function AdditionalFeatures() {
     quantity: number,
     rate: number
   ) => {
-    // setAdditionalFeaturesSelected((existingFeatures: AdditionalFeature[]) => 
-    //   existingFeatures.map((feature: AdditionalFeature) =>
-    //     feature.id === featureId 
-    //       ? { 
-    //           ...feature, 
-    //           quantity: sanitizedNumber(quantity) || 0, 
-    //           rate: sanitizedNumber(rate) || 0 
-    //         } 
-    //       : feature
-    //   )
-    // );
+    setAdditionalFeaturesSelected((existingFeatures: AdditionalFeature[]) => 
+      existingFeatures.map((feature: AdditionalFeature) =>
+        feature.id === featureId 
+          ? { 
+              ...feature, 
+              quantity: sanitizedNumber(quantity) || 0, 
+              rate: sanitizedNumber(rate) || 0 
+            } 
+          : feature
+      )
+    );
 
     setAdditionalFeatureValues((prevValues: AdditionalFeature) => ({
       ...prevValues,
@@ -114,27 +114,28 @@ function AdditionalFeatures() {
                 cursor: 'pointer',
                 '&:hover': {
                   bgcolor: 'action.hover',
-                }
+                },
+                width: '100%'
               }}
             >
               <Grid size={{xs: 2, md: 1}}>
                 <Checkbox
                   checked={isFeatureSelected}
                   onChange={() => {
-                    // setAdditionalFeaturesSelected((existingFeatures) => {
-                    //   if (isFeatureSelected) {
-                    //     return existingFeatures.filter(
-                    //       (presentFeature: AdditionalFeature) => presentFeature.id !== additionaFeature.id
-                    //     );
-                    //   } else {
-                    //     const updatedFeature: AdditionalFeature = {
-                    //       ...additionaFeature,
-                    //       quantity: currentValues.quantity,
-                    //       rate: currentValues.rate,
-                    //     };
-                    //     return [...existingFeatures, updatedFeature];
-                    //   }
-                    // });
+                    setAdditionalFeaturesSelected((existingFeatures) => {
+                      if (isFeatureSelected) {
+                        return existingFeatures.filter(
+                          (presentFeature: AdditionalFeature) => presentFeature.id !== additionaFeature.id
+                        );
+                      } else {
+                        const updatedFeature: AdditionalFeature = {
+                          ...additionaFeature,
+                          quantity: currentValues.quantity,
+                          rate: currentValues.rate,
+                        };
+                        return [...existingFeatures, updatedFeature];
+                      }
+                    });
                   }}
                 />
               </Grid>
@@ -190,7 +191,7 @@ function AdditionalFeatures() {
         })
       )}
       {additionalFeatures.length > 0 && (
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 12}}>
           <Grid container spacing={1} paddingTop={1}>
             <Grid size={9}>
               <Typography variant='h5'>Additional Features Monthly Cost:</Typography>
