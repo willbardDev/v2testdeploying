@@ -1,13 +1,16 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Tooltip, IconButton, Dialog, useMediaQuery } from '@mui/material';
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import SubscriptionsForm from './SubscriptionsForm';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Subscription } from './SubscriptionTypes';
 import subscriptionServices from '@/lib/services/subscriptionServices';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 interface EditSubscriptionProps {
   subscription: Subscription;
@@ -29,7 +32,7 @@ interface SubscriptionItemActionProps {
 }
 
 const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscription }) => {
-  const queryClient = useQueryClient();
+  const { refreshAuth } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -39,7 +42,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
       subscriptionServices.deleteSubscription(subscription),
     onSuccess: (data: { message: string }) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      refreshAuth()
     },
     onError: (error: { response?: { data?: { message: string } } }) => {
       enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
