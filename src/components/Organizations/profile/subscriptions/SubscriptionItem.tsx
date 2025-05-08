@@ -138,7 +138,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
         </Item>
       }
 
-      <Grid container spacing={1}>
+      <Grid container spacing={2} sx={{ width: '100%' }}>
 
         {isFromProsAfricanSubscriptions && (
           <Grid size={12}>
@@ -177,7 +177,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
           </Grid>
         )}
         
-        <Grid size={{xs: 12, md: 4, lg: 2.5}}>
+        <Grid size={{xs: 12, md: 4, lg: 3.5}}>
           <ListItemText
             primary={
               <Tooltip title="Created On">
@@ -189,7 +189,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
             }
           />
         </Grid>
-        
+      
         <Grid size={{xs: 12, md: 4, lg: 5.5}}>
           <Tooltip title="Date Range">
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
@@ -207,8 +207,8 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
             </Tooltip>
           }
         </Grid>
-        
-        <Grid size={{xs: 12, md: 4}}>
+      
+        <Grid size={{xs: 12, md: 4, lg: 3}}>
           <Tooltip title="Status">
             <Stack direction={'row'} display="flex" justifyContent="flex-end">
               <Chip
