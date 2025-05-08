@@ -2,7 +2,7 @@
 
 import React, { lazy, useState, Suspense, ReactNode, ReactElement } from 'react';
 import { AdminPanelSettingsOutlined, PaymentOutlined, Person3Outlined } from '@mui/icons-material';
-import { Tab, Tabs, Typography, Box, TabsProps } from '@mui/material';
+import { Tab, Tabs, Typography, Box } from '@mui/material';
 import { useOrganizationProfile } from './OrganizationProfileProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -51,7 +51,7 @@ export const ProfileTabs = () => {
     checkOrganizationPermission([PERMISSIONS.ROLES_ADD, PERMISSIONS.ROLES_UPDATE]);
 
   const canManageSubscriptions =
-    user?.id === 2 || user?.id === 3 || checkOrganizationPermission([PERMISSIONS.SUBSCRIPTIONS_MANAGE]);
+    Number(user?.id) === 2 || Number(user?.id) === 3 || checkOrganizationPermission([PERMISSIONS.SUBSCRIPTIONS_MANAGE]);
 
   if (canViewUsers) {
     tabs.push({

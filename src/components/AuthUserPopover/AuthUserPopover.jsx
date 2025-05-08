@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
@@ -34,14 +35,14 @@ export const AuthUserPopover = ({ dictionary }) => {
     return null;
   }
 
-  const { setAuthValues, authData, authOrganization } = authContext;
+  const { setAuthValues, authData, authOrganization, resetAuth } = authContext;
 
   const logout = React.useCallback(() => {
     (async () => {
       await signOut({
         callbackUrl: 'http://localhost:3000/en-US/auth/signin',
       });
-      setAuthValues({ authToken: null, authUser: null, authOrganization: null });
+      resetAuth()
     })();
   }, [setAuthValues]);
 
@@ -71,14 +72,14 @@ export const AuthUserPopover = ({ dictionary }) => {
           p: theme => theme.spacing(2.5),
         }}>
           <Avatar src={user.avatar} sx={{ width: 60, height: 60, mb: 2 }} />
-          <Typography noWrap variant={'h5'}>{user.name}</Typography>
+          <Typography noWrap variant={'h5'}>{user?.name}</Typography>
           <Typography noWrap variant={'body1'} color='text.secondary'>
             {user.email}
           </Typography>
           
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
             <Chip 
-              label={organization.name} 
+              label={organization?.name} 
               size="small" 
               color="primary" 
               variant="outlined"

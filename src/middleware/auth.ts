@@ -48,7 +48,7 @@ function createAuthRedirect(request: NextRequest, error?: string) {
   const callbackPath = request.nextUrl.pathname;
 
   if (callbackPath.includes('/auth/signin')) {
-    return NextResponse.next(); // 🛑 avoid redirect loop
+    return NextResponse.next();
   }
 
   const url = new URL('/auth/signin', request.url);

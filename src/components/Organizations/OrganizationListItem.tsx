@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
 import { Organization } from '@/types/auth-types';
+import { signOut } from 'next-auth/react';
 
 interface OrganizationListItemProps {
   organization: Organization;
@@ -37,7 +38,9 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
 
   useEffect(() => {
     if (!authUser?.user) {
-      router.push('/auth/signin');
+      signOut({
+        callbackUrl: 'http://localhost:3000/en-US/auth/signin',
+      });
     }
   }, [authUser, router]);
 
@@ -122,7 +125,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
                 variant={"h6"} 
                 mb={0.5}
               >
-                {organization.name || 'Unnamed Organization'}
+                {organization?.name}
               </Typography>
             </Tooltip>
             {organization.website && (

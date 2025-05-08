@@ -1,4 +1,5 @@
 'use client'
+
 import axios from '@/lib/services/config';
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -88,10 +89,11 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Initial state function
 const init = (restProps: any): AuthState => {
   const storedData = typeof window !== 'undefined' ? localStorage.getItem('authData') : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   const parsedData = storedData ? JSON.parse(storedData) : null;
 
   return {
-    authToken: parsedData?.authToken || null,
+    authToken: token,
     authUser: parsedData?.authUser || null,
     authOrganization: parsedData?.authOrganization || null,
     isLoading: true,
@@ -171,7 +173,8 @@ const authReducer = (state: AuthState, action: any): AuthState => {
 
 // Helper function to get stored auth data
 const getStoredAuthData = () => {
-  const storedData = localStorage.getItem('authData');
+  const storedData = localStorage.getItem('authData')
+
   return storedData ? JSON.parse(storedData) : null;
 };
 
@@ -203,14 +206,16 @@ export const JumboAuthProvider = ({
     if (options.persist && values.authToken) {
       const authDataToStore = {
         authToken: values.authToken,
-        authUser: values.authUser || authData.authUser,
+        authUser: values.authUser,
         authOrganization: values.authOrganization
       };
 
       localStorage.setItem('authData', JSON.stringify(authDataToStore));
+      localStorage.setItem('auth_token', values.authToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${values.authToken}`;
     } else if (!values.authToken) {
       localStorage.removeItem('authData');
+      localStorage.removeItem('auth_token');
       delete axios.defaults.headers.common['Authorization'];
     }
   }, [authData.authUser, authData.authOrganization]);
@@ -240,9 +245,7 @@ export const JumboAuthProvider = ({
   // Auth functions
   const refreshAuth = async () => {
     try {
-      const storedData = getStoredAuthData();
-
-      const currentToken = storedData?.authToken || null;
+      const token = localStorage.getItem('auth_token');
       
       const response: AuthResponse = await authServices.getCurrentUser();
 
@@ -258,9 +261,9 @@ export const JumboAuthProvider = ({
         };
 
         setAuthValues({
-          authToken: currentToken,
+          authToken: token,
           authUser: authUser,
-          authOrganization: response.authOrganization || null
+          authOrganization: response.authOrganization
         }, { persist: true });
         return response;
       }
@@ -272,16 +275,24 @@ export const JumboAuthProvider = ({
     }
   };
 
-  const configAuth = useCallback(async ({ token, OrganizationId, currentUser = null, currentOrganization = null, refresh = false }: AuthConfig) => {
-    const storedData = getStoredAuthData();
-    const effectiveToken = token || storedData?.authToken || null;
+  const configAuth = useCallback(async ({ 
+    token = localStorage.getItem('auth_token'), 
+    OrganizationId = localStorage.getItem("OrganizationId"), 
+    currentUser = null, 
+    currentOrganization = null, 
+    refresh = false 
+  }: AuthConfig) => {
+
+    if (token) {
+      localStorage.setItem('auth_token', token);
+    }
     
-    if (!effectiveToken) {
+    if (!token) {
       resetAuth();
       return;
     }
     
-    axios.defaults.headers.common['Authorization'] = `Bearer ${effectiveToken}`;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     if (OrganizationId && OrganizationId !== localStorage.getItem("OrganizationId")) {
       localStorage.setItem("OrganizationId", OrganizationId);
@@ -291,17 +302,19 @@ export const JumboAuthProvider = ({
       axios.defaults.headers.common['X-OrganizationId'] = currentOrganization.organization.id;
 
       setAuthValues({
-        authToken: effectiveToken,
+        authToken: token,
         authUser: currentUser,
         authOrganization: currentOrganization
       }, { persist: true });
     }
 
-    if ((effectiveToken && !currentUser) || refresh) {
+    console.log(token, currentUser, refresh,'vhjnkgfdsdfcgvhbjnkm,jbhvgcf')
+
+    if ((token && !currentUser) || refresh) {
       await refreshAuth();
     }
 
-    if (effectiveToken) {
+    if (token) {
       const getLocation = async () => {
         if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
@@ -324,7 +337,7 @@ export const JumboAuthProvider = ({
             return getToken(messaging, {vapidKey: "BE0EDrXQ7XCFZnkE3LpiSS3sag1jXpF3Vzb2c83R8HrRoKTknbDRcKHdCvC4dWjbZRA1zybLep2ozXiIO0oZniw"})
               .then((currentToken) => {
                 if (currentToken) {
-                  setTokenMetadata(metadata => ({...metadata, fcm_token : currentToken}));
+                  setTokenMetadata(metadata => ({...metadata, fcm_token: currentToken}));
                 }
               })
               .catch((err) => {
@@ -342,18 +355,21 @@ export const JumboAuthProvider = ({
   const resetAuth = useCallback(() => {
     queryClient.clear();
     localStorage.removeItem('authData');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('OrganizationId');
+
     setAuthValues({
       authToken: null,
       authUser: null,
       authOrganization: null
     }, { persist: false });
+    
     delete axios.defaults.headers.common['Authorization'];
     delete axios.defaults.headers.common['X-OrganizationId'];
   }, [queryClient, setAuthValues]);
 
   React.useEffect(() => {
-    const token = localStorage.getItem("auth-token");
+    const token = localStorage.getItem('auth_token');
     axios.defaults.headers.common['X-OrganizationId'] = localStorage.getItem("OrganizationId");
     startAuthLoading();
     if(token) {
@@ -440,9 +456,9 @@ export const JumboAuthProvider = ({
 
     return mustHaveAll
       ? modulesArray.every(module => 
-          subscribedModules.includes(module.toLowerCase()))
+        subscribedModules.includes(module.toLowerCase()))
       : modulesArray.some(module => 
-          subscribedModules.includes(module.toLowerCase()));
+        subscribedModules.includes(module.toLowerCase()));
   }, [authData.authOrganization]);
 
   const moduleSetting = useCallback((setting: { module_id: string; id: string }) => {
@@ -469,13 +485,16 @@ export const JumboAuthProvider = ({
     const initializeAuth = async () => {
       startAuthLoading();
       const storedData = getStoredAuthData();
+      const token = localStorage.getItem('auth_token');
       const organizationId = localStorage.getItem("OrganizationId") || '';
+
+      console.log('yguyyduydyduusud')
       
       axios.defaults.headers.common['X-OrganizationId'] = organizationId;
       
-      if (storedData?.authToken) {
+      if (token) {
         await configAuth({ 
-          token: storedData.authToken, 
+          token: token, 
           OrganizationId: storedData?.authOrganization?.organization?.id,
           currentUser: storedData?.authUser,
           currentOrganization: storedData?.authOrganization?.organization
@@ -488,7 +507,6 @@ export const JumboAuthProvider = ({
     initializeAuth();
   }, []);
 
-  // Context value
   const contextValue = useMemo(() => ({
     ...authData,
     authData,

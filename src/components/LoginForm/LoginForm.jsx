@@ -1,4 +1,5 @@
 'use client';
+
 import {
   JumboCheckbox,
   JumboForm,
@@ -18,7 +19,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 const LoginForm = () => {
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { setAuthValues } = useJumboAuth();
+  const { setAuthValues, configAuth, refreshAuth } = useJumboAuth();
   const router = useRouter();
   const [values, setValues] = React.useState({
     password: '',
@@ -40,6 +41,23 @@ const LoginForm = () => {
       }
   
       const session = await getSession();
+
+      configAuth({
+        token: session.accessToken,
+        currentUser: { 
+          user: session.user,
+          organization_roles: session.organization_roles,
+          permissions: session.permissions,
+        },
+        currentOrganization: { 
+          organization: {
+            id: session.organization_id,
+            name: session.organization_name,
+            active_subscriptions: session.active_subscriptions
+          },
+          permissions: session.auth_permissions,
+        },
+      });
       
       setAuthValues({
         authUser: { 
@@ -58,9 +76,11 @@ const LoginForm = () => {
         },
         isAuthenticated: true,
         isLoading: false,
-      });
+      }, { persist: true });
   
       router.push('/dashboard');
+
+      refreshAuth();
     } catch (error) {
       enqueueSnackbar(error.message || 'Invalid email or password', { 
         variant: 'error' 
