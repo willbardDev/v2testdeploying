@@ -102,8 +102,8 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    start_date: yup.string().required(),
-    remarks: yup.string().required(),
+    start_date: yup.string().optional(),
+    remarks: yup.string().optional(),
     months: yup
       .number()
       .nullable()
@@ -153,7 +153,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     watch,
     formState: { errors } 
   } = formMethods
-  
+
   const [modulesSelected, setModulesSelected] = useState<SubscriptionModule[]>([]);
   
   const { data: Modules, isFetching } = useQuery<SubscriptionModule[]>({
