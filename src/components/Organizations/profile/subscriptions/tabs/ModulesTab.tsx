@@ -82,19 +82,20 @@ function ModulesTab() {
               '&:hover': {
                 bgcolor: 'action.hover',
               },
+              width: '100%'
             }}
           >
-            <Grid size={{xs: 2, md: 1}}>
+            <Grid size={{xs: 2, md: 1, lg: 1}}>
               <Checkbox
                 checked={isSelected}
                 onChange={() => handleCheckboxChange(module)}
               />
             </Grid>
-            <Grid size={{xs: 6, md: 8}}>
+            <Grid size={{xs: 6, md: 8, lg: 8}}>
               <Typography>{module.name}</Typography>
             </Grid>
             {userIsProsAfrican ? (
-              <Grid size={{xs: 4, md: 3}}>
+              <Grid size={{xs: 4, md: 3, lg: 3}}>
                 <Div sx={{ mt: 2 }}>
                   <TextField
                     label="Monthly Rate"
@@ -110,7 +111,7 @@ function ModulesTab() {
                 </Div>
               </Grid>
             ) : (
-              <Grid size={{xs: 4, md: 3}}>
+              <Grid size={{xs: 4, md: 3, lg: 3}}>
                 <Typography align="right">
                   {module.monthly_rate.toLocaleString()}
                 </Typography>
