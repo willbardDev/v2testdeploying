@@ -308,8 +308,6 @@ export const JumboAuthProvider = ({
       }, { persist: true });
     }
 
-    console.log(token, currentUser, refresh,'vhjnkgfdsdfcgvhbjnkm,jbhvgcf')
-
     if ((token && !currentUser) || refresh) {
       await refreshAuth();
     }
@@ -487,8 +485,6 @@ export const JumboAuthProvider = ({
       const storedData = getStoredAuthData();
       const token = localStorage.getItem('auth_token');
       const organizationId = localStorage.getItem("OrganizationId") || '';
-
-      console.log('yguyyduydyduusud')
       
       axios.defaults.headers.common['X-OrganizationId'] = organizationId;
       
