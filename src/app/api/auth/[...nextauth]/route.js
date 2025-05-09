@@ -12,22 +12,36 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
+          // 1. Get cookies properly in an async context
           const { cookies } = await import('next/headers');
-          const cookieString = cookies()
-            .getAll()
+          const cookieStore = cookies();
+          const cookieString = cookieStore.getAll()
             .map(c => `${c.name}=${c.value}`)
             .join('; ');
-      
-          await axios.get('/sanctum/csrf-cookie', {
+
+          // 2. Configure axios with proper timeout and error handling
+          const axiosInstance = axios.create({
+            timeout: 15000, // 15 seconds timeout
             headers: {
-              Cookie: cookieString
+              Cookie: cookieString,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             }
           });
-      
-          const { data } = await axios.post('/login', credentials);
-      
-          if (!data?.token || !data?.authUser) return null;
-      
+
+          // 3. Get CSRF token first
+          await axiosInstance.get('/sanctum/csrf-cookie');
+
+          // 4. Attempt login with credentials
+          const { data } = await axiosInstance.post('/login', credentials, {
+            validateStatus: (status) => status < 500 // Don't throw for 4xx errors
+          });
+
+          if (!data?.token || !data?.authUser) {
+            console.error('Login failed - missing token or user data');
+            return null;
+          }
+
           return {
             user_id: data.authUser.user.id,
             name: data.authUser.user.name,
@@ -35,18 +49,19 @@ export const authOptions = {
             token: data.token,
             organization_id: data.authOrganization?.organization?.id,
             organization_name: data.authOrganization?.organization?.name,
-            organization_website: data.authOrganization?.organization?.website,
             permissions: data.authUser.permissions,
-            auth_permissions: data.authOrganization?.permissions,
-            organization_roles: data.authUser.user.organization_roles,
-            active_subscriptions: data.authOrganization?.organization?.active_subscriptions
+            auth_permissions: data.authOrganization?.permissions
           };
         } catch (error) {
-          console.error('Authentication error:', error);
+          console.error('Authentication error:', {
+            message: error.message,
+            code: error.code,
+            config: error.config,
+            stack: error.stack
+          });
           return null;
         }
       }
-      
     })
   ],
   callbacks: {
@@ -63,22 +78,18 @@ export const authOptions = {
           organization_id: user.organization_id,
           organization_name: user.organization_name,
           permissions: user.permissions,
-          auth_permissions: user.auth_permissions,
-          // organization_roles: user.organization_roles,
-          // active_subscriptions: user.active_subscriptions
+          auth_permissions: user.auth_permissions
         };
       }
       return token;
     },
     async session({ session, token }) {
       session.user = token.user;
-      session.accessToken = token.accessToken,
-      session.permissions = token.permissions,
-      session.organization_roles = token.organization_roles,
+      session.accessToken = token.accessToken;
+      session.permissions = token.permissions;
       session.organization_id = token.organization_id;
-      session.organization_name = token.organization_name,
-      session.active_subscriptions = token.active_subscriptions,
-      session.auth_permissions = token.auth_permissions
+      session.organization_name = token.organization_name;
+      session.auth_permissions = token.auth_permissions;
       return session;
     }
   },
@@ -88,13 +99,13 @@ export const authOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login?error=1' // Custom error page
   },
   cookies: {
     sessionToken: {
-      name: 
-        process.env.NODE_ENV === 'production' 
-          ? '__Secure-next-auth.session-token' 
-          : 'next-auth.session-token',
+      name: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'lax',
@@ -106,6 +117,18 @@ export const authOptions = {
         maxAge: 24 * 60 * 60,
       },
     },
+  },
+  debug: process.env.NODE_ENV === 'development', // Enable debug in development
+  logger: {
+    error(code, metadata) {
+      console.error({ code, metadata });
+    },
+    warn(code) {
+      console.warn(code);
+    },
+    debug(code, metadata) {
+      console.debug({ code, metadata });
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
