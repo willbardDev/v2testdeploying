@@ -61,6 +61,8 @@
     "address": "Address",
     "cancel": "Cancel",
     "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
     "logout": "Logout",
     "switchOrganization": "Switch Organization"
   },

@@ -1,12 +1,15 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Div } from '@jumbo/shared';
-import { Checkbox, Grid, TextField, Typography } from '@mui/material';
+import { Checkbox, Grid, TextField, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { useSubscriptionFormContext } from '../SubscriptionFormContext';
 import { SubscriptionModule } from '../SubscriptionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ModulesTab() {
+  const dictionary = useDictionary();
+  
   const {
     totalModulesMonthly,
     userIsProsAfrican,
@@ -98,7 +101,7 @@ function ModulesTab() {
               <Grid size={{xs: 4, md: 3, lg: 3}}>
                 <Div sx={{ mt: 2 }}>
                   <TextField
-                    label="Monthly Rate"
+                    label={dictionary.subscriptions.labels.monthlyRate}
                     id={`monthlyRate_${module.id}`}
                     size="small"
                     fullWidth
@@ -112,9 +115,11 @@ function ModulesTab() {
               </Grid>
             ) : (
               <Grid size={{xs: 4, md: 3, lg: 3}}>
-                <Typography align="right">
-                  {module.monthly_rate.toLocaleString()}
-                </Typography>
+                <Tooltip title={dictionary.subscriptions.helpTexts.monthlyRate}>
+                  <Typography align="right">
+                    {module.monthly_rate.toLocaleString()}
+                  </Typography>        
+                </Tooltip>
               </Grid>
             )}
           </Grid>
@@ -123,7 +128,7 @@ function ModulesTab() {
       <Grid size={{xs: 12}} mb={2}>
         <Grid container spacing={1}>
           <Grid size={{xs: 8, md: 9}}>
-            <Typography variant="h5">Modules Monthly Cost:</Typography>
+            <Typography variant="h5">{dictionary.subscriptions.labels.modulesMonthlyCost}:</Typography>
           </Grid>
           <Grid size={{xs: 4, md: 3}}>
             <Typography align="right" variant="h5">

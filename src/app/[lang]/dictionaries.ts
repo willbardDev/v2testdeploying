@@ -2,14 +2,26 @@ import { Dictionary } from '@/dictionaries/type';
 import 'server-only';
 
 interface LocaleDictionary {
-  [x: string]: () => Dictionary;
+  [x: string]: () => Promise<Dictionary>;
 }
 
 const dictionaries: LocaleDictionary = {
-  'en-US': () =>
-    import('@/dictionaries/en.json').then((module) => module.default),
-  'sw-TZ': () =>
-     import('@/dictionaries/sw.json').then((module) => module.default),
+  'en-US': async () => {
+    const main = await import('@/dictionaries/en/en.json').then(m => m.default);
+    const subscriptions = await import('@/dictionaries/en/subscriptions.json').then(m => m.default);
+    return {
+      ...main,
+      subscriptions
+    };
+  },
+  'sw-TZ': async () => {
+    const main = await import('@/dictionaries/sw/sw.json').then(m => m.default);
+    const subscriptions = await import('@/dictionaries/sw/subscriptions.json').then(m => m.default);
+    return {
+      ...main,
+      subscriptions
+    };
+  },
   // 'ar-SA': () =>ww
   //   import('@/dictionaries/ar.json').then((module) => module.default),
   // 'es-ES': () =>

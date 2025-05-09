@@ -7,8 +7,11 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useSubscriptionFormContext } from '../SubscriptionFormContext';
 import { AdditionalFeature } from '../SubscriptionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AdditionalFeatures() {
+  const dictionary = useDictionary();
+  
   const {
     subscription,
     userIsProsAfrican,
@@ -94,7 +97,7 @@ function AdditionalFeatures() {
     <Grid container spacing={1} paddingTop={0.5}>
       {additionalFeatures.length === 0 ? (
         <Grid size={12}>
-          <Alert variant='outlined' severity='info'>Please select at least one module to get additional features.</Alert>
+          <Alert variant='outlined' severity='info'>{dictionary.subscriptions.labels.additionalFeatureInfoMessage}</Alert>
         </Grid>
       ) : (
         additionalFeatures.map((additionaFeature, index) => {
@@ -145,7 +148,7 @@ function AdditionalFeatures() {
               <Grid size={{xs: 4, lg: 2}}>
                 <Div sx={{ mt: 2 }}>
                   <TextField
-                    label='Quantity'
+                    label={dictionary.subscriptions.labels.additionalFeatureQuantity}
                     id={`quantity${additionaFeature.id}`}
                     size='small'
                     fullWidth
@@ -163,7 +166,7 @@ function AdditionalFeatures() {
                 {userIsProsAfrican ? (
                   <Div sx={{ mt: 2 }}>
                     <TextField
-                      label='Monthly Rate'
+                      label={dictionary.subscriptions.labels.additionalFeatureRate}
                       id={`rate_${additionaFeature.id}`}
                       size='small'
                       fullWidth
@@ -176,13 +179,13 @@ function AdditionalFeatures() {
                     />
                   </Div>
                 ) : (
-                  <Tooltip title={`Monthly Rate`}>
+                  <Tooltip title={dictionary.subscriptions.helpTexts.additionalFeatureRate}>
                     <Typography align='right'>{(currentValues.rate || 0).toLocaleString()}</Typography>
                   </Tooltip>
                 )}
               </Grid>
               <Grid size={{xs: 6, md: 12, lg: 3}}>
-                <Tooltip title={`Amount`}>
+                <Tooltip title={dictionary.subscriptions.helpTexts.additionalFeatureAmount}>
                   <Typography align='right'>{((currentValues.quantity || 0) * (currentValues.rate || 0)).toLocaleString()}</Typography>
                 </Tooltip>
               </Grid>
@@ -194,7 +197,7 @@ function AdditionalFeatures() {
         <Grid size={{xs: 12, md: 12}}>
           <Grid container spacing={1} paddingTop={1}>
             <Grid size={9}>
-              <Typography variant='h5'>Additional Features Monthly Cost:</Typography>
+              <Typography variant='h5'>{dictionary.subscriptions.labels.additionalFeatureMonthlyCostLabel}:</Typography>
             </Grid>
             <Grid size={3}>
               <Typography align='right' variant='h5'>{totalAdditionalFeaturesMonthlyCost.toLocaleString()}</Typography>

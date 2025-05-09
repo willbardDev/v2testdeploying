@@ -14,6 +14,8 @@ import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { Organization, User } from '@/types/auth-types';
+import { Dictionary } from '@/dictionaries/type';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface QueryOptions<TQueryKey> {
   queryKey: string;
@@ -35,12 +37,14 @@ export const OrganizationListContext = createContext<OrganizationListContextType
 
 interface OrganizationsListProps {
   user: User;
+  dictionary: Dictionary
 }
 
 const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const router = useRouter();
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
   const { checkPermission } = useJumboAuth();
+  const dictionary = useDictionary();
 
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
@@ -48,7 +52,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     QueryOptions<[string, { id?: string; keyword: string }]>
   >({
     queryKey: 'organizations',
-    queryParams: { id: user.id, keyword: '' },
+    queryParams: { id: user?.id, keyword: '' },
     countKey: 'total',
     dataKey: 'data',
   });
@@ -57,7 +61,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     setQueryOptions(prev => ({
       ...prev,
       queryKey: 'organizations',
-      queryParams: { ...prev.queryParams, id: user.id },
+      queryParams: { ...prev.queryParams, id: user?.id },
     }));
   }, [user]);
 

@@ -11,6 +11,7 @@ import {
   Tab, 
   Tabs, 
   TextField, 
+  Tooltip, 
   Typography 
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -29,6 +30,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { SubscriptionFormProvider } from './SubscriptionFormContext';
 import { AdditionalFeature, Subscription, SubscriptionModule } from './SubscriptionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type AdditionalFeatureValue = {
   quantity: number;
@@ -54,6 +56,8 @@ interface SubscriptionsFormProps {
 }
 
 function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = false, subscription }: SubscriptionsFormProps) {
+  const dictionary = useDictionary();
+  
   const { authOrganization, authUser } = useJumboAuth();
   const organization = authOrganization?.organization;
   const user = authUser?.organization;
@@ -69,28 +73,40 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
 
   const addSubscription = useMutation<SubscriptionResponse, ErrorResponse, any>({
     mutationFn: subscriptionServices.addSubscription,
-    onSuccess: (data: SubscriptionResponse) => {
+    onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(
+        dictionary.subscriptions.messages.createSuccess, 
+        { variant: 'success' }
+      );
 
       isFromProsAfricanSubscriptions ? 
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] }) : 
       window.location.reload();
     },
     onError: (error: ErrorResponse) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(
+        dictionary.subscriptions.errors.api.createFailed,
+        { variant: 'error' }
+      );
     }
   });
 
   const updateSubscription = useMutation<SubscriptionResponse, ErrorResponse, any>({
     mutationFn: subscriptionServices.updateSubscription,
-    onSuccess: (data: SubscriptionResponse) => {
+    onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(
+        dictionary.subscriptions.messages.createSuccess, 
+        { variant: 'success' }
+      );
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
     },
     onError: (error: ErrorResponse) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(
+        dictionary.subscriptions.errors.api.createFailed,
+        { variant: 'error' }
+      );
     }
   });
 
@@ -102,31 +118,43 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    start_date: yup.string().optional(),
+    start_date: yup.string()
+      .required(dictionary.subscriptions.errors.validation.startDate.required)
+      .test('valid-date', dictionary.subscriptions.errors.validation.startDate.invalid, value => {
+        return dayjs(value).isValid();
+      }),
     remarks: yup.string().optional(),
     months: yup
       .number()
       .nullable()
       .transform((value: number | null, originalValue: string) => 
         (originalValue === "" ? null : value))
-      .positive('Subscription Months Must be Positive')
-      .required('Subscription Months Required')
-      .typeError('Subscription Months Required')
+      .positive(dictionary.subscriptions.errors.validation.months.positive)
+      .required(dictionary.subscriptions.errors.validation.months.required)
+      .typeError(dictionary.subscriptions.errors.validation.months.required)
       .when([], {
         is: () => isFromProsAfricanSubscriptions,
-        then: (schema) => schema.min(1, 'Subscription Months must be at least 1'),
-        otherwise: (schema) => schema.min(3, 'Subscription Months must be at least 3'),
+        then: (schema) => schema.min(
+          1, 
+          dictionary.subscriptions.errors.validation.months.minimum.prosAfrican.replace('{min}', '1')
+        ),
+        otherwise: (schema) => schema.min(
+          3, 
+          dictionary.subscriptions.errors.validation.months.minimum.default.replace('{min}', '3')
+        ),
       }),
     grace_period: yup
       .number()
-      .min(0, 'Grace Period Must be Positive')
-      .typeError('Grace Period Must be Positive'),
+      .min(0, dictionary.subscriptions.errors.validation.gracePeriod.positive)
+      .typeError(dictionary.subscriptions.errors.validation.gracePeriod.positive),
     organization_id: yup
       .number()
       .nullable()
       .when([], {
         is: () => isFromProsAfricanSubscriptions,
-        then: (schema) => schema.required('Organization is required').typeError('Organization is Required'),
+        then: (schema) => schema
+          .required(dictionary.subscriptions.errors.validation.organization.required)
+          .typeError(dictionary.subscriptions.errors.validation.organization.invalid),
       }),
   });
 
@@ -249,7 +277,9 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
 
   const onSubmit = (data: any) => {
     if (modulesSelected.length === 0) {
-      enqueueSnackbar('At least one module is required', { variant: 'error' });
+      enqueueSnackbar(dictionary.subscriptions.errors.validation.modules.required, { 
+        variant: 'error' 
+      });
       return;
     }
     const newData = {
@@ -290,11 +320,14 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     <FormProvider {...formMethods}>
       <SubscriptionFormProvider value={contextValue}>
         <DialogTitle sx={{ textAlign: 'center' }}>
-          {subscription ? `Edit ${subscription.subscriptionNo}` : `Subscription`}
+          {subscription 
+            ? `${dictionary.subscriptions.messages.edit} ${subscription.subscriptionNo}` 
+            : dictionary.subscriptions.messages.new
+          }
           <Grid container spacing={1} mt={1}>
             <Grid size={{xs:12, md:userIsProsAfrican ? 4 : (!userIsProsAfrican && isFromProsAfricanSubscriptions) ? 4 : 6}}>
               <DateTimePicker
-                label='Start Date'
+                label={dictionary.subscriptions.labels.startDate}
                 minDate={
                   !isFromProsAfricanSubscriptions && 
                   organization && 
@@ -329,7 +362,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             </Grid>
             <Grid size={{xs:userIsProsAfrican ? 6 : 12, md:userIsProsAfrican ? 4 : (!userIsProsAfrican && isFromProsAfricanSubscriptions) ? 4 : 6}}>
               <TextField
-                label='No. of Months'
+                label={dictionary.subscriptions.labels.months}
                 size='small'
                 fullWidth
                 value={watch('months')}
@@ -347,7 +380,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             {userIsProsAfrican &&
               <Grid size={{xs: 6, md: 4}}>
                 <TextField
-                  label='Grace Period'
+                  label={dictionary.subscriptions.labels.gracePeriod}
                   size='small'
                   fullWidth
                   error={!!errors?.grace_period}
@@ -366,7 +399,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             {isFromProsAfricanSubscriptions &&
               <Grid size={{xs: 12, md: 4}}>
                 <OrganizationsSelector
-                  label='Organization'
+                  label={dictionary.subscriptions.labels.months}
                   frontError={errors && errors?.organization_id}
                   defaultValue={subscription?.organization_id}
                   onChange={(newValue: any) => {
@@ -389,8 +422,8 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
                 scrollButtons='auto'
                 allowScrollButtonsMobile
               >
-                <Tab label="Modules" />
-                <Tab label="Additional Features" />
+                <Tab label={dictionary.subscriptions.labels.modules} />
+                <Tab label={dictionary.subscriptions.labels.additionalFeatures} />
               </Tabs>
             </Grid>
           </Grid>
@@ -402,16 +435,20 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
         <DialogActions>
           <Grid container justifyContent="space-between" alignItems="center" spacing={1} width="100%">
             <Grid size={6}>
-              <Typography variant='h5'>Monthly Total:</Typography>
+              <Typography variant='h5'>{dictionary.subscriptions.labels.totalMonthlyRate}:</Typography>
             </Grid>
             <Grid size={6} textAlign={'end'}>
-              <Typography variant='h5'>{(totalModulesMonthly + totalAdditionalFeaturesMonthlyCost).toLocaleString()}</Typography>
+              <Tooltip title={dictionary.subscriptions.helpTexts.monthlyTotal}>
+                <Typography variant='h5' sx={{cursor: 'pointer'}}>{(totalModulesMonthly + totalAdditionalFeaturesMonthlyCost).toLocaleString()}</Typography>
+              </Tooltip>
             </Grid>
             <Grid size={6}>
-              <Typography variant='h5'>Grand Total:</Typography>
+              <Typography variant='h5'>{dictionary.subscriptions.labels.grandTotal}:</Typography>
             </Grid>
             <Grid size={6} textAlign={'end'}>
-              <Typography variant='h5'>{(totalModulesAmountAllMonths + totalAdditionalFeaturesAmount).toLocaleString()}</Typography>
+              <Tooltip title={dictionary.subscriptions.helpTexts.grandTotal}>
+                <Typography variant='h5' sx={{cursor: 'pointer'}}>{(totalModulesAmountAllMonths + totalAdditionalFeaturesAmount).toLocaleString()}</Typography>
+              </Tooltip>
             </Grid>
             <Grid size={12}>
               {userIsProsAfrican &&
@@ -426,19 +463,19 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             </Grid>
             <Grid size={12} textAlign={'end'}>
               <Button onClick={() => setOpenDialog(false)} size='small' variant='outlined' sx={{ ml: 2 }}>
-                Close
+                 {dictionary.commons.close}
               </Button>
               {
                 activeTab > 0 &&
                 <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => (activeTab-1))} sx={{ ml: 1 }}>
                   <KeyboardArrowLeftOutlined/>
-                  Previous
+                  {dictionary.commons.previous}
                 </Button>
               }
               {
                 activeTab < 1 &&
                 <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => activeTab+1)} sx={{ ml: 1 }}>
-                  Next
+                  {dictionary.commons.next}
                   <KeyboardArrowRightOutlined/>
                 </Button>
               }
@@ -449,7 +486,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
                 size='small' 
                 sx={{ ml: 1 }}
               >
-                Submit
+                {dictionary.forms.submit}
               </LoadingButton>
             </Grid>
           </Grid>

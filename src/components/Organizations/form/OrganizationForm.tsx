@@ -21,6 +21,7 @@ import { COUNTRIES } from '@/utilities/constants/countries';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CURRENCIES } from '@/utilities/constants/currencies';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Organization {
   id?: string;
@@ -95,6 +96,10 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
   const router = useRouter();
   const queryClient = useQueryClient();
   const theme = useTheme();
+    const dictionary = useDictionary();
+
+    console.log(dictionary)
+  
   
   const allCountries = Object.values(COUNTRIES).map((country: any) => country as Country);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null);

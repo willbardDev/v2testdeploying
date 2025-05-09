@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import '@/styles/style.css';
-import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import '@assets/fonts/noir-pro/styles.css';
 import { ReactNode } from 'react';
 import { Providers } from '../providers';
+import { getDictionary } from './dictionaries';
+import { DictionaryProvider } from './contexts/DictionaryContext';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -32,14 +33,17 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
   const { lang } = params;
+  const dictionary = await getDictionary(lang);
 
   return (
     <html lang={lang} data-lt-installed='true'>
       <body cz-shortcut-listen='true'>
         <div id='root'>
+        <DictionaryProvider dictionary={dictionary}>
           <Providers>
             {children}
           </Providers>
+        </DictionaryProvider>
         </div>
       </body>
     </html>

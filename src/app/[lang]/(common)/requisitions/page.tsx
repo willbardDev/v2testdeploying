@@ -2,7 +2,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div>Requisitions will gp here</div>
+    <div>Requisitions will go here</div>
   )
 }
 

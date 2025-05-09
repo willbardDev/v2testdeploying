@@ -1,0 +1,78 @@
+{
+  "errors": {
+    "validation": {
+      "modules": {
+        "required": "Tafadhali chagua angalau moduli moja.",
+        "invalidSelection": "Moduli uliyoweka si sahihi."
+      },
+      "months": {
+        "required": "Tafadhali weka muda wa usajili.",
+        "positive": "Muda lazima uwe namba chanya.",
+        "minimum": {
+          "default": "Muda wa chini wa usajili ni miezi {min}.",
+          "prosAfrican": "Usajili lazima uwe angalau mwezi {min}."
+        }
+      },
+      "gracePeriod": {
+        "positive": "Kipindi cha neema hakiwezi kuwa hasi.",
+        "maximum": "Kipindi cha neema hakiwezi kuzidi siku {max}."
+      },
+      "organization": {
+        "required": "Tafadhali chagua shirika.",
+        "invalid": "Shirika ulilochagua si sahihi."
+      },
+      "startDate": {
+        "required": "Tarehe ya kuanza inahitajika.",
+        "invalid": "Tafadhali weka tarehe sahihi ya kuanza."
+      },
+      "additionalFeatures": {
+        "invalid": "Baadhi ya vipengele ulivyochagua si sahihi."
+      }
+    },
+    "api": {
+      "createFailed": "Imeshindikana kuunda usajili. Tafadhali jaribu tena.",
+      "updateFailed": "Imeshindikana kusasisha usajili. Tafadhali jaribu tena.",
+      "notFound": "Usajili uliotafutwa haukupatikana."
+    }
+  },
+  "messages": {
+    "createSuccess": "Usajili umeundwa kwa mafanikio.",
+    "edit": "Hariri",
+    "new": "Ongeza Usajili Mpya",
+    "updateSuccess": "Usajili umesasishwa kwa mafanikio.",
+    "deleteSuccess": "Usajili umefutwa kwa mafanikio."
+  },
+  "labels": {
+    "organization": "Shirika",
+    "months": "Muda wa Usajili (miezi)",
+    "gracePeriod": "Kipindi cha Neema (siku)",
+    "startDate": "Tarehe ya Kuanza",
+    "modules": "Moduli",
+    "additionalFeatures": "Vipengele vya Ziada",
+    "additionalFeatureInfoMessage": "Tafadhali chagua angalau moduli moja kupata vipengele vya ziada.",
+    "additionalFeatureQuantity": "Idadi",
+    "monthlyRate": "Kiwango cha Moduli kwa Mwezi",
+    "additionalFeatureRate": "Kiwango cha kipengele kwa Mwezi",
+    "monthlyAmount": "Kiasi cha Kila Mwezi",
+    "additionalFeatureAmount": "Gharama",
+    "additionalFeatureMonthlyCostLabel": "Gharama ya Kila Mwezi ya Vipengele vya Ziada",
+    "modulesMonthlyCost": "Gharama ya Kila Mwezi ya Moduli",
+    "totalMonthlyRate": "Jumla ya Kila Mwezi",
+    "grandTotal": "Jumla Kuu"
+  },
+  "helpTexts": {
+    "additionalFeatureQuantity": "Weka ni vipengele vingapi unahitaji.",
+    "additionalFeatureAmount": "Gharama ya jumla ya kipengele hiki kulingana na uhitaji wako.",
+    "additionalFeatureMonthlyCostLabel": "Jumla ya gharama ya kila mwezi kwa vipengele vyote vya ziada vilivyochaguliwa.",
+    "additionalFeatureRate": "Gharama ya kila mwezi kwa kipengele kimoja.",
+    "months": "Hii inaonyesha muda wa usajili kuwa hai.",
+    "gracePeriod": "Kipindi cha hiari baada ya usajili kumalizika.",
+    "startDate": "Tarehe ambayo usajili utaanza kutumika.",
+    "modules": "Vipengele vya msingi vilivyomo kwenye usajili.",
+    "additionalFeatures": "Vipengele vya hiari vya kuongeza uwezo.",
+    "monthlyRate": "Ada ya kila mwezi kwa moduli hii.",
+    "grandTotal": "Jumla ya mwisho ikijumuisha gharama zote za usajili.",
+    "monthlyTotal": "Gharama ya kila mwezi ya usajili huu.",
+    "modulesMonthlyCost": "Jumla ya gharama kwa mwezi kwa moduli zilizochaguliwa."
+  }
+}
