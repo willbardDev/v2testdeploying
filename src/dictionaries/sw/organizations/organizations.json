@@ -126,7 +126,12 @@
       "loadOrganization": "Pakia",
       "isLoadedAsActiveMessage": "imepakiwa kama Shirika kuu litakalofanya kazi",
       "isLoadedAsActiveSpinner": "inapakia Shirika...",
-      "isLoadedAsActiveError": "Kuna hitilafu imetokea wakati wa kupakia Shirika"
+      "isLoadedAsActiveError": "Kuna hitilafu imetokea wakati wa kupakia Shirika",
+      "invitationLink": "mialiko"
+    },
+    "messages": {
+      "noOrganizations": "Huna mashirika ya ProsERP kwa sasa.",
+      "invitationText": "Jiunge na moja kutoka kwa "
     },
     "autoLoad": {
       "button": {

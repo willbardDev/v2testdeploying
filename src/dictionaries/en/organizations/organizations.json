@@ -126,7 +126,12 @@
       "loadOrganization": "Load",
       "isLoadedAsActiveMessage": "is loaded to an active organization",
       "isLoadedAsActiveSpinner": "Loading organization...",
-      "isLoadedAsActiveError": "Something went wrong on loading Organization"
+      "isLoadedAsActiveError": "Something went wrong on loading Organization",
+      "invitationLink": "invitations"
+    },
+    "messages": {
+      "noOrganizations": "No ProsERP organizations for you.",
+      "invitationText": "Join one from the "
     },
     "autoLoad": {
       "button": {

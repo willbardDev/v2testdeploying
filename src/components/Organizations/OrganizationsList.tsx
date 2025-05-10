@@ -73,9 +73,12 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
       <OrganizationListItem organization={organization} />
     ) : (
       <Alert variant="outlined" severity="info">
-        <span>No ProsERP organizations for you. </span>
+        <span>{dictionary.organizations.list.messages.noOrganizations}</span>
         <span>
-          Join one from the <Link href={`/${lang}/invitations`}>invitations</Link> sent to your email
+          {dictionary.organizations.list.messages.invitationText}
+          <Link href={`/${lang}/invitations`}>
+            {dictionary.organizations.list.labels.invitationLink}
+          </Link>
         </span>
       </Alert>
     );
