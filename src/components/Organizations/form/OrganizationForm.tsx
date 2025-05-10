@@ -107,267 +107,268 @@ interface FormValues {
 }
 
 const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null }) => {
-  const dictionary = useDictionary();
-  const { enqueueSnackbar } = useSnackbar();
-  const { configAuth, authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const theme = useTheme();
+    const dictionary = useDictionary();
 
-  const allCountries = Object.values(COUNTRIES).map((country: any) => country as Country);
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+    const { enqueueSnackbar } = useSnackbar();
+    const { configAuth, authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const theme = useTheme();
 
-  const canCreateOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
-  const canEditOrganization = canCreateOrganization || (organization && checkOrganizationPermission([PERMISSIONS.ORGANIZATION_UPDATE]));
+    const allCountries = Object.values(COUNTRIES).map((country: any) => country as Country);
+    const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null);
+    const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
-const validationSchema = yup.object({
-    id: yup.string().optional(),
-    name: yup
-        .string()
-        .required(dictionary.organizations.form.errors.validation.name.required)
-        .min(3, dictionary.organizations.form.errors.validation.name.min)
-        .max(100, dictionary.organizations.form.errors.validation.name.max),
-    email: yup
-        .string()
-        .email(dictionary.organizations.form.errors.validation.email.invalid)
-        .nullable(),
-    phone: yup
-        .string()
-        .required(dictionary.organizations.form.errors.validation.phone.required)
-        .matches(
-        /^\+?[0-9]{10,15}$/,
-        dictionary.organizations.form.errors.validation.phone.invalid
-        ),
-    tin: yup.string().nullable(),
-    recording_start_date: yup
-        .string()
-        .required(dictionary.organizations.form.errors.validation.recordingStart.required),
-    address: yup.string().nullable(),
-    website: yup
-        .string()
-        .matches(
-        /^$|((https?):\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
-        dictionary.organizations.form.errors.validation.website.invalid
-        )
-        .nullable(),
-    country_code: yup
-        .string()
-        .required(dictionary.organizations.form.errors.validation.country.required),
-    currency_code: yup
-        .string()
-        .required(dictionary.organizations.form.errors.validation.currency.required),
-    vat_registered: yup.boolean(),
-    vrn: yup.string().when('vat_registered', {
-        is: true,
-        then: (schema) =>
-        schema.required(dictionary.organizations.form.errors.validation.vrn.required),
-        otherwise: (schema) => schema.nullable(),
-    }),
-    vat_percentage: yup.number().when('vat_registered', {
-        is: true,
-        then: (schema) =>
-        schema
-            .positive(dictionary.organizations.form.errors.validation.vatPercentage.min)
-            .max(100, dictionary.organizations.form.errors.validation.vatPercentage.max)
-            .required(dictionary.organizations.form.errors.validation.vatPercentage.required),
-        otherwise: (schema) => schema.positive().optional(),
-    }),
-    symbol_path: yup.string().nullable(),
-    main_color: yup
-        .string()
-        .matches(
-            /^#([0-9A-Fa-f]{3}){1,2}$/i,
-            dictionary.organizations.form.errors.validation.colors.invalid
-        )
-        .default(theme.palette.primary.main),
-    light_color: yup
-        .string()
-        .matches(
-            /^#([0-9A-Fa-f]{3}){1,2}$/i,
-            dictionary.organizations.form.errors.validation.colors.invalid
-        )
-        .default('#bec5da'),
-    dark_color: yup
-        .string()
-        .matches(
-            /^#([0-9A-Fa-f]{3}){1,2}$/i,
-            dictionary.organizations.form.errors.validation.colors.invalid
-        )
-        .default(theme.palette.primary.dark),
-    contrast_text: yup
-        .string()
-        .matches(
-            /^#([0-9A-Fa-f]{3}){1,2}$/i,
-            dictionary.organizations.form.errors.validation.colors.invalid
-        )
-        .default(theme.palette.primary.contrastText),
-    tagline: yup
-        .string()
-        .max(50, dictionary.organizations.form.errors.validation.tagline.max)
-        .nullable(),
-    logo: yup
-        .mixed()
-        .nullable()
-        .test(
-            'fileSize',
-            dictionary.organizations.form.errors.fileUpload.size,
-            (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
-        )
-        .test(
-            'fileType',
-            dictionary.organizations.form.errors.fileUpload.type,
-            (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
-        ),
-    organization_symbol: yup
-        .mixed()
-        .nullable()
-        .test(
-            'fileSize',
-            dictionary.organizations.form.errors.fileUpload.size,
-            (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
-        )
-        .test(
-            'fileType',
-            dictionary.organizations.form.errors.fileUpload.type,
-            (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
-        ),
-});
+    const canCreateOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
+    const canEditOrganization = canCreateOrganization || (organization && checkOrganizationPermission([PERMISSIONS.ORGANIZATION_UPDATE]));
 
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    watch,
-    setError,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any,
-    defaultValues: {
-      id: organization?.id,
-      name: organization?.name || '',
-      email: organization?.email ?? null,
-      phone: organization?.phone || '',
-      tin: organization?.tin ?? null,
-      recording_start_date: organization?.recording_start_date || '',
-      address: organization ? organization.address : null,
-      vat_registered: organization?.settings?.vat_registered
-        ? organization.settings.vat_registered
-        : false,
-      vrn: organization?.settings?.vrn ? organization.settings.vrn : null,
-      vat_percentage: organization?.settings?.vat_percentage
-        ? organization.settings.vat_percentage
-        : 18,
-      symbol_path: organization?.settings?.symbol_path
-        ? organization.settings.symbol_path
-        : null,
-      main_color: organization?.settings?.main_color
-        ? organization.settings.main_color
-        : theme.palette.primary.main,
-      light_color: organization?.settings?.light_color
-        ? organization.settings.light_color
-        : '#bec5da',
-      dark_color: organization?.settings?.dark_color
-        ? organization.settings.dark_color
-        : theme.palette.primary.dark,
-      contrast_text: organization?.settings?.contrast_text
-        ? organization.settings.contrast_text
-        : theme.palette.primary.contrastText,
-      tagline: organization?.settings?.tagline ? organization.settings.tagline : null,
-      country_code: organization?.country_code,
-      currency_code: selectedCurrency?.code,
-    },
-  });
+    const validationSchema = yup.object({
+        id: yup.string().optional(),
+        name: yup
+            .string()
+            .required(dictionary.organizations.form.errors.validation.name.required)
+            .min(3, dictionary.organizations.form.errors.validation.name.min)
+            .max(100, dictionary.organizations.form.errors.validation.name.max),
+        email: yup
+            .string()
+            .email(dictionary.organizations.form.errors.validation.email.invalid)
+            .nullable(),
+        phone: yup
+            .string()
+            .required(dictionary.organizations.form.errors.validation.phone.required)
+            .matches(
+            /^\+?[0-9]{10,15}$/,
+            dictionary.organizations.form.errors.validation.phone.invalid
+            ),
+        tin: yup.string().nullable(),
+        recording_start_date: yup
+            .string()
+            .required(dictionary.organizations.form.errors.validation.recordingStart.required),
+        address: yup.string().nullable(),
+        website: yup
+            .string()
+            .matches(
+            /^$|((https?):\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+            dictionary.organizations.form.errors.validation.website.invalid
+            )
+            .nullable(),
+        country_code: yup
+            .string()
+            .required(dictionary.organizations.form.errors.validation.country.required),
+        currency_code: yup
+            .string()
+            .required(dictionary.organizations.form.errors.validation.currency.required),
+        vat_registered: yup.boolean(),
+        vrn: yup.string().when('vat_registered', {
+            is: true,
+            then: (schema) =>
+            schema.required(dictionary.organizations.form.errors.validation.vrn.required),
+            otherwise: (schema) => schema.nullable(),
+        }),
+        vat_percentage: yup.number().when('vat_registered', {
+            is: true,
+            then: (schema) =>
+            schema
+                .positive(dictionary.organizations.form.errors.validation.vatPercentage.min)
+                .max(100, dictionary.organizations.form.errors.validation.vatPercentage.max)
+                .required(dictionary.organizations.form.errors.validation.vatPercentage.required),
+            otherwise: (schema) => schema.positive().optional(),
+        }),
+        symbol_path: yup.string().nullable(),
+        main_color: yup
+            .string()
+            .matches(
+                /^#([0-9A-Fa-f]{3}){1,2}$/i,
+                dictionary.organizations.form.errors.validation.colors.invalid
+            )
+            .default(theme.palette.primary.main),
+        light_color: yup
+            .string()
+            .matches(
+                /^#([0-9A-Fa-f]{3}){1,2}$/i,
+                dictionary.organizations.form.errors.validation.colors.invalid
+            )
+            .default('#bec5da'),
+        dark_color: yup
+            .string()
+            .matches(
+                /^#([0-9A-Fa-f]{3}){1,2}$/i,
+                dictionary.organizations.form.errors.validation.colors.invalid
+            )
+            .default(theme.palette.primary.dark),
+        contrast_text: yup
+            .string()
+            .matches(
+                /^#([0-9A-Fa-f]{3}){1,2}$/i,
+                dictionary.organizations.form.errors.validation.colors.invalid
+            )
+            .default(theme.palette.primary.contrastText),
+        tagline: yup
+            .string()
+            .max(50, dictionary.organizations.form.errors.validation.tagline.max)
+            .nullable(),
+        logo: yup
+            .mixed()
+            .nullable()
+            .test(
+                'fileSize',
+                dictionary.organizations.form.errors.fileUpload.size,
+                (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
+            )
+            .test(
+                'fileType',
+                dictionary.organizations.form.errors.fileUpload.type,
+                (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
+            ),
+        organization_symbol: yup
+            .mixed()
+            .nullable()
+            .test(
+                'fileSize',
+                dictionary.organizations.form.errors.fileUpload.size,
+                (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
+            )
+            .test(
+                'fileType',
+                dictionary.organizations.form.errors.fileUpload.type,
+                (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
+            ),
+    });
 
-  const addOrganization = useMutation<any, Error, FormValues>({
-    mutationFn: organizationServices.create,
-    onSuccess: (data) => {
-      if (configAuth) {
-        configAuth({
-          token: data.token,
-          currentOrganization: data.newOrganization,
-          currentUser: data.authUser,
-        });
-      }
-      router.push(`/organizations/profile/${data.newOrganization.organization.id}`);
-      enqueueSnackbar(
-        dictionary.organizations.form.messages.createSuccess,
-        { variant: 'success' }
-      );
-    },
-    onError: (error: any) => {
-      if (error?.response?.data?.validation_errors) {
-        Object.entries(error.response.data.validation_errors).forEach(
-          ([fieldName, messages]) => {
-            setError(fieldName as keyof FormValues, {
-              type: 'manual',
-              message: (messages as string[]).join('<br/>'),
+    const {
+        handleSubmit,
+        register,
+        setValue,
+        watch,
+        setError,
+        formState: { errors },
+    } = useForm<FormValues>({
+        resolver: yupResolver(validationSchema) as any,
+        defaultValues: {
+        id: organization?.id,
+        name: organization?.name || '',
+        email: organization?.email ?? null,
+        phone: organization?.phone || '',
+        tin: organization?.tin ?? null,
+        recording_start_date: organization?.recording_start_date || '',
+        address: organization ? organization.address : null,
+        vat_registered: organization?.settings?.vat_registered
+            ? organization.settings.vat_registered
+            : false,
+        vrn: organization?.settings?.vrn ? organization.settings.vrn : null,
+        vat_percentage: organization?.settings?.vat_percentage
+            ? organization.settings.vat_percentage
+            : 18,
+        symbol_path: organization?.settings?.symbol_path
+            ? organization.settings.symbol_path
+            : null,
+        main_color: organization?.settings?.main_color
+            ? organization.settings.main_color
+            : theme.palette.primary.main,
+        light_color: organization?.settings?.light_color
+            ? organization.settings.light_color
+            : '#bec5da',
+        dark_color: organization?.settings?.dark_color
+            ? organization.settings.dark_color
+            : theme.palette.primary.dark,
+        contrast_text: organization?.settings?.contrast_text
+            ? organization.settings.contrast_text
+            : theme.palette.primary.contrastText,
+        tagline: organization?.settings?.tagline ? organization.settings.tagline : null,
+        country_code: organization?.country_code,
+        currency_code: selectedCurrency?.code,
+        },
+    });
+
+    const addOrganization = useMutation<any, Error, FormValues>({
+        mutationFn: organizationServices.create,
+        onSuccess: (data) => {
+        if (configAuth) {
+            configAuth({
+            token: data.token,
+            currentOrganization: data.newOrganization,
+            currentUser: data.authUser,
             });
-          }
+        }
+        router.push(`/organizations/profile/${data.newOrganization.organization.id}`);
+        enqueueSnackbar(
+            dictionary.organizations.form.messages.createSuccess,
+            { variant: 'success' }
         );
-      } else if (error?.response?.data?.message) {
-        enqueueSnackbar(error.response.data.message, { variant: 'error' });
-      }
-    },
-  });
+        },
+        onError: (error: any) => {
+        if (error?.response?.data?.validation_errors) {
+            Object.entries(error.response.data.validation_errors).forEach(
+            ([fieldName, messages]) => {
+                setError(fieldName as keyof FormValues, {
+                type: 'manual',
+                message: (messages as string[]).join('<br/>'),
+                });
+            }
+            );
+        } else if (error?.response?.data?.message) {
+            enqueueSnackbar(error.response.data.message, { variant: 'error' });
+        }
+        },
+    });
 
-  const updateOrganization = useMutation<any, Error, FormValues>({
-    mutationFn: organizationServices.update,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['organizationDetails'] });
-      router.push('/organizations');
-      enqueueSnackbar(
-        dictionary.organizations.form.messages.updateSuccess,
-        { variant: 'success' }
-      );
-    },
-    onError: (error: any) => {
-      if (error?.response?.data?.validation_errors) {
-        Object.entries(error.response.data.validation_errors).forEach(
-          ([fieldName, messages]) => {
-            setError(fieldName as keyof FormValues, {
-              type: 'manual',
-              message: (messages as string[]).join('<br/>'),
-            });
-          }
+    const updateOrganization = useMutation<any, Error, FormValues>({
+        mutationFn: organizationServices.update,
+        onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: ['organizationDetails'] });
+        router.push('/organizations');
+        enqueueSnackbar(
+            dictionary.organizations.form.messages.updateSuccess,
+            { variant: 'success' }
         );
-      } else if (error?.response?.data?.message) {
-        enqueueSnackbar(error.response.data.message, { variant: 'error' });
-      }
-    },
-  });
+        },
+        onError: (error: any) => {
+        if (error?.response?.data?.validation_errors) {
+            Object.entries(error.response.data.validation_errors).forEach(
+            ([fieldName, messages]) => {
+                setError(fieldName as keyof FormValues, {
+                type: 'manual',
+                message: (messages as string[]).join('<br/>'),
+                });
+            }
+            );
+        } else if (error?.response?.data?.message) {
+            enqueueSnackbar(error.response.data.message, { variant: 'error' });
+        }
+        },
+    });
 
-  const saveMutation = React.useMemo(() => {
-    return organization ? updateOrganization.mutate : addOrganization.mutate;
-  }, [updateOrganization, addOrganization]);
+    const saveMutation = React.useMemo(() => {
+        return organization ? updateOrganization.mutate : addOrganization.mutate;
+    }, [updateOrganization, addOrganization]);
 
-  useEffect(() => {
-    if (organization) {
-      const organizationCountry = allCountries.find(
-        (country) => country.code === organization.country_code
-      );
-      setSelectedCountry(organizationCountry || null);
-      if (organizationCountry?.currency) {
-        setSelectedCurrency(organizationCountry.currency);
-      }
-    }
-  }, [organization]);
+    useEffect(() => {
+        if (organization) {
+        const organizationCountry = allCountries.find(
+            (country) => country.code === organization.country_code
+        );
+        setSelectedCountry(organizationCountry || null);
+        if (organizationCountry?.currency) {
+            setSelectedCurrency(organizationCountry.currency);
+        }
+        }
+    }, [organization]);
 
-  useEffect(() => {
-    if (selectedCurrency) {
-      setValue('currency_code', selectedCurrency.code);
-    }
-  }, [selectedCurrency]);
+    useEffect(() => {
+        if (selectedCurrency) {
+        setValue('currency_code', selectedCurrency.code);
+        }
+    }, [selectedCurrency]);
 
-  useEffect(() => {
-    if (!canEditOrganization) {
-      router.push('/');
-    }
-  }, [authUser, organization]);
+    useEffect(() => {
+        if (!canEditOrganization) {
+        router.push('/');
+        }
+    }, [authUser, organization]);
 
-  const saveHandler: SubmitHandler<FormValues> = (formData) => {
-    saveMutation(formData);
-  };
+    const saveHandler: SubmitHandler<FormValues> = (formData) => {
+        saveMutation(formData);
+    };
 
   return (
     <React.Fragment>
@@ -704,94 +705,118 @@ const validationSchema = yup.object({
               )}
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Div sx={{ mt: 1, mb: 1 }}>
-                <InputLabel sx={{ mb: 1 }} id="main-color-label" htmlFor={'main_color'}>
-                  {dictionary.organizations.form.labels.mainColor}
-                </InputLabel>
-                <Input
-                  fullWidth
-                  type="color"
-                  id="main_color"
-                  value={watch('main_color')}
-                  onChange={(e) => {
-                    setValue('main_color', e.target.value);
-                  }}
-                />
-                <FormHelperText>
-                  {dictionary.organizations.form.messages.colorGuide}
-                </FormHelperText>
-              </Div>
-              <Div sx={{ mt: 1, mb: 1 }}>
-                <InputLabel
-                  sx={{ mb: 1 }}
-                  id="light-color-label"
-                  htmlFor={'light_color'}
-                >
-                  {dictionary.organizations.form.labels.lightColor}
-                </InputLabel>
-                <Input
-                  fullWidth
-                  type="color"
-                  id="light_color"
-                  value={watch('light_color')}
-                  onChange={(e) => {
-                    setValue('light_color', e.target.value);
-                  }}
-                />
-                <FormHelperText>
-                  {dictionary.organizations.form.messages.colorGuide}
-                </FormHelperText>
-              </Div>
-              <Div sx={{ mt: 1, mb: 1 }}>
-                <InputLabel sx={{ mb: 1 }} id="dark-color-label" htmlFor={'dark_color'}>
-                  {dictionary.organizations.form.labels.darkColor}
-                </InputLabel>
-                <Input
-                  fullWidth
-                  type="color"
-                  id="dark_color"
-                  value={watch('dark_color')}
-                  onChange={(e) => {
-                    setValue('dark_color', e.target.value);
-                  }}
-                />
-                <FormHelperText>
-                  {dictionary.organizations.form.messages.colorGuide}
-                </FormHelperText>
-              </Div>
-              <Div sx={{ mt: 1, mb: 1 }}>
-                <InputLabel
-                  sx={{ mb: 1 }}
-                  id="contrast-text-color-label"
-                  htmlFor={'contrast_text'}
-                >
-                  {dictionary.organizations.form.labels.contrastText}
-                </InputLabel>
-                <Input
-                  fullWidth
-                  type="color"
-                  id="contrast_text"
-                  value={watch('contrast_text')}
-                  onChange={(e) => {
-                    setValue('contrast_text', e.target.value);
-                  }}
-                />
-                <FormHelperText>
-                  {dictionary.organizations.form.messages.colorGuide}
-                </FormHelperText>
-              </Div>
-              <Div sx={{ mt: 3, mb: 1 }}>
-                <TextField
-                  fullWidth
-                  label={dictionary.organizations.form.labels.tagline}
-                  placeholder={dictionary.organizations.form.placeholders.tagline}
-                  size="small"
-                  error={!!errors?.tagline}
-                  helperText={errors?.tagline?.message}
-                  {...register('tagline')}
-                />
-              </Div>
-            </Grid>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                    <InputLabel sx={{ mb: 1 }} id="main-color-label" htmlFor={'main_color'}>
+                      {dictionary.organizations.form.labels.mainColor}
+                    </InputLabel>
+                    <Input
+                        fullWidth
+                        type="color"
+                        id="main_color"
+                        value={watch('main_color') || theme.palette.primary.main}
+                        onChange={(e) => {
+                            setValue('main_color', e.target.value, {
+                            shouldValidate: true
+                            });
+                        }}
+                        error={!!errors?.main_color}
+                    />
+                    {errors?.main_color && (
+                        <FormHelperText error>
+                            {errors.main_color.message}
+                        </FormHelperText>
+                    )}
+                    <FormHelperText>
+                         {dictionary.organizations.form.messages.colorGuide}
+                    </FormHelperText>
+                </Div>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                    <InputLabel sx={{ mb: 1 }} id="light-color-label" htmlFor={'light_color'}>
+                        {dictionary.organizations.form.labels.lightColor}
+                    </InputLabel>
+                    <Input
+                        fullWidth
+                        type="color"
+                        id="light_color"
+                        value={watch('light_color') || '#bec5da'}
+                        onChange={(e) => {
+                            setValue('light_color', e.target.value, {
+                            shouldValidate: true
+                            });
+                        }}
+                        error={!!errors?.light_color}
+                    />
+                    {errors?.light_color && (
+                        <FormHelperText error>
+                            {errors.light_color.message}
+                        </FormHelperText>
+                    )}
+                    <FormHelperText>
+                       {dictionary.organizations.form.messages.colorGuide}
+                    </FormHelperText>
+                </Div>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                    <InputLabel sx={{ mb: 1 }} id="dark-color-label" htmlFor={'dark_color'}>
+                        {dictionary.organizations.form.labels.darkColor}
+                    </InputLabel>
+                    <Input
+                        fullWidth
+                        type="color"
+                        id="dark_color"
+                        value={watch('dark_color') || theme.palette.primary.dark}
+                        onChange={(e) => {
+                            setValue('dark_color', e.target.value, {
+                            shouldValidate: true
+                            });
+                        }}
+                        error={!!errors?.dark_color}
+                    />
+                    {errors?.dark_color && (
+                        <FormHelperText error>
+                            {errors.dark_color.message}
+                        </FormHelperText>
+                    )}
+                    <FormHelperText>
+                        {dictionary.organizations.form.messages.colorGuide}
+                    </FormHelperText>
+                </Div>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                    <InputLabel sx={{ mb: 1 }} id="contrast-text-label" htmlFor={'contrast_text'}>
+                        {dictionary.organizations.form.labels.contrastText}
+                    </InputLabel>
+                    <Input
+                        fullWidth
+                        type="color"
+                        id="contrast_text"
+                        value={watch('contrast_text') || theme.palette.primary.contrastText}
+                        onChange={(e) => {
+                            setValue('contrast_text', e.target.value, {
+                            shouldValidate: true
+                            });
+                        }}
+                        error={!!errors?.contrast_text}
+                    />
+                    {errors?.contrast_text && (
+                        <FormHelperText error>
+                            {errors.contrast_text.message}
+                        </FormHelperText>
+                    )}
+                    <FormHelperText>
+                         {dictionary.organizations.form.messages.colorGuide}
+                    </FormHelperText>
+                </Div>
+                <Div sx={{ mt: 3, mb: 1 }}>
+                    <TextField
+                        fullWidth
+                        label={dictionary.organizations.form.labels.tagline}
+                        placeholder={dictionary.organizations.form.placeholders.tagline}
+                        size="small"
+                        error={!!errors?.tagline}
+                        helperText={errors?.tagline?.message}
+                        {...register('tagline')}
+                    />
+                </Div>
+                </Grid>
             <Grid size={{ xs: 12 }}>
               <Box display={'flex'} justifyContent={'flex-end'}>
                 <LoadingButton
