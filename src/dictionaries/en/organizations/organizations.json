@@ -128,7 +128,6 @@
       "isLoadedAsActiveSpinner": "Loading organization...",
       "isLoadedAsActiveError": "Something went wrong on loading Organization"
     },
-
     "autoLoad": {
       "button": {
         "tooltip": {
