@@ -38,30 +38,8 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CURRENCIES } from '@/utilities/constants/currencies';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
-
-interface Organization {
-  id?: string;
-  name?: string;
-  email?: string | null;
-  phone?: string;
-  tin?: string | null;
-  recording_start_date?: string;
-  address?: string | null;
-  country_code?: string;
-  logo_path?: string;
-  settings?: {
-    vat_registered?: boolean;
-    vrn?: string | null;
-    vat_percentage?: number;
-    symbol_path?: string | null;
-    main_color?: string;
-    light_color?: string;
-    dark_color?: string;
-    contrast_text?: string;
-    tagline?: string | null;
-  };
-  [key: string]: any;
-}
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { Organization } from '@/types/auth-types';
 
 interface Country {
   code: string;
@@ -108,6 +86,7 @@ interface FormValues {
 
 const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null }) => {
     const dictionary = useDictionary();
+    const lang = useLanguage();
 
     const { enqueueSnackbar } = useSnackbar();
     const { configAuth, authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
@@ -207,32 +186,6 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             .string()
             .max(50, dictionary.organizations.form.errors.validation.tagline.max)
             .nullable(),
-        logo: yup
-            .mixed()
-            .nullable()
-            .test(
-                'fileSize',
-                dictionary.organizations.form.errors.fileUpload.size,
-                (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
-            )
-            .test(
-                'fileType',
-                dictionary.organizations.form.errors.fileUpload.type,
-                (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
-            ),
-        organization_symbol: yup
-            .mixed()
-            .nullable()
-            .test(
-                'fileSize',
-                dictionary.organizations.form.errors.fileUpload.size,
-                (value: any) => !value || (value && value[0]?.size <= 2 * 1024 * 1024)
-            )
-            .test(
-                'fileType',
-                dictionary.organizations.form.errors.fileUpload.type,
-                (value: any) => !value || (value && ['image/jpeg', 'image/png'].includes(value[0]?.type))
-            ),
     });
 
     const {
@@ -290,7 +243,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             currentUser: data.authUser,
             });
         }
-        router.push(`/organizations/profile/${data.newOrganization.organization.id}`);
+        router.push(`/${lang}/organizations/profile/${data.newOrganization.organization.id}`);
         enqueueSnackbar(
             dictionary.organizations.form.messages.createSuccess,
             { variant: 'success' }
@@ -315,26 +268,26 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
     const updateOrganization = useMutation<any, Error, FormValues>({
         mutationFn: organizationServices.update,
         onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: ['organizationDetails'] });
-        router.push('/organizations');
-        enqueueSnackbar(
-            dictionary.organizations.form.messages.updateSuccess,
-            { variant: 'success' }
-        );
+            queryClient.invalidateQueries({ queryKey: ['organizationDetails'] });
+            enqueueSnackbar(
+                dictionary.organizations.form.messages.updateSuccess,
+                { variant: 'success' }
+            );
+            router.push(`/${lang}/organizations`);
         },
         onError: (error: any) => {
-        if (error?.response?.data?.validation_errors) {
-            Object.entries(error.response.data.validation_errors).forEach(
-            ([fieldName, messages]) => {
-                setError(fieldName as keyof FormValues, {
-                type: 'manual',
-                message: (messages as string[]).join('<br/>'),
-                });
+            if (error?.response?.data?.validation_errors) {
+                Object.entries(error.response.data.validation_errors).forEach(
+                ([fieldName, messages]) => {
+                    setError(fieldName as keyof FormValues, {
+                    type: 'manual',
+                    message: (messages as string[]).join('<br/>'),
+                    });
+                }
+                );
+            } else if (error?.response?.data?.message) {
+                enqueueSnackbar(error.response.data.message, { variant: 'error' });
             }
-            );
-        } else if (error?.response?.data?.message) {
-            enqueueSnackbar(error.response.data.message, { variant: 'error' });
-        }
         },
     });
 
@@ -344,13 +297,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
 
     useEffect(() => {
         if (organization) {
-        const organizationCountry = allCountries.find(
-            (country) => country.code === organization.country_code
-        );
-        setSelectedCountry(organizationCountry || null);
-        if (organizationCountry?.currency) {
-            setSelectedCurrency(organizationCountry.currency);
-        }
+            const organizationCountry = allCountries.find(
+                (country) => country.code === organization.country_code
+            );
+            setSelectedCountry(organizationCountry || null);
+            if (organizationCountry?.currency) {
+                setSelectedCurrency(organizationCountry.currency);
+            }
         }
     }, [organization]);
 
@@ -362,7 +315,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
 
     useEffect(() => {
         if (!canEditOrganization) {
-        router.push('/');
+        router.push(`/${lang}/`);
         }
     }, [authUser, organization]);
 
@@ -385,7 +338,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         action={
           <Span>
             {organization && (
-              <Link href={`/organizations/profile/${organization.id}`} passHref>
+              <Link href={`/${lang}/organizations/profile/${organization.id}`} passHref>
                 <IconButton>
                   <Tooltip
                     title={dictionary.organizations.form.buttons.viewProfile}
@@ -396,7 +349,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 </IconButton>
               </Link>
             )}
-            <Link href={'/organizations'} passHref>
+            <Link href={`/${lang}/organizations`} passHref>
               <IconButton>
                 <Tooltip
                   title={dictionary.organizations.form.buttons.viewList}

@@ -275,5 +275,11 @@
       "dnd": "Drag n Drop (DnD)",
       "dropzone": "Dropzone"
     }
+  },
+
+  "rqList": {
+    "jumboSearch": "Search",
+    "rows": "Rows",
+    "dataRetrieving": "Retrieving..."
   }
 }

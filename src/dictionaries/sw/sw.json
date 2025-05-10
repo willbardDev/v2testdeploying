@@ -274,5 +274,11 @@
     "content": "Copyright Company Name © 2024",
     "buy": "Nunua",
     "price": "Bei"
+  },
+
+  "rqList": {
+    "jumboSearch": "Tafuta",
+    "rows": "Safu",
+    "dataRetrieving": "Inapakia..."
   }
 }

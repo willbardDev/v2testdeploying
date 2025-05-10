@@ -18,6 +18,7 @@ import {
 } from "./utils/constants";
 import { getUpdatedSelectedItems } from "./utils/listHelpers";
 import JumboListPagination from './components/JumboListPagination';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MultiSelectOption {
     label: React.ReactNode;
@@ -122,6 +123,8 @@ const jumboListReducer = (state: JumboListState, action: JumboListAction): Jumbo
 };
 
 const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProps>((props, ref) => {
+    const dictionary = useDictionary();
+
     const {
         header,
         toolbar,
@@ -225,7 +228,7 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                     >
                         <CircularProgress />
                         <Typography variant={'h6'} color={'text.secondary'} mt={2}>
-                            Retrieving...
+                            {dictionary.rqList.dataRetrieving}
                         </Typography>
                     </Div>
                 </JumboListWrapper>

@@ -16,6 +16,9 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
 import { Organization } from '@/types/auth-types';
 import { signOut } from 'next-auth/react';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import AutoLoadButton from './AutoLoadButton';
 
 interface OrganizationListItemProps {
   organization: Organization;
@@ -26,6 +29,9 @@ const Item = styled(Span)(({ theme }) => ({
 }));
 
 export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ organization }) => {
+  const lang = useLanguage();
+  const dictionary = useDictionary();
+  
   const router = useRouter();
   const { authOrganization, authUser, loadOrganization, checkOrganizationPermission } = useJumboAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +56,9 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       await loadOrganization(
         organization.id,
         (response) => {
+          window.location.href = `/${lang}/dashboard`;
           enqueueSnackbar(
-            `${organization.name} is loaded to an active organization`,
+            `${organization.name} ${dictionary.organizations.list.labels.isLoadedAsActiveMessage}`,
             {
               variant: 'success'
             }
@@ -59,7 +66,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         },
         (error: Error) => {
           enqueueSnackbar(
-            `Something went wrong`,
+            `${dictionary.organizations.list.labels.isLoadedAsActiveError}`,
             {
               variant: 'error'
             }
@@ -69,11 +76,10 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       queryClient.clear();
       setIsLoading(false);
     }
-    window.location.href = '/dashboard';
   };
 
   if (isLoading) {
-    return <BackdropSpinner message="Loading organization..." />;
+    return <BackdropSpinner message={dictionary.organizations.list.labels.isLoadedAsActiveSpinner}/>;
   }
 
   return (
@@ -89,6 +95,9 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
     >
       <Grid size={{xs: 12, md: 6}}>
         <Stack direction={'row'} alignItems={'center'}>
+          <AutoLoadButton
+            organization={organization}
+          />
           <Item>
             <Badge
               overlap="circular"
@@ -112,13 +121,13 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
                   width: 56,
                   height: 56
                 }}
-                alt={organization.name || 'Organization logo'}
+                alt={organization.name}
                 src={organization?.logo_path || '/assets/images/logo-symbol.png'}
               />
             </Badge>
           </Item>
           <Item>
-            <Tooltip title={`Load ${organization.name}`}>
+            <Tooltip title={`${dictionary.organizations.list.labels.loadOrganization} ${organization.name}`}>
               <Typography 
                 onClick={onLoad}
                 sx={{ cursor: 'pointer' }} 
@@ -139,7 +148,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       
       <Grid size={{xs: rolesCount > 2 ? 12 : 6, md: 6, lg: 3}}>
         <Typography variant={"h6"} mt={1} lineHeight={1.25}>
-          Roles:
+        {dictionary.organizations.list.labels.haveOrgRoles}:
         </Typography>
         {roles.length > 0 ? (
           <JumboChipsGroup
@@ -151,7 +160,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
           />
         ) : (
           <Typography variant="body2" color="text.secondary">
-            No roles assigned
+            {dictionary.organizations.list.labels.haveNotOrgRoles}
           </Typography>
         )}
       </Grid>
@@ -166,27 +175,27 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         }}
       >
         {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) && (
-          <Link href={`/organizations/edit/${organization.id}`} passHref legacyBehavior>
+          <Link href={`/${lang}/organizations/edit/${organization.id}`} passHref legacyBehavior>
             <IconButton component="a">
-              <Tooltip title={`Edit ${organization.name}`} disableInteractive>
-                <Edit />
+              <Tooltip title={`${dictionary.organizations.list.labels.listtoEdit} ${organization.name}`} disableInteractive>
+                <Edit/>
               </Tooltip>
             </IconButton>
           </Link>
         )}
         
         {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_PROFILE) && (
-          <IconButton onClick={() => router.push(`/organizations/profile/${organization.id}`)}>
-            <Tooltip title={`${organization.name} Profile`} disableInteractive>
-              <Info />
+          <IconButton onClick={() => router.push(`/${lang}/organizations/profile/${organization.id}`)}>
+            <Tooltip title={`${organization.name} ${dictionary.organizations.list.labels.listtoProfile}`} disableInteractive>
+              <Info/>
             </Tooltip>
           </IconButton>
         )}
         
         {isAuthOrganization ? (
-          <Link href={'/dashboard'} passHref legacyBehavior>
+          <Link href={`/${lang}/dashboard`} passHref legacyBehavior>
             <IconButton component="a">
-              <Tooltip title={`${organization.name} Dashboard`} disableInteractive>
+              <Tooltip title={`${organization.name} ${dictionary.organizations.list.labels.listtoDashboard}`} disableInteractive>
                 <DashboardOutlined />
               </Tooltip>
             </IconButton>
@@ -198,7 +207,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
             loading={isLoading}
             onClick={onLoad}
           >
-            <Tooltip title={`Load ${organization.name}`} disableInteractive>
+            <Tooltip title={`${dictionary.organizations.list.labels.loadOrganization} ${organization.name}`} disableInteractive>
               <KeyboardArrowRightOutlined />
             </Tooltip>
           </LoadingButton>

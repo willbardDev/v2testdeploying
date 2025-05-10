@@ -175,6 +175,8 @@ const authReducer = (state: AuthState, action: any): AuthState => {
 const getStoredAuthData = () => {
   const storedData = localStorage.getItem('authData')
 
+  // console.log(storedData,"storedDatastoredData")
+
   return storedData ? JSON.parse(storedData) : null;
 };
 
@@ -246,6 +248,8 @@ export const JumboAuthProvider = ({
   const refreshAuth = async () => {
     try {
       const token = localStorage.getItem('auth_token');
+
+  // console.log(token,"refreshAuthrefreshAuthTOKEN")
       
       const response: AuthResponse = await authServices.getCurrentUser();
 
@@ -286,6 +290,8 @@ export const JumboAuthProvider = ({
     if (token) {
       localStorage.setItem('auth_token', token);
     }
+
+    // console.log(token,"configAuthconfigAuthTOKEN")
     
     if (!token) {
       resetAuth();
@@ -369,6 +375,9 @@ export const JumboAuthProvider = ({
   React.useEffect(() => {
     const token = localStorage.getItem('auth_token');
     axios.defaults.headers.common['X-OrganizationId'] = localStorage.getItem("OrganizationId");
+
+  // console.log(token,"useEffectuseEffectTOKEN")
+
     startAuthLoading();
     if(token) {
         configAuth({token});
@@ -485,6 +494,8 @@ export const JumboAuthProvider = ({
       const storedData = getStoredAuthData();
       const token = localStorage.getItem('auth_token');
       const organizationId = localStorage.getItem("OrganizationId") || '';
+
+  // console.log(token,"initializeAuthinitializeAuthTOKEN")
       
       axios.defaults.headers.common['X-OrganizationId'] = organizationId;
       

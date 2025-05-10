@@ -4,6 +4,7 @@ import InputBase from "@mui/material/InputBase";
 import { SxProps, Theme } from "@mui/material/styles";
 import { Div } from '@jumbo/shared';
 import { useDebouncedCallback } from 'use-debounce';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface JumboSearchProps {
   onChange: (value: string) => void;
@@ -12,6 +13,7 @@ interface JumboSearchProps {
 }
 
 const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = '', sx }) => {
+  const dictionary = useDictionary();
   const [searchKeywords, setSearchKeywords] = React.useState<string>(value);
 
   const handleChange = useDebouncedCallback(
@@ -63,7 +65,7 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
             height: 24
           },
         }}
-        placeholder="Search"
+        placeholder={dictionary.rqList.jumboSearch}
         inputProps={{ 'aria-label': 'search' }}
         autoFocus
         onChange={handleChange}

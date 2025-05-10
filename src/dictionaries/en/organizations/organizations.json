@@ -112,5 +112,48 @@
       "recordingStart": "This date determines your fiscal year reporting",
       "brandColors": "These colors will be used across all platforms"
     }
+  },
+
+  "list": {
+    "labels":{
+      "listHeader": "Organizations",
+      "newCreateLabel": "New Organization",
+      "haveOrgRoles": "Roles",
+      "haveNotOrgRoles": "No roles assigned",
+      "listtoProfile": "Profile",
+      "listtoEdit": "Edit",
+      "listtoDashboard": "Dashboard",
+      "loadOrganization": "Load",
+      "isLoadedAsActiveMessage": "is loaded to an active organization",
+      "isLoadedAsActiveSpinner": "Loading organization...",
+      "isLoadedAsActiveError": "Something went wrong on loading Organization"
+    },
+
+    "autoLoad": {
+      "button": {
+        "tooltip": {
+          "activate": "Activate auto-load",
+          "deactivate": "Deactivate auto-load"
+        }
+      },
+      "dialog": {
+        "title": {
+          "activate": "Activate {organizationName} auto-load?",
+          "deactivate": "Deactivate {organizationName} auto-load?"
+        },
+        "description": {
+          "activate": "Confirming this will set {organizationName} to load automatically when you login",
+          "deactivate": "Confirming this will prevent {organizationName} from being loaded automatically when you login"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "confirm": "Confirm"
+        }
+      },
+      "messages": {
+        "success": "Auto-load setting updated successfully",
+        "error": "An error occurred while updating auto-load setting"
+      }
+    }
   }
 }

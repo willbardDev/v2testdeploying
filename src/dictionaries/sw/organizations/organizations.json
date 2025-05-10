@@ -112,5 +112,48 @@
       "recordingStart": "Tarehe hii itaamua mwaka wa fedha wa kuripoti",
       "brandColors": "Rangi hizi zitumika katika majukwaa yote"
     }
+  },
+
+  "list": {
+    "labels":{
+      "listHeader": "Mashirika",
+      "newCreateLabel": "Fungua Shirika jipya",
+      "haveOrgRoles": "Majukumu",
+      "haveNotOrgRoles": "Hakuna majukumu uliyopewa",
+      "listtoProfile": "Profaili",
+      "listtoEdit": "Hariri",
+      "listtoDashboard": "Dashibodi",
+      "loadOrganization": "Pakia",
+      "isLoadedAsActiveMessage": "imepakiwa kama Shirika kuu litakalofanya kazi",
+      "isLoadedAsActiveSpinner": "inapakia Shirika...",
+      "isLoadedAsActiveError": "Kuna hitilafu imetokea wakati wa kupakia Shirika"
+    },
+
+    "autoLoad": {
+      "button": {
+        "tooltip": {
+          "activate": "Amilisha upakiaji otomatiki",
+          "deactivate": "Zima upakiaji otomatiki"
+        }
+      },
+      "dialog": {
+        "title": {
+          "activate": "Amilisha upakiaji otomatiki wa {organizationName}?",
+          "deactivate": "Zima upakiaji otomatiki wa {organizationName}?"
+        },
+        "description": {
+          "activate": "Kuthibitisha hii itaweka {organizationName} kupakia otomatiki unapoingia",
+          "deactivate": "Kuthibitisha hii itazuia {organizationName} kupakia otomatiki unapoingia"
+        },
+        "buttons": {
+          "cancel": "Ghairi",
+          "confirm": "Thibitisha"
+        }
+      },
+      "messages": {
+        "success": "Mpangilio wa upakiaji otomatiki umehakikiwa",
+        "error": "Hitilafu imetokea wakati wa kusasisha mpangilio wa upakiaji otomatiki"
+      }
+    }
   }
 }

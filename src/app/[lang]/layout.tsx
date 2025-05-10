@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import { Providers } from '../providers';
 import { getDictionary } from './dictionaries';
 import { DictionaryProvider } from './contexts/DictionaryContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -39,11 +40,13 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
     <html lang={lang} data-lt-installed='true'>
       <body cz-shortcut-listen='true'>
         <div id='root'>
-        <DictionaryProvider dictionary={dictionary}>
-          <Providers>
-            {children}
-          </Providers>
-        </DictionaryProvider>
+          <LanguageProvider lang={lang}>
+            <DictionaryProvider dictionary={dictionary}>
+              <Providers>
+                {children}
+              </Providers>
+            </DictionaryProvider>
+          </LanguageProvider>
         </div>
       </body>
     </html>

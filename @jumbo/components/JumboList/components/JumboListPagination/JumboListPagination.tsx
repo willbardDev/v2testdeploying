@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack, TablePagination } from '@mui/material';
 import useJumboList, { JumboListContextType } from '../../hooks/useJumboList';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface JumboListPaginationProps {
     hidePagination?: boolean;
@@ -11,6 +12,8 @@ const JumboListPagination: React.FC<JumboListPaginationProps> = ({
     hidePagination = false,
     hideItemsPerPage = false,
 }) => {
+    const dictionary = useDictionary();
+
     const {
         activePage,
         itemsPerPage,
@@ -29,7 +32,7 @@ const JumboListPagination: React.FC<JumboListPaginationProps> = ({
                     <TablePagination
                         component="div"
                         count={totalCount}
-                        labelRowsPerPage="Rows"
+                        labelRowsPerPage={dictionary.rqList.rows}
                         page={activePage}
                         onPageChange={(_, nextPageNumber) => {
                             setActivePage(nextPageNumber);

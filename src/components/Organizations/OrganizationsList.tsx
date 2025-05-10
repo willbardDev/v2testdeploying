@@ -15,6 +15,7 @@ import { OrganizationListItem } from './OrganizationListItem';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { Organization, User } from '@/types/auth-types';
 import { Dictionary } from '@/dictionaries/type';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface QueryOptions<TQueryKey> {
@@ -41,10 +42,12 @@ interface OrganizationsListProps {
 }
 
 const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
+  const dictionary = useDictionary();
+  const lang = useLanguage();
+
   const router = useRouter();
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
   const { checkPermission } = useJumboAuth();
-  const dictionary = useDictionary();
 
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
@@ -72,7 +75,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
       <Alert variant="outlined" severity="info">
         <span>No ProsERP organizations for you. </span>
         <span>
-          Join one from the <Link href={'/invitations'}>invitations</Link> sent to your email
+          Join one from the <Link href={`/${lang}/invitations`}>invitations</Link> sent to your email
         </span>
       </Alert>
     );
@@ -102,7 +105,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   return (
     <OrganizationListContext.Provider value={{ refetchOrganizations }}>
       <React.Fragment>
-        <Typography variant={'h4'} mb={2}>Organizations</Typography>
+        <Typography variant={'h4'} mb={2}>{dictionary.organizations.list.labels.listHeader}</Typography>
         <JumboRqList
           ref={listRef}
           wrapperComponent={Card}
@@ -124,8 +127,8 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
                     value={queryOptions.queryParams.keyword}
                   />
                   {canAddOrganization && (
-                    <Tooltip title='New Organization'>
-                      <IconButton onClick={() => router.push('/organizations/create')}>
+                    <Tooltip title={dictionary.organizations.list.labels.newCreateLabel}>
+                      <IconButton onClick={() => router.push(`/${lang}/organizations/create`)}>
                         <AddOutlined />
                       </IconButton>
                     </Tooltip>
