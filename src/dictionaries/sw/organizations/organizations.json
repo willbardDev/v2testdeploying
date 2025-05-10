@@ -1,0 +1,116 @@
+{
+  "form": {
+    "title": "Usimamizi wa Shirika",
+    "buttons": {
+      "submit": "Wasilisha",
+      "cancel": "Ghailisha",
+      "viewProfile": "Tazama Wasifu wa Shirika",
+      "viewList": "Orodha ya Mashirika Yote",
+      "upload": "Pakia Faili",
+      "remove": "Ondoa"
+    },
+    "labels": {
+      "basicInfo": "Taarifa za Msingi",
+      "name": "Jina Rasmi la Shirika",
+      "email": "Barua Pepe Kuu",
+      "phone": "Namba ya Simu Kuu",
+      "website": "Anwani Rasmi ya Tovuti",
+      "recordingStart": "Tarehe ya Kuanza Kufanyika Kumbukumbu",
+      "tin": "Nambari ya Utambulisho wa Ushuru (TIN)",
+      "country": "Nchi ya Makao Makuu",
+      "currency": "Sarafu Chaguo-msingi",
+      "address": "Anwani Rasmi ya Biashara",
+      "vatSection": "Taarifa za Usajili wa VAT",
+      "vatRegistered": "Hali ya Usajili wa VAT",
+      "vrn": "Nambari ya Usajili wa VAT",
+      "vatPercentage": "Kiwango cha VAT (%)",
+      "brandingSection": "Utabasamu na Utambulisho",
+      "logo": "Nembo Kuu (Inapendekezwa: 300x300px)",
+      "symbol": "Alama ya Biashara",
+      "mainColor": "Rangi Kuu ya Biashara (Hex)",
+      "lightColor": "Rangi ya Mwangaza (Hex)",
+      "darkColor": "Rangi ya Giza (Hex)",
+      "contrastText": "Rangi ya Maandishi Yenye Ufikiaji (Hex)",
+      "tagline": "Kauli Mbiu Rasmi (Herufi 50 kwa upeo)",
+      "preview": "Hakiki ya Utabasamu"
+    },
+    "placeholders": {
+      "name": "Mf. Kampuni Ya ABC Ltd",
+      "email": "Mf. info@shirika.com",
+      "phone": "Mf. +255123456789",
+      "website": "Mf. https://shirika.com",
+      "tin": "Mf. 123-456-789",
+      "address": "Mf. Soko Kuu 123, Jiji",
+      "vrn": "Mf. VAT123456789",
+      "vatPercentage": "Mf. 18 kwa VAT 18%",
+      "tagline": "Mf. 'Ubora Kwanza, Kila Wakati'",
+      "color": "Mf. #3A86FF"
+    },
+    "messages": {
+      "loading": "Inashughulikia taarifa za shirika...",
+      "createSuccess": "Shirika limeandikishwa kikamilifu!",
+      "updateSuccess": "Taarifa za shirika zimesasishwa!",
+      "deleteSuccess": "Shirika limehifadhiwa kikamilifu.",
+      "imageGuide": "Inapendekezwa: PNG yenye rangi nyofu",
+      "colorGuide": "Tumia kichagua rangi au weka msimbo wa HEX"
+    },
+    "errors": {
+      "validation": {
+        "name": {
+          "required": "Jina rasmi la shirika linahitajika",
+          "min": "Jina lazima liwe na herufi 3 kwa chini",
+          "max": "Jina haliwezi kuzidi herufi 100"
+        },
+        "email": {
+          "required": "Barua pepe ya mawasiliano inahitajika",
+          "invalid": "Umbizo sahihi linahitajika (mf. jina@shirika.com)"
+        },
+        "phone": {
+          "required": "Namba ya mawasiliano inahitajika",
+          "invalid": "Umbizo sahihi la kimataifa linahitajika (mf. +255123456789)"
+        },
+        "recordingStart": {
+          "required": "Tarehe ya kuanza kufanyika kumbukumbu inahitajika",
+          "future": "Tarehe haiwezi kuwa ya baadaye"
+        },
+        "website": {
+          "invalid": "Anwani sahihi ya tovuti inahitajika (mf. https://mfano.com)"
+        },
+        "country": {
+          "required": "Nchi ya usajili inahitajika"
+        },
+        "currency": {
+          "required": "Sarafu chaguo-msingi inahitajika"
+        },
+        "vrn": {
+          "required": "Nambari ya usajili wa VAT inahitajika kwa mashirika yaliyosajiliwa",
+          "pattern": "Umbizo sahihi la VRN linahitajika"
+        },
+        "vatPercentage": {
+          "required": "Kiwango cha VAT kinahitajika kwa mashirika yaliyosajiliwa",
+          "min": "Kiwango cha VAT hakiwezi kuwa hasi",
+          "max": "Kiwango cha VAT hakiwezi kuzidi 100%",
+          "decimal": "Nafasi 2 za desimali kwa upeo zinaruhusiwa"
+        },
+        "colors": {
+          "required": "Rangi zote za biashara zinahitajika",
+          "invalid": "Msimbo sahihi wa rangi wa HEX unahitajika (mf. #FFFFFF)"
+        },
+        "tagline": {
+          "max": "Kauli mbiu haiwezi kuzidi herufi 50"
+        }
+      },
+      "fileUpload": {
+        "size": "Ukubwa wa faili hauwezi kuzidi 2MB",
+        "type": "Faili za JPG/PNG pekee zinakubalika",
+        "dimensions": "Vipimo vya picha lazima viwe kati ya 300x300px na 1000x1000px"
+      }
+    },
+    "helpText": {
+      "tin": "Nambari ya utambulisho wa ushuru kutoka serikalini",
+      "vrn": "Inahitajika kwa mashirika yaliyosajiliwa kwa VAT (umbizo: VAT123456789)",
+      "recordingStart": "Tarehe hii itaamua mwaka wa fedha wa kuripoti",
+      "brandColors": "Rangi hizi zitumika katika majukwaa yote"
+    }
+  }
+}

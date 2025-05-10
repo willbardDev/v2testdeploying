@@ -1,0 +1,116 @@
+{
+  "form": {
+    "title": "Organization Management",
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "viewProfile": "View Organization Profile",
+      "viewList": "View All Organizations",
+      "upload": "Upload File",
+      "remove": "Remove"
+    },
+    "labels": {
+      "basicInfo": "Basic Information",
+      "name": "Legal Organization Name",
+      "email": "Primary Email Address",
+      "phone": "Primary Phone Number",
+      "website": "Official Website URL",
+      "recordingStart": "Financial Records Start Date",
+      "tin": "Tax Identification Number (TIN)",
+      "country": "Headquarters Country",
+      "currency": "Default Currency",
+      "address": "Registered Business Address",
+      "vatSection": "VAT Registration Details",
+      "vatRegistered": "VAT Registration Status",
+      "vrn": "VAT Registration Number",
+      "vatPercentage": "Standard VAT Rate (%)",
+      "brandingSection": "Branding & Visual Identity",
+      "logo": "Primary Logo (Recommended: 300x300px)",
+      "symbol": "Brand Symbol/Mark",
+      "mainColor": "Primary Brand Color (Hex)",
+      "lightColor": "Light Theme Color (Hex)",
+      "darkColor": "Dark Theme Color (Hex)",
+      "contrastText": "Accessible Text Color (Hex)",
+      "tagline": "Official Tagline (Max 50 chars)",
+      "preview": "Brand Preview"
+    },
+    "placeholders": {
+      "name": "e.g. Acme Corporation Ltd",
+      "email": "e.g. info@organization.com",
+      "phone": "e.g. +255123456789",
+      "website": "e.g. https://yourorganization.com",
+      "tin": "e.g. 123-456-789",
+      "address": "e.g. 123 Business Ave, City",
+      "vrn": "e.g. VAT123456789",
+      "vatPercentage": "e.g. 18 for 18% VAT",
+      "tagline": "e.g. 'Quality First, Always'",
+      "color": "e.g. #3A86FF"
+    },
+    "messages": {
+      "loading": "Processing organization details...",
+      "createSuccess": "Organization successfully registered!",
+      "updateSuccess": "Organization details successfully updated!",
+      "deleteSuccess": "Organization successfully archived.",
+      "imageGuide": "Recommended: PNG format, transparent background",
+      "colorGuide": "Use color picker or enter HEX code"
+    },
+    "errors": {
+      "validation": {
+        "name": {
+          "required": "Organization legal name is required",
+          "min": "Name must be at least 3 characters",
+          "max": "Name cannot exceed 100 characters"
+        },
+        "email": {
+          "required": "Contact email is required",
+          "invalid": "Valid email format required (e.g. name@domain.com)"
+        },
+        "phone": {
+          "required": "Contact number is required",
+          "invalid": "Valid international format required (e.g. +255123456789)"
+        },
+        "recordingStart": {
+          "required": "Financial records start date is required",
+          "future": "Date cannot be in the future"
+        },
+        "website": {
+          "invalid": "Valid URL required (e.g. https://example.com)"
+        },
+        "country": {
+          "required": "Registered country must be selected"
+        },
+        "currency": {
+          "required": "Default currency must be selected"
+        },
+        "vrn": {
+          "required": "VRN required for VAT-registered organizations",
+          "pattern": "Valid VRN format required"
+        },
+        "vatPercentage": {
+          "required": "VAT rate required for VAT-registered organizations",
+          "min": "VAT rate cannot be negative",
+          "max": "VAT rate cannot exceed 100%",
+          "decimal": "Maximum 2 decimal places allowed"
+        },
+        "colors": {
+          "required": "All brand colors are required",
+          "invalid": "Valid HEX color code required (e.g. #FFFFFF)"
+        },
+        "tagline": {
+          "max": "Tagline cannot exceed 50 characters"
+        }
+      },
+      "fileUpload": {
+        "size": "File size cannot exceed 2MB",
+        "type": "Only JPG/PNG files are accepted",
+        "dimensions": "Image dimensions must be between 300x300px and 1000x1000px"
+      }
+    },
+    "helpText": {
+      "tin": "Official tax ID issued by government",
+      "vrn": "Required if VAT-registered (format: VAT123456789)",
+      "recordingStart": "This date determines your fiscal year reporting",
+      "brandColors": "These colors will be used across all platforms"
+    }
+  }
+}
