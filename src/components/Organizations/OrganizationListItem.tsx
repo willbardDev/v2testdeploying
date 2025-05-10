@@ -56,7 +56,6 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       await loadOrganization(
         organization.id,
         (response) => {
-          window.location.href = `/${lang}/dashboard`;
           enqueueSnackbar(
             `${organization.name} ${dictionary.organizations.list.labels.isLoadedAsActiveMessage}`,
             {
@@ -76,6 +75,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
       queryClient.clear();
       setIsLoading(false);
     }
+    window.location.href = `/${lang}/dashboard`;
   };
 
   if (isLoading) {
