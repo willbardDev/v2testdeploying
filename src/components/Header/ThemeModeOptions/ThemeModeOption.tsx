@@ -29,9 +29,17 @@ const ThemeModeOption = () => {
   const { setSidebarTheme } = useJumboSidebarTheme();
   const { setHeaderTheme } = useJumboHeaderTheme();
   const { setFooterTheme } = useJumboFooterTheme();
+  const savedThemeType = localStorage.getItem('theme-type') || 'light';
+
+
+  React.useEffect(() => {
+    handleModeChange(savedThemeType);
+  }, []);
 
   const handleModeChange = React.useCallback(
     (type: string) => {
+      localStorage.setItem('theme-type', type);
+  
       switch (type) {
         case 'light':
           setTheme({ type: 'light', ...mainThemeDefault });
@@ -55,6 +63,7 @@ const ThemeModeOption = () => {
     },
     [theme, setTheme, setFooterTheme, setHeaderTheme, setSidebarTheme]
   );
+  
   return (
     <Span>
       {/* <Tooltip title={`${theme.type} Mode`}> */}

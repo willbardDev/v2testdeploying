@@ -9,6 +9,8 @@
       "upload": "Pakia Faili",
       "remove": "Ondoa"
     },
+    "pageTitle": "Hariri: {organizationName}",
+    "heading": "Inahaririwa: {organizationName}",
     "labels": {
       "basicInfo": "Taarifa za Msingi",
       "name": "Jina Rasmi la Shirika",
@@ -52,7 +54,9 @@
       "updateSuccess": "Taarifa za shirika zimesasishwa!",
       "deleteSuccess": "Shirika limehifadhiwa kikamilifu.",
       "imageGuide": "Inapendekezwa: PNG yenye rangi nyofu",
-      "colorGuide": "Tumia kichagua rangi au weka msimbo wa HEX"
+      "colorGuide": "Tumia kichagua rangi au weka msimbo wa HEX",
+      "error": "Hitilafu katika kupakua taarifa za shirika",
+      "unauthorized": "Huna ruhusa ya kuhariri shirika hili"
     },
     "errors": {
       "validation": {

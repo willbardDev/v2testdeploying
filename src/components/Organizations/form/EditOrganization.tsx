@@ -11,15 +11,16 @@ import OrganizationForm from '@/components/Organizations/form/OrganizationForm';
 import { useParams, useRouter } from 'next/navigation';
 import { Organization } from '@/types/auth-types';
 import { Typography } from '@mui/material';
-import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface OrganizationResponse {
   organization: Organization;
 }
 
 const EditOrganization: React.FC = () => {
-  const lang = useLanguage();
-
+  const dictionary = useDictionary();
+  const orgEditDict = dictionary.organizations.form;
+  
   const params = useParams();
   const router = useRouter();
   const organization_id = params?.id as string;
@@ -45,16 +46,16 @@ const EditOrganization: React.FC = () => {
       authOrgId !== paramOrgId ||
       !checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE)
     ) {
-      router.push(`/${lang}/dashboard`);
+      router.push(`/dashboard`);
     }
   }, [authOrganization, organization_id, checkOrganizationPermission, router]);
 
   if (isLoading) {
-    return <CenteredSpinner />;
+    return <CenteredSpinner message={orgEditDict.messages.loading} />;
   }
 
   if (error) {
-    return <div>Error loading organization data</div>;
+    return <div>{orgEditDict.messages.error}</div>;
   }
 
   if (!data?.organization) {
@@ -63,22 +64,24 @@ const EditOrganization: React.FC = () => {
 
   return (
     <>
-        <Head>
-            <title>{`Edit: ${data.organization.name}`}</title>
-        </Head>
+      <Head>
+        <title>
+          {orgEditDict.pageTitle.replace('{organizationName}', data.organization.name)}
+        </title>
+      </Head>
 
-        <Typography
-            variant="h4" 
-            component="h1"
-            sx={{ 
-                mb: 3,
-                fontWeight: 'bold',
-                color: 'primary.main'
-            }}
-        >
-            Editing: {data.organization.name}
-        </Typography>
-        <OrganizationForm organization={data.organization} />
+      <Typography
+        variant="h4" 
+        component="h1"
+        sx={{ 
+          mb: 3,
+          fontWeight: 'bold',
+          color: 'primary.main'
+        }}
+      >
+        {orgEditDict.heading.replace('{organizationName}', data.organization.name)}
+      </Typography>
+      <OrganizationForm organization={data.organization} />
     </>
   );
 };
