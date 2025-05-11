@@ -21,6 +21,7 @@ import { signOut } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { useRouter } from 'next/navigation';
 
 const JumboDdPopover = dynamic(() =>
   import('@jumbo/components').then((mod) => mod.JumboDdPopover),
@@ -28,6 +29,7 @@ const JumboDdPopover = dynamic(() =>
 );
 
 export const AuthUserPopover = ({ dictionary }) => {
+  const router = useRouter();
   const lang = useLanguage();
   const { theme } = useJumboTheme();
   const authContext = useJumboAuth();
@@ -44,9 +46,13 @@ export const AuthUserPopover = ({ dictionary }) => {
       await signOut({
         callbackUrl: `http://localhost:3000/${lang}/auth/signin`,
       });
-      resetAuth()
+      resetAuth();
     })();
-  }, [setAuthValues]);
+  }, [setAuthValues, lang]);
+
+  const switchOrganization = React.useCallback(() => {
+    router.push(`/${lang}/organizations`);
+  }, [router, lang]);
 
   const user = authData?.authUser?.user;
   const organization = authOrganization?.organization;
@@ -91,7 +97,7 @@ export const AuthUserPopover = ({ dictionary }) => {
         <Divider />
         <nav>
           <List disablePadding sx={{ pb: 1 }}>
-            <ListItemButton>
+            <ListItemButton onClick={switchOrganization}>
               <ListItemIcon sx={{ minWidth: 36 }}>
                 <RepeatOutlinedIcon />
               </ListItemIcon>
