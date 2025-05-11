@@ -117,6 +117,7 @@
       "brandColors": "Rangi hizi zitumika katika majukwaa yote"
     }
   },
+
   "list": {
     "labels": {
       "listHeader": "Mashirika",
@@ -163,6 +164,7 @@
       }
     }
   },
+  
   "profile": {
     "tabslabel": {
       "roles": "Majukumu",

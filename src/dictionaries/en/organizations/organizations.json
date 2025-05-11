@@ -117,6 +117,7 @@
       "brandColors": "These colors will be used across all platforms"
     }
   },
+
   "list": {
     "labels": {
       "listHeader": "Organizations",
@@ -163,6 +164,7 @@
       }
     }
   },
+  
   "profile": {
     "tabslabel": {
       "roles": "Roles",
