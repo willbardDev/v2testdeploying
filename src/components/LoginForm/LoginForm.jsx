@@ -15,8 +15,11 @@ import React from 'react';
 import { Link } from '../NextLink';
 import { validationSchema } from './validation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 const LoginForm = () => {
+  const lang = useLanguage();
+
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const { setAuthValues, configAuth, refreshAuth } = useJumboAuth();
@@ -33,7 +36,7 @@ const LoginForm = () => {
         email: data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: '/dashboard',
+        callbackUrl: `/${lang}/dashboard`,
       });
   
       if (response?.error) {
@@ -78,7 +81,7 @@ const LoginForm = () => {
         isLoading: false,
       }, { persist: true });
   
-      router.push('/dashboard');
+      router.push(`/${lang}/dashboard`);
 
       refreshAuth();
     } catch (error) {

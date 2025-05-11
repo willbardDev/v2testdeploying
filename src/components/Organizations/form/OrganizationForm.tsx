@@ -315,7 +315,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
 
     useEffect(() => {
         if (!canEditOrganization) {
-        router.push(`/${lang}/`);
+        router.push(`/${lang}/dashboard`);
         }
     }, [authUser, organization]);
 

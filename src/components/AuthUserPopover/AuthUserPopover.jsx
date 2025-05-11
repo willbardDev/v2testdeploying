@@ -20,6 +20,7 @@ import {
 import { signOut } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 const JumboDdPopover = dynamic(() =>
   import('@jumbo/components').then((mod) => mod.JumboDdPopover),
@@ -27,6 +28,7 @@ const JumboDdPopover = dynamic(() =>
 );
 
 export const AuthUserPopover = ({ dictionary }) => {
+  const lang = useLanguage();
   const { theme } = useJumboTheme();
   const authContext = useJumboAuth();
 
@@ -40,7 +42,7 @@ export const AuthUserPopover = ({ dictionary }) => {
   const logout = React.useCallback(() => {
     (async () => {
       await signOut({
-        callbackUrl: 'http://localhost:3000/en-US/auth/signin',
+        callbackUrl: `http://localhost:3000/${lang}/auth/signin`,
       });
       resetAuth()
     })();
