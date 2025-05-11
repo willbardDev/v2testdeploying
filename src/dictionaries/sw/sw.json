@@ -284,5 +284,56 @@
     "jumboSearch": "Tafuta",
     "rows": "Safu",
     "dataRetrieving": "Inapakia..."
+  },
+
+  "signin": {
+    "pageTitle": "Ingia kwenye Akaunti Yako",
+    "header": "Karibu Tena",
+    "forgotPassword": {
+      "text": "Umesahau nenosiri?",
+      "action": "Weka upya sasa"
+    },
+    "accountPrompt": {
+      "text": "Huna akaunti?",
+      "action": "Jisajili"
+    },
+    "socialLogin": {
+      "prefix": "Au endelea na",
+      "options": {
+        "facebook": "Facebook",
+        "twitter": "Twitter",
+        "google": "Google"
+      }
+    },
+    "signup": "Jisajili",
+    "form": {
+      "title": "Ingia kwenye Akaunti",
+      "fields": {
+        "email": {
+          "label": "Barua Pepe",
+          "placeholder": "Weka barua pepe yako"
+        },
+        "password": {
+          "label": "Nenosiri",
+          "placeholder": "Weka nenosiri lako"
+        },
+        "rememberMe": "Nikumbuke"
+      },
+      "submit": "Ingia",
+      "errors": {
+        "email": {
+          "required": "Barua pepe inahitajika",
+          "invalid": "Tafadhali weka barua pepe sahihi"
+        },
+        "password": {
+          "required": "Nenosiri linahitajika",
+          "length": "Nenosiri lazima liwe na herufi 8 au zaidi"
+        }
+      },
+      "messages": {
+        "loginError": "Barua pepe au nenosiri uliyoweka sio sahihi",
+        "success": "Umefanikiwa kuingia! Unaelekezwa..."
+      }
+    }
   }
 }

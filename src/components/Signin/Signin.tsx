@@ -16,8 +16,13 @@ import {
 import Stack from '@mui/material/Stack';
 import Image from 'next/image';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 export const Signin = () => {
+  const dictionary = useDictionary();
+  const lang = useLanguage();
+
   return (
     <Div
       sx={{
@@ -43,7 +48,6 @@ export const Signin = () => {
               '640x428'
             )}) no-repeat center`,
             backgroundSize: 'cover',
-
             '&::after': {
               display: 'inline-block',
               position: 'absolute',
@@ -72,15 +76,15 @@ export const Signin = () => {
                 fontWeight={500}
                 mb={3}
               >
-                {'Sign In'}
+                {dictionary.signin.header}
               </Typography>
               <Typography variant={'body1'}>
                 <Link
                   underline='none'
-                  href={'/forgot-password'}
+                  href={`/${lang}/auth/forgot-password`}
                   color={'inherit'}
                 >
-                  {'Forgot your password? Recover Now'}
+                  {dictionary.signin.forgotPassword.text}
                 </Link>
               </Typography>
             </Div>
@@ -101,10 +105,13 @@ export const Signin = () => {
           <LoginForm />
           <React.Fragment>
             <Typography variant={'body1'} mb={2}>
-              {`Don't have an account?`}{' '}
-              <Link underline='none' href='/auth/signup'>
-                {'Sign up now'}
+              {dictionary.signin.accountPrompt.text}{' '}
+              <Link underline='none' href={`/${lang}/auth/signup`}>
+                {dictionary.signin.accountPrompt.action}
               </Link>
+            </Typography>
+            <Typography variant={'body2'} mb={2}>
+              {dictionary.signin.socialLogin.prefix}
             </Typography>
             <Stack direction='row' alignItems='center' spacing={1} mb={1}>
               <IconButton
@@ -112,12 +119,11 @@ export const Signin = () => {
                   bgcolor: '#385196',
                   color: 'common.white',
                   p: (theme) => theme.spacing(1.25),
-
                   '&:hover': {
                     backgroundColor: '#385196',
                   },
                 }}
-                aria-label='Facebook'
+                aria-label={`${dictionary.signin.socialLogin.prefix} ${dictionary.signin.socialLogin.options.facebook}`}
               >
                 <Facebook fontSize='small' />
               </IconButton>
@@ -126,12 +132,11 @@ export const Signin = () => {
                   bgcolor: '#00a8ff',
                   color: 'common.white',
                   p: (theme) => theme.spacing(1.25),
-
                   '&:hover': {
                     backgroundColor: '#00a8ff',
                   },
                 }}
-                aria-label='Twitter'
+                aria-label={`${dictionary.signin.socialLogin.prefix} ${dictionary.signin.socialLogin.options.twitter}`}
               >
                 <Twitter fontSize='small' />
               </IconButton>
@@ -140,12 +145,11 @@ export const Signin = () => {
                   bgcolor: '#23272b',
                   color: 'common.white',
                   p: (theme) => theme.spacing(1.25),
-
                   '&:hover': {
                     backgroundColor: '#23272b',
                   },
                 }}
-                aria-label='Google'
+                aria-label={`${dictionary.signin.socialLogin.prefix} ${dictionary.signin.socialLogin.options.google}`}
               >
                 <Google fontSize='small' />
               </IconButton>

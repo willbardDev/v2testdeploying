@@ -285,5 +285,56 @@
     "jumboSearch": "Search",
     "rows": "Rows",
     "dataRetrieving": "Retrieving..."
+  },
+
+  "signin": {
+    "pageTitle": "Sign In to Your Account",
+    "header": "Welcome Back",
+    "forgotPassword": {
+      "text": "Forgot your password?",
+      "action": "Reset it now"
+    },
+    "accountPrompt": {
+      "text": "Don't have an account?",
+      "action": "Create"
+    },
+    "socialLogin": {
+      "prefix": "Or continue with",
+      "options": {
+        "facebook": "Facebook",
+        "twitter": "Twitter",
+        "google": "Google"
+      }
+    },
+    "signup": "Sign up now",
+    "form": {
+      "title": "Account Login",
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "placeholder": "Enter your email"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password"
+        },
+        "rememberMe": "Remember Me"
+      },
+      "submit": "Sign In",
+      "errors": {
+        "email": {
+          "required": "Email is required",
+          "invalid": "Please enter a valid email address"
+        },
+        "password": {
+          "required": "Password is required",
+          "length": "Password must be at least 8 characters"
+        }
+      },
+      "messages": {
+        "loginError": "The email or password you entered is incorrect",
+        "success": "Login successful! Redirecting..."
+      }
+    }
   }
 }

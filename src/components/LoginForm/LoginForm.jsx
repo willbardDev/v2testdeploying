@@ -12,13 +12,15 @@ import { getSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
 import React from 'react';
+import * as yup from 'yup';
 import { Link } from '../NextLink';
-import { validationSchema } from './validation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LoginForm = () => {
   const lang = useLanguage();
+  const dictionary = useDictionary();
 
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -27,6 +29,13 @@ const LoginForm = () => {
   const [values, setValues] = React.useState({
     password: '',
     showPassword: false,
+  });
+
+  const validationSchema = yup.object().shape({
+    email: yup.string()
+      .email(dictionary.signin.form.errors.email.invalid)
+      .required(dictionary.signin.form.errors.email.required),
+    password: yup.string().required(dictionary.signin.form.errors.password.required),
   });
 
   const handleLogin = async (data) => {
@@ -81,18 +90,17 @@ const LoginForm = () => {
         isLoading: false,
       }, { persist: true });
   
-      router.push(`/${lang}/dashboard`);
-
+      router.push(`/${lang}/organizations`);
       refreshAuth();
     } catch (error) {
-      enqueueSnackbar(error.message || 'Invalid email or password', { 
-        variant: 'error' 
-      });
+      enqueueSnackbar(
+        dictionary.signin.form.messages.loginError, 
+        { variant: 'error' }
+      );
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleClickShowPassword = () => {
     setValues({
@@ -108,20 +116,25 @@ const LoginForm = () => {
       onChange={() => {}}
     >
       <Stack spacing={3} mb={3}>
+        <Typography variant="h4" mb={2}>
+          {dictionary.signin.form.title}
+        </Typography>
         <JumboInput
           fullWidth
           fieldName={'email'}
-          label={'Email'}
+          label={dictionary.signin.form.fields.email.label}
+          placeholder={dictionary.signin.form.fields.email.placeholder}
         />
         <JumboOutlinedInput
           fieldName={'password'}
-          label={'Password'}
+          label={dictionary.signin.form.fields.password.label}
+          placeholder={dictionary.signin.form.fields.password.placeholder}
           type={values.showPassword ? 'text' : 'password'}
           margin='none'
           endAdornment={
             <InputAdornment position='end'>
               <IconButton
-                aria-label='toggle password visibility'
+                aria-label={values.showPassword ? 'Hide password' : 'Show password'}
                 onClick={handleClickShowPassword}
                 edge='end'
               >
@@ -139,12 +152,12 @@ const LoginForm = () => {
         >
           <JumboCheckbox
             fieldName='rememberMe'
-            label={'Remember Me'}
+            label={dictionary.signin.form.fields.rememberMe}
             defaultChecked
           />
           <Typography textAlign={'right'} variant={'body1'}>
-            <Link underline='none' href={'/auth/forgot-password'}>
-              {'Forgot your password?'}
+            <Link underline='none' href={`/${lang}/auth/forgot-password`}>
+              {dictionary.signin.forgotPassword.text}
             </Link>
           </Typography>
         </Stack>
@@ -155,7 +168,7 @@ const LoginForm = () => {
           size='large'
           disabled={loading}
         >
-          {loading ? <CircularProgress/> : 'Login'}
+          {loading ? <CircularProgress size={24}/> : dictionary.signin.form.submit}
         </Button>
       </Stack>
     </JumboForm>
