@@ -1,3 +1,4 @@
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { Div } from '@jumbo/shared';
 import { SxProps, Theme } from '@mui/material';
 import Link from '@mui/material/Link';
@@ -9,9 +10,11 @@ type LogoProps = {
   sx?: SxProps<Theme>;
 };
 const Logo = ({ mini = false, mode = 'light', sx }: LogoProps) => {
+  const lang = useLanguage();
+
   return (
     <Div sx={{ display: 'inline-flex', ...sx }}>
-      <Link href={'/'}>
+      <Link href={`/${lang}/dashboard`}>
         {!mini ? (
           <Image
             src={

@@ -11,12 +11,15 @@ import OrganizationForm from '@/components/Organizations/form/OrganizationForm';
 import { useParams, useRouter } from 'next/navigation';
 import { Organization } from '@/types/auth-types';
 import { Typography } from '@mui/material';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 interface OrganizationResponse {
   organization: Organization;
 }
 
 const EditOrganization: React.FC = () => {
+  const lang = useLanguage();
+
   const params = useParams();
   const router = useRouter();
   const organization_id = params?.id as string;
@@ -42,7 +45,7 @@ const EditOrganization: React.FC = () => {
       authOrgId !== paramOrgId ||
       !checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE)
     ) {
-      router.push('/');
+      router.push(`/${lang}/dashboard`);
     }
   }, [authOrganization, organization_id, checkOrganizationPermission, router]);
 

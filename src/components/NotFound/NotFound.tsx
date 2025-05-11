@@ -1,4 +1,5 @@
 'use client';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import { getAssetPath } from '@/utilities/helpers';
 import { Div, Link } from '@jumbo/shared';
@@ -10,6 +11,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Image from 'next/image';
 
 export const NotFound = () => {
+  const lang = useLanguage();
+
   return (
     <Div
       sx={{
@@ -57,7 +60,7 @@ export const NotFound = () => {
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
         />
       </FormControl>
-      <Link href='/'>
+      <Link href={`/${lang}/dashboard`}>
         <Button variant='contained'>Go to home</Button>
       </Link>
     </Div>

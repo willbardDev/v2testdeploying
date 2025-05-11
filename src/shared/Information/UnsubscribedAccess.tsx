@@ -1,3 +1,4 @@
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
 import { CardMembershipOutlined } from '@mui/icons-material';
 import { Box, Button, Typography } from '@mui/material';
@@ -9,6 +10,8 @@ interface UnsubscribedAccessProps {
 }
 
 const UnsubscribedAccess: React.FC<UnsubscribedAccessProps> = ({ modules = null }) => {
+  const lang = useLanguage();
+  
   return (
     <JumboCardQuick
       sx={{ 
@@ -23,7 +26,7 @@ const UnsubscribedAccess: React.FC<UnsubscribedAccessProps> = ({ modules = null 
         <Typography variant='h3'>
           {`Your organization has not subscribed to ${modules ? modules : 'this module'}`}
         </Typography>
-        <Link href={'/'} passHref>
+        <Link href={`/${lang}/dashboard`} passHref>
           <Button variant={'contained'} component="a">
             Go to Dashboard
           </Button>
