@@ -1,1 +1,1 @@
-export * from "./OrganizationsList";
+export * from "./list/OrganizationsList";

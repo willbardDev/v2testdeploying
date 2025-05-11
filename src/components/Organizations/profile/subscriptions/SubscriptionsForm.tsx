@@ -56,7 +56,8 @@ interface SubscriptionsFormProps {
 }
 
 function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = false, subscription }: SubscriptionsFormProps) {
-  const dictionary = useDictionary();
+  const dictionary= useDictionary();
+  const subDictForm= dictionary.organizations.profile.subscriptionsTab.form;
   
   const { authOrganization, authUser } = useJumboAuth();
   const organization = authOrganization?.organization;
@@ -76,7 +77,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     onSuccess: () => {
       setOpenDialog(false);
       enqueueSnackbar(
-        dictionary.subscriptions.messages.createSuccess, 
+        subDictForm.messages.createSuccess, 
         { variant: 'success' }
       );
 
@@ -86,7 +87,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     },
     onError: (error: ErrorResponse) => {
       enqueueSnackbar(
-        dictionary.subscriptions.errors.api.createFailed,
+        subDictForm.errors.api.createFailed,
         { variant: 'error' }
       );
     }
@@ -97,14 +98,14 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     onSuccess: () => {
       setOpenDialog(false);
       enqueueSnackbar(
-        dictionary.subscriptions.messages.createSuccess, 
+        subDictForm.messages.createSuccess, 
         { variant: 'success' }
       );
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
     },
     onError: (error: ErrorResponse) => {
       enqueueSnackbar(
-        dictionary.subscriptions.errors.api.createFailed,
+        subDictForm.errors.api.createFailed,
         { variant: 'error' }
       );
     }
@@ -119,8 +120,8 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
   const validationSchema = yup.object({
     id: yup.number().optional(),
     start_date: yup.string()
-      .required(dictionary.subscriptions.errors.validation.startDate.required)
-      .test('valid-date', dictionary.subscriptions.errors.validation.startDate.invalid, value => {
+      .required(subDictForm.errors.validation.startDate.required)
+      .test('valid-date', subDictForm.errors.validation.startDate.invalid, value => {
         return dayjs(value).isValid();
       }),
     remarks: yup.string().optional(),
@@ -129,32 +130,32 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
       .nullable()
       .transform((value: number | null, originalValue: string) => 
         (originalValue === "" ? null : value))
-      .positive(dictionary.subscriptions.errors.validation.months.positive)
-      .required(dictionary.subscriptions.errors.validation.months.required)
-      .typeError(dictionary.subscriptions.errors.validation.months.required)
+      .positive(subDictForm.errors.validation.months.positive)
+      .required(subDictForm.errors.validation.months.required)
+      .typeError(subDictForm.errors.validation.months.required)
       .when([], {
         is: () => isFromProsAfricanSubscriptions,
         then: (schema) => schema.min(
           1, 
-          dictionary.subscriptions.errors.validation.months.minimum.prosAfrican.replace('{min}', '1')
+          subDictForm.errors.validation.months.minimum.prosAfrican.replace('{min}', '1')
         ),
         otherwise: (schema) => schema.min(
           3, 
-          dictionary.subscriptions.errors.validation.months.minimum.default.replace('{min}', '3')
+          subDictForm.errors.validation.months.minimum.default.replace('{min}', '3')
         ),
       }),
     grace_period: yup
       .number()
-      .min(0, dictionary.subscriptions.errors.validation.gracePeriod.positive)
-      .typeError(dictionary.subscriptions.errors.validation.gracePeriod.positive),
+      .min(0, subDictForm.errors.validation.gracePeriod.positive)
+      .typeError(subDictForm.errors.validation.gracePeriod.positive),
     organization_id: yup
       .number()
       .nullable()
       .when([], {
         is: () => isFromProsAfricanSubscriptions,
         then: (schema) => schema
-          .required(dictionary.subscriptions.errors.validation.organization.required)
-          .typeError(dictionary.subscriptions.errors.validation.organization.invalid),
+          .required(subDictForm.errors.validation.organization.required)
+          .typeError(subDictForm.errors.validation.organization.invalid),
       }),
   });
 
@@ -277,7 +278,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
 
   const onSubmit = (data: any) => {
     if (modulesSelected.length === 0) {
-      enqueueSnackbar(dictionary.subscriptions.errors.validation.modules.required, { 
+      enqueueSnackbar(subDictForm.errors.validation.modules.required, { 
         variant: 'error' 
       });
       return;
@@ -321,13 +322,13 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
       <SubscriptionFormProvider value={contextValue}>
         <DialogTitle sx={{ textAlign: 'center' }}>
           {subscription 
-            ? `${dictionary.subscriptions.messages.edit} ${subscription.subscriptionNo}` 
-            : dictionary.subscriptions.messages.new
+            ? `${subDictForm.messages.edit} ${subscription.subscriptionNo}` 
+            : subDictForm.messages.new
           }
           <Grid container spacing={1} mt={1}>
             <Grid size={{xs:12, md:userIsProsAfrican ? 4 : (!userIsProsAfrican && isFromProsAfricanSubscriptions) ? 4 : 6}}>
               <DateTimePicker
-                label={dictionary.subscriptions.labels.startDate}
+                label={subDictForm.labels.startDate}
                 minDate={
                   !isFromProsAfricanSubscriptions && 
                   organization && 
@@ -362,7 +363,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             </Grid>
             <Grid size={{xs:userIsProsAfrican ? 6 : 12, md:userIsProsAfrican ? 4 : (!userIsProsAfrican && isFromProsAfricanSubscriptions) ? 4 : 6}}>
               <TextField
-                label={dictionary.subscriptions.labels.months}
+                label={subDictForm.labels.months}
                 size='small'
                 fullWidth
                 value={watch('months')}
@@ -380,7 +381,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             {userIsProsAfrican &&
               <Grid size={{xs: 6, md: 4}}>
                 <TextField
-                  label={dictionary.subscriptions.labels.gracePeriod}
+                  label={subDictForm.labels.gracePeriod}
                   size='small'
                   fullWidth
                   error={!!errors?.grace_period}
@@ -399,7 +400,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
             {isFromProsAfricanSubscriptions &&
               <Grid size={{xs: 12, md: 4}}>
                 <OrganizationsSelector
-                  label={dictionary.subscriptions.labels.months}
+                  label={subDictForm.labels.months}
                   frontError={errors && errors?.organization_id}
                   defaultValue={subscription?.organization_id}
                   onChange={(newValue: any) => {
@@ -422,8 +423,8 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
                 scrollButtons='auto'
                 allowScrollButtonsMobile
               >
-                <Tab label={dictionary.subscriptions.labels.modules} />
-                <Tab label={dictionary.subscriptions.labels.additionalFeatures} />
+                <Tab label={subDictForm.labels.modules} />
+                <Tab label={subDictForm.labels.additionalFeatures} />
               </Tabs>
             </Grid>
           </Grid>
@@ -435,18 +436,18 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
         <DialogActions>
           <Grid container justifyContent="space-between" alignItems="center" spacing={1} width="100%">
             <Grid size={6}>
-              <Typography variant='h5'>{dictionary.subscriptions.labels.totalMonthlyRate}:</Typography>
+              <Typography variant='h5'>{subDictForm.labels.totalMonthlyRate}:</Typography>
             </Grid>
             <Grid size={6} textAlign={'end'}>
-              <Tooltip title={dictionary.subscriptions.helpTexts.monthlyTotal}>
+              <Tooltip title={subDictForm.helpTexts.monthlyTotal}>
                 <Typography variant='h5' sx={{cursor: 'pointer'}}>{(totalModulesMonthly + totalAdditionalFeaturesMonthlyCost).toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={6}>
-              <Typography variant='h5'>{dictionary.subscriptions.labels.grandTotal}:</Typography>
+              <Typography variant='h5'>{subDictForm.labels.grandTotal}:</Typography>
             </Grid>
             <Grid size={6} textAlign={'end'}>
-              <Tooltip title={dictionary.subscriptions.helpTexts.grandTotal}>
+              <Tooltip title={subDictForm.helpTexts.grandTotal}>
                 <Typography variant='h5' sx={{cursor: 'pointer'}}>{(totalModulesAmountAllMonths + totalAdditionalFeaturesAmount).toLocaleString()}</Typography>
               </Tooltip>
             </Grid>

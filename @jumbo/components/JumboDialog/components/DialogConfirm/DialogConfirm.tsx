@@ -1,8 +1,10 @@
 import Button from "@mui/material/Button";
 import { useJumboDialog } from "@jumbo/components/JumboDialog/hooks/useJumboDialog";
 import DialogBase from "../DialogBase/DialogBase";
+import { useDictionary } from "@/app/[lang]/contexts/DictionaryContext";
 
 const DialogConfirm = ({ open = false, onYes, onNo, ...restProps }: any) => {
+  const dictionary = useDictionary();
   const { hideDialog } = useJumboDialog();
 
   const handleClose = () => {
@@ -18,9 +20,9 @@ const DialogConfirm = ({ open = false, onYes, onNo, ...restProps }: any) => {
       actions={
         <>
           <Button variant={"contained"} onClick={onYes}>
-            Yes
+            {dictionary.forms.yes}
           </Button>
-          <Button onClick={handleClose}>No</Button>
+          <Button onClick={handleClose}>{dictionary.forms.no}</Button>
         </>
       }
       {...restProps}

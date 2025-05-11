@@ -1,5 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import OrganizationsList from '@/components/Organizations/OrganizationsList';
+import OrganizationsList from '@/components/Organizations/list/OrganizationsList';
 import { getServerSession } from 'next-auth';
 
 export default async function OrganizationsPage({params}) {

@@ -10,8 +10,14 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Organization } from '@/types/auth-types';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 export const HeaderActions: React.FC = () => {
+    const lang = useLanguage();
+    const dictionary = useDictionary();
+    const headerDict = dictionary.organizations.profile.topHeader;
+
     const router = useRouter();
     const { organization }: { organization?: Organization } = useOrganizationProfile();
     const { authOrganization, checkOrganizationPermission, loadOrganization } = useJumboAuth();
@@ -30,33 +36,27 @@ export const HeaderActions: React.FC = () => {
                     organization.id,
                     (response) => {
                         enqueueSnackbar(
-                            `${organization.name} is loaded to an active organization`,
-                            {
-                                variant: 'success'
-                            }
+                            headerDict.messages.organizationLoaded.replace('{organizationName}', organization.name),
+                            { variant: 'success' }
                         );
                     },
                     (error: Error) => {
                         enqueueSnackbar(
-                            'Something went wrong',
-                            {
-                                variant: 'error'
-                            }
+                            headerDict.messages.generalError,
+                            { variant: 'error' }
                         );
                     }
                 );
             } catch (error) {
                 enqueueSnackbar(
-                    'Failed to load organization',
-                    {
-                        variant: 'error'
-                    }
+                    headerDict.messages.loadError,
+                    { variant: 'error' }
                 );
             } finally {
                 setIsLoading(false);
             }
         } else {
-            router.push('/');
+            router.push(`/${lang}/dashboard`);
         }
     };
 
@@ -66,7 +66,7 @@ export const HeaderActions: React.FC = () => {
 
     return (
         <div className="flex gap-2">
-            <Tooltip title={`Load ${organization.name}`}>
+            <Tooltip title={headerDict.tooltips.loadOrganization.replace('{organizationName}', organization.name)}>
                 <LoadingButton
                     onClick={onLoad}
                     disableRipple
@@ -80,26 +80,28 @@ export const HeaderActions: React.FC = () => {
                         }
                     }}
                 >
-                    {isAuthOrganization ? 'Dashboard' : 'Load'}
+                    {isAuthOrganization ? headerDict.buttons.dashboard : headerDict.buttons.load}
                 </LoadingButton>
             </Tooltip>
 
             {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) && (
-                <Button
-                    onClick={() => router.push(`/organizations/edit/${organization.id}`)}
-                    disableRipple
-                    size="medium"
-                    variant="text"
-                    startIcon={<Edit />}
-                    sx={{
-                        textTransform: 'none',
-                        '&:hover': {
-                            backgroundColor: 'transparent'
-                        }
-                    }}
-                >
-                    Edit
-                </Button>
+                <Tooltip title={headerDict.tooltips.editOrganization}>
+                    <Button
+                        onClick={() => router.push(`/${lang}/organizations/edit/${organization.id}`)}
+                        disableRipple
+                        size="medium"
+                        variant="text"
+                        startIcon={<Edit />}
+                        sx={{
+                            textTransform: 'none',
+                            '&:hover': {
+                                backgroundColor: 'transparent'
+                            }
+                        }}
+                    >
+                        {headerDict.buttons.edit}
+                    </Button>
+                </Tooltip>
             )}
         </div>
     );

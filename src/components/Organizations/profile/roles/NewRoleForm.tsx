@@ -11,6 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import organizationServices from '@/lib/services/organizationServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   name: string;
@@ -35,9 +36,11 @@ export const NewRoleForm = () => {
   const { organization } = useOrganizationProfile();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const dictionary = useDictionary();
+  const newRoleDict = dictionary.organizations.profile.rolesTab.newRoleForm;
 
   const validationSchema = yup.object({
-    name: yup.string().required('Role name required'),
+    name: yup.string().required(newRoleDict.validation.nameRequired),
     description: yup.string().optional(),
     organization_id: yup.string().required(),
   });
@@ -58,7 +61,7 @@ export const NewRoleForm = () => {
   const addRole = useMutation<AddRoleResponse, AxiosError<ApiErrorResponse>, FormValues>({
     mutationFn: (data: FormValues) => organizationServices.addRole(data),
     onSuccess: (data) => {
-      enqueueSnackbar(data.message, {
+      enqueueSnackbar(newRoleDict.messages.success, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ 
@@ -82,7 +85,7 @@ export const NewRoleForm = () => {
         });
       } else {
         enqueueSnackbar(
-          error?.response?.data?.message || 'An error occurred', 
+          newRoleDict.messages.error, 
           { variant: 'error' }
         );
       }
@@ -95,7 +98,7 @@ export const NewRoleForm = () => {
         <Grid size={{xs: 12, md: 4}}>
           <TextField
             fullWidth
-            label="Name"
+            label={newRoleDict.labels.name}
             size="small"
             error={!!errors?.name}
             helperText={errors?.name?.message}
@@ -105,7 +108,7 @@ export const NewRoleForm = () => {
         <Grid size={{xs: 12, md: 6, lg: 7}}>
           <TextField
             fullWidth
-            label="Description"
+            label={newRoleDict.labels.description}
             size="small"
             error={!!errors?.description}
             helperText={errors?.description?.message}
@@ -121,7 +124,7 @@ export const NewRoleForm = () => {
             sx={{ mb: 2, display: 'flex' }}
             loading={addRole.isPending}
           >
-            Add
+            {newRoleDict.buttons.add}
           </LoadingButton>
         </Grid>
       </Grid>

@@ -13,6 +13,7 @@ import { Span } from '@jumbo/shared';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { CardIconText } from '@jumbo/shared/components/CardIconText';
 import { AdditionalFeature, Subscription, SubscriptionModule } from './SubscriptionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type ModuleIcons = {
   'Accounts & Finance': React.ReactNode;
@@ -32,6 +33,9 @@ type FeatureIcons = {
 };
 
 function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {subscription: Subscription, isFromProsAfricanSubscriptions: boolean}) {
+  const dictionary = useDictionary();
+  const subsDict = dictionary.organizations.profile.subscriptionsTab;
+
   const [expanded, setExpanded] = useState(false);
 
   const moduleIcons: ModuleIcons = {
@@ -144,7 +148,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
           <Grid size={12}>
             <Grid container spacing={1}>
               <Grid size={{xs: 12, md: 4, lg: 2.5}}>
-                <Tooltip title="Subscription No">
+                <Tooltip title={subsDict.labels.subscriptionNo}>
                   <Typography component="span" paddingLeft={{md: 4}}>
                     {subscription.subscriptionNo}
                   </Typography>
@@ -152,7 +156,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
               </Grid>
               {subscription.organization && (
                 <Grid size={{xs: 12, md: 4, lg: 5.5}}>
-                  <Tooltip title="Organization Name">
+                  <Tooltip title={subsDict.labels.organizationName}>
                     <Typography variant="h4">
                       {subscription.organization?.name}
                     </Typography>
@@ -160,14 +164,12 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
                 </Grid>
               )}
               <Grid size={{xs: 12, md: 4}}>
-                <Tooltip title="Subscription Value">
-                  <Typography paddingLeft={{md: 3}} variant="h4" textAlign={'end'}>{
-                    subscriptionValue.toLocaleString('en-US',
-                      {
-                        style: 'currency',
-                        currency: subscription.currency.code,
-                      }
-                    )}
+                <Tooltip title={subsDict.labels.subscriptionValue}>
+                  <Typography paddingLeft={{md: 3}} variant="h4" textAlign={'end'}>
+                    {subscriptionValue.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: subscription.currency.code,
+                    })}
                   </Typography>
                 </Tooltip>
               </Grid>
@@ -180,10 +182,12 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
         <Grid size={{xs: 12, md: 4, lg: 3.5}}>
           <ListItemText
             primary={
-              <Tooltip title="Created On">
+              <Tooltip title={subsDict.labels.createdOn}>
                 <Stack direction={'row'} spacing={1}>
                   <EditCalendarOutlined fontSize={'small'} />
-                  <Typography component="span" variant='caption'>{readableDate(subscription.created_at)}</Typography>
+                  <Typography component="span" variant='caption'>
+                    {readableDate(subscription.created_at)}
+                  </Typography>
                 </Stack>
               </Tooltip>
             }
@@ -191,30 +195,34 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
         </Grid>
       
         <Grid size={{xs: 12, md: 4, lg: 5.5}}>
-          <Tooltip title="Date Range">
+          <Tooltip title={subsDict.labels.dateRange}>
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
-              <DateRangeOutlined  fontSize={'small'} />
-              <Typography variant="caption">{`${readableDate(subscription.start_date, true)} - ${readableDate(subscription.end_date, true)}`}</Typography>
+              <DateRangeOutlined fontSize={'small'} />
+              <Typography variant="caption">
+                {`${readableDate(subscription.start_date, true)} - ${readableDate(subscription.end_date, true)}`}
+              </Typography>
             </Stack>
           </Tooltip>
           {
             !!subscription?.successor &&
-            <Tooltip title="Successor">
+            <Tooltip title={subsDict.labels.successor}>
               <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                <Handshake  fontSize={'small'} />
-                <Typography variant="caption">{`${readableDate(subscription.successor.start_date, true)} - ${readableDate(subscription.successor.end_date, true)} - (${subscription.successor.subscriptionNo})`}</Typography>
+                <Handshake fontSize={'small'} />
+                <Typography variant="caption">
+                  {`${readableDate(subscription.successor.start_date, true)} - ${readableDate(subscription.successor.end_date, true)} - (${subscription.successor.subscriptionNo})`}
+                </Typography>
               </Stack>
             </Tooltip>
           }
         </Grid>
       
         <Grid size={{xs: 12, md: 4, lg: 3}}>
-          <Tooltip title="Status">
+          <Tooltip title={subsDict.labels.status}>
             <Stack direction={'row'} display="flex" justifyContent="flex-end">
               <Chip
                 size="small"
                 color={subscription.days_remaining <= 0 ? (!!subscription?.successor ? 'info' : 'error')  : subscription.days_remaining < 30 ? (!!subscription?.successor ? 'info' : 'warning') : 'success'}
-                label={subscription.status}
+                label={subsDict.status[subscription.status.toLowerCase()] || subscription.status}
               />
             </Stack>
           </Tooltip>
@@ -237,7 +245,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
               </Grid>
             }
             <Grid size={12}>
-              <Typography variant='h3' align='center'>Modules</Typography>
+              <Typography variant='h3' align='center'><Typography variant='h3' align='center'>{subsDict.labels.modules}</Typography></Typography>
             </Grid>
             {
               subscription.modules.map((module: SubscriptionModule) => (
@@ -275,7 +283,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
               ))
             }
             <Grid size={12} p={1}>
-              <Typography textAlign={'center'} fontWeight={'bold'}>Modules Monthly Cost: {
+              <Typography textAlign={'center'} fontWeight={'bold'}>{subsDict.labels.modulesMonthlyCost}: {
                 totalModuleRate.toLocaleString('en-US',
                   {
                     style: 'currency',
@@ -288,7 +296,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
             {subscription.additional_features.length > 0 &&
               <>
                 <Grid size={12}>
-                  <Typography paddingTop={3} variant='h3' align='center'>Additional Features</Typography>
+                  <Typography paddingTop={3} variant='h3' align='center'>{subsDict.labels.additionalFeatures}</Typography>
                 </Grid>
                 {
                   subscription.additional_features.map((additionalFeature: AdditionalFeature) => (
@@ -354,7 +362,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
                   ))
                 }
                 <Grid size={12} p={1}>
-                  <Typography textAlign={'center'} fontWeight={'bold'}>Additional Features Monthly Cost: {
+                  <Typography textAlign={'center'} fontWeight={'bold'}>{subsDict.labels.featuresMonthlyCost}: {
                     totalAdditionalFeatureRate.toLocaleString('en-US',
                       {
                         style: 'currency',

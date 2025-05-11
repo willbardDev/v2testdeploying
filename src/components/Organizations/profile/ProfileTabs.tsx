@@ -2,12 +2,13 @@
 
 import React, { lazy, useState, Suspense, ReactNode, ReactElement } from 'react';
 import { AdminPanelSettingsOutlined, PaymentOutlined, Person3Outlined } from '@mui/icons-material';
-import { Tab, Tabs, Typography, Box } from '@mui/material';
+import { Tab, Tabs, Typography, Box, CircularProgress } from '@mui/material';
 import { useOrganizationProfile } from './OrganizationProfileProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Div } from '@jumbo/shared';
 import { Organization } from '@/types/auth-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Subscriptions = lazy(() => import('./subscriptions/Subscriptions'));
 const Users = lazy(() => import('./users/Users'));
@@ -22,6 +23,7 @@ function TabPanel({ children, value, index }: { children: ReactNode; value: numb
 }
 
 export const ProfileTabs = () => {
+  const dictionary = useDictionary();
   const [value, setValue] = useState<number>(0);
 
   const {
@@ -55,7 +57,7 @@ export const ProfileTabs = () => {
 
   if (canViewUsers) {
     tabs.push({
-      label: 'Users',
+      label: dictionary.organizations.profile.tabslabel.users,
       icon: <Person3Outlined />,
       content: <Users />,
     });
@@ -63,7 +65,7 @@ export const ProfileTabs = () => {
 
   if (canManageRoles) {
     tabs.push({
-      label: 'Roles',
+      label: dictionary.organizations.profile.tabslabel.roles,
       icon: <AdminPanelSettingsOutlined />,
       content: <OrganizationRoles />,
     });
@@ -71,7 +73,7 @@ export const ProfileTabs = () => {
 
   if (canManageSubscriptions) {
     tabs.push({
-      label: 'Subscriptions',
+      label: dictionary.organizations.profile.tabslabel.subscriptions,
       icon: <PaymentOutlined />,
       content: <Subscriptions />,
     });
@@ -103,13 +105,11 @@ export const ProfileTabs = () => {
         ))}
       </Tabs>
 
-      <Suspense fallback={<Typography p={2}>Loading...</Typography>}>
         {tabs.map((tab, index) => (
           <TabPanel key={index} value={value} index={index}>
             {tab.content}
           </TabPanel>
         ))}
-      </Suspense>
     </Div>
   );
 };

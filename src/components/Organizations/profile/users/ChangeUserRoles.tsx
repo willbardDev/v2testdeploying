@@ -13,6 +13,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { Span } from '@jumbo/shared';
 import { Organization, User } from '@/types/auth-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: string;
@@ -40,6 +41,8 @@ export const ChangeUserRoles: React.FC<ChangeUserRolesProps> = ({
   const [userIsNotTouched, setUserIsNotTouched] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
+  const changeRolesDict = dictionary.organizations.profile.usersTab.changeRoles.dialog;
 
   const [selectedRoles, setSelectedRoles] = useState<string[]>(
     user.organization_roles?.map((role: Role) => role.id) || []
@@ -55,19 +58,25 @@ export const ChangeUserRoles: React.FC<ChangeUserRolesProps> = ({
 
   const saveUserRoles = useMutation<SaveRolesResponse, Error, void>({
     mutationFn: async () => {
+      if (userIsNotTouched) {
+        throw new Error(changeRolesDict.validation.noChanges);
+      }
       return await organizationServices.saveUserRoles(organization?.id, user?.id, selectedRoles);
     },
     onSuccess: (data) => {
       setOpenEditDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(changeRolesDict.messages.success, { 
+        variant: 'success' 
+      });
       queryClient.invalidateQueries({ 
         queryKey: [`organizationUsers_${organization.id}`] 
       });
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
-      enqueueSnackbar(error.response?.data?.message || 'Error saving roles', { 
-        variant: 'error' 
-      });
+      enqueueSnackbar(
+        changeRolesDict.messages.error, 
+        { variant: 'error' }
+      );
     }
   });
 
@@ -95,7 +104,9 @@ export const ChangeUserRoles: React.FC<ChangeUserRolesProps> = ({
       maxWidth="md" 
       fullWidth
     >
-      <DialogTitle>Change {user.name} Roles</DialogTitle>
+      <DialogTitle>
+        {changeRolesDict.title.replace('{userName}', user.name)}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
           {organizationRoles.map((role: Role) => (
@@ -121,13 +132,13 @@ export const ChangeUserRoles: React.FC<ChangeUserRolesProps> = ({
             variant='contained' 
             color='primary'
           >
-            Save
+            {changeRolesDict.saveButton}
           </LoadingButton>
           <Button 
             size='small' 
             onClick={() => setOpenEditDialog(false)}
           >
-            Cancel
+            {changeRolesDict.cancelButton}
           </Button>
         </Box>
       </DialogActions>

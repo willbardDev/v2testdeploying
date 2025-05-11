@@ -9,6 +9,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ModulesTab() {
   const dictionary = useDictionary();
+  const subDictForm= dictionary.organizations.profile.subscriptionsTab.form;
   
   const {
     totalModulesMonthly,
@@ -101,7 +102,7 @@ function ModulesTab() {
               <Grid size={{xs: 4, md: 3, lg: 3}}>
                 <Div sx={{ mt: 2 }}>
                   <TextField
-                    label={dictionary.subscriptions.labels.monthlyRate}
+                    label={subDictForm.labels.monthlyRate}
                     id={`monthlyRate_${module.id}`}
                     size="small"
                     fullWidth
@@ -115,7 +116,7 @@ function ModulesTab() {
               </Grid>
             ) : (
               <Grid size={{xs: 4, md: 3, lg: 3}}>
-                <Tooltip title={dictionary.subscriptions.helpTexts.monthlyRate}>
+                <Tooltip title={subDictForm.helpTexts.monthlyRate}>
                   <Typography align="right">
                     {module.monthly_rate.toLocaleString()}
                   </Typography>        
@@ -128,7 +129,7 @@ function ModulesTab() {
       <Grid size={{xs: 12}} mb={2}>
         <Grid container spacing={1}>
           <Grid size={{xs: 8, md: 9}}>
-            <Typography variant="h5">{dictionary.subscriptions.labels.modulesMonthlyCost}:</Typography>
+            <Typography variant="h5">{subDictForm.labels.modulesMonthlyCost}:</Typography>
           </Grid>
           <Grid size={{xs: 4, md: 3}}>
             <Typography align="right" variant="h5">

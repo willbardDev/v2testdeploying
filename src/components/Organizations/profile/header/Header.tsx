@@ -12,12 +12,18 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { ASSET_AVATARS } from '@/utilities/constants/paths';
 import { getAssetPath } from '@/utilities/helpers';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 const Item = styled("div")({
     textAlign: 'center',
 });
 
 export const Header = () => {
+    const lang = useLanguage();
+    const dictionary = useDictionary();
+    const headerDict = dictionary.organizations.profile.topHeader;
+
     const { checkOrganizationPermission, authOrganization } = useJumboAuth();
     const { organization } = useOrganizationProfile();
     const router = useRouter();
@@ -29,7 +35,7 @@ export const Header = () => {
             authOrganization.organization.id !== organization.id ||
             !checkOrganizationPermission(PERMISSIONS.ORGANIZATION_PROFILE)
         ) {
-            router.push('/');
+            router.push(`/${lang}/dashboard`);
         }
     }, [authOrganization, organization, checkOrganizationPermission, router]);
 
@@ -60,7 +66,7 @@ export const Header = () => {
                                 <Typography variant='h6' color='inherit' mb={0}>
                                     {organization.email}
                                 </Typography>
-                                <Typography variant='body1' fontSize={12}>Email</Typography>
+                                <Typography variant='body1' fontSize={12}>{headerDict.labels.email}</Typography>
                             </Item>
                         </Grid>
                     )}
@@ -70,7 +76,7 @@ export const Header = () => {
                                 <Typography variant='h6' color='inherit' mb={0}>
                                     {organization.tin}
                                 </Typography>
-                                <Typography variant='body1' fontSize={12}>TIN</Typography>
+                                <Typography variant='body1' fontSize={12}>{headerDict.labels.tin}</Typography>
                             </Item>
                         </Grid>
                     )}
@@ -80,7 +86,7 @@ export const Header = () => {
                                 <Typography variant='h6' color='inherit' mb={0}>
                                     {organization.phone}
                                 </Typography>
-                                <Typography variant='body1' fontSize={12}>Phone</Typography>
+                                <Typography variant='body1' fontSize={12}>{headerDict.labels.phone}</Typography>
                             </Item>
                         </Grid>
                     )}

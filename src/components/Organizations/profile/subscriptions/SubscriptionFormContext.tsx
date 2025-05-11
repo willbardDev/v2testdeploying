@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { Organization } from '@/types/auth-types';
 import { Dayjs } from 'dayjs';
-import { AdditionalFeature, Module, Subscription } from './SubscriptionsForm';
+import { AdditionalFeature, Subscription, SubscriptionModule } from './SubscriptionTypes';
 
 interface SubscriptionFormContextProps {
   subscription?: Subscription;
@@ -11,14 +11,14 @@ interface SubscriptionFormContextProps {
   totalAdditionalFeaturesAmount: number;
   additionalFeaturesSelected: AdditionalFeature[];
   setAdditionalFeaturesSelected: (features: AdditionalFeature[]) => void;
-  Modules?: Module[];
+  Modules?: SubscriptionModule[];
   organization?: Organization;
   start_date: Dayjs | Date;
   userIsProsAfrican: boolean;
-  modulesSelected: Module[];
-  setModulesSelected: (modules: Module[]) => void;
-  moduleValues: Module[];
-  setModuleValues: (modules: Module[]) => void;
+  modulesSelected: SubscriptionModule[];
+  setModulesSelected: (modules: SubscriptionModule[]) => void;
+  moduleValues: SubscriptionModule[];
+  setModuleValues: (modules: SubscriptionModule[]) => void;
   additionalFeatureValues: Record<string, any>;
   setAdditionalFeatureValues: (values: Record<string, any>) => void;
 }

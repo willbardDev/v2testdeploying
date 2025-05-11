@@ -69,7 +69,11 @@
 
   "forms": {
     "submit": "Submit",
-    "clear": "Clear"
+    "clear": "Clear",
+    "yes": "Yes",
+    "No": "No",
+    "save": "Save",
+    "cancel":"Cancel"
   },
   
   "branding": {

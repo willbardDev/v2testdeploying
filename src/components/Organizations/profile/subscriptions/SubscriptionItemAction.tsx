@@ -11,6 +11,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Subscription } from './SubscriptionTypes';
 import subscriptionServices from '@/lib/services/subscriptionServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EditSubscriptionProps {
   subscription: Subscription;
@@ -32,6 +33,9 @@ interface SubscriptionItemActionProps {
 }
 
 const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscription }) => {
+  const dictionary = useDictionary();
+  const subsDict = dictionary.organizations.profile.subscriptionsTab;
+  
   const { refreshAuth } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -41,18 +45,21 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
     mutationFn: (subscription: Subscription) => 
       subscriptionServices.deleteSubscription(subscription),
     onSuccess: (data: { message: string }) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(data.message || subsDict.messages.deleteSuccess, { variant: 'success' });
       refreshAuth()
     },
     onError: (error: { response?: { data?: { message: string } } }) => {
-      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+      enqueueSnackbar(
+        error?.response?.data?.message || subsDict.messages.deleteError, 
+        { variant: 'error' }
+      );
     },
   });
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete?',
-      content: 'If you click yes, this Subscription will be deleted',
+      title: subsDict.buttons.confirmDelete.title.replace('{subscriptionNo}', subscription.subscriptionNo),
+      content: subsDict.buttons.confirmDelete.content,
       onYes: () => {
         hideDialog();
         deleteSubscription.mutate(subscription);
@@ -82,13 +89,13 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
         )}
       </Dialog>
 
-      <Tooltip title={`Edit ${subscription.subscriptionNo}`}>
+      <Tooltip title={`${subsDict.buttons.edit} ${subscription.subscriptionNo}`}>
         <IconButton onClick={() => setOpenEditDialog(true)}>
           <EditOutlined />
         </IconButton>
       </Tooltip>
 
-      <Tooltip title={`Delete ${subscription.subscriptionNo}`}>
+      <Tooltip title={`${subsDict.buttons.delete} ${subscription.subscriptionNo}`}>
         <IconButton onClick={handleDelete}>
           <DeleteOutlined color="error" />
         </IconButton>

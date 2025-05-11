@@ -12,6 +12,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "@/lib/services/config";
 import organizationServices from "@/lib/services/organizationServices";
 import { Organization } from "@/types/auth-types";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   email: string;
@@ -30,15 +31,18 @@ interface Invitee {
 }
 
 export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) => {
+  const dictionary = useDictionary();
+  const formDict = dictionary.organizations.profile.usersTab.actionTail.inviteDialog.form;
+
   const [invitees, setInvitees] = useState<Invitee[]>([]);
   const { enqueueSnackbar } = useSnackbar();
 
   const validationSchema = yup.object({
     email: yup.string()
-      .required('Email is required')
+      .required(formDict.validation.required)
       .matches(
         /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-        { message: 'Invalid email format' },
+        { message: formDict.validation.invalid },
       ),
   });
 
@@ -61,7 +65,7 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
       const response = await organizationServices.addInvitee(organization.id, email);
       return response.user;
     },
-    onSuccess: (user, variables) => {
+    onSuccess: (user) => {
       const newInvitee: Invitee = {
         ...user,
         id: user.id || Date.now(),
@@ -70,9 +74,10 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
       };
 
       if (invitees.some(invitee => invitee.email === newInvitee.email)) {
-        enqueueSnackbar('User is already in the queued list', { variant: 'error' });
+        enqueueSnackbar(formDict.messages.alreadyQueued, { variant: 'error' });
       } else {
         setInvitees(prev => [...prev, newInvitee]);
+        enqueueSnackbar(formDict.messages.success, { variant: 'success' });
         reset();
       }
     },
@@ -86,16 +91,18 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
         };
 
         if (invitees.some(invitee => invitee.email === fallbackUser.email)) {
-          enqueueSnackbar('User is already in the queued list', { variant: 'error' });
+          enqueueSnackbar(formDict.messages.alreadyQueued, { variant: 'error' });
           reset();
         } else {
-          enqueueSnackbar('No user with that email was found. An invitation to register will be sent instead.', { variant: 'info' });
+          enqueueSnackbar(formDict.messages.notFound, { variant: 'info' });
           setInvitees(prev => [...prev, fallbackUser]);
           reset();
         }
       } else {
-        console.log(error?.response?.data?.message)
-        enqueueSnackbar(error?.response?.data?.message || 'An error occurred', { variant: 'error' });
+        enqueueSnackbar(
+          formDict.messages.error, 
+          { variant: 'error' }
+        );
         reset();
       }
     }
@@ -114,7 +121,8 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
       <Grid container columnSpacing={1} paddingRight={1} alignItems="center">
         <Grid size={10}>
           <TextField
-            label="Email"
+            label={formDict.emailLabel}
+            placeholder={formDict.emailPlaceholder}
             fullWidth
             size="small"
             error={!!errors.email}
@@ -130,7 +138,7 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
             loading={isAddingInvitee}
             fullWidth
           >
-            Add
+            {formDict.addButton}
           </LoadingButton>
         </Grid>
       </Grid>

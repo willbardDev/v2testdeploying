@@ -68,7 +68,11 @@
   },
   "forms": {
     "submit": "Wasilisha",
-    "clear": "Safisha"
+    "clear": "Safisha",
+    "yes": "Ndio",
+    "no": "Hapana",
+    "save": "Tunza",
+    "cancel":"Ghairi"
   },
 
   "branding": {

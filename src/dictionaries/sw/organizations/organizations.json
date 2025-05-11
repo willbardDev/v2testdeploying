@@ -3,7 +3,7 @@
     "title": "Usimamizi wa Shirika",
     "buttons": {
       "submit": "Wasilisha",
-      "cancel": "Ghailisha",
+      "cancel": "Ghairi",
       "viewProfile": "Tazama Wasifu wa Shirika",
       "viewList": "Orodha ya Mashirika Yote",
       "upload": "Pakia Faili",
@@ -113,24 +113,23 @@
       "brandColors": "Rangi hizi zitumika katika majukwaa yote"
     }
   },
-
   "list": {
-    "labels":{
+    "labels": {
       "listHeader": "Mashirika",
-      "newCreateLabel": "Fungua Shirika jipya",
+      "newCreateLabel": "Shirika Jipya",
       "haveOrgRoles": "Majukumu",
       "haveNotOrgRoles": "Hakuna majukumu uliyopewa",
       "listtoProfile": "Profaili",
       "listtoEdit": "Hariri",
       "listtoDashboard": "Dashibodi",
       "loadOrganization": "Pakia",
-      "isLoadedAsActiveMessage": "imepakiwa kama Shirika kuu litakalofanya kazi",
-      "isLoadedAsActiveSpinner": "inapakia Shirika...",
+      "isLoadedAsActiveMessage": "imepakiwa kama shirika kuu",
+      "isLoadedAsActiveSpinner": "inapakia shirika...",
       "isLoadedAsActiveError": "Kuna hitilafu imetokea wakati wa kupakia Shirika",
       "invitationLink": "mialiko"
     },
     "messages": {
-      "noOrganizations": "Huna mashirika ya ProsERP kwa sasa.",
+      "noOrganizations": "Hakuna mashirika ya ProsERP kwako.",
       "invitationText": "Jiunge na moja kutoka kwa "
     },
     "autoLoad": {
@@ -157,6 +156,263 @@
       "messages": {
         "success": "Mpangilio wa upakiaji otomatiki umehakikiwa",
         "error": "Hitilafu imetokea wakati wa kusasisha mpangilio wa upakiaji otomatiki"
+      }
+    }
+  },
+  "profile": {
+    "tabslabel": {
+      "roles": "Majukumu",
+      "users": "Watumiaji",
+      "subscriptions": "Usajili"
+    },
+    "usersTab": {
+      "listItem": {
+        "tooltip": {
+          "status": "Hali ya Mtumiaji",
+          "roles": "Majukumu Aliyopewa",
+          "email": "Barua Pepe",
+          "phone": "Namba ya Simu",
+          "name": "Jina Kamili"
+        },
+        "actions": {
+          "editRoles": "Hariri Majukumu",
+          "detach": "Muondoe Mtumiaji",
+          "leave": "Ondoka Katika Shirika",
+          "confirmDetachTitle": "Ondoa {userName}?",
+          "confirmDetachContent": "Futa ufikiaji wote wa shirika kwa mtumiaji huyu",
+          "confirmLeaveTitle": "Ondoka {organizationName}?",
+          "confirmLeaveContent": "Hutaweza kufikia shirika hadi utakapowekwa tena"
+        },
+        "messages": {
+          "detachSuccess": "Mtumiaji ameondolewa kikamilifu",
+          "detachError": "Hitilafu katika kuondoa mtumiaji",
+          "leaveSuccess": "Umeondoka katika shirika",
+          "leaveError": "Hitilafu katika kuondoka kwenye shirika",
+          "status": {
+            "active": "Amefanya kazi",
+            "invited": "Alialikwa",
+            "suspended": "Amezuiwa"
+          }
+        }
+      },
+      "actionTail": {
+        "listViewTooltip": "Mtazamo wa Orodha",
+        "gridViewTooltip": "Mtazamo wa Gridi",
+        "inviteUsersTooltip": "Alika Watumiaji",
+        "inviteDialog": {
+          "title": "Alika Watumiaji",
+          "form": {
+            "emailLabel": "Barua Pepe",
+            "emailPlaceholder": "Weka anwani za barua pepe (zitengwe na koma)",
+            "roleLabel": "Chagua Jukumu",
+            "submitButton": "Tuma Mialiko",
+            "addButton": "Ongeza",
+            "successMessage": "Mialiko imetumwa kikamilifu",
+            "errorMessage": "Hitilafu katika kutuma mialiko",
+            "validation": {
+              "required": "Barua pepe inahitajika",
+              "invalid": "Umbizo batili la barua pepe",
+              "roleRequired": "Tafadhali chagua angalau jukumu moja kwa kila mtumiaji aliyealikwa"
+            },
+            "messages": {
+              "alreadyQueued": "Mtumiaji tayari kwenye orodha ya kusubiri",
+              "notFound": "Hakuna mtumiaji mwenye barua pepe hiyo. Mialiko ya kujiandikisha itatumwa badala yake.",
+              "error": "Hitilafu imetokea",
+              "success": "Mialiko imeongezwa kikamilifu"
+            }
+          }
+        }
+      },
+      "changeRoles": {
+        "dialog": {
+          "title": "Badilisha Majukumu ya {userName}",
+          "saveButton": "Hifadhi",
+          "cancelButton": "Ghairi",
+          "messages": {
+            "success": "Majukumu yamesasishwa kikamilifu",
+            "error": "Hitilafu katika kuhifadhi majukumu"
+          },
+          "validation": {
+            "noChanges": "Hakuna mabadiliko yaliyofanywa kwa majukumu"
+          }
+        }
+      }
+    },
+    "rolesTab": {
+      "newRoleForm": {
+        "labels": {
+          "name": "Jina",
+          "description": "Maelezo"
+        },
+        "validation": {
+          "nameRequired": "Jina la jukumu linahitajika"
+        },
+        "buttons": {
+          "add": "Ongeza"
+        },
+        "messages": {
+          "success": "Jukumu limeongezwa kikamilifu",
+          "error": "Hitilafu katika kuongeza jukumu"
+        }
+      },
+      "roleManagement": {
+        "search": "Tafuta",
+        "selectAll": "Chagua Zote",
+        "buttons": {
+          "delete": "Futa",
+          "save": "Hifadhi",
+          "confirmDelete": {
+            "title": "Futa jukumu {roleName}?",
+            "content": "Watumiaji wote wenye jukumu hili hawata kuwa nalo tena"
+          }
+        },
+        "messages": {
+          "deleteSuccess": "Jukumu limefutwa kikamilifu",
+          "deleteError": "Hitilafu katika kufuta jukumu",
+          "updateSuccess": "Ruhusa za jukumu zimesasishwa kikamilifu",
+          "updateError": "Hitilafu katika kusasisha ruhusa za jukumu",
+          "noChanges": "Hakuna mabadiliko yaliyofanywa kwa ruhusa"
+        }
+      }
+    },
+    "topHeader": {
+      "labels": {
+        "email": "Barua pepe",
+        "tin": "Namba ya Ushuru",
+        "phone": "Simu"
+      },
+      "buttons": {
+        "dashboard": "Dashibodi",
+        "load": "Pakia",
+        "edit": "Hariri"
+      },
+      "tooltips": {
+        "loadOrganization": "Pakia {organizationName}",
+        "editOrganization": "Hariri shirika"
+      },
+      "messages": {
+        "organizationLoaded": "{organizationName} imepakwa kama shirika linalofanya kazi",
+        "loadError": "Imeshindwa kupakia shirika",
+        "generalError": "Kuna hitilafu imetokea"
+      }
+    },
+    "subscriptionsTab": {
+      "buttons": {
+        "addSubscription": "Ongeza Usajili",
+        "edit": "Hariri",
+        "delete": "Futa",
+        "confirmDelete": {
+          "title": "Futa {subscriptionNo}?",
+          "content": "Una uhakika unataka kufuta usajili huu?"
+        }
+      },
+      "labels": {
+        "subscriptionNo": "Nambari ya Usajili",
+        "organizationName": "Jina la Shirika",
+        "subscriptionValue": "Thamani ya Usajili",
+        "createdOn": "Imeundwa",
+        "dateRange": "Muda wa Usajili",
+        "successor": "Mrithi",
+        "status": "Hali",
+        "modules": "Moduli",
+        "moduleRate": "Kiwango cha Moduli",
+        "additionalFeatures": "Vipengele Vya Ziada",
+        "monthlyRate": "Kiwango cha Mwezi",
+        "quantity": "Idadi",
+        "amount": "Kiasi",
+        "modulesMonthlyCost": "Gharama ya Mwezi ya Moduli",
+        "featuresMonthlyCost": "Gharama ya Mwezi ya Vipengele Vya Ziada"
+      },
+      "messages": {
+        "noSubscriptions": "Huna usajili wowote unaoendelea. Tafadhali jiunge na moduli unazohitaji ili kuepuka usumbufu wowote.",
+        "deleteSuccess": "Usajili umeufutwa kikamilifu",
+        "deleteError": "Hitilafu katika kufuta usajili",
+        "editSuccess": "Usajili umehakikiwa kikamilifu",
+        "editError": "Hitilafu katika kuhakiki usajili"
+      },
+      "status": {
+        "active": "Inatumika",
+        "expired": "Imeisha",
+        "pending": "Inasubiri",
+        "renewed": "Imerekebishwa"
+      },
+      "form": {
+        "errors": {
+          "validation": {
+            "modules": {
+              "required": "Tafadhali chagua angalau moduli moja.",
+              "invalidSelection": "Moduli uliyoweka si sahihi."
+            },
+            "months": {
+              "required": "Tafadhali weka muda wa usajili.",
+              "positive": "Muda lazima uwe namba chanya.",
+              "minimum": {
+                "default": "Muda wa chini wa usajili ni miezi {min}.",
+                "prosAfrican": "Usajili lazima uwe angalau mwezi {min}."
+              }
+            },
+            "gracePeriod": {
+              "positive": "Kipindi cha neema hakiwezi kuwa hasi.",
+              "maximum": "Kipindi cha neema hakiwezi kuzidi siku {max}."
+            },
+            "organization": {
+              "required": "Tafadhali chagua shirika.",
+              "invalid": "Shirika ulilochagua si sahihi."
+            },
+            "startDate": {
+              "required": "Tarehe ya kuanza inahitajika.",
+              "invalid": "Tafadhali weka tarehe sahihi ya kuanza."
+            },
+            "additionalFeatures": {
+              "invalid": "Baadhi ya vipengele ulivyochagua si sahihi."
+            }
+          },
+          "api": {
+            "createFailed": "Imeshindikana kuunda usajili. Tafadhali jaribu tena.",
+            "updateFailed": "Imeshindikana kusasisha usajili. Tafadhali jaribu tena.",
+            "notFound": "Usajili uliotafutwa haukupatikana."
+          }
+        },
+        "messages": {
+          "createSuccess": "Usajili umeundwa kwa mafanikio.",
+          "edit": "Hariri",
+          "new": "Ongeza Usajili Mpya",
+          "updateSuccess": "Usajili umesasishwa kwa mafanikio.",
+          "deleteSuccess": "Usajili umefutwa kwa mafanikio."
+        },
+        "labels": {
+          "organization": "Shirika",
+          "months": "Muda wa Usajili (miezi)",
+          "gracePeriod": "Kipindi cha Neema (siku)",
+          "startDate": "Tarehe ya Kuanza",
+          "modules": "Moduli",
+          "additionalFeatures": "Vipengele vya Ziada",
+          "additionalFeatureInfoMessage": "Tafadhali chagua angalau moduli moja kupata vipengele vya ziada.",
+          "additionalFeatureQuantity": "Idadi",
+          "monthlyRate": "Kiwango cha Moduli kwa Mwezi",
+          "additionalFeatureRate": "Kiwango cha kipengele kwa Mwezi",
+          "monthlyAmount": "Kiasi cha Kila Mwezi",
+          "additionalFeatureAmount": "Gharama",
+          "additionalFeatureMonthlyCostLabel": "Gharama ya Kila Mwezi ya Vipengele vya Ziada",
+          "modulesMonthlyCost": "Gharama ya Kila Mwezi ya Moduli",
+          "totalMonthlyRate": "Jumla ya Kila Mwezi",
+          "grandTotal": "Jumla Kuu"
+        },
+        "helpTexts": {
+          "additionalFeatureQuantity": "Weka ni vipengele vingapi unahitaji.",
+          "additionalFeatureAmount": "Gharama ya jumla ya kipengele hiki kulingana na uhitaji wako.",
+          "additionalFeatureMonthlyCostLabel": "Jumla ya gharama ya kila mwezi kwa vipengele vyote vya ziada vilivyochaguliwa.",
+          "additionalFeatureRate": "Gharama ya kila mwezi kwa kipengele kimoja.",
+          "months": "Hii inaonyesha muda wa usajili kuwa hai.",
+          "gracePeriod": "Kipindi cha hiari baada ya usajili kumalizika.",
+          "startDate": "Tarehe ambayo usajili utaanza kutumika.",
+          "modules": "Vipengele vya msingi vilivyomo kwenye usajili.",
+          "additionalFeatures": "Vipengele vya hiari vya kuongeza uwezo.",
+          "monthlyRate": "Ada ya kila mwezi kwa moduli hii.",
+          "grandTotal": "Jumla ya mwisho ikijumuisha gharama zote za usajili.",
+          "monthlyTotal": "Gharama ya kila mwezi ya usajili huu.",
+          "modulesMonthlyCost": "Jumla ya gharama kwa mwezi kwa moduli zilizochaguliwa."
+        }
       }
     }
   }

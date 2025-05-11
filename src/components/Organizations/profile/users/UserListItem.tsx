@@ -18,6 +18,8 @@ import { Div } from '@jumbo/shared';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { User } from '@/types/auth-types';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 interface UserListItemProps {
   user: User;
@@ -31,6 +33,9 @@ interface MenuItem {
 }
 
 export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
+    const dictionary = useDictionary();
+    const lang = useLanguage();
+
     const { showDialog, hideDialog } = useJumboDialog();
     const { authUser, authOrganization, checkOrganizationPermission } = useJumboAuth();
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -63,7 +68,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
         if (canManageUsers) {
             items.push({ 
                 icon: <AdminPanelSettingsOutlined color='primary' />, 
-                title: "Edit Roles", 
+                title: dictionary.organizations.profile.usersTab.listItem.actions.editRoles, 
                 action: "editRoles" 
             });
         }
@@ -71,7 +76,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
         if (canManageUsers && !isAuthUser) {
             items.push({ 
                 icon: <GroupRemoveOutlined color='error' />, 
-                title: "Detach", 
+                title: dictionary.organizations.profile.usersTab.listItem.actions.detach, 
                 action: "detach" 
             });
         }
@@ -79,7 +84,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
         if (isAuthUser) {
             items.push({ 
                 icon: <PersonRemoveOutlined color='error' />, 
-                title: "Leave", 
+                title: dictionary.organizations.profile.usersTab.listItem.actions.leave, 
                 action: "leave" 
             });
         }
@@ -89,31 +94,39 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
 
     const userDetachAction = useMutation({
         mutationFn: (data: { action: string; user_id: string }) => 
-            organizationServices.userDetachAction(organization?.id, data),
+          organizationServices.userDetachAction(organization?.id, data),
         onSuccess: (data) => {
-            enqueueSnackbar(data?.message, { variant: 'success' });
-            queryClient.invalidateQueries({ 
-                queryKey: [`organizationUsers_${organization?.id}`] 
-            });
+          enqueueSnackbar(
+            data?.message || dictionary.organizations.profile.usersTab.listItem.messages.detachSuccess, 
+            { variant: 'success' }
+          );
+          queryClient.invalidateQueries({ 
+            queryKey: [`organizationUsers_${organization?.id}`] 
+          });
         },
         onError: (error: any) => {
-            enqueueSnackbar(error.response?.message || 'Error detaching user', { 
-                variant: 'error' 
-            });
+          enqueueSnackbar(
+            error.response?.message || dictionary.organizations.profile.usersTab.listItem.messages.detachError, 
+            { variant: 'error' 
+          });
         }
     });
-
+      
     const userLeaveAction = useMutation({
         mutationFn: (data: { action: string; user_id: string }) => 
-            organizationServices.userLeaveAction(organization?.id, data),
+          organizationServices.userLeaveAction(organization?.id, data),
         onSuccess: (data) => {
-            enqueueSnackbar(data?.message, { variant: 'success' });
-            router.push('/organizations');
+          enqueueSnackbar(
+            dictionary.organizations.profile.usersTab.listItem.messages.leaveSuccess, 
+            { variant: 'success' }
+          );
+          router.push(`/${lang}/organizations`);
         },
         onError: (error: any) => {
-            enqueueSnackbar(error.response?.message || 'Error leaving organization', { 
-                variant: 'error' 
-            });
+          enqueueSnackbar(
+            dictionary.organizations.profile.usersTab.listItem.messages.leaveError, 
+            { variant: 'error' 
+          });
         }
     });
 
@@ -138,45 +151,66 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
     };
       
     const handleItemAction = (menuItem: MenuItem) => {
+        const { actions, messages } = dictionary.organizations.profile.usersTab.listItem;
+        
         switch (menuItem.action) {
-            case 'detach':
-                showDialog({
-                    variant: 'confirm',
-                    title: `Detach ${user.name}?`,
-                    content: `Revoke all organization access for this user.`,
-                    onYes: () => {
-                        hideDialog();
-                        userDetachAction.mutate({
-                            action: 'detach',
-                            user_id: user.id
-                        });
-                    },
-                    onNo: hideDialog
+          case 'detach':
+            showDialog({
+              variant: 'confirm',
+              title: actions.confirmDetachTitle.replace('{userName}', user.name),
+              content: actions.confirmDetachContent,
+              onYes: () => {
+                hideDialog();
+                userDetachAction.mutate({
+                  action: 'detach',
+                  user_id: user.id
+                }, {
+                  onSuccess: () => {
+                    enqueueSnackbar(messages.detachSuccess, { variant: 'success' });
+                  },
+                  onError: (error: any) => {
+                    enqueueSnackbar(
+                      error.response?.message || messages.detachError, 
+                      { variant: 'error' }
+                    );
+                  }
                 });
-                break;
-
-            case 'leave':
-                showDialog({
-                    variant: 'confirm',
-                    title: `Leave ${organization?.name}?`,
-                    content: `You won't be able to access the organization until you are reinvited.`,
-                    onYes: () => {
-                        hideDialog();
-                        userLeaveAction.mutate({
-                            action: 'leave',
-                            user_id: authUser?.user?.id || ''
-                        });
-                    },
-                    onNo: hideDialog
+              },
+              onNo: hideDialog
+            });
+            break;
+          case 'leave':
+            showDialog({
+              variant: 'confirm',
+              title: actions.confirmLeaveTitle.replace('{organizationName}', organization?.name || ''),
+              content: actions.confirmLeaveContent,
+              onYes: () => {
+                hideDialog();
+                userLeaveAction.mutate({
+                  action: 'leave',
+                  user_id: authUser?.user?.id || ''
+                }, {
+                  onSuccess: () => {
+                    enqueueSnackbar(messages.leaveSuccess, { variant: 'success' });
+                    router.push(`/${lang}/organizations`);
+                  },
+                  onError: (error: any) => {
+                    enqueueSnackbar(
+                      error.response?.message || messages.leaveError, 
+                      { variant: 'error' }
+                    );
+                  }
                 });
-                break;
-
-            case 'editRoles':
-                setOpenEditDialog(true);
-                break;
-
-            default:
-                console.warn('Unknown menu action:', menuItem.action);
+              },
+              onNo: hideDialog
+            });
+            break;
+          case 'editRoles':
+            setOpenEditDialog(true);
+            break;
+      
+          default:
+            console.warn('Unknown menu action:', menuItem.action);
         }
     };
 
@@ -225,7 +259,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
                                     </ListItemIcon>
                                     <ListItemText primary={user.phone} />
                                 </ListItem>
-                                <Tooltip title={'Status'}>
+                                <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.status}>
                                     <ListItem sx={{ px: 1.5 }}>
                                         <ListItemIcon sx={{ minWidth: 50 }}>
                                             <VerifiedUser color={statusColor} />
@@ -237,7 +271,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
                                 </Tooltip>
                             </List>
                             <Divider sx={{ my: 2 }} />
-                            <Tooltip title={'Roles'}>
+                            <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.roles}>
                                 <Div
                                     sx={{
                                         display: 'flex',
@@ -282,21 +316,21 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
                     </Grid>
                     <Grid size={{xs: 4, md: 2, lg: 2.5}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
-                            <Tooltip title={'Name'}>
+                            <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.name}>
                                 <Typography>{user.name}</Typography>
                             </Tooltip>
                         </Div>
                     </Grid>
                     <Grid size={{xs: 6, md: 4, lg: 3}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
-                            <Tooltip title={'Email'}>
+                            <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.email}>
                                 <Typography>{user.email}</Typography>
                             </Tooltip>
                         </Div>
                     </Grid>
                     <Grid size={{xs: 4, md: 2, lg: 2}}>
                         <Div sx={{ mt: 1, mb: 1, paddingLeft: 1 }}>
-                            <Tooltip title={'Phone'}>
+                            <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.phone}>
                                 <Typography>{user.phone}</Typography>
                             </Tooltip>
                         </Div>
@@ -314,7 +348,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({ user, view }) => {
                     </Grid>
                     <Grid size={{xs: 3, md: 1, lg: 1}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
-                            <Tooltip title={'Status'}>
+                            <Tooltip title={dictionary.organizations.profile.usersTab.listItem.tooltip.status}>
                                 <Chip size='small' label={user.status} color={statusColor} />
                             </Tooltip>
                         </Div>

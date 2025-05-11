@@ -7,26 +7,22 @@ interface LocaleDictionary {
 
 const dictionaries: LocaleDictionary = {
   'en-US': async () => {
-    const [main, subscriptions, organizations] = await Promise.all([
+    const [main, organizations] = await Promise.all([
       import('@/dictionaries/en/en.json').then(m => m.default),
-      import('@/dictionaries/en/subscriptions.json').then(m => m.default),
       import('@/dictionaries/en/organizations/organizations.json').then(m => m.default)
     ]);
     return {
       ...main,
-      subscriptions,
       organizations
     };
   },
   'sw-TZ': async () => {
-    const [main, subscriptions, organizations] = await Promise.all([
+    const [main, organizations] = await Promise.all([
       import('@/dictionaries/sw/sw.json').then(m => m.default),
-      import('@/dictionaries/sw/subscriptions.json').then(m => m.default),
       import('@/dictionaries/sw/organizations/organizations.json').then(m => m.default)
     ]);
     return {
       ...main,
-      subscriptions,
       organizations
     };
   },

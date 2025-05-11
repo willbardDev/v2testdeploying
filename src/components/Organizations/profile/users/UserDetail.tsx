@@ -1,5 +1,6 @@
 'use client'
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { User } from '@/types/auth-types';
 import JumboChipsGroup from '@jumbo/components/JumboChipsGroup';
 import { Div } from '@jumbo/shared';
@@ -14,6 +15,8 @@ interface UserDetailProps {
 }
 
 export const UserDetail: React.FC<UserDetailProps> = ({ user, onClose }) => {
+  const dictionary = useDictionary();
+
   return (
     <Div sx={{ m: theme => theme.spacing(-2.5, -3) }}>
       <CardHeader
@@ -41,7 +44,7 @@ export const UserDetail: React.FC<UserDetailProps> = ({ user, onClose }) => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>Email</Typography>}
+            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>{dictionary.organizations.profile.usersTab.listItem.tooltip.email}</Typography>}
             secondary={<Typography variant="h5" mb={0}>{user?.email}</Typography>}
           />
         </ListItem>
@@ -60,7 +63,7 @@ export const UserDetail: React.FC<UserDetailProps> = ({ user, onClose }) => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>Phone</Typography>}
+            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>{dictionary.organizations.profile.usersTab.listItem.tooltip.phone}</Typography>}
             secondary={<Typography variant="h5" mb={0}>{user?.phone}</Typography>}
           />
         </ListItem>
@@ -79,7 +82,7 @@ export const UserDetail: React.FC<UserDetailProps> = ({ user, onClose }) => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>Roles</Typography>}
+            primary={<Typography variant="body1" color="text.secondary" mb={0.5}>{dictionary.organizations.profile.usersTab.listItem.tooltip.roles}</Typography>}
             secondary={
               <Typography component="div">
                 <JumboChipsGroup

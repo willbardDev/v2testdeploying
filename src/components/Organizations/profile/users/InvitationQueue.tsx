@@ -10,6 +10,7 @@ import { InvitationQueueItem } from './InvitationQueueItem';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import organizationServices from '@/lib/services/organizationServices';
 import { Organization } from '@/types/auth-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Invitee {
   id: string | number;
@@ -38,13 +39,15 @@ export const InvitationQueue: React.FC<InvitationQueueProps> = ({
   const { hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const dictionary = useDictionary();
+  const inviteDict = dictionary.organizations.profile.usersTab.actionTail.inviteDialog;
 
   // Validate invitees and prepare data
   const validateAndPrepareData = (): InvitationsData[] | null => {
     const invalidInvitees = invitees.filter((invitee) => invitee.selectedRoles.length < 1);
 
     if (invalidInvitees.length > 0) {
-      enqueueSnackbar('Please select at least one role for each invited user', { variant: 'error' });
+      enqueueSnackbar(inviteDict.form.messages.validation.roleRequired, { variant: 'error' });
       return null;
     }
 
@@ -59,14 +62,17 @@ export const InvitationQueue: React.FC<InvitationQueueProps> = ({
     mutationFn: (invitationsData: InvitationsData[]) => 
       organizationServices.inviteUsers(organization?.id, invitationsData),
     onSuccess: () => {
-      enqueueSnackbar('Invitations sent successfully', { variant: 'success' });
+      enqueueSnackbar(inviteDict.form.successMessage, { variant: 'success' });
       queryClient.invalidateQueries({ 
         queryKey: [`organizationUsers_${organization?.id}`] 
       });
       hideDialog();
     },
-    onError: () => {
-      enqueueSnackbar('Invitations sent with errors', { variant: 'warning' });
+    onError: (error: any) => {
+      enqueueSnackbar(
+        inviteDict.form.errorMessage, 
+        { variant: 'error' }
+      );
     },
   });
 
@@ -107,7 +113,7 @@ export const InvitationQueue: React.FC<InvitationQueueProps> = ({
               loading={inviteUsers.isPending}
               disabled={inviteUsers.isPending}
             >
-              Send Invitations
+              {inviteDict.form.submitButton}
             </LoadingButton>
           </Box>
         </>

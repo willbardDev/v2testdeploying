@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Alert, Dialog, IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import { AddOutlined } from '@mui/icons-material';
@@ -7,13 +9,15 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
 import SubscriptionItem from './SubscriptionItem';
 import { Subscription } from './SubscriptionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function Subscriptions() {
+    const dictionary = useDictionary();
+    const subsDict = dictionary.organizations.profile.subscriptionsTab;
+    
     const { authOrganization } = useJumboAuth();
     const [openDialog, setOpenDialog] = useState(false);
     const active_subscriptions = authOrganization?.organization?.active_subscriptions as Subscription[] | undefined;
-
-    // Screen handling constants
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -23,7 +27,7 @@ function Subscriptions() {
                 <SubscriptionsForm setOpenDialog={setOpenDialog}/>
             </Dialog>
             <Stack direction={'row'} justifyContent={'end'} p={1}>
-                <Tooltip title='Add Subscription'>
+                <Tooltip title={subsDict.buttons.addSubscription}>
                     <IconButton 
                         onClick={() => setOpenDialog(true)}
                         sx={{
@@ -50,7 +54,7 @@ function Subscriptions() {
                 </React.Fragment>
             ) : (
                 <Alert variant="outlined" severity="warning">
-                    You don't have any active subscription, Please make sure you subscribe to the modules you need to prevent any inconveniences
+                    {subsDict.messages.noSubscriptions}
                 </Alert>
             )}
         </Div>

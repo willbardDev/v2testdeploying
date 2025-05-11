@@ -26,6 +26,7 @@ import organizationServices from '@/lib/services/organizationServices';
 import axios from '@/lib/services/config';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { NewRoleForm } from './NewRoleForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Permission {
   id: number;
@@ -45,6 +46,8 @@ const OrganizationRoles = () => {
   const { organization } = useOrganizationProfile();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
+  const roleManagementDict = dictionary.organizations.profile.rolesTab.roleManagement;
 
   const { data: permissions = [], isLoading: isLoadingPermissions } = useQuery<Permission[]>({
     queryKey: ['organizationPermissionsOptions', organization?.id],
@@ -61,19 +64,22 @@ const OrganizationRoles = () => {
   const deleteRole = (role: Role) => {
     showDialog({
       variant: 'confirm',
-      title: `Delete ${role.name} role?`,
-      content: `All users with this role won't have it anymore`,
+      title: roleManagementDict.buttons.confirmDelete.title.replace('{roleName}', role.name),
+      content: roleManagementDict.buttons.confirmDelete.content,
       onYes: async () => {
         hideDialog();
         try {
           const res = await axios.put(`organizations/${organization?.id}/delete-role`, { role_id: role.id });
-          enqueueSnackbar(res.data.message, { variant: 'success' });
+          enqueueSnackbar(roleManagementDict.messages.deleteSuccess, { 
+            variant: 'success' 
+          });
       
           await queryClient.invalidateQueries({ queryKey: ['organizationRoles', organization?.id] });
         } catch (err: any) {
-          if (err?.response?.data?.message) {
-            enqueueSnackbar(err.response.data.message, { variant: 'error' });
-          }
+          enqueueSnackbar(
+            roleManagementDict.messages.deleteError, 
+            { variant: 'error' }
+          );
         }
       }
     });
@@ -102,19 +108,28 @@ const OrganizationRoles = () => {
       checkedPermissions.includes(permission.id)) && !allPermissionsChecked;
 
     const saveRole = async () => {
+      if (roleIsNotTouched) {
+        enqueueSnackbar(roleManagementDict.messages.noChanges, { variant: 'info' });
+        return;
+      }
+      
       setIsSavingRole(true);
       try {
         const response = await axios.put(`organizations/${organization?.id}/edit-role`, {
           role_id: role.id,
           permission_ids: checkedPermissions
         });
-        enqueueSnackbar(response.data.message, { variant: 'success' });
+        enqueueSnackbar(
+          roleManagementDict.messages.updateSuccess, 
+          { variant: 'success' }
+        );
         queryClient.invalidateQueries({ queryKey: ['organizationRoles', organization?.id] });
         setRoleIsNotTouched(true);
       } catch (error: any) {
-        if (error?.response?.data?.message) {
-          enqueueSnackbar(error.response.data.message, { variant: 'error' });
-        }
+        enqueueSnackbar(
+          roleManagementDict.messages.updateError, 
+          { variant: 'error' }
+        );
       } finally {
         setIsSavingRole(false);
       }
@@ -137,7 +152,7 @@ const OrganizationRoles = () => {
                 <>
                   <Grid size={{xs: 12, md: 6, lg: 3}}>
                     <TextField
-                      label="Search"
+                      label={roleManagementDict.search}
                       variant="outlined"
                       size='small'
                       fullWidth
@@ -148,7 +163,7 @@ const OrganizationRoles = () => {
                   </Grid>
                   <Grid size={{xs: 6, md: 3}}>
                     <FormControlLabel
-                      label="Select All"
+                      label={roleManagementDict.selectAll}
                       control={
                         <Checkbox
                           checked={allPermissionsChecked}
@@ -207,7 +222,7 @@ const OrganizationRoles = () => {
                         variant='contained'
                         color='error'
                       >
-                        Delete
+                        {roleManagementDict.buttons.delete}
                       </Button>
                     )}
                     {checkOrganizationPermission(PERMISSIONS.ROLES_UPDATE) && (
@@ -219,7 +234,7 @@ const OrganizationRoles = () => {
                         variant='contained'
                         color='primary'
                       >
-                        Save
+                        {roleManagementDict.buttons.save}
                       </LoadingButton>
                     )}
                   </Stack>

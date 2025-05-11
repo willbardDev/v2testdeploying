@@ -8,6 +8,7 @@ import { useOrganizationProfile } from '../OrganizationProfileProvider';
 import { InvitationForm } from './InvitationForm';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ActionTailProps {
   view: 'list' | 'grid';
@@ -15,6 +16,9 @@ interface ActionTailProps {
 }
 
 export const ActionTail: React.FC<ActionTailProps> = ({ view, setView }) => {
+    const dictionary = useDictionary();
+    const actionTailDict = dictionary.organizations.profile.usersTab.actionTail;
+    
     const { showDialog } = useJumboDialog();
     const { organization } = useOrganizationProfile();
     const { checkOrganizationPermission, authOrganization } = useJumboAuth();
@@ -23,7 +27,7 @@ export const ActionTail: React.FC<ActionTailProps> = ({ view, setView }) => {
         if (!organization) return;
         
         showDialog({
-            title: 'Invite Users',
+            title: actionTailDict.inviteDialog.title,
             content: <InvitationForm organization={organization} />,
         });
     };
@@ -39,7 +43,7 @@ export const ActionTail: React.FC<ActionTailProps> = ({ view, setView }) => {
                 }
             }}
         >
-            <Tooltip title="List View">
+            <Tooltip title={actionTailDict.listViewTooltip}>
                 <Button 
                     variant={view === "list" ? "contained" : "outlined"}
                     onClick={() => setView("list")}
@@ -47,7 +51,7 @@ export const ActionTail: React.FC<ActionTailProps> = ({ view, setView }) => {
                     <ListOutlined />
                 </Button>
             </Tooltip>
-            <Tooltip title="Grid View">
+            <Tooltip title={actionTailDict.gridViewTooltip}>
                 <Button 
                     variant={view === "grid" ? "contained" : "outlined"}
                     onClick={() => setView("grid")}
@@ -57,7 +61,7 @@ export const ActionTail: React.FC<ActionTailProps> = ({ view, setView }) => {
             </Tooltip>
             {authOrganization?.organization?.id === organization?.id && 
                 checkOrganizationPermission(PERMISSIONS.USERS_INVITE) && (
-                    <Tooltip title="Invite Users">
+                    <Tooltip title={actionTailDict.inviteUsersTooltip}>
                         <Button onClick={handleInviteClick}>
                             <AddOutlined />
                         </Button>
