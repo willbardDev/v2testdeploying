@@ -1,4 +1,3 @@
-'use client'
 
 import React from "react";
 import { ChevronRight, ExpandMore } from "@mui/icons-material";
@@ -24,7 +23,7 @@ export interface TreeNode {
 }
 
 export default function LedgerGroupTree() {
-  const { ledgerGroups, isPending, ledgerGroupOptionIds } = useLedgerGroup();
+  const { ledgerGroups, isLoading, ledgerGroupOptionIds } = useLedgerGroup();
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
   
   const handleItemToggle = (
@@ -54,7 +53,7 @@ export default function LedgerGroupTree() {
 
   return (
     <JumboCardQuick sx={{ borderRadius: 2 }}>
-      {isPending ? (
+      {isLoading ? (
         <LinearProgress />
       ) : (
         <>

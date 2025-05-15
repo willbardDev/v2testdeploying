@@ -33,7 +33,7 @@ interface LedgerGroupContextType {
   ledgerGroups?: LedgerGroup[];
   ledgerGroupOptions: LedgerGroupOption[];
   ledgerGroupOptionIds: string[];
-  isPending: boolean;
+  isLoading: boolean;
   isFetching: boolean;
 }
 
@@ -52,7 +52,7 @@ interface LedgerGroupProviderProps {
 }
 
 export default function LedgerGroupProvider({ children }: LedgerGroupProviderProps) {
-  const { data, isPending, isFetching, refetch: refetchLedgerGroups } = useQuery<LedgerGroupsResponse>({
+  const { data, isLoading, isFetching, refetch: refetchLedgerGroups } = useQuery<LedgerGroupsResponse>({
     queryKey: ['fetchLedgerGroups'],
     queryFn: async () => {
       const response = await axios.get('/accounts/ledger_group');
@@ -105,7 +105,7 @@ export default function LedgerGroupProvider({ children }: LedgerGroupProviderPro
         ledgerGroups: data?.ledgerGroups,
         ledgerGroupOptions,
         ledgerGroupOptionIds,
-        isPending,
+        isLoading,
         isFetching
       }}
     >
