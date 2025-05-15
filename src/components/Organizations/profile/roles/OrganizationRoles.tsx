@@ -22,11 +22,11 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { useOrganizationProfile } from '../OrganizationProfileProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import organizationServices from '@/lib/services/organizationServices';
 import axios from '@/lib/services/config';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { NewRoleForm } from './NewRoleForm';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from '../../organizationServices';
 
 interface Permission {
   id: number;

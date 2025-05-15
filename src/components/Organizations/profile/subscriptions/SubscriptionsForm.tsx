@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
-import subscriptionServices from '../../../../lib/services/subscriptionServices';
+import subscriptionServices from './subscriptionServices';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs, { Dayjs } from 'dayjs';

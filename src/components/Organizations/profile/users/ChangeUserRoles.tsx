@@ -8,12 +8,12 @@ import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import axios from '@/lib/services/config';
-import organizationServices from '@/lib/services/organizationServices';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { Span } from '@jumbo/shared';
 import { Organization, User } from '@/types/auth-types';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from '../../organizationServices';
 
 interface Role {
   id: string;

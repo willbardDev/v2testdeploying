@@ -12,7 +12,6 @@ import { ChangeUserRoles } from './ChangeUserRoles';
 import { UserDetail } from './UserDetail';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import organizationServices from '@/lib/services/organizationServices';
 import { JumboDdMenu } from '@jumbo/components';
 import { Div } from '@jumbo/shared';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -20,6 +19,7 @@ import { User } from '@/types/auth-types';
 import { useRouter } from 'next/navigation';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import organizationServices from '../../organizationServices';
 
 interface UserListItemProps {
   user: User;

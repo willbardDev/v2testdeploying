@@ -10,9 +10,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "@/lib/services/config";
-import organizationServices from "@/lib/services/organizationServices";
 import { Organization } from "@/types/auth-types";
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from "../../organizationServices";
 
 interface FormValues {
   email: string;

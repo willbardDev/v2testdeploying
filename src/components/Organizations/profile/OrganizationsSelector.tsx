@@ -8,9 +8,9 @@ import {
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import organizationServices from "@/lib/services/organizationServices";
 import { useQuery } from "@tanstack/react-query";
 import { Organization } from "@/types/auth-types";
+import organizationServices from "../organizationServices";
 
 type OrganizationsSelectorProps = {
   onChange: (value: Organization | Organization[] | null) => void;

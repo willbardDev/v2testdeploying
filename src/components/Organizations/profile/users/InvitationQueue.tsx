@@ -8,9 +8,9 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { InvitationQueueItem } from './InvitationQueueItem';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import organizationServices from '@/lib/services/organizationServices';
 import { Organization } from '@/types/auth-types';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from '../../organizationServices';
 
 interface Invitee {
   id: string | number;

@@ -1,4 +1,4 @@
-import axios from "./config";
+import axios from "../../../../lib/services/config";
 
 const subscriptionServices = {};
 

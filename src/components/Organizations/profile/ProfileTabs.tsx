@@ -1,8 +1,8 @@
 'use client'
 
-import React, { lazy, useState, Suspense, ReactNode, ReactElement } from 'react';
+import React, { lazy, useState, ReactNode, ReactElement } from 'react';
 import { AdminPanelSettingsOutlined, PaymentOutlined, Person3Outlined } from '@mui/icons-material';
-import { Tab, Tabs, Typography, Box, CircularProgress } from '@mui/material';
+import { Tab, Tabs, Box } from '@mui/material';
 import { useOrganizationProfile } from './OrganizationProfileProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';

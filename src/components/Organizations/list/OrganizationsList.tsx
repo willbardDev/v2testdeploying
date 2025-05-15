@@ -10,11 +10,11 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import Link from 'next/link';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import organizationServices from '@/lib/services/organizationServices';
 import { OrganizationListItem } from './OrganizationListItem';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { Organization, User } from '@/types/auth-types';
 import { Dictionary } from '@/dictionaries/type';
+import organizationServices from '../organizationServices';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 

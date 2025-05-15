@@ -10,8 +10,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import organizationServices from '@/lib/services/organizationServices';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from '../../organizationServices';
 
 interface FormValues {
   name: string;

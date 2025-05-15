@@ -9,9 +9,9 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import { useMutation } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Subscription } from './SubscriptionTypes';
-import subscriptionServices from '@/lib/services/subscriptionServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import subscriptionServices from './subscriptionServices';
 
 interface EditSubscriptionProps {
   subscription: Subscription;

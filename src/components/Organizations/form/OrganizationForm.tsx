@@ -25,7 +25,6 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
-import organizationServices from '@/lib/services/organizationServices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { Div, Span } from '@jumbo/shared';
@@ -40,6 +39,7 @@ import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermi
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { Organization } from '@/types/auth-types';
+import organizationServices from '../organizationServices';
 
 interface Country {
   code: string;
