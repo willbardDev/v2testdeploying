@@ -8,7 +8,7 @@
       "fuelStations": "Vituo vya Mafuta",
       "production": "Uzalishaji",
       "projectManagement": "Usimamizi wa Miradi",
-      "accounts": "Akaunti",
+      "accounts_and_finance": "Akaunti na Fedha",
       "procurementAndSupply": "Ununuzi na Usambazaji",
       "tools": "Zana",
       "prosControl": "Udhibiti wa Pros",
@@ -16,6 +16,7 @@
       "switchOrganization": "Badilisha Shirika"
     },
     "menuItem": {
+      "masters": "Wakuu",
       "dashboard": "Dashibodi",
       "requisitions": "Maombi",
       "approvals": "Idhinisho",
@@ -35,8 +36,9 @@
       "projectCategories": "Aina za Miradi",
       "approvedPayments": "Malipo Yaliyoidhinishwa",
       "transactions": "Shughuli",
-      "ledgerGroups": "Vikundi vya Buche",
-      "ledgers": "Vituo vya Gharama",
+      "ledgerGroups": "Makundi ya Vitabu vya Kumbukumbu",
+      "ledgers": "Vitabu vya Kumbukumbu",
+      "costCenters": "Vituo vya Gharama",
       "approvedPurchases": "Manunuzi Yaliyoidhinishwa",
       "consumptions": "Matumizi",
       "productCategories": "Aina za Bidhaa",

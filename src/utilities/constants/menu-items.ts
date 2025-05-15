@@ -19,6 +19,7 @@ export async function getMenus(locale: string) {
         }
       ],
     },
+    
     {
       label: sidebar.menu.processApproval,
       children: [
@@ -51,6 +52,27 @@ export async function getMenus(locale: string) {
         {
           path: `/${locale}/pos/reports`,
           label: sidebar.menuItem.reports,
+          icon: 'barcharts',
+        },
+      ],
+    },
+
+    {
+      label: sidebar.menu.accounts_and_finance,
+      children: [
+        {
+          path: `/${locale}/accounts/ledger_groups`,
+          label: sidebar.menuItem.ledgerGroups,
+          icon: 'counter',
+        },
+        {
+          path: `/${locale}/accounts/ledgers`,
+          label: sidebar.menuItem.ledgers,
+          icon: 'proforma',
+        },
+        {
+          path: `/${locale}/cost_centers`,
+          label: sidebar.menuItem.costCenters,
           icon: 'barcharts',
         },
       ],
