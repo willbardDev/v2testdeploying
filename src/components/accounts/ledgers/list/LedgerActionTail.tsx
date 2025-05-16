@@ -68,7 +68,7 @@ const LedgerActionTail = () => {
         maxWidth={ledgerMergeFormOpen ? 'md' : 'sm'}
       >
         {newLedgerFormOpen && <LedgerForm toggleOpen={setNewLedgerFormOpen} />}
-        {/* {ledgerMergeFormOpen && <LedgersMergeForm toggleOpen={setLedgerMergeFormOpen} />} */}
+        {ledgerMergeFormOpen && <LedgersMergeForm toggleOpen={setLedgerMergeFormOpen} />}
       </Dialog>
     </>
   );

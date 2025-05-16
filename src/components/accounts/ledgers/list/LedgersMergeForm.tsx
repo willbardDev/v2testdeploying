@@ -10,36 +10,44 @@ import {
   DialogTitle,
   Grid,
   TextField
-} from '@mui/material'
-import React, { useState } from 'react'
-import { LoadingButton } from '@mui/lab'
-import { useForm } from 'react-hook-form'
-import CheckBoxIcon from '@mui/icons-material/CheckBox'
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
-import { useSnackbar } from 'notistack'
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import ledgerServices from '../ledger-services'
-import LedgerSelect from '../forms/LedgerSelect'
-import { useLedgerSelect } from '../forms/LedgerSelectProvider'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+} from '@mui/material';
+import React, { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
+import { useForm } from 'react-hook-form';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import { useSnackbar } from 'notistack';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import ledgerServices from '../ledger-services';
+import LedgerSelect from '../forms/LedgerSelect';
+import { useLedgerSelect } from '../forms/LedgerSelectProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+interface LedgerGroupNature {
+  name: string;
+}
+
+interface LedgerGroup {
+  name: string;
+  nature: LedgerGroupNature;
+}
 
 interface Ledger {
   id: number;
   name: string;
-  alias: string | null;
-  ledger_group: {
-    name: string;
-    nature: {
-      name: string;
-    };
-  };
+  alias?: string | null;
+  ledger_group?: LedgerGroup;
   ledger_group_id?: number;
 }
 
 interface FormValues {
   remaining_ledger_id: number | null;
   dissolved_ledgers_ids: number[];
+}
+
+interface ServerError {
+  [key: string]: string;
 }
 
 interface LedgersMergeFormProps {
@@ -52,18 +60,18 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   const [selectedRemainLedger, setSelectedRemainLedger] = useState<Ledger | null>(null);
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
-  const [serverError, setServerError] = useState<Record<string, string> | null>(null);
+  const [serverError, setServerError] = useState<ServerError | null>(null);
 
-const newLedgerOptions: Ledger[] = selectedRemainLedger
-  ? ungroupedLedgerOptions.filter(
-      (ledger) =>
-        ledger.id !== selectedRemainLedger.id &&
-        ledger.ledger_group_id === selectedRemainLedger.ledger_group_id
-    )
-  : ungroupedLedgerOptions;
+  const newLedgerOptions: Ledger[] = selectedRemainLedger
+    ? ungroupedLedgerOptions.filter(
+        (ledger) =>
+          ledger.id !== selectedRemainLedger.id &&
+          ledger.ledger_group_id === selectedRemainLedger.ledger_group_id
+      )
+    : ungroupedLedgerOptions;
 
-
-  const mergeLedgers = useMutation(ledgerServices.mergeLedgers, {
+  const mergeLedgers = useMutation({
+    mutationFn: ledgerServices.mergeLedgers,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
@@ -87,6 +95,7 @@ const newLedgerOptions: Ledger[] = selectedRemainLedger
       .typeError('Please select a ledger to remain'),
     dissolved_ledgers_ids: yup
       .array()
+      .of(yup.number().required())
       .required('Please select ledgers to dissolve')
       .min(1, 'Please select at least one ledger to dissolve')
   });
@@ -100,31 +109,33 @@ const newLedgerOptions: Ledger[] = selectedRemainLedger
     resolver: yupResolver(validationSchema) as any
   });
 
-  const saveMutation = React.useMemo(() => {
-    return mergeLedgers.mutate;
-  }, [mergeLedgers]);
+  const onSubmit = (data: FormValues) => {
+    mergeLedgers.mutate(data);
+  };
 
   return (
-    <form autoComplete='off' onSubmit={handleSubmit(saveMutation)}>
+    <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
       <DialogTitle>
         <Grid textAlign={'center'}>Ledgers Merge</Grid>
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={2} rowSpacing={1} mt={1}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <LedgerSelect
-              label='Ledger To Remain'
-              frontError={errors.remaining_ledger_id}
-              onChange={(newValue) => {
-                setSelectedDissolveLedgers([]);
-                setValue('dissolved_ledgers_ids', []);
-                newValue?.id && clearErrors('remaining_ledger_id');
-                setSelectedRemainLedger(newValue ?? null);
-                setValue('remaining_ledger_id', newValue ? newValue.id : null);
-              }}
+                label='Ledger To Remain'
+                frontError={errors.remaining_ledger_id}
+                onChange={(value: Ledger | Ledger[] | null) => {
+                    if (!value || Array.isArray(value)) return;
+
+                    setSelectedDissolveLedgers([]);
+                    setValue('dissolved_ledgers_ids', []);
+                    clearErrors('remaining_ledger_id');
+                    setSelectedRemainLedger(value);
+                    setValue('remaining_ledger_id', value.id);
+                }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Autocomplete<Ledger, true>
               multiple
               options={newLedgerOptions}
@@ -141,45 +152,45 @@ const newLedgerOptions: Ledger[] = selectedRemainLedger
                   label='Ledgers To Dissolve'
                 />
               )}
-              renderTags={(tagValue, getTagProps) =>
-                tagValue.map((option, index) => {
-                  const { key, ...restProps } = getTagProps({ index });
-                  return (
-                    <Chip
-                      {...restProps}
-                      key={`${option.id}-${key}`}
-                      label={option.name}
-                    />
-                  );
-                })
-              }
-              renderOption={(props, option, { selected }) => {
-                const { key, ...restProps } = props;
-                return (
-                  <li {...restProps} key={`${option.id}-${key}`}>
-                    <Checkbox
-                      icon={<CheckBoxOutlineBlankIcon fontSize='small' />}
-                      checkedIcon={<CheckBoxIcon fontSize='small' />}
-                      style={{ marginRight: 8 }}
-                      checked={selected}
-                    />
-                    {option.name}
-                  </li>
-                );
-              }}
-              onChange={(e, newValue: Ledger[]) => {
-                setServerError(null);
-                newValue && clearErrors('dissolved_ledgers_ids');
-                setValue(
-                  'dissolved_ledgers_ids',
-                  newValue.map((ledger) => ledger.id)
-                );
-                setSelectedDissolveLedgers(newValue);
-              }}
+                renderTags={(tagValue, getTagProps) =>
+                    tagValue.map((option, index) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                            <Chip
+                                key={key}
+                                {...tagProps}
+                                label={option.name}
+                            />
+                        );
+                    })
+                }
+                renderOption={(props, option, { selected }) => {
+                    const { key, ...rest } = props;
+                    return (
+                        <li key={key} {...rest}>
+                        <Checkbox
+                            icon={<CheckBoxOutlineBlankIcon fontSize='small' />}
+                            checkedIcon={<CheckBoxIcon fontSize='small' />}
+                            style={{ marginRight: 8 }}
+                            checked={selected}
+                        />
+                        {option.name}
+                        </li>
+                    );
+                }}
+                onChange={(e, newValue: Ledger[]) => {
+                    setServerError(null);
+                    newValue && clearErrors('dissolved_ledgers_ids');
+                    setValue(
+                        'dissolved_ledgers_ids',
+                        newValue.map((ledger) => ledger.id)
+                    );
+                    setSelectedDissolveLedgers(newValue);
+                }}
             />
           </Grid>
 
-          <Grid item xs={12} textAlign={{ md: 'center' }}>
+          <Grid size={12} textAlign={{ md: 'center' }}>
             {serverError &&
               Object.keys(serverError).map((key) => {
                 const match = key.match(/\d+/);
