@@ -6,8 +6,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useLedgerGroup } from "../../ledgerGroups/LedgerGroupProvider";
-import { useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/services/config";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import ledgerServices from "../ledger-services";
 
 interface LedgerGroupFormData {
   name: string;
@@ -31,30 +31,22 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
     const queryClient = useQueryClient();
     const [serverError, setServerError] = useState<Record<string, string[]> | null>(null);
     const { enqueueSnackbar } = useSnackbar();
-    const [isPosting, setIsPosting] = useState(false);
 
-    const storeLedgerGroup = (data: LedgerGroupFormData) => {
-        setIsPosting(true);
-        axios.get('/sanctum/csrf-cookie').then(() => {
-            axios.post('/accounts/ledger_group', data).then((res) => {
-                if (res.status === 200) {
-                    enqueueSnackbar(res.data.message, { variant: 'success' });
-                }
-                queryClient.invalidateQueries({ queryKey: ['fetchLedgerGroups'] });
-                setIsPosting(false);
-                setOpenQuickAddLedgerGroup(false);
-            }).catch((err: any) => {
-                if (err.response) {
-                    if (err.response.status === 400) {
-                        setServerError(err.response?.data?.validation_errors);
-                    } else {
-                        enqueueSnackbar(err.response?.data?.message, { variant: 'error' });
-                    }
-                }
-                setIsPosting(false);
-            });
-        });
-    };
+    const storeLedgerGroup = useMutation({
+        mutationFn: ledgerServices.storeLedgerGroup,
+        onSuccess: (data: { message: string }) => {
+            enqueueSnackbar(data.message, { variant: 'success' });
+            setOpenQuickAddLedgerGroup(false);
+            queryClient.invalidateQueries({ queryKey: ['fetchLedgerGroups'] });
+        },
+        onError: (err: any) => {
+            if (err.response?.status === 400) {
+                setServerError(err.response?.data?.validation_errors);
+            } else {
+                enqueueSnackbar(err.response?.data?.message, { variant: 'error' });
+            }
+        }
+    });
 
     const validationSchema = yup.object({
         name: yup
@@ -82,7 +74,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
     });
 
     const handleFormSubmit = (data: LedgerGroupFormData) => {
-        storeLedgerGroup(data);
+        storeLedgerGroup.mutate(data);
     };
 
     return (
@@ -91,7 +83,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                 Quick Add Ledger Group
             </Typography>
             {isLoading ? <LinearProgress /> : (
-                <Grid container spacing={1} component="form" onSubmit={handleSubmit(handleFormSubmit)}>
+                <Grid container spacing={1}>
                     <Grid size={12}>
                         <TextField
                             fullWidth
@@ -177,7 +169,8 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                                 type="submit"
                                 variant="contained"
                                 size="small"
-                                loading={isPosting}
+                                onClick={handleSubmit(handleFormSubmit)}
+                                loading={storeLedgerGroup.isPending}
                             >
                                 Add
                             </LoadingButton>
