@@ -2,17 +2,13 @@ import axios from "@/lib/services/config";
 
 const ledgerServices = {};
 
-ledgerServices.getLedgers = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/accounts/ledger", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+ledgerServices.getLedgers = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get("/accounts/ledger", {
+      params: { page, limit, ...queryParams }
     });
     return data;
-};
+},
 
 ledgerServices.storeLedgerGroup = async(group) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
