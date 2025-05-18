@@ -1,10 +1,9 @@
+import CostCenters from '@/components/masters/costCenters/CostCenters'
 import React from 'react'
 
 function page() {
   return (
-    <div>
-        cost centers will be here
-    </div>
+    <CostCenters/>
   )
 }
 

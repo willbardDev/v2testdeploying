@@ -1,9 +1,11 @@
+'use client'
+
 import React, { useState } from 'react';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { AddOutlined } from '@mui/icons-material';
 import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery } from '@mui/material';
 import CostCenterForm from './CostCenterForm';
-import { useJumboTheme } from '@jumbo/hooks';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 const CostCenterActionTail = () => {
   const { authUser } = useJumboAuth();
@@ -13,7 +15,7 @@ const CostCenterActionTail = () => {
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const canAdd = authUser?.user?.id < 5 ;
+  const canAdd = Number(authUser?.user?.id) < 5 ;
 
   return (
     <React.Fragment>

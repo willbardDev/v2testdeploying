@@ -2,17 +2,13 @@ import axios from "@/lib/services/config";
 
 const costCenterservices = {};
 
-costCenterservices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`cost-centers`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+costCenterservices.getList = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get("cost-centers", {
+      params: { page, limit, ...queryParams }
     });
     return data;
-};
+},
 
 costCenterservices.getCostCenters = async(response) => {
     const {data} = await axios.get(`/all-cost-centers`)

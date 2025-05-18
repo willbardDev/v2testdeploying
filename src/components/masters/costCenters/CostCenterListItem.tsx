@@ -1,8 +1,11 @@
+'use client'
+
 import React from 'react';
 import { Box, Chip, Grid, ListItemText, Tooltip, Typography } from '@mui/material';
 import CostCenterItemAction from './CostCenterAction';
+import { CostCenter } from './CostCenterType';
 
-const CostCenterListItem = ({ costCenter }) => {
+const CostCenterListItem = ({ costCenter }: {costCenter: CostCenter}) => {
   return (
     <React.Fragment>
       <Grid
@@ -19,7 +22,7 @@ const CostCenterListItem = ({ costCenter }) => {
         paddingLeft={2}
         paddingRight={2}
       > 
-        <Grid item xs={12} md={4}>
+        <Grid size={{xs: 12, md: 4}}>
           <ListItemText
             primary={
               <Tooltip title="Name">
@@ -30,7 +33,7 @@ const CostCenterListItem = ({ costCenter }) => {
             }
           />
         </Grid>
-        <Grid item xs={6} md={4}>
+        <Grid size={{xs: 6, md: 4}}>
           <ListItemText
             primary={
               <Tooltip title="Type">
@@ -41,7 +44,7 @@ const CostCenterListItem = ({ costCenter }) => {
             }
           />
         </Grid>
-        <Grid item xs={6} md={2}
+        <Grid size={{xs: 6, md: 2}}
           sx={{ textAlign: { xs: 'end', md: 'start' } }}
           >
             <ListItemText
@@ -50,11 +53,12 @@ const CostCenterListItem = ({ costCenter }) => {
                   <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                     <Chip
                       label={costCenter.status}
-                      //sx={{ marginRight: 4, backgroundColor: costCenter.is_active ? 'green' : 'orange', color: '#fff' }}
-                      color={
-                        costCenter.status === 'active' ? 'success' : 
-                        (costCenter.status === 'suspended' ? 'warning' : 'danger')
-                      }
+                      sx={{
+                        backgroundColor: 
+                          costCenter.status === 'active' ? 'success.main' : 
+                          costCenter.status === 'suspended' ? 'warning.main' : 'error.main',
+                        color: '#fff'
+                      }}
                       size="small"
                     />
                   </Typography>
@@ -63,7 +67,7 @@ const CostCenterListItem = ({ costCenter }) => {
             />
         </Grid>
         { costCenter.type === '' &&
-          <Grid item xs={12} md={2}>
+          <Grid size={{xs: 12, md: 2}}>
             <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'} > 
               <CostCenterItemAction costCenter={costCenter} />
             </Box>

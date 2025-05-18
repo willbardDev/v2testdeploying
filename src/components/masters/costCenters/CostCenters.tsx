@@ -1,79 +1,103 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+'use client';
+
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { Card, Stack, Typography } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
 import CostCenterListItem from './CostCenterListItem';
-import costCenterservices from './cost-center-services';
+import costCenterServices from './cost-center-services';
+import { useParams } from 'next/navigation';
 import CostCenterActionTail from './CostCenterActionTail';
+import { CostCenter } from './CostCenterType';
 
-const CostCenters=()=>{
-    const params = useParams();
-    const listRef = React.useRef();
+interface QueryParams {
+  id?: string;
+  keyword: string;
+}
 
-    const [queryOptions, setQueryOptions] = React.useState({
-        queryKey: 'costCenters',
-        queryParams: { id: params.id, keyword: '' },
-        countKey: 'total',
-        dataKey: 'data',
-      });
+interface QueryOptions {
+  queryKey: string;
+  queryParams: QueryParams;
+  countKey: string;
+  dataKey: string;
+}
 
-      React.useEffect(() => {
-        setQueryOptions((state) => ({
-          ...state,
-          queryParams: { ...state.queryParams, id: params.id },
-        }));
-      }, [params]);
+const CostCenters = () => {
+  const params = useParams<{ category?: string; id?: string; keyword?: string }>();
+  const listRef = useRef<any>(null);
 
-      
-      const renderCostCenter = React.useCallback((costCenter) => {
-        return <CostCenterListItem costCenter={costCenter} />;
-      }, []);
+  const [queryOptions, setQueryOptions] = useState<QueryOptions>({
+    queryKey: 'costCenters',
+    queryParams: {
+      id: params.id,
+      keyword: '',
+    },
+    countKey: 'total',
+    dataKey: 'data',
+  });
 
-      const handleOnChange = React.useCallback(
-        (keyword) => {
-          setQueryOptions((state) => ({
-            ...state,
-            queryParams: {
-              ...state.queryParams,
-              keyword: keyword,
-            },
-          }));
-        },
-        []
-      );
-      return(
-        <React.Fragment>
-          <Typography variant={'h4'} mb={2}>Cost Centers</Typography>
-          <JumboRqList
-          ref={listRef}
-          wrapperComponent={Card}
-          service={costCenterservices.getList}
-          primaryKey="id"
-          queryOptions={queryOptions}
-          itemsPerPage={10}
-          itemsPerPageOptions={[5, 8, 10, 15, 20]}
-          renderItem={renderCostCenter}
-          bulkActions={null}
-          wrapperSx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-          toolbar={
-            <JumboListToolbar hideItemsPerPage={true} actionTail={
-              <Stack direction="row">
+  useEffect(() => {
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        id: params.id,
+      },
+    }));
+  }, [params.id]);
+
+  const handleOnChange = useCallback((keyword: string) => {
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        keyword,
+      },
+    }));
+  }, []);
+
+  const renderCostCenter = useCallback((costCenter: CostCenter) => {
+    return <CostCenterListItem costCenter={costCenter} />;
+  }, []);
+
+  return (
+    <>
+      <Typography variant="h4" mb={2}>
+        Cost Centers
+      </Typography>
+
+      <JumboRqList
+        ref={listRef}
+        wrapperComponent={Card}
+        service={costCenterServices.getList}
+        primaryKey="id"
+        queryOptions={queryOptions}
+        itemsPerPage={10}
+        itemsPerPageOptions={[5, 8, 10, 15, 20]}
+        renderItem={renderCostCenter}
+        wrapperSx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        toolbar={
+          <JumboListToolbar
+            hideItemsPerPage
+            actionTail={
+              <Stack direction="row" spacing={1}>
                 <JumboSearch
                   onChange={handleOnChange}
                   value={queryOptions.queryParams.keyword}
                 />
-                <CostCenterActionTail/>
+                <CostCenterActionTail />
               </Stack>
-          }/>
-          }
+            }
           />
-        </React.Fragment>
-      )
-}
+        }
+      />
+    </>
+  );
+};
+
 export default CostCenters;

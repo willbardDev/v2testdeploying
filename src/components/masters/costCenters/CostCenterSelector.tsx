@@ -1,3 +1,5 @@
+'use client'
+
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { Autocomplete, Box, Checkbox, Chip, LinearProgress, TextField } from '@mui/material';
 import React, { useState } from 'react';

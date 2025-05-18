@@ -6,6 +6,12 @@ interface CostCenterable {
   type: string;
 }
 
+interface User {
+  id: number;
+  name: string;
+  [key: string]: any;
+}
+
 export interface CostCenter {
   id: number;
   name: string;
@@ -16,4 +22,5 @@ export interface CostCenter {
   created_by?: number;
   cost_centerable_id?: number;
   cost_centerable?: CostCenterable;
+  users?: User[];
 }
