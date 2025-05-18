@@ -285,7 +285,14 @@
 
   "rqList": {
     "jumboSearch": "Search",
-    "rows": "Rows",
+    "pagination": {
+        "first": "Go to first page",
+        "last": "Go to last page",
+        "previous": "Previous page",
+        "next": "Next page",
+        "page": "Go to page {page}",
+        "ellipsis": "More pages"
+    },
     "dataRetrieving": "Retrieving..."
   },
 

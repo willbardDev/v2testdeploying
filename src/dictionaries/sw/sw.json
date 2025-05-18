@@ -292,7 +292,14 @@
 
   "rqList": {
     "jumboSearch": "Tafuta",
-    "rows": "Safu",
+    "pagination": {
+        "first": "Nenda kwenye ukurasa wa kwanza",
+        "last": "Nenda kwenye ukurasa wa mwisho",
+        "previous": "Ukurasa uliopita",
+        "next": "Ukurasa unaofuata",
+        "page": "Nenda kwenye ukurasa {page}",
+        "ellipsis": "Kurasa zaidi"
+    },
     "dataRetrieving": "Inapakia..."
   },
 
