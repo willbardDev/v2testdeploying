@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ChevronRight, ExpandMore } from "@mui/icons-material";
+import { ChevronRightOutlined, ExpandMoreOutlined } from "@mui/icons-material";
 import { Button, LinearProgress } from "@mui/material";
 import JumboCardQuick from "@jumbo/components/JumboCardQuick";
 import TreeItemLabel from "./TreeItemLabel";
@@ -65,8 +65,8 @@ export default function LedgerGroupTree() {
           <SimpleTreeView
             aria-label="Ledger Group Tree"
             slots={{
-              expandIcon: ExpandMore,
-              collapseIcon: ChevronRight,
+              expandIcon: ChevronRightOutlined,
+              collapseIcon: ExpandMoreOutlined,
             }}
             expandedItems={expandedItems}
             onExpandedItemsChange={handleItemToggle}
