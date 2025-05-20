@@ -107,13 +107,13 @@ const LedgersList = () => {
             hideItemsPerPage
             actionTail={
               <Grid container columnSpacing={1} direction="row">
-                <Grid size={{xs: 9.5, lg: 8}}>
+                <Grid size={{xs: 9.5, lg: 10.5}}>
                   <JumboSearch
                     onChange={handleOnChange}
                     value={queryOptions.queryParams.keyword}
                   />
                 </Grid>
-                <Grid size={{xs: 2.5, lg: 4}}>
+                <Grid size={{xs: 2.5, lg: 1.5}}>
                   <LedgerActionTail />
                 </Grid>
               </Grid>

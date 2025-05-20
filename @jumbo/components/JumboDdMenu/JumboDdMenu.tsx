@@ -2,7 +2,7 @@
 import { JumboDdMenuProps, MenuItemProps } from '@jumbo/types';
 import { MoreHorizOutlined } from '@mui/icons-material';
 import {
-  IconButton,
+  Box,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -25,17 +25,16 @@ const JumboDdMenu = ({
 
   return (
     <>
-      <IconButton
-        sx={{
-          color: 'inherit',
-        }}
-        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+      <Box
+        component="span"
+        sx={{ cursor: 'pointer', color: 'inherit', display: 'inline-flex' }}
+        onClick={(event: React.MouseEvent<HTMLSpanElement>) => {
           setMenuEl(event.currentTarget);
           event.stopPropagation();
         }}
       >
-        {icon ? icon : <MoreHorizOutlined />}
-      </IconButton>
+        {icon ?? <MoreHorizOutlined />}
+      </Box>
       {menuItems!?.length > 0 && (
         <Menu open={openMenu} anchorEl={menuEl} onClose={() => setMenuEl(null)}>
           {menuItems?.map((option, index) => (

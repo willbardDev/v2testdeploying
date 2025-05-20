@@ -65,21 +65,23 @@ const JumboListPagination: React.FC<JumboListPaginationProps> = ({
             width="100%" 
         >
             {!hidePagination && !(data?.length <= 0 && isLoading) && (
-                <Pagination
-                    count={totalPages}
-                    page={activePage + 1}
-                    onChange={(_, page) => setActivePage(page - 1)}
-                    shape="rounded"
-                    showFirstButton
-                    showLastButton
-                    siblingCount={1}
-                    boundaryCount={1}
-                    renderItem={(item) => (
-                        <Tooltip title={getTooltipTitle(item)} arrow>
+            <Pagination
+                count={totalPages}
+                page={activePage + 1}
+                onChange={(_, page) => setActivePage(page - 1)}
+                shape="rounded"
+                showFirstButton
+                showLastButton
+                siblingCount={1}
+                boundaryCount={1}
+                renderItem={(item) => (
+                    <Tooltip title={getTooltipTitle(item)} arrow>
+                        <span>
                             <PaginationItem {...item} />
-                        </Tooltip>
-                    )}
-                />
+                        </span>
+                    </Tooltip>
+                )}
+            />
             )}
         </Stack>
     );

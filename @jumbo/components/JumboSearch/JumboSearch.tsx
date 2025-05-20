@@ -55,7 +55,7 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
           display: 'flex',
           borderRadius: 24,
           backgroundColor: (theme: Theme) =>
-            theme.jumboComponents?.JumboSearch?.background ?? 'rgba(255, 255, 255, 0.15)',
+            theme.jumboComponents?.JumboSearch?.background ?? 'rgba(180, 177, 177, 0.15)',
 
           '& .MuiInputBase-input': {
             padding: (theme: Theme) => theme.spacing(1, 1, 1, 0),
