@@ -6,13 +6,7 @@ import React, { useState } from 'react';
 import costCenterservices from './cost-center-services';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQuery } from '@tanstack/react-query';
-
-interface CostCenter {
-  id: number;
-  name: string;
-  type: string;
-  [key: string]: any;
-}
+import { CostCenter } from './CostCenterType';
 
 interface CostCenterSelectorProps {
   frontError?: { message?: string } | null;
@@ -43,8 +37,9 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     onChange
   } = props;
 
-  const [selectedItems, setSelectedItems] = useState<CostCenter | CostCenter[] | null>(
-    props.defaultValue ? props.defaultValue : (multiple ? [] : null)
+  type SelectedType = CostCenter[] | CostCenter | null;
+  const [selectedItems, setSelectedItems] = useState<SelectedType>(
+    props.defaultValue ?? (multiple ? [] : null)
   );
 
   const { data: fetchedCostCenters, isLoading } = useQuery<CostCenter[]>({
@@ -53,29 +48,33 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     enabled: !!allowAllCostCenters
   });
 
+  // Helper function to create a "Not Specified" option
+  const createNotSpecifiedOption = (): CostCenter => ({
+    id: -1,
+    name: 'Not Specified',
+    code: null,
+    description: null,
+    status: 'active',
+    type: 'Unassigned',
+  });
+
   const authOrganizationCostCenters = authOrganization?.costCenters
     ? withNotSpecified
-      ? authOrganization.costCenters
-      : multiple
-      ? authOrganization.costCenters
-      : [
-          { id: -1, name: 'Not Specified', type: 'Unassigned' },
-          ...authOrganization.costCenters,
-        ]
+      ? [createNotSpecifiedOption(), ...authOrganization.costCenters]
+      : authOrganization.costCenters
+    : withNotSpecified
+    ? [createNotSpecifiedOption()]
     : [];
 
   const allCostCenters = fetchedCostCenters
     ? withNotSpecified
-      ? fetchedCostCenters
-      : multiple
-      ? fetchedCostCenters
-      : [
-          { id: -1, name: 'Not Specified', type: 'Unassigned' },
-          ...fetchedCostCenters,
-        ]
+      ? [createNotSpecifiedOption(), ...fetchedCostCenters]
+      : fetchedCostCenters
+    : withNotSpecified
+    ? [createNotSpecifiedOption()]
     : [];
 
-  // Exclude cost centers with ids present in removedCostCenters
+  // Filter out removed cost centers
   const filteredCostCenters = (costCenters: CostCenter[]) =>
     costCenters.filter(
       (center) => !removedCostCenters.some((removed) => removed === center.id)
@@ -92,7 +91,6 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     if (!allowSameType && multiple && Array.isArray(newValue)) {
       const uniqueTypes = Array.from(new Set(newValue.map(item => item.type)));
       if (uniqueTypes.length !== newValue.length) {
-        // Remove duplicate items with the same type
         newValue = newValue.filter(
           (item, index, arr) => arr.findIndex(i => i.type === item.type) === index
         );
@@ -140,17 +138,19 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
             props: React.HTMLAttributes<HTMLLIElement>, 
             option: CostCenter, 
             { selected }
-          ) => (
-            <li {...props} key={option.id}>
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-               {option.name}
-            </li>
-          )
+          ) => {
+            return (
+              <li {...props} key={option.id}>
+                <Checkbox
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                {option.name}
+              </li>
+            );
+          }
         })}
       />
     </Box>

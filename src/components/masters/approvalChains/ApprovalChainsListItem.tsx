@@ -15,26 +15,57 @@ import AddIcon from '@mui/icons-material/Add';
 import ApprovalChainsListItemAction from './ApprovalChainsListItemAction';
 import ApprovalChainLevels from './ApprovalChainLevels';
 import approvalChainsServices from './approvalChainsServices';
-import { useQuery } from 'react-query';
+import { ApprovalChain, ApprovalChainLevel } from './ApprovalChainType';
+import { useQuery } from '@tanstack/react-query';
 
-export const approvalChainsListItemContext = createContext({});
+interface ApprovalChainsListItemContextValue {
+  approvalChainLevels: ApprovalChainLevel[];
+  approvalChain: ApprovalChain;
+  queryParams: { status: string };
+  setQueryParams: React.Dispatch<React.SetStateAction<{ status: string }>>;
+  expanded: boolean;
+  setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedApprovalChainLevel: ApprovalChainLevel | null;
+  setSelectedApprovalChainLevel: React.Dispatch<React.SetStateAction<ApprovalChainLevel | null>>;
+  openDialog: boolean;
+  setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const ApprovalChainsListItem = ({ approvalChain }) => {
+export const approvalChainsListItemContext = createContext<ApprovalChainsListItemContextValue>(
+  {} as ApprovalChainsListItemContextValue
+);
+
+interface ApprovalChainsListItemProps {
+  approvalChain: ApprovalChain;
+}
+
+const ApprovalChainsListItem: React.FC<ApprovalChainsListItemProps> = ({ approvalChain }) => {
   const [expanded, setExpanded] = useState(false);
-  const [selectedApprovalChainLevel, setSelectedApprovalChainLevel] = useState(null);
+  const [selectedApprovalChainLevel, setSelectedApprovalChainLevel] = useState<ApprovalChainLevel | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [queryParams, setQueryParams] = useState({ status: 'Active' });
 
-  const { data: approvalChainLevels, isLoading } = useQuery(
-    ['approvalChainLevels', { approvalChainId: approvalChain.id, status: queryParams.status }],
-    () => approvalChainsServices.getApprovalChainLevels(approvalChain.id, queryParams.status),
-    {
-      enabled: expanded,
-    }
-  );
-  
+  const { data: approvalChainLevels = [], isLoading } = useQuery({
+    queryKey: ['approvalChainLevels', { approvalChainId: approvalChain.id, status: queryParams.status }],
+    queryFn: () => approvalChainsServices.getApprovalChainLevels(approvalChain.id, queryParams.status),
+    enabled: expanded,
+  });
+
+  const contextValue: ApprovalChainsListItemContextValue = {
+    approvalChainLevels,
+    approvalChain,
+    queryParams,
+    setQueryParams,
+    expanded,
+    setExpanded,
+    selectedApprovalChainLevel,
+    setSelectedApprovalChainLevel,
+    openDialog,
+    setOpenDialog,
+  };
+
   return (
-    <approvalChainsListItemContext.Provider value={{approvalChainLevels,approvalChain, queryParams, setQueryParams, expanded,setExpanded,selectedApprovalChainLevel,setSelectedApprovalChainLevel,openDialog,setOpenDialog}}>
+    <approvalChainsListItemContext.Provider value={contextValue}>
       <Accordion
         expanded={expanded}
         square
@@ -46,7 +77,7 @@ const ApprovalChainsListItem = ({ approvalChain }) => {
             bgcolor: 'action.hover',
           },
         }}
-        onChange={()=> setExpanded((prevExpanded) => !prevExpanded)}
+        onChange={() => setExpanded((prevExpanded) => !prevExpanded)}
       >
         <AccordionSummary
           expandIcon={expanded ? <RemoveIcon /> : <AddIcon />}
@@ -57,7 +88,8 @@ const ApprovalChainsListItem = ({ approvalChain }) => {
               alignItems: 'center',
               '&.Mui-expanded': {
                 margin: '10px 0',
-              }},
+              },
+            },
             '.MuiAccordionSummary-expandIconWrapper': {
               borderRadius: 1,
               border: 1,
@@ -80,33 +112,30 @@ const ApprovalChainsListItem = ({ approvalChain }) => {
             paddingRight={1}
             columnSpacing={1}
             alignItems={'center'}
+            sx={{width: '100%'}}
             container
           >
-            <Grid item xs={6} md={5}>
+            <Grid size={{xs: 6, md: 5}}>
               <Tooltip title={'Type'}>
                 <Typography>{approvalChain.process_type}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={5}>
-              {approvalChain.cost_center?.name &&
+            <Grid size={{xs: 6, md: 5}}>
+              {approvalChain.cost_center?.name && (
                 <Tooltip title={'Cost Center'}>
                   <Chip
                     size="small"
-                    label={approvalChain.cost_center?.name}
+                    label={approvalChain.cost_center.name}
                   />
                 </Tooltip>
-              }
+              )}
             </Grid>
-            <Grid item xs={12} md={2} display={'flex'} alignItems={{xs: 'end', md: 'start'}} justifyContent={{xs: 'end', md: 'start'}}>
+            <Grid size={{xs: 12, md: 2}} display={'flex'} alignItems={{xs: 'end', md: 'start'}} justifyContent={{xs: 'end', md: 'start'}}>
               <Tooltip title={'Status'}>
                 <Chip
                   size="small"
                   label={approvalChain.status}
-                  color={
-                    approvalChain.status === 'active'
-                      ? 'success'
-                      : 'warning'
-                  }
+                  color={approvalChain.status === 'active' ? 'success' : 'warning'}
                 />
               </Tooltip>
             </Grid>
@@ -115,28 +144,24 @@ const ApprovalChainsListItem = ({ approvalChain }) => {
         </AccordionSummary>
         <AccordionDetails
           sx={{ 
-            backgroundColor:'background.paper',
-            marginBottom: 3
+            backgroundColor: 'background.paper',
+            marginBottom: 3,
           }}
         >
-          {
-            isLoading && <LinearProgress/>
-          }
+          {isLoading && <LinearProgress/>}
           <Grid container>
-            <Grid item xs={12} textAlign={'end'}>
+            <Grid size={12} textAlign={'end'}>
               <ApprovalChainsListItemAction approvalChain={approvalChain} />
             </Grid>
             
-            {/*approvalChainLevels*/}
-            <Grid item xs={12}>
-              <ApprovalChainLevels approvalChain={approvalChain}/>
+            <Grid size={12}>
+              <ApprovalChainLevels/>
             </Grid>
           </Grid>
         </AccordionDetails>
       </Accordion>
     </approvalChainsListItemContext.Provider>
-
   );
 };
 
-export default ApprovalChainsListItem;
+export default React.memo(ApprovalChainsListItem);

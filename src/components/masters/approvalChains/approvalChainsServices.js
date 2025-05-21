@@ -1,19 +1,14 @@
-const { default: axios } = require("app/services/config");
-
+import axios from "@/lib/services/config";
 
 const approvalChainsServices = {};
 
-approvalChainsServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/approval-chains", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+approvalChainsServices.getList = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get("/approval-chains", {
+        params: { page, limit, ...queryParams }
     });
     return data;
-};
+},
 
 approvalChainsServices.getApprovalRequisitionsList = async ({queryKey}) => {
     const {page, limit, queryParams} = queryKey[queryKey.length - 1];

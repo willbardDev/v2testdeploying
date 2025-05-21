@@ -1,5 +1,6 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+'use client'
+
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, Grid } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
@@ -8,14 +9,17 @@ import ApprovalChainsListItem from './ApprovalChainsListItem';
 import ApprovalChainsActionTail from './ApprovalChainsActionTail';
 import approvalChainsServices from './approvalChainsServices';
 import ApprovalStatusSelector from './ApprovalStatusSelector';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { ApprovalChain } from './ApprovalChainType';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useParams } from 'next/navigation';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 const ApprovalChains = () => {
-  const params = useParams();
-  const listRef = React.useRef();
+  const params = useParams<{ category?: string; id?: string; keyword?: string }>();
+  const listRef = useRef<any>(null);
   const {checkOrganizationPermission} = useJumboAuth();
+  const [mounted, setMounted] = useState(false);
 
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: 'approvalChains',
@@ -24,7 +28,7 @@ const ApprovalChains = () => {
     dataKey: 'data',
   });
 
-  const handleOnStatusChange = React.useCallback((status) => {
+  const handleOnStatusChange = React.useCallback((status: string) => {
     setQueryOptions(state => ({
       ...state,
       queryParams: {
@@ -41,11 +45,11 @@ const ApprovalChains = () => {
     }));
   }, [params]);
 
-  const renderApprovalChains = React.useCallback((approvalChain) => {
+  const renderApprovalChains = React.useCallback((approvalChain: ApprovalChain) => {
     return <ApprovalChainsListItem approvalChain={approvalChain} />;
   }, []);
 
-  const handleOnChange = React.useCallback((keyword) => {
+  const handleOnChange = React.useCallback((keyword: string) => {
     setQueryOptions((state) => ({
       ...state,
       queryParams: {
@@ -54,6 +58,12 @@ const ApprovalChains = () => {
       },
     }));
   }, []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
   if(!checkOrganizationPermission([
     PERMISSIONS.APPROVAL_CHAINS_READ,
@@ -75,7 +85,6 @@ const ApprovalChains = () => {
       itemsPerPageOptions={[5, 8, 10, 15, 20]}
       renderItem={renderApprovalChains}
       componentElement="div"
-      bulkActions={null}
       wrapperSx={{
         flex: 1,
         display: 'flex',
@@ -85,19 +94,19 @@ const ApprovalChains = () => {
         <JumboListToolbar hideItemsPerPage={true} 
         actionTail={
           <Grid container columnSpacing={1} rowSpacing={1} justifyContent={'end'}>
-            <Grid item xs={12} md={6} lg={3} alignItems={'center'}>
+            <Grid size={{xs: 12, md: 6, lg: 3}} alignItems={'center'}>
               <ApprovalStatusSelector
                 value={queryOptions.queryParams.status}
                 onChange={handleOnStatusChange}
               />
             </Grid>
-            <Grid item xs={10} md={5}>
+            <Grid size={{xs: 10, md: 5}}>
               <JumboSearch
                 onChange={handleOnChange}
                 value={queryOptions.queryParams.keyword}
               />
             </Grid>
-            <Grid item xs={1} lg={0.5}>
+            <Grid size={{xs: 1, md: 1, lg: 0.5}}>
               <ApprovalChainsActionTail /> 
             </Grid>
           </Grid>

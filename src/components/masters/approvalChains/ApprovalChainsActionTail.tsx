@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { AddOutlined } from '@mui/icons-material';
 import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery} from '@mui/material';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { useJumboTheme } from '@jumbo/hooks';
 import ApprovalChainForm from './form/ApprovalChainForm';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const ApprovalChainsActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();

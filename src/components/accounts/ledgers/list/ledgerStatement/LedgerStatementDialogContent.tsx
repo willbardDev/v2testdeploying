@@ -245,7 +245,11 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
                                         multiple={true}
                                         allowSameType={true}
                                         onChange={(cost_centers) => {
-                                            setValue('cost_center_ids', cost_centers?.map((cost_center: CostCenter) => cost_center.id));
+                                            if (Array.isArray(cost_centers)) {
+                                               setValue('cost_center_ids', cost_centers.map((cost_center) => cost_center.id));
+                                            } else {
+                                               setValue('cost_center_ids', []);
+                                            }
                                         }}
                                     />
                                 </Grid>
@@ -255,7 +259,7 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
                                             label="From (MM/DD/YYYY)"
                                             sx={{ width: '100%' }}
                                             minDate={dayjs(authOrganization?.organization.recording_start_date)}
-                                            defaultValue={today.startOf('day')}
+                                            value={dayjs(watch('from'))}
                                             slotProps={{
                                                 textField: {
                                                     size: 'small',
@@ -277,7 +281,7 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
                                             label="To (MM/DD/YYYY)"
                                             sx={{ width: '100%' }}
                                             minDate={dayjs(watch('from'))}
-                                            defaultValue={today.endOf('day')}
+                                            value={dayjs(watch('to'))}
                                             slotProps={{
                                                 textField: {
                                                     size: 'small',

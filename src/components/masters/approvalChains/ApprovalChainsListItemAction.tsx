@@ -12,37 +12,44 @@ import {
 } from '@mui/icons-material';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
-import { useJumboTheme } from '@jumbo/hooks';
 import EditChainDialog from './form/EditChainDialog';
 import approvalChainsServices from './approvalChainsServices';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { ApprovalChain } from './ApprovalChainType';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
-function ApprovalChainsListItemAction({ approvalChain }) {
+interface DeleteResponse {
+  message: string;
+}
+
+function ApprovalChainsListItemAction({ approvalChain }:{approvalChain: ApprovalChain}) {
   const { showDialog, hideDialog } = useJumboDialog();
   const {checkOrganizationPermission} = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const queryClient = useQueryClient();
 
-  const activateChain = useMutation(approvalChainsServices.activateChain, {
+  const activateChain = useMutation<DeleteResponse, Error, ApprovalChain>({
+    mutationFn: approvalChainsServices.activateChain,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['approvalChains']);
+      queryClient.invalidateQueries({ queryKey: ['approvalChains'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      enqueueSnackbar('Successful activate the chain', { variant: 'error' });
     },
   });
 
-  const deactivateChain = useMutation(approvalChainsServices.deactivateChain, {
+  const deactivateChain = useMutation<DeleteResponse, Error, number>({
+    mutationFn: approvalChainsServices.deactivateChain,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['approvalChains']);
+      queryClient.invalidateQueries({ queryKey: ['approvalChains'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      enqueueSnackbar('Successful de-activate the chain', { variant: 'error' });
     },
   });
 
