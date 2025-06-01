@@ -32,6 +32,11 @@ export async function getMenus(locale: string) {
           path: `/${locale}/requisition-approvals`,
           label: sidebar.menuItem.approvals,
           icon: 'approvals',
+        },
+        {
+          path: `/${locale}/approval-chains`,
+          label: sidebar.menuItem.approvalChains,
+          icon: 'approvals',
         }
       ],
     },

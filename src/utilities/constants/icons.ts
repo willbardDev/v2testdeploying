@@ -30,7 +30,10 @@ const APP_ICONS: Icon[] = [
     Component: RocketLaunchOutlined,
     props: { sx: { fontSize: 20 } }
   },
-  { name: 'dashboard', Component: DashboardCustomizeOutlined, props: { sx: { fontSize: 20 } } },
+  { name: 'dashboard', 
+    Component: DashboardCustomizeOutlined, 
+    props: { sx: { fontSize: 20 } } 
+  },
   {
     name: 'requisitions',
     Component: FormatListNumberedOutlined,
