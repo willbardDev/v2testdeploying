@@ -1,44 +1,14 @@
 import React from 'react';
 import pdfStyles from './pdf-styles';
 import { Text, View } from '@react-pdf/renderer';
-
-// Define types for organization settings
-interface OrganizationSettings {
-  main_color?: string;
-  contrast_text?: string;
-  vrn?: string;
-  // Add other settings as needed
-}
-
-// Define type for organization
-interface Organization {
-  name: string;
-  settings?: OrganizationSettings;
-  tin?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  // Add other organization properties as needed
-}
-
-// Define type for stakeholder
-interface Stakeholder {
-  name: string;
-  tin?: string;
-  vrn?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  // Add other stakeholder properties as needed
-}
+import { Organization } from '@/types/auth-types';
+import { Stakeholder } from '../masters/stakeholders/StakeholderType';
 
 // Define type for order
 interface Order {
   paid_from?: {
     name: string;
-    // Add other paid_from properties as needed
   };
-  // Add other order properties as needed
 }
 
 // Define props for the component

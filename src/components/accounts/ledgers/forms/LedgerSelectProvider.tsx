@@ -5,8 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 interface Ledger {
   id: number;
   name: string;
-  nature_id: number;
+  code: string | null;
   ledger_group_id: number;
+  alias: string | null;
+  nature_id?: number; 
 }
 
 interface LedgerGroup {
@@ -64,10 +66,8 @@ function LedgerSelectProvider({ children }: LedgerSelectProviderProps) {
           (allowedGroups.length === 0 || allowedGroups.includes(group.original_name) || allowChildren)) {
         group?.ledgers?.forEach(ledger => 
           setOptions(options => [...options, { 
-            id: ledger.id, 
-            name: ledger.name, 
-            nature_id: currentNatureId, 
-            ledger_group_id: ledger.ledger_group_id 
+            ...ledger,
+            nature_id: currentNatureId 
           }])
         );
 

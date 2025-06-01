@@ -90,10 +90,10 @@
   "devDependencies": {
     "@types/negotiator": "^0.6.3",
     "@types/node": "^20",
-    "@types/react": "19.0.8",
+    "@types/react": "^19.1.5",
     "@types/react-big-calendar": "^1.16.1",
     "@types/react-color": "^3.0.13",
-    "@types/react-dom": "19.0.3",
+    "@types/react-dom": "^19.1.5",
     "@types/recharts": "^1.8.29",
     "@types/stylis": "^4.2.7",
     "eslint": "^9.15.0",

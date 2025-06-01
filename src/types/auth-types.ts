@@ -46,10 +46,15 @@
     permissions?: string[];
     [key: string]: any;
   }
+
+  export interface AuthObject {
+    authUser: AuthUser;
+    authOrganization: AuthOrganization;
+  }
   
   export interface AuthState {
     authToken: string | null;
-    authUser: AuthUser | null;
+    authUser: AuthUser;
     authOrganization: AuthOrganization | null;
   }
   
@@ -69,7 +74,7 @@
   export interface AuthConfig {
     token?: string | null;
     OrganizationId?: string | null;
-    currentUser?: AuthUser | null;
+    currentUser?: AuthUser;
     currentOrganization?: AuthOrganization | null;
     refresh?: boolean;
   }

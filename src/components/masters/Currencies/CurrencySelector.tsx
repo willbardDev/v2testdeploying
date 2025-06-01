@@ -22,17 +22,19 @@ function CurrencySelector({
     disabled = false,
     readOnly = false
 }: CurrencySelectorProps) {
-    const { currencies = [] } = useCurrencySelect();
+    const { currencies } = useCurrencySelect();
+
+    const currencyList = Array.isArray(currencies) ? currencies : [];
 
     const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
-        () => currencies.find(currency => currency.id === defaultValue) || null
+        () => currencyList.find(currency => currency.id === defaultValue) || null
     );
 
     return (
         <Autocomplete<Currency>
             size="small"
             isOptionEqualToValue={(option, value) => option.id === value.id}
-            options={currencies}
+            options={currencyList}
             readOnly={readOnly}
             disabled={disabled}
             getOptionLabel={(currency) => `${currency.name_plural} (${currency.symbol})`}

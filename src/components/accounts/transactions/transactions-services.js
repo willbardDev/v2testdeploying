@@ -1,17 +1,13 @@
-import axios from "app/services/config";
+import axios from "@/lib/services/config";
 
 const transactionServices = {};
 
-transactionServices.getList =  async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`/accounts/${queryParams.type}`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+transactionServices.getList = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get(`/accounts/${queryParams.type}`, {
+        params: { page, limit, ...queryParams }
     });
     return data;
-};
+}
 
 export default transactionServices;

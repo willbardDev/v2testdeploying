@@ -5,9 +5,9 @@ import { Organization } from '@/types/auth-types'
 
 function PdfLogo({organization}:{organization: Organization}) {
   return !!organization?.logo_path ? (
-      <Image
-        src={organization.logo_path}
-      />
+    <Image
+      src={organization.logo_path}
+    />
   ) : <Text style={pdfStyles.majorInfo}>{organization.name}</Text>
 }
 

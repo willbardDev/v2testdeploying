@@ -17,10 +17,12 @@ interface CurrencySelectProviderProps {
 }
 
 function CurrencySelectProvider({ children }: CurrencySelectProviderProps) {
-    const { data: currencies, isLoading } = useQuery<Currency[]>({
+    const { data: result, isLoading } = useQuery({
         queryKey: ['currencies'],
         queryFn: currencyServices.getList
     });
+
+    const currencies = result?.data || [];
 
     if (isLoading) {
         return <LinearProgress />;

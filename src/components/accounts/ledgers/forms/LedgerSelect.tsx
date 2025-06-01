@@ -6,8 +6,10 @@ import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 interface Ledger {
   id: number;
   name: string;
-  nature_id: number;
+  code: string | null;
   ledger_group_id: number;
+  alias: string | null;
+  nature_id?: number; 
 }
 
 interface LedgerSelectProps {

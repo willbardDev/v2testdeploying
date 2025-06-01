@@ -31,6 +31,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { SubscriptionFormProvider } from './SubscriptionFormContext';
 import { AdditionalFeature, Subscription, SubscriptionModule } from './SubscriptionTypes';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 
 type AdditionalFeatureValue = {
   quantity: number;
@@ -59,9 +60,8 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
   const dictionary= useDictionary();
   const subDictForm= dictionary.organizations.profile.subscriptionsTab.form;
   
-  const { authOrganization, authUser } = useJumboAuth();
+  const { authOrganization, checkPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
-  const user = authUser?.organization;
   const queryClient = useQueryClient();
   const [moduleValues, setModuleValues] = useState<SubscriptionModule[]>([]);
   const [additionalFeatureValues, setAdditionalFeatureValues] = useState<Record<string | number, AdditionalFeatureValue>>({});
@@ -115,7 +115,7 @@ function SubscriptionsForm({ setOpenDialog, isFromProsAfricanSubscriptions = fal
     return subscription ? updateSubscription.mutate : addSubscription.mutate;
   }, [addSubscription, updateSubscription, subscription]);
 
-  const userIsProsAfrican = (user?.id === 2 || user?.id === 3);
+  const userIsProsAfrican = checkPermission([PROS_CONTROL_PERMISSIONS.SUBSCRIPTIONS_MANAGE]);
 
   const validationSchema = yup.object({
     id: yup.number().optional(),

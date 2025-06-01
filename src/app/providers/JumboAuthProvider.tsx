@@ -61,7 +61,7 @@ interface AuthResponse {
   [key: string]: any;
 }
 
-interface AuthContextType extends AuthState {
+export interface AuthContextType extends AuthState {
   authData: AuthState;
   setAuthValues: (values: Partial<AuthState>, options?: { persist?: boolean }) => void;
   startAuthLoading: () => void;
