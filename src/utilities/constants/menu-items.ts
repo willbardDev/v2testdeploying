@@ -79,6 +79,27 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.masters,
+      children: [
+        {
+          path: `/${locale}/masters/stakeholders`,
+          label: sidebar.menuItem.stakeholders,
+          icon: 'stakeholders',
+        },
+        {
+          path: `/${locale}/masters/currencies`,
+          label: sidebar.menuItem.currencies,
+          icon: 'currencies',
+        },
+        {
+          path: `/${locale}/masters/measurement_units`,
+          label: sidebar.menuItem.measurement_units,
+          icon: 'measurement_units',
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.organizations,
       children: [
         {

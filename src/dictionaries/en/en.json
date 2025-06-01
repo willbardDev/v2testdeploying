@@ -11,6 +11,7 @@
       "accounts_and_finance": "Accounts & Finance",
       "procurementAndSupply": "Procurement & Supply",
       "tools": "Tools",
+      "masters": "Masters",
       "prosControl": "Pros Control",
       "organizations": "Organizations"
     },
@@ -46,7 +47,7 @@
       "filesShelf": "Files Shelf",
       "stakeholders": "Stakeholders",
       "currencies": "Currencies",
-      "measurementUnits": "Measurement Units",
+      "measurement_units": "Measurement Units",
       "subscriptions": "Subscriptions",
       "troubleshooting": "Troubleshooting",
       "invitations": "Invitations",

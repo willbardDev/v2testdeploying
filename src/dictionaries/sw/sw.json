@@ -13,6 +13,7 @@
       "tools": "Zana",
       "prosControl": "Udhibiti wa Pros",
       "organizations": "Mashirika",
+      "masters": "Mastaazi",
       "switchOrganization": "Badilisha Shirika"
     },
     "menuItem": {
@@ -47,7 +48,7 @@
       "filesShelf": "Rafu ya Faili",
       "stakeholders": "Wadau",
       "currencies": "Sarafu",
-      "measurementUnits": "Vipimo",
+      "measurement_units": "Vipimo",
       "subscriptions": "Usajili",
       "troubleshooting": "Kutatua Matatizo",
       "invitations": "Mialiko",

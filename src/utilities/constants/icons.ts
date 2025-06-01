@@ -8,7 +8,10 @@ import {
   RequestQuoteOutlined,
   AssessmentOutlined,
   CorporateFareOutlined,
-  ShareOutlined
+  ShareOutlined,
+  CurrencyExchangeOutlined,
+  HandshakeOutlined,
+  StraightenOutlined
 } from '@mui/icons-material';
 
 import { SxProps, Theme } from '@mui/material';
@@ -55,6 +58,17 @@ const APP_ICONS: Icon[] = [
   },{
     name: 'invitations',
     Component: ShareOutlined,
+    props: { sx: { fontSize: 20 } },
+  },{ name: 'stakeholders',
+    Component: HandshakeOutlined,
+    props: { sx: { fontSize: 20 } },
+  },{
+    name: 'currencies',
+    Component: CurrencyExchangeOutlined,
+    props: { sx: { fontSize: 20 } },
+  },{
+    name: 'measurement_units',
+    Component: StraightenOutlined,
     props: { sx: { fontSize: 20 } },
   }
 ];
