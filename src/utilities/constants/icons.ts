@@ -11,7 +11,9 @@ import {
   ShareOutlined,
   CurrencyExchangeOutlined,
   HandshakeOutlined,
-  StraightenOutlined
+  StraightenOutlined,
+  ReportOffOutlined,
+  ReceiptOutlined
 } from '@mui/icons-material';
 
 import { SxProps, Theme } from '@mui/material';
@@ -49,6 +51,11 @@ const APP_ICONS: Icon[] = [
   },{
     name: 'proforma',
     Component: RequestQuoteOutlined,
+    props: { sx: { fontSize: 20 } },
+  },
+  {
+    name: 'transactions',
+    Component: ReceiptOutlined,
     props: { sx: { fontSize: 20 } },
   },{
     name: 'barcharts',

@@ -66,6 +66,11 @@ export async function getMenus(locale: string) {
       label: sidebar.menu.accounts_and_finance,
       children: [
         {
+          path: `/${locale}/accounts/transactions`,
+          label: sidebar.menuItem.transactions,
+          icon: 'transactions',
+        },
+        {
           path: `/${locale}/accounts/ledger_groups`,
           label: sidebar.menuItem.ledgerGroups,
           icon: 'counter',
