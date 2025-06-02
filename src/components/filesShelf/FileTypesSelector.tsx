@@ -1,56 +1,54 @@
 import React from 'react';
 import { Box, Autocomplete, TextField } from '@mui/material';
-import { useDebouncedCallback } from 'beautiful-react-hooks';
 
-const options = [
-    { label: "Documents", value: ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"] },
-    { label: "Images", value: ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"] },
-    { label: "Video", value: ["mp4", "mov", "avi", "mkv", "wmv"] },
-    { label: "Audio", value: ["mp3"] },
+type FileGroup = {
+  label: string;
+  value: string[];
+};
+
+const options: FileGroup[] = [
+  { label: "Documents", value: ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"] },
+  { label: "Images", value: ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"] },
+  { label: "Video", value: ["mp4", "mov", "avi", "mkv", "wmv"] },
+  { label: "Audio", value: ["mp3"] },
 ];
 
-function FileTypesSelector({ onChange, value }) {
-  const [fileTypes, setFileTypes] = React.useState(
-    options.filter(option => value.some(val => option.value.includes(val)))
+interface FileTypesSelectorProps {
+  value: string[];
+  onChange: (value: string[]) => void;
+}
+
+const FileTypesSelector: React.FC<FileTypesSelectorProps> = ({ value, onChange }) => {
+  // Derive the selected groups from the selected file extensions
+  const selectedGroups = options.filter(option =>
+    option.value.some(ext => value.includes(ext))
   );
 
-  const handleChange = useDebouncedCallback((event, newValue) => {
-    const values = newValue.flatMap(option => option.value);
-    setFileTypes(newValue);
-    onChange(values);
-  }, []);
-
-  React.useEffect(() => {
-    setFileTypes(
-      options.filter(option => value.some(val => option.value.includes(val)))
-    );
-  }, [value]);
-
-  React.useEffect(() => {
-    return () => handleChange.cancel();
-  }, [handleChange]);
+  const handleChange = (
+    _: React.SyntheticEvent,
+    newValue: FileGroup[]
+  ) => {
+    const flatValues = newValue.flatMap(group => group.value);
+    onChange(flatValues);
+  };
 
   return (
     <Box sx={{ minWidth: 120 }}>
       <Autocomplete
         multiple
         options={options}
-        size='small'
+        size="small"
         fullWidth
         getOptionLabel={(option) => option.label}
-        value={fileTypes}
+        value={selectedGroups}
         onChange={handleChange}
-        isOptionEqualToValue={(option, value) => option.label === value.label}
+        isOptionEqualToValue={(opt, val) => opt.label === val.label}
         renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            label="File Types"
-          />
+          <TextField {...params} label="File Types" variant="outlined" />
         )}
       />
     </Box>
   );
-}
+};
 
 export default FileTypesSelector;

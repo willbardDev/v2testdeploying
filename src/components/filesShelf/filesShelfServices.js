@@ -1,17 +1,13 @@
-const { default: axios } = require("app/services/config");
+import axios from "@/lib/services/config";
 
 const filesShelfServices = {};
 
-filesShelfServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/files-shelf", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+filesShelfServices.getList = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get(`/files-shelf`, {
+        params: { page, limit, ...queryParams }
     });
     return data;
-};
+}
 
 export default filesShelfServices;

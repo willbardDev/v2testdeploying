@@ -1,44 +1,86 @@
-import React, { useState } from 'react';
-import { Card, Grid, IconButton, Tooltip } from "@mui/material";
-import { useParams } from "react-router";
-import JumboSearch from "@jumbo/components/JumboSearch";
-import JumboListToolbar from "@jumbo/components/JumboList/components/JumboListToolbar";
-import filesShelfServices from "./filesShelfServices";
-import JumboRqList from "@jumbo/components/JumboReactQuery/JumboRqList";
-import FilesShelfListItem from "./FilesShelfListItem";
-import AttachmentablesSelector from "./AttachmentablesSelector";
-import FileTypesSelector from "./FileTypesSelector";
+'use client';
+
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  Card, Grid, IconButton, Tooltip,
+} from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import dayjs, { Dayjs } from 'dayjs';
 import { EventAvailableOutlined } from '@mui/icons-material';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
+import { useParams } from 'next/navigation';
+import JumboSearch from '@jumbo/components/JumboSearch';
+import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
+import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
+import filesShelfServices from './filesShelfServices';
+import FilesShelfListItem from './FilesShelfListItem';
+import AttachmentablesSelector from './AttachmentablesSelector';
+import FileTypesSelector from './FileTypesSelector';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { Attachment } from './attachments/AttachmentsType';
 
 function FilesShelf() {
-  const params = useParams();
-  const listRef = React.useRef();
-  const {authOrganization} = useJumboAuth();
-  const [filterDate, setFilterDate] = useState({})
+  const params = useParams<{ category?: string; id?: string; keyword?: string }>();
+  const listRef = useRef<any>(null);
+  const { authOrganization } = useJumboAuth();
+  const [mounted, setMounted] = useState(false);
 
-  const [queryOptions, setQueryOptions] = React.useState({
-    queryKey: "filesShelf",
-    queryParams: { id: params.id, keyword: '', attachmentables: [], extensions: [] },
-    countKey: "total",
-    dataKey: "data",
+  const [filterDate, setFilterDate] = useState<{ from?: string; to?: string }>({});
+  const [queryOptions, setQueryOptions] = useState<{
+    queryKey: string;
+    queryParams: {
+      id?: string;
+      keyword: string;
+      attachmentables: string[];
+      extensions: string[];
+      from?: string;
+      to?: string;
+    };
+    countKey: string;
+    dataKey: string;
+  }>({
+    queryKey: 'filesShelf',
+    queryParams: {
+      id: params.id,
+      keyword: '',
+      attachmentables: [],
+      extensions: [],
+    },
+    countKey: 'total',
+    dataKey: 'data',
   });
 
+  const renderAttachments = useCallback(
+    (attachment: Attachment) => <FilesShelfListItem attachment={attachment} />,
+    [],
+  );
+
   React.useEffect(() => {
-    setQueryOptions(state => ({
+    setQueryOptions((state) => ({
       ...state,
-      queryParams: { ...state.queryParams, id: params.id }
+      queryParams: { ...state.queryParams, id: params.id },
     }));
   }, [params]);
 
-  const renderAttachments = React.useCallback((attachment) => {
-    return <FilesShelfListItem attachment={attachment} />;
+  const handleDateChange = useCallback((date: Dayjs | null, field: 'from' | 'to') => {
+      setFilterDate(prev => ({
+          ...prev,
+          [field]: date?.toISOString() || null
+      }));
   }, []);
 
-  const handleAttachmentableChange = React.useCallback((attachmentables) => {
+  const applyDateFilters = useCallback(() => {
+    setQueryOptions(prev => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        from: filterDate.from,
+        to: filterDate.to
+      }
+    }));
+  }, [filterDate.from, filterDate.to]);
+
+  const handleAttachmentableChange = React.useCallback((attachmentables: string[]) => {
     setQueryOptions(state => ({
       ...state,
       queryParams: {
@@ -46,9 +88,9 @@ function FilesShelf() {
         attachmentables: attachmentables
       }
     }));
-  }, []);
+  }, [queryOptions.queryParams.attachmentables]);
 
-  const handleFileTypesChange = React.useCallback((extensions) => {
+  const handleFileTypesChange = React.useCallback((extensions: string[]) => {
     setQueryOptions(state => ({
       ...state,
       queryParams: {
@@ -56,20 +98,26 @@ function FilesShelf() {
         extensions: extensions
       }
     }));
-  }, []);
-  
-  const handleOnChange = React.useCallback((keyword) => {
-    setQueryOptions(state => ({
-      ...state,
-      queryParams: {
-        ...state.queryParams,
-        keyword: keyword,
-      }
+  }, [queryOptions.queryParams.extensions]);
+
+  const handleOnKeywordChange = useCallback((keyword: string) => {
+    setQueryOptions(prev => ({
+    ...prev,
+    queryParams: {
+      ...prev.queryParams,
+      keyword
+    }
     }));
   }, []);
 
-  if(!authOrganization?.organization?.active_subscriptions?.length > 0){
-    return <UnsubscribedAccess/>
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  if (!authOrganization?.organization?.active_subscriptions?.length) {
+    return <UnsubscribedAccess />;
   }
 
   return (
@@ -77,89 +125,69 @@ function FilesShelf() {
       ref={listRef}
       wrapperComponent={Card}
       service={filesShelfServices.getList}
-      primaryKey={"id"}
+      primaryKey="id"
       queryOptions={queryOptions}
       itemsPerPage={10}
       itemsPerPageOptions={[8, 10, 15, 20, 30, 50]}
       renderItem={renderAttachments}
-      componentElement={"div"}
-      bulkActions={null}
+      componentElement="div"
       wrapperSx={{
         flex: 1,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
       }}
       toolbar={
         <JumboListToolbar
-          hideItemsPerPage={true}
+          hideItemsPerPage
           action={
             <Grid container columnSpacing={1} rowSpacing={1}>
-              <Grid item xs={12} md={6} lg={2.6}>
+              <Grid size={{ xs: 12, md: 6, lg: 2.6 }}>
                 <AttachmentablesSelector
                   value={queryOptions.queryParams.attachmentables}
                   onChange={handleAttachmentableChange}
                 />
               </Grid>
-              <Grid item xs={12} md={6} lg={2.6} alignItems={'center'}>
+              <Grid size={{ xs: 12, md: 6, lg: 2.6 }}>
                 <FileTypesSelector
                   value={queryOptions.queryParams.extensions}
                   onChange={handleFileTypesChange}
                 />
               </Grid>
-              <Grid item xs={11} md={6} lg={3.2}>
+              <Grid size={{ xs: 11, md: 6, lg: 3.2 }}>
                 <DateTimePicker
                   label="From"
-                  defaultValue={filterDate.from ? dayjs(filterDate.from) : null}
+                  value={filterDate.from ? dayjs(filterDate.from) : null}
                   minDate={dayjs(authOrganization?.organization?.recording_start_date)}
+                  onChange={(value) => handleDateChange(value, 'from')}
                   slotProps={{
-                    textField : {
-                      size: 'small',
-                      fullWidth: true,
-                    }
-                  }}
-                  onChange={(value) => {
-                    setFilterDate((filters) => { return {...filters,from: value.toISOString()}; });
+                    textField: { size: 'small', fullWidth: true },
                   }}
                 />
               </Grid>
-              <Grid item xs={11} md={5} lg={3.2}>
+              <Grid size={{ xs: 11, md: 5, lg: 3.2 }}>
                 <DateTimePicker
                   label="To"
-                  defaultValue={ filterDate.to ? dayjs(filterDate.to) : null}
-                  minDate={dayjs(filterDate.from)}
+                  value={filterDate.to ? dayjs(filterDate.to) : null}
+                  minDate={filterDate.from ? dayjs(filterDate.from) : undefined}
+                  onChange={(value) => handleDateChange(value, 'to')}
                   slotProps={{
-                    textField : {
-                      size: 'small',
-                      fullWidth: true,
-                    }
-                  }}
-                  onChange={(value) => {
-                    setFilterDate((filters) => { return {...filters,to: value.toISOString()}; });
+                    textField: { size: 'small', fullWidth: true },
                   }}
                 />
               </Grid>
-              <Grid item xs={1} md={1} lg={0.4} alignContent={'end'}>
+              <Grid size={{ xs: 1, md: 1, lg: 0.4 }}>
                 <Tooltip title="Filter Dates">
-                  <IconButton onClick={() => {
-                    setQueryOptions(state => ({
-                      ...state,
-                      queryParams: {
-                        ...state.queryParams,
-                        from: filterDate.from,
-                        to: filterDate.to
-                      }
-                    }));
-                  }}>
-                    <EventAvailableOutlined/>
-                  </IconButton> 
-                </Tooltip>   
+                  <IconButton onClick={applyDateFilters}>
+                    <EventAvailableOutlined />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
           }
           actionTail={
             <JumboSearch
-              onChange={handleOnChange}
               value={queryOptions.queryParams.keyword}
+              onChange={handleOnKeywordChange}
             />
           }
         />
