@@ -9,8 +9,8 @@ import { useOrganizationProfile } from '../OrganizationProfileProvider';
 import { UserListItem } from './UserListItem';
 import { ActionTail } from './ActionTail';
 import { useParams } from 'next/navigation';
-import organizationServices from '@/lib/services/organizationServices';
 import { User } from '@/types/auth-types';
+import organizationServices from '../../organizationServices';
 
 interface QueryOptions {
   queryKey: string;

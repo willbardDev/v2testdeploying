@@ -238,7 +238,6 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         onSuccess: (data) => {
         if (configAuth) {
             configAuth({
-            token: data.token,
             currentOrganization: data.newOrganization,
             currentUser: data.authUser,
             });

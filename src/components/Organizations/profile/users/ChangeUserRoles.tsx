@@ -51,7 +51,7 @@ export const ChangeUserRoles: React.FC<ChangeUserRolesProps> = ({
   const { data: organizationRoles, isPending } = useQuery<Role[]>({
     queryKey: [`organizationRoles_${organization.id}`],
     queryFn: async () => {
-      const response = await axios.get<Role[]>(`/organizations/${organization.id}/roles`);
+      const response = await axios.get<Role[]>(`/api/organizations/${organization.id}/roles`);
       return response.data;
     }
   });

@@ -99,7 +99,7 @@ const AutoLoadButton: React.FC<AutoLoadButtonProps> = ({ organization }) => {
     setLoading(true);
     try {
       await axios.get('/sanctum/csrf-cookie');
-      const res = await axios.put(`/organizations/${organization.id}/toggle_autoload`, data);
+      const res = await axios.put(`/api/organizations/${organization.id}/autoload`, data);
       setOpen(false);
       if (res.status === 200) {
         refetchOrganizations();

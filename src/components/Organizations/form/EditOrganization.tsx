@@ -31,7 +31,7 @@ const EditOrganization: React.FC = () => {
   const { data, isLoading, error } = useQuery<OrganizationResponse>({
     queryKey: ['organizationDetails', organization_id],
     queryFn: async () => {
-      const response = await axios.get(`/organizations/${organization_id}`);
+      const response = await axios.get(`/api/organizations/${organization_id}/organizationDetails`);
       return response.data;
     },
     enabled: !!organization_id && !!authOrganization?.organization?.id,

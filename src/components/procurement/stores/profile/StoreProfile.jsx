@@ -1,0 +1,52 @@
+import JumboContentLayout from '@jumbo/components/JumboContentLayout'
+import { useJumboTheme } from '@jumbo/hooks';
+import { Card, useMediaQuery } from '@mui/material';
+import React from 'react'
+import StoreProfileContent from './StoreProfileContent';
+import StoreProfileHeader from './StoreProfileHeader'
+import StoreProfileProvider from './StoreProfileProvider';
+import StoreProfileSidebar from './StoreProfileSidebar';
+import StoreSelectionForMobile from './StoreSelectionForMobile';
+
+function StoreProfile() {
+    const {theme} = useJumboTheme();
+    const smallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const layoutOptions = React.useMemo(() => ({
+        sidebar: {
+            sx: {
+                [theme.breakpoints.up('lg')]: {
+                    zIndex: 5,
+                    top: 96,
+                    minHeight: 'auto',
+                },
+                [theme.breakpoints.down('lg')]: {
+                    display: 'none',
+                }
+            }
+        },
+        wrapper: {
+            component: Card,
+            sx: {
+                alignItems: 'flex-start',
+            }
+        },
+    }), [theme]);
+  return (
+    <StoreProfileProvider>
+        <JumboContentLayout
+            header={<StoreProfileHeader/>}
+            sidebar={<StoreProfileSidebar/>}
+            layoutOptions={layoutOptions}
+        >
+            {
+                smallScreen && (
+                    <StoreSelectionForMobile/>
+                )
+            }
+            <StoreProfileContent/>
+        </JumboContentLayout>
+    </StoreProfileProvider>
+  )
+}
+
+export default StoreProfile

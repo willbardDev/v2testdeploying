@@ -7,108 +7,87 @@ export const authOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         try {
-          // 1. Get cookies properly in an async context
-          const { cookies } = await import('next/headers');
-          const cookieStore = cookies();
-          const cookieString = cookieStore.getAll()
-            .map(c => `${c.name}=${c.value}`)
-            .join('; ');
-
-          // 2. Configure axios with proper timeout and error handling
           const axiosInstance = axios.create({
-            timeout: 15000, // 15 seconds timeout
+            withCredentials: true,
             headers: {
-              Cookie: cookieString,
               'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
+              Accept: 'application/json',
+            },
           });
 
-          // 3. Get CSRF token first
+          // Step 1: Get CSRF cookie
           await axiosInstance.get('/sanctum/csrf-cookie');
 
-          // 4. Attempt login with credentials
+          // Step 2: Attempt login
           const { data } = await axiosInstance.post('/login', credentials, {
-            validateStatus: (status) => status < 500 // Don't throw for 4xx errors
+            validateStatus: (status) => status < 500,
           });
 
-          if (!data?.token || !data?.authUser) {
-            console.error('Login failed - missing token or user data');
-            return null;
+          if (!data?.authUser?.user || !data?.authUser?.user?.id) {
+            throw new Error('Invalid login credentials');
           }
 
+          // Return user object with token
           return {
-            user_id: data.authUser.user.id,
+            id: data.authUser.user.id,
             name: data.authUser.user.name,
             email: data.authUser.user.email,
             token: data.token,
-            organization_id: data.authOrganization?.organization?.id,
-            organization_name: data.authOrganization?.organization?.name,
-            permissions: data.authUser.permissions,
-            auth_permissions: data.authOrganization?.permissions
           };
         } catch (error) {
-          console.error('Authentication error:', {
-            message: error.message,
-            code: error.code,
-            config: error.config,
-            stack: error.stack
-          });
+          console.error('Login failed:', error.response?.data || error.message);
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        return {
-          ...token,
-          accessToken: user.token,
-          user: {
-            id: user.user_id,
-            name: user.name,
-            email: user.email
-          },      
-          organization_id: user.organization_id,
-          organization_name: user.organization_name,
-          permissions: user.permissions,
-          auth_permissions: user.auth_permissions
+        token.user = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
         };
+        token.accessToken = user.token;
       }
       return token;
     },
+
     async session({ session, token }) {
       session.user = token.user;
-      session.accessToken = token.accessToken;
-      session.permissions = token.permissions;
-      session.organization_id = token.organization_id;
-      session.organization_name = token.organization_name;
-      session.auth_permissions = token.auth_permissions;
+      
+      // Important: Don't expose the token to the client
+      // It will be available in HTTP-only cookies
+      
       return session;
-    }
+    },
   },
+
   session: {
-    strategy: "jwt",
-    maxAge: 24 * 60 * 60,
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 1 day
   },
+
   pages: {
     signIn: '/login',
-    error: '/login?error=1' // Custom error page
   },
+
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.session-token' 
-        : 'next-auth.session-token',
+      name: 
+        process.env.NODE_ENV === 'production' 
+          ? '__Secure-next-auth.session-token' 
+          : 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production' 
@@ -118,19 +97,8 @@ export const authOptions = {
       },
     },
   },
-  debug: process.env.NODE_ENV === 'development', // Enable debug in development
-  logger: {
-    error(code, metadata) {
-      console.error({ code, metadata });
-    },
-    warn(code) {
-      console.warn(code);
-    },
-    debug(code, metadata) {
-      console.debug({ code, metadata });
-    }
-  },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NEXTAUTH_DEBUG === 'true',
 };
 
 const handler = NextAuth(authOptions);

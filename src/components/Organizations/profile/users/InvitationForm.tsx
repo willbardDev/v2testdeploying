@@ -54,7 +54,7 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
   const { data: organizationRoles, isPending: isRolesLoading } = useQuery({
     queryKey: [`organizationRoles_${organization?.id}`],
     queryFn: async () => {
-      const response = await axios.get(`/organizations/${organization.id}/roles`);
+      const response = await axios.get(`/api/organizations/${organization.id}/roles`);
       return response.data;
     },
     enabled: !!organization?.id,

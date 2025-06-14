@@ -9,49 +9,46 @@ const getTimezoneOffset = () => {
   return `${sign}${hours}:${minutes}`;
 };
 
+// Base axios instance (shared across client & server)
 const axios = baseAxios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'X-Timezone': getTimezoneOffset()
+    'X-Timezone': getTimezoneOffset(),
   },
   withCredentials: true,
   timeout: 10000,
 });
 
-// Request interceptor for adding auth token
+// Interceptor (server-only cookie injection if needed)
 axios.interceptors.request.use(async (config) => {
   // Skip for internal Next.js API routes
-  if (config.url?.startsWith('/api/')) return config;
+  if (config.url?.startsWith('/api/')) {
+    config.baseURL = ''; // disable the base URL
+  }
 
-  try {
-    // Client-side handling
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    // Server-side handling
-    else {
+  // SERVER SIDE
+  if (typeof window === 'undefined') {
+    try {
       const { cookies } = await import('next/headers');
       const cookieString = cookies()
         .getAll()
         .map(c => `${c.name}=${c.value}`)
         .join('; ');
-      
+
       if (cookieString) {
         config.headers.Cookie = cookieString;
       }
+    } catch (error) {
+      console.error('Failed to attach cookies on server:', error);
     }
-  } catch (error) {
-    console.error('Failed to inject auth token:', error);
   }
 
-  return config});
+  return config;
+});
 
-// Server-side Axios instance
+// Server-side custom axios instance with cookies
 export const serverSideAxios = async () => {
   const { cookies } = await import('next/headers');
   const cookieString = cookies()
@@ -65,10 +62,10 @@ export const serverSideAxios = async () => {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'X-Timezone': getTimezoneOffset(),
-      ...(cookieString && { Cookie: cookieString })
+      ...(cookieString && { Cookie: cookieString }),
     },
     withCredentials: true,
-    timeout: 10000
+    timeout: 10000,
   });
 };
 

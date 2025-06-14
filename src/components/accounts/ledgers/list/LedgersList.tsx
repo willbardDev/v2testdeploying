@@ -44,7 +44,7 @@ interface JumboRqListRef {
   refresh: () => Promise<void>;
 }
 
-const LedgersList = () => {
+const LedgersList = ({ initialData }: { initialData?: any }) => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
   const listRef = useRef<JumboRqListRef>(null);
 
@@ -93,6 +93,7 @@ const LedgersList = () => {
         queryOptions={queryOptions}
         primaryKey="id"
         service={ledgerServices.getLedgers}
+        initialData={initialData} // ✅ passes SSR data
         renderItem={renderLedgerItem}
         itemsPerPage={10}
         itemsPerPageOptions={[10, 15, 30, 60]}

@@ -2,22 +2,12 @@ import axios from "@/lib/services/config";
 
 interface AuthResponse {
     data?: {
-        token?: string;
         authUser?: any;
         authOrganization?: any;
     };
     status?: number;
     hasError?: boolean;
     error?: string;
-}
-
-interface LoginCreds {
-    email: string;
-    password: string;
-}
-
-interface OrganizationParams {
-    organization_id: string;
 }
 
 interface UserData {
@@ -34,7 +24,7 @@ interface TokenMetadata {
 const authServices = {
     async getCurrentUser(): Promise<AuthResponse> {
         try {
-            const response = await axios.get("/getuser");
+            const response = await axios.get("/api/auth/getuser");
             return response.data;
         } catch (e) {
             return {
@@ -46,47 +36,15 @@ const authServices = {
 
     async signUp(userData: UserData): Promise<any> {
         try {
-            await axios.get('/sanctum/csrf-cookie');
-            return await axios.post('/register', userData);
+            return await axios.post('/api/auth/register', userData);
         } catch (e) {
             return Promise.reject(e);
-        }
-    },
-
-    async signIn(loginCreds: LoginCreds): Promise<any> {
-        try {
-            await axios.get('/sanctum/csrf-cookie');
-            return await axios.post('/login', loginCreds);
-        } catch (e) {
-            return Promise.reject(e);
-        }
-    },
-
-    async loadOrganization(params: OrganizationParams): Promise<any> {
-        try {
-            await axios.get('/sanctum/csrf-cookie');
-            return await axios.put(`/organizations/${params.organization_id}/load`, {
-                organization_id: params.organization_id
-            });
-        } catch (e) {
-            console.error(e);
-            return Promise.reject(e);
-        }
-    },
-
-    async signOut(): Promise<any> {
-        try {
-            await axios.get('/sanctum/csrf-cookie');
-            return await axios.post("/logout");
-        } catch (e:any) {
-            return e.response;
         }
     },
 
     async updateAuthTokenMetaData(metadata: TokenMetadata): Promise<any> {
         try {
-            await axios.get('/sanctum/csrf-cookie');
-            return await axios.post('/update-authTokenMetadata', metadata);
+            return await axios.post('/api/auth/update-authTokenMetadata', metadata);
         } catch (e) {
             return Promise.reject(e);
         }

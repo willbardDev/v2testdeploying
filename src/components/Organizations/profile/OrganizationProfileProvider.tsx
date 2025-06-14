@@ -27,7 +27,7 @@ export default function OrganizationProfileProvider({ children }: OrganizationPr
         queryKey: ['showOrganization', { id: organization_id }],
         queryFn: async () => {
             if (!organization_id) throw new Error('Organization ID is required');
-            const response = await axios.get(`/organizations/${organization_id}`);
+            const response = await axios.get(`/api/organizations/${organization_id}/organizationDetails`);
             return response.data.organization;
         },
         enabled: !!organization_id,

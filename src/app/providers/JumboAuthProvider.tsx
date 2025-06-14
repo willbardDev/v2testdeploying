@@ -7,6 +7,7 @@ import { getToken } from 'firebase/messaging';
 import { messaging } from '@/app/helpers/init-firebase';
 import authServices from '@/services/auth-services';
 import { AuthOrganization } from '@/types/auth-types';
+import organizationServices from '@/components/Organizations/organizationServices';
 
 interface AuthUser {
   user:{
@@ -20,7 +21,6 @@ interface AuthUser {
 }
 
 interface AuthState {
-  authToken: string | null;
   authUser: AuthUser | null;
   authOrganization: AuthOrganization | null;
   isLoading: boolean;
@@ -43,7 +43,6 @@ interface TokenMetadata {
 }
 
 interface AuthConfig {
-  token?: string | null;
   OrganizationId?: string | null;
   currentUser?: AuthUser | null;
   currentOrganization?: AuthOrganization | null;
@@ -51,7 +50,6 @@ interface AuthConfig {
 }
 
 interface AuthResponse {
-  token?: string;
   authUser?: {
     user: AuthUser;
     permissions?: string[];
@@ -89,11 +87,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Initial state function
 const init = (restProps: any): AuthState => {
   const storedData = typeof window !== 'undefined' ? localStorage.getItem('authData') : null;
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   const parsedData = storedData ? JSON.parse(storedData) : null;
 
   return {
-    authToken: token,
     authUser: parsedData?.authUser || null,
     authOrganization: parsedData?.authOrganization || null,
     isLoading: true,
@@ -118,7 +114,6 @@ const authReducer = (state: AuthState, action: any): AuthState => {
       if (!authUser && !authToken) {
         return {
           ...state,
-          authToken: null,
           authUser: null,
           authOrganization: null,
           isLoading: false,
@@ -128,7 +123,6 @@ const authReducer = (state: AuthState, action: any): AuthState => {
       return {
         ...state,
         authUser,
-        authToken,
         authOrganization,
         isLoading: false,
         isAuthenticated: !!authUser && !!authToken,
@@ -175,8 +169,6 @@ const authReducer = (state: AuthState, action: any): AuthState => {
 const getStoredAuthData = () => {
   const storedData = localStorage.getItem('authData')
 
-  // console.log(storedData,"storedDatastoredData")
-
   return storedData ? JSON.parse(storedData) : null;
 };
 
@@ -205,19 +197,15 @@ export const JumboAuthProvider = ({
       payload: values
     });
 
-    if (options.persist && values.authToken) {
+    if (options.persist) {
       const authDataToStore = {
-        authToken: values.authToken,
         authUser: values.authUser,
         authOrganization: values.authOrganization
       };
 
       localStorage.setItem('authData', JSON.stringify(authDataToStore));
-      localStorage.setItem('auth_token', values.authToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${values.authToken}`;
-    } else if (!values.authToken) {
+    } else if (!values.authUser) {
       localStorage.removeItem('authData');
-      localStorage.removeItem('auth_token');
       delete axios.defaults.headers.common['Authorization'];
     }
   }, [authData.authUser, authData.authOrganization]);
@@ -247,10 +235,6 @@ export const JumboAuthProvider = ({
   // Auth functions
   const refreshAuth = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-
-  // console.log(token,"refreshAuthrefreshAuthTOKEN")
-      
       const response: AuthResponse = await authServices.getCurrentUser();
 
       if (response?.authUser?.user?.email) {
@@ -265,7 +249,6 @@ export const JumboAuthProvider = ({
         };
 
         setAuthValues({
-          authToken: token,
           authUser: authUser,
           authOrganization: response.authOrganization
         }, { persist: true });
@@ -280,26 +263,12 @@ export const JumboAuthProvider = ({
   };
 
   const configAuth = useCallback(async ({ 
-    token = localStorage.getItem('auth_token'), 
     OrganizationId = localStorage.getItem("OrganizationId"), 
     currentUser = null, 
     currentOrganization = null, 
     refresh = false 
   }: AuthConfig) => {
-
-    if (token) {
-      localStorage.setItem('auth_token', token);
-    }
-
-    // console.log(token,"configAuthconfigAuthTOKEN")
     
-    if (!token) {
-      resetAuth();
-      return;
-    }
-    
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
     if (OrganizationId && OrganizationId !== localStorage.getItem("OrganizationId")) {
       localStorage.setItem("OrganizationId", OrganizationId);
       axios.defaults.headers.common['X-OrganizationId'] = OrganizationId;
@@ -308,17 +277,16 @@ export const JumboAuthProvider = ({
       axios.defaults.headers.common['X-OrganizationId'] = currentOrganization.organization.id;
 
       setAuthValues({
-        authToken: token,
         authUser: currentUser,
         authOrganization: currentOrganization
       }, { persist: true });
     }
 
-    if ((token && !currentUser) || refresh) {
+    if (!currentUser || refresh) {
       await refreshAuth();
     }
 
-    if (token) {
+    if (currentUser) {
       const getLocation = async () => {
         if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
@@ -359,11 +327,9 @@ export const JumboAuthProvider = ({
   const resetAuth = useCallback(() => {
     queryClient.clear();
     localStorage.removeItem('authData');
-    localStorage.removeItem('auth_token');
     localStorage.removeItem('OrganizationId');
 
     setAuthValues({
-      authToken: null,
       authUser: null,
       authOrganization: null
     }, { persist: false });
@@ -373,17 +339,10 @@ export const JumboAuthProvider = ({
   }, [queryClient, setAuthValues]);
 
   React.useEffect(() => {
-    const token = localStorage.getItem('auth_token');
     axios.defaults.headers.common['X-OrganizationId'] = localStorage.getItem("OrganizationId");
 
-  // console.log(token,"useEffectuseEffectTOKEN")
-
     startAuthLoading();
-    if(token) {
-        configAuth({token});
-    } else {
-        resetAuth()
-    }
+
   }, [startAuthLoading]);
 
   const loadOrganization = useCallback(async (
@@ -392,17 +351,20 @@ export const JumboAuthProvider = ({
     errorCallback: (error: any) => void
   ) => {
     try {
-      const response = await authServices.loadOrganization({ organization_id });
+      const response = await organizationServices.loadOrganization({ organization_id });
+
       if (response?.data?.authOrganization?.organization && response?.data?.authUser?.user) {
         await configAuth({
-          token: response?.data?.token,
           currentUser: response.data.authUser,
           currentOrganization: response.data.authOrganization
         });
+        successCallback(response.data);
+      } else {
+        throw new Error("Invalid organization data received");
       }
-      successCallback(response?.data);
     } catch (error) {
-      errorCallback(error);
+      console.error('Error loading organization:', error);
+      errorCallback(error instanceof Error ? error.message : 'Failed to load organization');
     }
   }, [configAuth]);
 
@@ -424,6 +386,7 @@ export const JumboAuthProvider = ({
 
   const hasOrganizationRole = useCallback((roles: string | string[], mustHaveAll = false) => {
     const authRoles = authData.authUser?.organization_roles;
+
     if (!authRoles) return false;
 
     const rolesArray = Array.isArray(roles) ? roles : [roles];
@@ -492,19 +455,15 @@ export const JumboAuthProvider = ({
     const initializeAuth = async () => {
       startAuthLoading();
       const storedData = getStoredAuthData();
-      const token = localStorage.getItem('auth_token');
       const organizationId = localStorage.getItem("OrganizationId") || '';
 
-  // console.log(token,"initializeAuthinitializeAuthTOKEN")
-      
       axios.defaults.headers.common['X-OrganizationId'] = organizationId;
       
-      if (token) {
+      if (storedData?.authUser) {
         await configAuth({ 
-          token: token, 
           OrganizationId: storedData?.authOrganization?.organization?.id,
           currentUser: storedData?.authUser,
-          currentOrganization: storedData?.authOrganization?.organization
+          currentOrganization: storedData?.authOrganization?.organization,
         });
       } else {
         resetAuth();

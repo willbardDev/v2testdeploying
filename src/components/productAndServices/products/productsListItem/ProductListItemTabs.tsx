@@ -1,0 +1,68 @@
+import { Dialog, Divider, Grid, IconButton, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material'
+import React, { useState } from 'react'
+import useJumboAuth from '@jumbo/hooks/useJumboAuth'
+import { AddOutlined } from '@mui/icons-material'
+import SecondaryUnitForm from './secondaryUnits/SecondaryUnitForm'
+import SecondaryUnits from './secondaryUnits/SecondaryUnits'
+import { PERMISSIONS } from 'app/utils/constants/permissions'
+import { useJumboTheme } from '@jumbo/hooks'
+
+function ProductListItemTabs ({ product, expanded}) {
+  const [activeTab, setActiveTab] = useState(0);
+  const {authOrganization : {organization},checkOrganizationPermission} = useJumboAuth();
+  const [openSecondaryUnit, setOpenSecondaryUnit] = useState(false);
+  const canCreateOrEdit = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE,PERMISSIONS.PRODUCTS_EDIT]);
+
+  //Screen handling constants
+  const {theme} = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
+  return(
+    <React.Fragment>
+      <Grid item xs={12}>
+        <Divider/>
+        <Tabs
+          value={activeTab}
+          onChange={(e,newValue) =>setActiveTab(newValue)}
+          variant="scrollable"
+          scrollButtons='auto'
+          allowScrollButtonsMobile
+        >
+          <Tab label="Secondary units"/>
+        </Tabs>
+      </Grid>
+
+      {activeTab === 0 && 
+        <Grid container>
+          <Grid item xs={12} textAlign={'end'}>
+            {
+              canCreateOrEdit &&
+              <Tooltip  title={`Add Secondary Units`}>
+                <IconButton onClick={()=> setOpenSecondaryUnit(true)}>
+                  <AddOutlined/>
+                </IconButton>
+              </Tooltip>
+            }
+          </Grid> 
+          <Grid item xs={12}>
+            <SecondaryUnits product={product} expanded={expanded} activeTab={activeTab}/>
+          </Grid>
+          {
+            canCreateOrEdit &&
+            <Dialog
+              open={openSecondaryUnit}
+              maxWidth={'md'}
+              fullScreen={belowLargeScreen}
+              scroll={belowLargeScreen ? 'body' : 'paper'}
+              fullWidth
+            >
+              <SecondaryUnitForm setOpenDialog={setOpenSecondaryUnit} organization={organization} product={product} />
+            </Dialog>
+          }
+        </Grid>
+      }
+    </React.Fragment>
+  )
+  }
+
+export default ProductListItemTabs

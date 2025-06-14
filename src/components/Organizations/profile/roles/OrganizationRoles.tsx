@@ -69,7 +69,7 @@ const OrganizationRoles = () => {
       onYes: async () => {
         hideDialog();
         try {
-          const res = await axios.put(`organizations/${organization?.id}/delete-role`, { role_id: role.id });
+          const res = await axios.put(`/api/organizations/${organization?.id}/delete-role`, { role_id: role.id });
           enqueueSnackbar(roleManagementDict.messages.deleteSuccess, { 
             variant: 'success' 
           });
@@ -115,7 +115,7 @@ const OrganizationRoles = () => {
       
       setIsSavingRole(true);
       try {
-        const response = await axios.put(`organizations/${organization?.id}/edit-role`, {
+        const response = await axios.put(`/api/organizations/${organization?.id}/edit-role`, {
           role_id: role.id,
           permission_ids: checkedPermissions
         });

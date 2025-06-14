@@ -75,7 +75,7 @@ function Stakeholders() {
 
 return (
     <React.Fragment>
-      <Typography variant={'h4'} mb={2}>Stakeholders</Typography>
+        <Typography variant={'h4'} mb={2}>Stakeholders</Typography>
         <JumboRqList
             ref={listRef}
             wrapperComponent={Card}
