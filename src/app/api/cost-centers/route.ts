@@ -13,21 +13,9 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get('limit') || '10';
   const query = new URLSearchParams({ keyword, page, limit }).toString();
 
-  const res = await fetch(`${API_BASE}/organizations?${query}`, {
+  const res = await fetch(`${API_BASE}/cost-centers?${query}`, {
     headers,
     credentials: 'include',
-  });
-
-  return handleJsonResponse(res);
-}
-
-export async function POST(req: NextRequest) {
-  const body = await req.formData();
-
-  const res = await fetch(`${API_BASE}/organizations`, {
-    method: 'POST',
-    headers: { Accept: 'application/json' },
-    body,
   });
 
   return handleJsonResponse(res);

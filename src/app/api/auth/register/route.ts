@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const API_BASE = process.env.API_BASE_URL
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/register`, {
+  const res = await fetch(`${API_BASE}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

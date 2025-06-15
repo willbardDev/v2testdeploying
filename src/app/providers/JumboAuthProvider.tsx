@@ -250,7 +250,7 @@ export const JumboAuthProvider = ({
 
         setAuthValues({
           authUser: authUser,
-          authOrganization: response.authOrganization
+          authOrganization: response.authOrganization || localStorage.getItem("currentAuthOrganization") as any
         }, { persist: true });
         return response;
       }
@@ -354,6 +354,7 @@ export const JumboAuthProvider = ({
       const response = await organizationServices.loadOrganization({ organization_id });
 
       if (response?.data?.authOrganization?.organization && response?.data?.authUser?.user) {
+          localStorage.setItem("currentAuthOrganization", response?.data?.authOrganization);
         await configAuth({
           currentUser: response.data.authUser,
           currentOrganization: response.data.authOrganization
@@ -464,6 +465,7 @@ export const JumboAuthProvider = ({
           OrganizationId: storedData?.authOrganization?.organization?.id,
           currentUser: storedData?.authUser,
           currentOrganization: storedData?.authOrganization?.organization,
+          refresh: true
         });
       } else {
         resetAuth();

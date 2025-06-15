@@ -4,7 +4,7 @@ const moduleSettingsServices = {};
 
 moduleSettingsServices.updateSettings = async(updatedSettings) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/module-settings`,updatedSettings);
+         const {data} = await axios.post(`/api/sharedComponents/module-settings`,updatedSettings);
          return data;
      })
 }

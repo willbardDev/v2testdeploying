@@ -1,5 +1,5 @@
-import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest } from 'next/server';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 
 const API_BASE = process.env.API_BASE_URL
 
@@ -8,8 +8,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (response) return response;
 
   const body = await req.json();
-
-  const res = await fetch(`${API_BASE}/organizations/${params.id}/detach-user`, {
+  const res = await fetch(`${API_BASE}/cost-centers/${params.id}`, {
     method: 'PUT',
     headers,
     credentials: 'include',

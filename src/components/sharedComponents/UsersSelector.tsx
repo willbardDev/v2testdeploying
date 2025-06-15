@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from '@mui/material';
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBox from '@mui/icons-material/CheckBox';
-import axios from '@/lib/services/config';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import organizationServices from '../Organizations/organizationServices';
+import { useQuery } from '@tanstack/react-query';
 
 interface User {
   id: number;
   name: string;
   [key: string]: any;
+}
+
+interface ApiResponse {
+  current_page: number;
+  data: User[];
+  first_page_url: string;
+  from: number;
+  // Add other pagination properties as needed
 }
 
 interface UsersSelectorProps {
@@ -27,9 +37,19 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
   defaultValue = null,
   frontError = null,
 }) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<{message: string} | null>(null);
+  const { authOrganization } = useJumboAuth();
+  const organization = authOrganization?.organization;
+  
+  // Use react-query for data fetching with proper typing
+  const { data: response = { data: [] }, isLoading, error } = useQuery<ApiResponse>({
+    queryKey: ['users', organization?.id],
+    queryFn: () => organizationServices.getUsers({ organizationId: organization?.id }),
+    enabled: !!organization?.id,
+    select: (data) => data || { data: [] }, // Ensure we always have a data property
+  });
+
+  const users = response.data || []; // Extract the users array from the response
+
   const [selectedUsers, setSelectedUsers] = useState<User | User[] | null>(() => {
     if (!defaultValue) return multiple ? [] : null;
     
@@ -38,59 +58,43 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
       : (Array.isArray(defaultValue) ? defaultValue[0] : defaultValue);
   });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get<User[]>('users');
-        setUsers(response.data);
-      } catch (err) {
-        setError({
-          message: (err as Error).message || 'Failed to load users'
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
+  // Update selected users when defaultValue or users change
   useEffect(() => {
     if (!defaultValue || users.length === 0) return;
 
-    const updateSelectedUsers = () => {
-      if (multiple) {
-        const defaultIds = Array.isArray(defaultValue) 
-          ? defaultValue.map(user => user.id)
-          : [defaultValue.id];
-        setSelectedUsers(users.filter(user => defaultIds.includes(user.id)));
-      } else {
-        const targetId = Array.isArray(defaultValue) ? defaultValue[0]?.id : defaultValue?.id;
-        setSelectedUsers(users.find(user => user.id === targetId) || null);
-      }
-    };
-
-    updateSelectedUsers();
+    if (multiple) {
+      const defaultIds = Array.isArray(defaultValue) 
+        ? defaultValue.map(user => user.id)
+        : [defaultValue.id];
+      setSelectedUsers(users.filter((user: User) => defaultIds.includes(user.id)));
+    } else {
+      const targetId = Array.isArray(defaultValue) ? defaultValue[0]?.id : defaultValue?.id;
+      setSelectedUsers(users.find((user: User) => user.id === targetId) || null);
+    }
   }, [defaultValue, users, multiple]);
+
+  const handleChange = useCallback((_: any, newValue: User | User[] | null) => {
+    onChange(newValue);
+    setSelectedUsers(newValue);
+  }, [onChange]);
 
   if (isLoading) {
     return <LinearProgress />;
   }
 
   if (error) {
-    return <div>Error loading users: {error.message}</div>;
+    return <div>Error loading users: {(error as Error).message}</div>;
   }
 
   return (
     <Autocomplete
       multiple={multiple}
       size="small"
-      isOptionEqualToValue={(option, value) => option.id === value.id}
+      isOptionEqualToValue={(option: User, value: User) => option.id === value.id}
       options={users}
       disableCloseOnSelect={multiple}
       value={selectedUsers}
-      getOptionLabel={(option) => option.name}
+      getOptionLabel={(option: User) => option.name}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -102,8 +106,8 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
           placeholder={label}
         />
       )}
-      renderTags={(tagValue, getTagProps) => 
-        tagValue.map((option, index) => (
+      renderTags={(tagValue: User[], getTagProps) => 
+        tagValue.map((option: User, index: number) => (
           <Chip
             {...getTagProps({ index })}
             key={option.id}
@@ -111,25 +115,18 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
           />
         ))
       }
-      renderOption={(props, option, { selected }) => {
-        // Extract the key from props and apply it to the li element
-        const { key, ...otherProps } = props;
-        return (
-          <li key={key} {...otherProps}>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option.name}
-          </li>
-        );
-      }}
-      onChange={(_, newValue) => {
-        onChange(newValue);
-        setSelectedUsers(newValue);
-      }}
+      renderOption={(props: React.HTMLAttributes<HTMLLIElement>, option: User, { selected }: { selected: boolean }) => (
+        <li {...props}>
+          <Checkbox
+            icon={<CheckBoxOutlineBlank fontSize="small" />}
+            checkedIcon={<CheckBox fontSize="small" />}
+            style={{ marginRight: 8 }}
+            checked={selected}
+          />
+          {option.name}
+        </li>
+      )}
+      onChange={handleChange}
     />
   );
 };

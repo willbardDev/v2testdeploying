@@ -3,16 +3,17 @@ import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const url = new URL(`${API_BASE}/stakeholders/${params.id}/ledgers`);
-  req.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value));
-
-  const res = await fetch(url.toString(), {
+  const body = await req.json();
+  console.log(body)
+  const res = await fetch(`${API_BASE}/cost-centers`, {
+    method: 'POST',
     headers,
     credentials: 'include',
+    body: JSON.stringify(body),
   });
 
   return handleJsonResponse(res);

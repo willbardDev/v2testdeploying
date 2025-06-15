@@ -1,30 +1,22 @@
 // /app/api/auth/load-organization/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { encode, getToken, JWT } from 'next-auth/jwt';
+import { encode, JWT } from 'next-auth/jwt';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.API_BASE_URL
 
 export async function PUT(req: NextRequest) {
   const body = await req.json();
   const { organization_id } = body;
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const cookies = req.headers.get('cookie') || '';
-
-  if (!token?.accessToken) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+  const { headers, response } = await getAuthHeaders(req);
+  if (response) return response;
 
   const res = await fetch(`${API_BASE}/organizations/${organization_id}/load`, {
     method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token.accessToken}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Cookie: cookies,
-    },
-    body: JSON.stringify({ organization_id }),
+    headers,
     credentials: 'include',
+    body: JSON.stringify({ organization_id }),
   });
 
   const data = await res.json();
@@ -37,8 +29,9 @@ if (data?.token && data?.authUser?.user) {
       email: data.authUser.user.email,
     },
     accessToken: data.token,
+    organizationId: data.authOrganization?.organization.id,
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day expiration
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
   };
 
   const sessionToken = await encode({
@@ -54,16 +47,22 @@ if (data?.token && data?.authUser?.user) {
     },
   });
 
-  response.cookies.set('next-auth.session-token', sessionToken, {
+  response.cookies.set(
+      process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token', sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    sameSite: 'lax',
+    sameSite: 'strict',
+    domain: process.env.NODE_ENV === 'production' 
+      ? '.proserp.co.tz'
+      : undefined,
     maxAge: 60 * 60 * 24,
   });
 
   return response;
 }
 
-  return NextResponse.json({ status: res.status });
+ return handleJsonResponse(res);
 }

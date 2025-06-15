@@ -1,22 +1,20 @@
-import { getToken } from 'next-auth/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
+import { NextRequest } from 'next/server';
+
+const API_BASE = process.env.API_BASE_URL
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  const { headers, response } = await getAuthHeaders(req);
+  if (response) return response;
 
-  const roleData = await req.json(); // receives { name: string, permission_ids: [...] }
+  const roleData = await req.json();
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/organizations/${params.id}/new-role`, {
+  const res = await fetch(`${API_BASE}/organizations/${params.id}/new-role`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token.accessToken}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
+    headers,
+    credentials: 'include',
     body: JSON.stringify(roleData),
   });
 
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  return handleJsonResponse(res);
 }

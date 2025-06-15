@@ -1,13 +1,11 @@
-import { getToken } from 'next-auth/jwt';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const cookies = req.headers.get('cookie');
+const API_BASE = process.env.API_BASE_URL
 
-  if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const { headers, response } = await getAuthHeaders(req);
+  if (response) return response;
 
   // ✅ Parse the request body
   const body = await req.json();
@@ -17,19 +15,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ message: 'Invalid autoload value' }, { status: 400 });
   }
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/organizations/${params.id}/toggle_autoload`, {
+  const res = await fetch(`${API_BASE}/organizations/${params.id}/toggle_autoload`, {
     method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token.accessToken}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Cookie: cookies || '',
-    },
-    body: JSON.stringify({ autoload }), // ✅ Correctly send the boolean value
+    headers,
     credentials: 'include',
+    body: JSON.stringify({ autoload }), // ✅ Correctly send the boolean value
   });
 
-  const data = await res.json();
-
-  return NextResponse.json(data, { status: res.status });
+  return handleJsonResponse(res);
 }

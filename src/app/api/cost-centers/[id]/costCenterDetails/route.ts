@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const url = new URL(`${API_BASE}/stakeholders/${params.id}/ledgers`);
+  const url = new URL(`${API_BASE}/cost-centers/${params.id}`);
   req.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value));
 
   const res = await fetch(url.toString(), {
@@ -15,5 +15,5 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     credentials: 'include',
   });
 
-  return handleJsonResponse(res);
+   return handleJsonResponse(res);
 }

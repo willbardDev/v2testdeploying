@@ -1,20 +1,19 @@
-import { getToken } from 'next-auth/jwt';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+const API_BASE = process.env.API_BASE_URL
 
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stakeholders`);
+export async function GET(req: NextRequest) {
+  const { headers, response } = await getAuthHeaders(req);
+  if (response) return response;
+
+  const url = new URL(`${API_BASE}/stakeholders`);
   url.searchParams.set('type', req.nextUrl.searchParams.get('type') || 'all');
 
   const res = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${token.accessToken}`,
-      Accept: 'application/json',
-    },
+    headers,
+    credentials: 'include',
   });
 
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  return handleJsonResponse(res);
 }
