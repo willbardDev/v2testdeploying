@@ -4,7 +4,7 @@ const stakeholderServices = {};
 
 // Use your own Next.js API route for fetching stakeholders
 stakeholderServices.getList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get('/api/stakeholders', {
+    const response = await axios.get('/api/masters/stakeholders', {
         params: { type, keyword, page, limit },
     });
     return response.data;
@@ -12,7 +12,7 @@ stakeholderServices.getList = async ({ type, keyword, page, limit }) => {
 
 // Use your own Next.js API route for select options
 stakeholderServices.getSelectOptions = async (type = "all") => {
-  const { data } = await axios.get("/api/stakeholders/options", {
+  const { data } = await axios.get("/api/masters/stakeholders/options", {
     params: { type }
   });
   return data;
@@ -20,27 +20,27 @@ stakeholderServices.getSelectOptions = async (type = "all") => {
 
 // Use your own Next.js API route for fetching ledgers
 stakeholderServices.getLedgers = async (params) => {
-  const { data } = await axios.get(`/api/stakeholders/${params.stakeholder_id}/ledgers`, {
+  const { data } = await axios.get(`/api/masters/stakeholders/${params.stakeholder_id}/ledgers`, {
     params
   });
   return data;
 };
 
-// This should POST to your API route (e.g. `POST /api/stakeholders`)
+// This should POST to your API route (e.g. `POST /api/masters/stakeholders`)
 stakeholderServices.add = async (formData) => {
-  const { data } = await axios.post("/api/stakeholders/add", formData);
+  const { data } = await axios.post("/api/masters/stakeholders/add", formData);
   return data;
 };
 
-// This should PUT to your API route (e.g. `PUT /api/stakeholders/:id`)
+// This should PUT to your API route (e.g. `PUT /api/masters/stakeholders/:id`)
 stakeholderServices.update = async (stakeholder) => {
-  const { data } = await axios.put(`/api/stakeholders/${stakeholder.id}/update`, stakeholder);
+  const { data } = await axios.put(`/api/masters/stakeholders/${stakeholder.id}/update`, stakeholder);
   return data;
 };
 
-// This should DELETE to your API route (e.g. `DELETE /api/stakeholders/:id`)
+// This should DELETE to your API route (e.g. `DELETE /api/masters/stakeholders/:id`)
 stakeholderServices.delete = async (id) => {
-  const { data } = await axios.delete(`/api/stakeholders/${id}/delete`);
+  const { data } = await axios.delete(`/api/masters/stakeholders/${id}/delete`);
   return data;
 };
 
