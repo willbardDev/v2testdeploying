@@ -245,7 +245,9 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: {sub
               </Grid>
             }
             <Grid size={12}>
-              <Typography variant='h3' align='center'><Typography variant='h3' align='center'>{subsDict.labels.modules}</Typography></Typography>
+              <Typography variant='h3' align='center'>
+                {subsDict.labels.modules}
+              </Typography>
             </Grid>
             {
               subscription.modules.map((module: SubscriptionModule) => (
