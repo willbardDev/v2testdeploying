@@ -28,19 +28,19 @@ stakeholderServices.getLedgers = async (params) => {
 
 // This should POST to your API route (e.g. `POST /api/stakeholders`)
 stakeholderServices.add = async (formData) => {
-  const { data } = await axios.post("/api/stakeholders", formData);
+  const { data } = await axios.post("/api/stakeholders/add", formData);
   return data;
 };
 
 // This should PUT to your API route (e.g. `PUT /api/stakeholders/:id`)
 stakeholderServices.update = async (stakeholder) => {
-  const { data } = await axios.put(`/api/stakeholders/${stakeholder.id}`, stakeholder);
+  const { data } = await axios.put(`/api/stakeholders/${stakeholder.id}/update`, stakeholder);
   return data;
 };
 
 // This should DELETE to your API route (e.g. `DELETE /api/stakeholders/:id`)
 stakeholderServices.delete = async (id) => {
-  const { data } = await axios.delete(`/api/stakeholders/${id}`);
+  const { data } = await axios.delete(`/api/stakeholders/${id}/delete`);
   return data;
 };
 

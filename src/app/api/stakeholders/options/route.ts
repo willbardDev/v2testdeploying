@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const res = await fetch(url.toString(), {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token.accessToken}`,
       Accept: 'application/json',
     },
   });

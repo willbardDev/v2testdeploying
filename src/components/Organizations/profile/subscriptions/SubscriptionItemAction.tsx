@@ -6,7 +6,7 @@ import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import SubscriptionsForm from './SubscriptionsForm';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Subscription } from './SubscriptionTypes';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -36,7 +36,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
   const dictionary = useDictionary();
   const subsDict = dictionary.organizations.profile.subscriptionsTab;
   
-  const { refreshAuth } = useJumboAuth();
+  const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -46,7 +46,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
       subscriptionServices.deleteSubscription(subscription),
     onSuccess: (data: { message: string }) => {
       enqueueSnackbar(data.message || subsDict.messages.deleteSuccess, { variant: 'success' });
-      refreshAuth()
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
     },
     onError: (error: { response?: { data?: { message: string } } }) => {
       enqueueSnackbar(

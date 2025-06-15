@@ -1,14 +1,19 @@
+import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
   const body = await req.json();
   const res = await fetch(`${API_BASE_URL}/subscriptions/${params.id}`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json',
-      Cookie: req.headers.get('cookie') || '',
+        Authorization: `Bearer ${token.accessToken}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
     },
     credentials: 'include',
     body: JSON.stringify(body),
@@ -19,11 +24,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    
   const res = await fetch(`${API_BASE_URL}/subscriptions/${params.id}`, {
     method: 'DELETE',
     headers: {
-      Accept: 'application/json',
-      Cookie: req.headers.get('cookie') || '',
+        Authorization: `Bearer ${token.accessToken}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
     },
     credentials: 'include',
   });

@@ -21,16 +21,3 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const data = await res.json();
   return NextResponse.json(data, { status: res.status });
 }
-
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-
-  const res = await fetch(`${API_BASE}/stakeholders/${params.id}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-  });
-
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
-}
