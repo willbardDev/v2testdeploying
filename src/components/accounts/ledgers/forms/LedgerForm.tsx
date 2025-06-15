@@ -157,7 +157,7 @@ export default function LedgerForm({ ledger, toggleOpen }: LedgerFormProps) {
       setValue('code', ledger.code);
       setValue('description', ledger.description);
 
-      axios.get(`accounts/ledgers/${ledger.id}/opening_balance_journal`).then((response) => {
+      axios.get(`/api/accountsAndFinance/ledgers/${ledger.id}/opening_balance_journal`).then((response) => {
         const opening_balance_journal = response.data;
         if (opening_balance_journal) {
           setValue('opening_balance', opening_balance_journal.amount);

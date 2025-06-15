@@ -1,15 +1,15 @@
-import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest } from 'next/server';
+import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
   const body = await req.json();
-  const res = await fetch(`${API_BASE}/cost-centers`, {
-    method: 'POST',
+  const res = await fetch(`${API_BASE}/accounts/ledger_group/${params.id}`, {
+    method: 'PUT',
     headers,
     credentials: 'include',
     body: JSON.stringify(body),

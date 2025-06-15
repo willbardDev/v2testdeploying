@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   if (response) return response;
 
   const body = await req.json();
-  const res = await fetch(`${API_BASE}/cost-centers`, {
+  const res = await fetch(`${API_BASE}/accounts/ledger`, {
     method: 'POST',
     headers,
     credentials: 'include',

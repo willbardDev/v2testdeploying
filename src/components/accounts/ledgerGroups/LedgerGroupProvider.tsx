@@ -55,7 +55,7 @@ export default function LedgerGroupProvider({ children }: LedgerGroupProviderPro
   const { data, isLoading, isFetching, refetch: refetchLedgerGroups } = useQuery<LedgerGroupsResponse>({
     queryKey: ['fetchLedgerGroups'],
     queryFn: async () => {
-      const response = await axios.get('/accounts/ledger_group');
+      const response = await axios.get('/api/accountsAndFinance/ledgers/ledger_group');
       return response.data as LedgerGroupsResponse;
     }
   });

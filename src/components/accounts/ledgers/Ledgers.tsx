@@ -8,7 +8,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 
-export default function Ledgers({ initialData }: { initialData?: any }) {
+export default function Ledgers() {
     const { organizationHasSubscribed } = useJumboAuth();
     const [mounted, setMounted] = useState(false);
 
@@ -25,7 +25,7 @@ export default function Ledgers({ initialData }: { initialData?: any }) {
     return (
         <LedgerGroupProvider>
             <Typography variant="h4" mb={2}>Ledgers</Typography>
-            <LedgersList initialData={initialData} />
+            <LedgersList />
         </LedgerGroupProvider>
     );
 }

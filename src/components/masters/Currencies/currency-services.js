@@ -4,7 +4,7 @@ const currencyServices = {};
 
 currencyServices.getList = async (params = {}) => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get("/api/masters/currencies", {
+    const { data } = await axios.get(`/api/masters/currencies`, {
       params: { page, limit, ...queryParams }
     });
     return data;
