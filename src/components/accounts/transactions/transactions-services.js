@@ -4,7 +4,7 @@ const transactionServices = {};
 
 transactionServices.getList = async (params = {}) => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get(`/accounts/${queryParams.type}`, {
+    const { data } = await axios.get(`/api/accountsAndFinance/transactions/${queryParams.type}`, {
         params: { page, limit, ...queryParams }
     });
     return data;

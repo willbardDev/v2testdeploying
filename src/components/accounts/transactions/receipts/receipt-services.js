@@ -4,19 +4,19 @@ const receiptServices = {};
 
 receiptServices.add = async(receipt) => {
    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.post(`accounts/receipts`,receipt);
+        const {data} = await axios.post(`/api/accountsAndFinance/transactions/transfers/add`,receipt);
         return data;
     })
 }
 
 receiptServices.show = async (id) => {
-    const {data} = await axios.get(`/accounts/receipts/${id}`);
+    const {data} = await axios.get(`/api/accountsAndFinance/transactions/receipts/${id}/show`);
     return data;
 }
 
 receiptServices.update = async(receipt) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`accounts/receipts/${receipt.id}`,receipt)
+        const {data} = await axios.put(`/api/accountsAndFinance/transactions/receipts/${receipt.id}/update`,receipt)
         return data;
     });
 }
@@ -24,7 +24,7 @@ receiptServices.update = async(receipt) => {
 
 receiptServices.delete = async (receipt) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`accounts/receipts/${receipt.id}`);
+        const {data} = await axios.delete(`/api/accountsAndFinance/transactions/receipts/${receipt.id}/delete`);
         return data;
     })
 };
