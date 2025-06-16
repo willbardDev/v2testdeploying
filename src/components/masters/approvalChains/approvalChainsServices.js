@@ -4,7 +4,7 @@ const approvalChainsServices = {};
 
 approvalChainsServices.getList = async (params = {}) => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get("/approval-chains", {
+    const { data } = await axios.get("/api/masters/approvalChains", {
         params: { page, limit, ...queryParams }
     });
     return data;
@@ -12,7 +12,7 @@ approvalChainsServices.getList = async (params = {}) => {
 
 approvalChainsServices.getApprovalRequisitionsList = async ({queryKey}) => {
     const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/approved-requisitions", {
+    const {data} = await axios.get("/api/masters/approvalChains/getApprovalRequisitionsList", {
         params: {
             page: page,
             limit: limit,
@@ -23,7 +23,7 @@ approvalChainsServices.getApprovalRequisitionsList = async ({queryKey}) => {
 };
 
 approvalChainsServices.getApprovalChainLevels = async (id, status) => {
-    const { data } = await axios.get(`/approval-chains/${id}/levels`, {
+    const { data } = await axios.get(`/api/masters/approvalChains/${id}/getApprovalChainLevels`, {
       params: { status },
     });
     return data;
@@ -31,56 +31,56 @@ approvalChainsServices.getApprovalChainLevels = async (id, status) => {
 
 approvalChainsServices.addApprovalChains = async(ApprovalChains) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.post(`/approval-chains`,ApprovalChains)
+        const {data} = await axios.post(`/api/masters/approvalChains/addApprovalChains`,ApprovalChains)
         return data;
     })
 }
 
 approvalChainsServices.addNewChainLevel = async(newLevel) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.post(`/approval-chain-levels`,newLevel)
+        const {data} = await axios.post(`/api/masters/approvalChains/addNewChainLevel`,newLevel)
         return data;
     })
 }
 
 approvalChainsServices.activateChain = async(chain) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/approval-chains/${chain.id}/restore`,chain)
+        const {data} = await axios.put(`/api/masters/approvalChains/${chain.id}/activateChain`,chain)
         return data;
     })
 }
 
 approvalChainsServices.activateLevel = async(chainLevel) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/approval-chain-levels/${chainLevel.id}/restore`,chainLevel)
+        const {data} = await axios.put(`/api/masters/approvalChains/${chainLevel.id}/activateLevel`,chainLevel)
         return data;
     })
 }
 
 approvalChainsServices.editApprovalChain = async(chain) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/approval-chains/${chain.id}`,chain)
+        const {data} = await axios.put(`/api/masters/approvalChains/${chain.id}/update`,chain)
         return data;
     })
 }
 
 approvalChainsServices.editApprovalChainLevel = async(level) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/approval-chain-levels/${level.id}`,level)
+        const {data} = await axios.put(`/api/masters/approvalChains/${level.id}`,level)
         return data;
     })
 }
 
 approvalChainsServices.deactivateChain = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`/approval-chains/${id}`);
+        const {data} = await axios.delete(`/api/masters/approvalChains/${id}/delete`);
         return data;
     })
 };
 
 approvalChainsServices.deactivateLevel = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`/approval-chain-levels/${id}`);
+        const {data} = await axios.delete(`/api/masters/approvalChains/${id}/deactivateLevel`);
         return data;
     })
 };
