@@ -1,4 +1,3 @@
-// /app/api/auth/load-organization/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { encode, JWT } from 'next-auth/jwt';
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
@@ -40,7 +39,7 @@ if (data?.token && data?.authUser?.user) {
   });
 
   const response = NextResponse.json({
-    message: 'Organization switched',
+    message: 'Organization is loaded to an active organization',
     data: {
       authUser: data.authUser,
       authOrganization: data.authOrganization,

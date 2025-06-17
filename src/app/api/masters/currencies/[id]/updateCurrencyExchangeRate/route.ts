@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.API_BASE_URL;
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);

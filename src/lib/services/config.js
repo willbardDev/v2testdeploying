@@ -11,7 +11,7 @@ const getTimezoneOffset = () => {
 
 // Base axios instance (shared across client & server)
 const axios = baseAxios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: process.env.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -47,26 +47,5 @@ axios.interceptors.request.use(async (config) => {
 
   return config;
 });
-
-// Server-side custom axios instance with cookies
-export const serverSideAxios = async () => {
-  const { cookies } = await import('next/headers');
-  const cookieString = cookies()
-    .getAll()
-    .map(c => `${c.name}=${c.value}`)
-    .join('; ');
-
-  return baseAxios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Timezone': getTimezoneOffset(),
-      ...(cookieString && { Cookie: cookieString }),
-    },
-    withCredentials: true,
-    timeout: 10000,
-  });
-};
 
 export default axios;

@@ -1,5 +1,5 @@
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
   if (response) return response;
 
   const body = await req.json();
-  console.log(body)
   const res = await fetch(`${API_BASE}/masters/currencies`, {
     method: 'POST',
     headers,
