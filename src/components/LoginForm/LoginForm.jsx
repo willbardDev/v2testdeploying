@@ -55,7 +55,6 @@ const LoginForm = () => {
       const session = await getSession();
 
       configAuth({
-        token: session.accessToken,
         currentUser: { 
           user: session.user,
           organization_roles: session.organization_roles,
@@ -77,7 +76,6 @@ const LoginForm = () => {
           organization_roles: session.organization_roles,
           permissions: session.permissions,
         },
-        authToken: session.accessToken,
         authOrganization: { 
           organization: {
             id: session.organization_id,
@@ -91,7 +89,6 @@ const LoginForm = () => {
       }, { persist: true });
   
       router.push(`/${lang}/organizations`);
-      refreshAuth();
     } catch (error) {
       enqueueSnackbar(
         dictionary.signin.form.messages.loginError, 

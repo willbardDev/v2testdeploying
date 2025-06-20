@@ -160,7 +160,7 @@ const authReducer = (state: AuthState, action: any): AuthState => {
       };
 
     default:
-      console.error(`Invalid action type: ${action.type}`);
+      console.error(`You passed an action.type: ${action.type} in JumboAuthProvider which doesn't exist`);
       return state;
   }
 };
@@ -206,7 +206,6 @@ export const JumboAuthProvider = ({
       localStorage.setItem('authData', JSON.stringify(authDataToStore));
     } else if (!values.authUser) {
       localStorage.removeItem('authData');
-      delete axios.defaults.headers.common['Authorization'];
     }
   }, [authData.authUser, authData.authOrganization]);
 
@@ -250,7 +249,7 @@ export const JumboAuthProvider = ({
 
         setAuthValues({
           authUser: authUser,
-          authOrganization: response.authOrganization || localStorage.getItem("currentAuthOrganization") as any
+          authOrganization: response.authOrganization
         }, { persist: true });
         return response;
       }
@@ -263,30 +262,19 @@ export const JumboAuthProvider = ({
   };
 
   const configAuth = useCallback(async ({ 
-    OrganizationId = localStorage.getItem("OrganizationId"), 
     currentUser = null, 
     currentOrganization = null, 
     refresh = false 
   }: AuthConfig) => {
     
-    if (OrganizationId && OrganizationId !== localStorage.getItem("OrganizationId")) {
-      localStorage.setItem("OrganizationId", OrganizationId);
-      axios.defaults.headers.common['X-OrganizationId'] = OrganizationId;
-    } else if (currentOrganization?.organization?.id && currentUser) {
-      localStorage.setItem("OrganizationId", currentOrganization.organization.id);
-      axios.defaults.headers.common['X-OrganizationId'] = currentOrganization.organization.id;
-
-      setAuthValues({
-        authUser: currentUser,
-        authOrganization: currentOrganization
-      }, { persist: true });
-    }
-
-    if (!currentUser || refresh) {
-      await refreshAuth();
-    }
-
     if (currentUser) {
+      if (currentOrganization?.organization?.id) {
+        setAuthValues({
+          authUser: currentUser,
+          authOrganization: currentOrganization
+        }, { persist: true });
+      }
+
       const getLocation = async () => {
         if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
@@ -321,28 +309,24 @@ export const JumboAuthProvider = ({
       };
 
       await getFCMToken();
+    } else if (!currentUser || refresh) {
+      await refreshAuth();
     }
   }, [refreshAuth, setAuthValues]);
 
   const resetAuth = useCallback(() => {
     queryClient.clear();
     localStorage.removeItem('authData');
-    localStorage.removeItem('OrganizationId');
 
     setAuthValues({
       authUser: null,
       authOrganization: null
     }, { persist: false });
-    
-    delete axios.defaults.headers.common['Authorization'];
-    delete axios.defaults.headers.common['X-OrganizationId'];
+
   }, [queryClient, setAuthValues]);
 
   React.useEffect(() => {
-    axios.defaults.headers.common['X-OrganizationId'] = localStorage.getItem("OrganizationId");
-
     startAuthLoading();
-
   }, [startAuthLoading]);
 
   const loadOrganization = useCallback(async (
@@ -354,7 +338,6 @@ export const JumboAuthProvider = ({
       const response = await organizationServices.loadOrganization({ organization_id });
 
       if (response?.data?.authOrganization?.organization && response?.data?.authUser?.user) {
-          localStorage.setItem("currentAuthOrganization", response?.data?.authOrganization);
         await configAuth({
           currentUser: response.data.authUser,
           currentOrganization: response.data.authOrganization
@@ -456,10 +439,6 @@ export const JumboAuthProvider = ({
     const initializeAuth = async () => {
       startAuthLoading();
       const storedData = getStoredAuthData();
-      const organizationId = localStorage.getItem("OrganizationId") || '';
-
-      axios.defaults.headers.common['X-OrganizationId'] = organizationId;
-      
       if (storedData?.authUser) {
         await configAuth({ 
           OrganizationId: storedData?.authOrganization?.organization?.id,

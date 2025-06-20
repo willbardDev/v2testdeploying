@@ -25,7 +25,7 @@ export async function getAuthHeaders(req: NextRequest) {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     'X-Timezone': getTimezoneOffset(),
-    'X-OrganizationId': String(token.organizationId),
+    'X-OrganizationId': String(token.organization_id),
   };
 
   return { headers, response: null };

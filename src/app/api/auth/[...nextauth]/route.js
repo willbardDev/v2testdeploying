@@ -38,6 +38,10 @@ export const authOptions = {
             name: data.authUser.user.name,
             email: data.authUser.user.email,
             token: data.token,
+            organization_id: data.authOrganization?.organization?.id,
+            organization_name: data.authOrganization?.organization?.name,
+            permissions: data.authUser.permissions,
+            auth_permissions: data.authOrganization?.permissions
           };
         } catch (error) {
           console.error('Login failed:', error.response?.data || error.message);
@@ -55,6 +59,10 @@ export const authOptions = {
           name: user.name,
           email: user.email,
         };
+        token.organization_id = user.organization_id,
+        token.organization_name = user.organization_name,
+        token.permissions = user.permissions,
+        token.auth_permissions = user.auth_permissions
         token.accessToken = user.token;
       }
       return token;
@@ -62,10 +70,14 @@ export const authOptions = {
 
     async session({ session, token }) {
       session.user = token.user;
+      session.permissions = token.permissions;
+      session.organization_id = token.organization_id;
+      session.organization_name = token.organization_name;
+      session.auth_permissions = token.auth_permissions;
       
       // Important: Don't expose the token to the client
       // It will be available in HTTP-only cookies
-      
+
       return session;
     },
   },

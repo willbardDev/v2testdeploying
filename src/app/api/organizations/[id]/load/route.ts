@@ -28,7 +28,7 @@ if (data?.token && data?.authUser?.user) {
       email: data.authUser.user.email,
     },
     accessToken: data.token,
-    organizationId: data.authOrganization?.organization.id,
+    organization_id: data.authOrganization?.organization.id,
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
   };
