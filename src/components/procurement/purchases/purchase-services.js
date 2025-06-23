@@ -2,12 +2,12 @@ import axios from "@/lib/services/config";
 
 const purchaseServices = {};
 
-purchaseServices.getList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get('/api/purchaseOrders', {
-      params: { type, keyword, page, limit },
-    });
-    return response.data;
-},
+purchaseServices.getList = async (params) => {
+  const response = await axios.get('/api/purchaseOrders', {
+    params,  // pass all query params here directly
+  });
+  return response.data;
+};
 
 purchaseServices.getEditComplements = async (order_id) => {
     const {data} = await axios.get(`/api/purchaseOrders/${order_id}/getEditComplements`);
