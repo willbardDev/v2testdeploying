@@ -4,14 +4,14 @@ import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
 import inventoryTransferServices from '../inventoryTransfer-services';
-import Div from '@jumbo/shared/Div';
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
+import { useQueryClient } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
 
 function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
   const { mainStore } = useStoreProfile();
@@ -74,16 +74,18 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
     await saveMutation({ ...data, items: validItems });
   };  
   
-  const receiveInventoryTransfer = useMutation(inventoryTransferServices.receive, {
+  const receiveInventoryTransfer = useMutation({
+    mutationFn: inventoryTransferServices.receive,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['inventoryTransfers']);
-      queryClient.invalidateQueries(['inventoryTrns']);
+      queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
+      queryClient.invalidateQueries({ queryKey: ['inventoryTrns'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      const message = error?.response?.data?.message;
+      if (message) enqueueSnackbar(message, { variant: 'error' });
+    },
   });
 
   const saveMutation = React.useMemo(() => {
@@ -95,10 +97,10 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
       <DialogTitle>
         <form autoComplete='off'>
           <Grid container spacing={1}>
-            <Grid item xs={12} textAlign={"center"} mb={1}> 
+            <Grid size={{xs: 12}} textAlign={"center"} mb={1}> 
             {`Receive ${transfer.transferNo}`}
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid size={{xs: 12, md: 4, lg: 6}}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
                   fullWidth
@@ -120,7 +122,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid size={{xs: 12, md: 4, lg: 6}}>
               <Div sx={{ mt: 1 }}>
                 <StoreSelector
                   allowSubStores={true}
@@ -136,7 +138,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={12} lg={12}>
+            <Grid size={{xs: 12, md: 4, lg: 6}} md lg>
               <Stack direction="row" spacing={1}>
                 <Typography sx={{ fontWeight:'bold' }}>Cost Center:</Typography>
                 <Typography>{transfer.destination_cost_center?.name}</Typography>
@@ -160,12 +162,12 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                 }
               }}
             >
-              <Grid item xs={0.5}>
+              <Grid size={{xs: 0.5}}>
                 <Box sx={{ mt: 1.7, mb: 1.7 }}>
                   {index + 1}.
                 </Box>
               </Grid>
-              <Grid item xs={10} md={5} lg={5}>
+              <Grid size={{xs: 10, md: 5}}>
                 <Box sx={{ mt: 1.7, mb: 1.7 }}>
                   <Tooltip title="Product">
                     <Typography>
@@ -174,7 +176,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                   </Tooltip>
                 </Box>
               </Grid>
-              <Grid textAlign={'center'} item xs={1.5} md={3}>
+              <Grid textAlign={'center'} size={{xs: 1.5, md: 3}}>
                 <Box sx={{ mt: 1.7, mb: 1.7 }}>
                   <Tooltip title="Quantity">
                     <Typography textAlign="center">
@@ -183,7 +185,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                   </Tooltip>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={3.5} lg={3.5}>
+              <Grid size={{xs: 12, md: 3.5}}>
                 <Box sx={{ mt: 0.7, mb: 0.5 }}>
                   <TextField
                     label="Receive"
@@ -201,7 +203,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
             </Grid>
           </React.Fragment>
         ))}
-        <Grid item xs={12}>
+        <Grid size={{xs: 12, md: 4, lg: 6}}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
               label='Remarks'

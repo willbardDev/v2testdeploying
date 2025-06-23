@@ -19,10 +19,10 @@ function InventoryConsumptionItemRow({ setClearFormKey, submitMainForm, setSubmi
                         }
                     }}
                 >
-                    <Grid item xs={1} md={0.5}>
+                    <Grid size={{xs: 1, md: 0.5}}>
                         {index+1}.
                     </Grid>
-                    <Grid item xs={11} md={4} lg={4}>
+                    <Grid size={{xs: 11, md: 4}}>
                         <ListItemText
                             primary={
                                 <Tooltip title="Product">
@@ -36,17 +36,17 @@ function InventoryConsumptionItemRow({ setClearFormKey, submitMainForm, setSubmi
                             }
                         />
                     </Grid>
-                    <Grid textAlign={{md: 'end'}} item xs={6} md={3.5} lg={3.5}>
+                    <Grid textAlign={{md: 'end'}} size={{xs: 6, md: 3.5}}>
                         <Tooltip title="Quantity">
                             <Typography>{item.quantity.toLocaleString()} {item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.product.unit_symbol)}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid item xs={6} md={3} lg={3} paddingLeft={2}>
+                    <Grid size={{xs: 6, md: 3}} paddingLeft={2}>
                         <Tooltip title="Expense Ledger">
                             <Typography>{item.ledger?.name}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={12} md={1}>
+                    <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
                         <Tooltip title='Edit Item'>
                             <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                 <EditOutlined fontSize='small'/>

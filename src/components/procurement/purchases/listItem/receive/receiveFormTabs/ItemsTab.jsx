@@ -1,4 +1,4 @@
-import Div from '@jumbo/shared/Div';
+import { Div } from '@jumbo/shared';
 import { Divider, Grid, TextField, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -21,49 +21,49 @@ function ItemsTab() {
                 },
               }}
             >
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Divider />
               </Grid>
-              <Grid item xs={0.5}>
+              <Grid size={0.5}>
                 <Div sx={{ mt: 1.7, mb: 1.7 }}>{index + 1}.</Div>
               </Grid>
-              <Grid item xs={11.5} md={6} lg={6}>
+              <Grid size={{xs: 11.5, md: 6}}>
                 <Div sx={{ mt: 1.7, mb: 1.7 }}>
                   <Tooltip title='Product'>
                     <Typography>{item.product.name}</Typography>
                   </Tooltip>
                 </Div>
               </Grid>
-              <Grid textAlign={'center'} item xs={6} md={2}>
+              <Grid textAlign={'center'} size={{xs: 6, md: 2}}>
                 <Div sx={{ mt: 1.7, mb: 1.7 }}>
                   <Tooltip title='Quantity'>
                     <Typography>{`${item.measurement_unit.symbol} ${item.unreceived_quantity}`}</Typography>
                   </Tooltip>
                 </Div>
               </Grid>
-              <Grid item xs={6} md={3} lg={2}>
+              <Grid size={{xs: 6, md: 3, lg: 2}}>
                 <Div sx={{ mt: 0.7, mb: 0.5 }}>
-                <TextField
-                  label='Receive'
-                  fullWidth
-                  size='small'
-                  error={!!errors?.items && !!errors.items[index] && !!errors.items[index].quantity}
-                  helperText={errors?.items && errors.items[index] && errors.items[index].quantity?.message}
-                  value={watch(`items.${index}.quantity`) || ''}
-                  onChange={(e) => {
-                    setValue(`items.${index}.quantity`,  e.target.value, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
-                  }}
-                />
+                  <TextField
+                    label='Receive'
+                    fullWidth
+                    size='small'
+                    error={!!errors?.items && !!errors.items[index] && !!errors.items[index].quantity}
+                    helperText={errors?.items && errors.items[index] && errors.items[index].quantity?.message}
+                    value={watch(`items.${index}.quantity`) || ''}
+                    onChange={(e) => {
+                      setValue(`items.${index}.quantity`,  e.target.value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
                 </Div>
               </Grid>
             </Grid>
           </React.Fragment>
         ))}
       <Grid container>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
               label='Remarks'

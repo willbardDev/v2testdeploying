@@ -1,5 +1,3 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
-import Div from '@jumbo/shared/Div/Div'
 import { LoadingButton } from '@mui/lab'
 import { Autocomplete, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
@@ -8,23 +6,24 @@ import * as yup from 'yup';
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useStoreProfile } from '../StoreProfileProvider'
-import Span from '@jumbo/shared/Span/Span'
-import useProsERPStyles from 'app/helpers/style-helpers'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles'
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector'
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo'
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent'
 import storeServices from '../../store-services'
-import { readableDate } from 'app/helpers/input-sanitization-helpers'
 import StoreSelector from '../../StoreSelector'
 import { yupResolver } from '@hookform/resolvers/yup'
 import StockReportOnScreen from './StockReportOnScreen'
-import { PERMISSIONS } from 'app/utils/constants/permissions'
-import { useJumboTheme } from '@jumbo/hooks'
 import { CheckBox, CheckBoxOutlineBlank, HighlightOff } from '@mui/icons-material'
-import { useQuery } from 'react-query'
-import productCategoryServices from 'app/prosServices/prosERP/productAndServices/productCategories/product-category-services'
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useQuery } from '@tanstack/react-query';
+import productCategoryServices from '@/components/productAndServices/productCategories/productCategoryServices';
+import { Div, Span } from '@jumbo/shared';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import PDFContent from '@/components/pdf/PDFContent';
 
 const ReportDocument = ({productCategories, stockData,authObject,store,costCenter, date, hasPermissionToView}) => {
     const {authOrganization,authUser: { user}} = authObject;
@@ -172,7 +171,10 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
 
   document.title = isFromDashboard ? 'Store Stock Report' : `${activeStore?.name} | Stock Report`;
 
-    const {data: productCategories, isLoading: isLoadingProductCategories} = useQuery('productCategoryOptions',productCategoryServices.getCategoryOptions);
+    const { data: productCategories, isLoading: isLoadingProductCategories } = useQuery({
+        queryKey: ['productCategoryOptions'],
+        queryFn: productCategoryServices.getCategoryOptions,
+    });
 
     if (isLoadingProductCategories) {
         return <LinearProgress/>;
@@ -185,11 +187,11 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                     <form autoComplete='off' onSubmit={handleSubmit(getAvailableStock)} >
                         <Grid container columnSpacing={1} paddingTop={2} rowSpacing={1}>
                             <Grid container>
-                                <Grid item xs={belowLargeScreen ? 11 : 12}>
-                                    <Typography variant="h3">Stock Report</Typography>
+                                <Grid size={belowLargeScreen ? 11 : 12}>
+                                    <Typography textAlign={'center'} variant="h3">Stock Report</Typography>
                                 </Grid>
                                 {belowLargeScreen && (
-                                    <Grid item xs={1} textAlign="right">
+                                    <Grid size={1} textAlign="right">
                                         <Tooltip title="Close">
                                             <IconButton 
                                                 size='small' 
@@ -203,7 +205,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                 )}
                             </Grid>
                             {isFromDashboard &&
-                                    <Grid item xs={12} md={6} lg={6}>
+                                    <Grid size={{xs: 12, md: 6}}>
                                         <Div sx={{ mt: 0.3 }}>
                                             <StoreSelector
                                                 allowSubStores={true}
@@ -227,39 +229,39 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                         </Div>
                                     </Grid>
                             }
-                            <Grid item xs={12} md={isFromDashboard ? 6 : 4} lg={isFromDashboard ? 6 : 4}>
+                            <Grid size={{xs: 12}}>
                                 <Div sx={{ mt: 0.3 }}>
-                                        <CostCenterSelector
-                                            label="Cost and Profit Centers"
-                                            multiple={true}
-                                            allowSameType={true}
-                                            onChange={(cost_centers) => {
-                                                let selectedCostCenters, selectedCostCenterIds;
-                    
-                                                if (cost_centers.length === 0) {
-                                                    // If all options are deselected, set to all cost centers
-                                                    selectedCostCenters = authOrganization.costCenters.map(cost_center => cost_center);
-                                                    selectedCostCenterIds = authOrganization.costCenters.map(cost_center => cost_center.id);
-                                                } else {
-                                                    // Otherwise, use the selected cost centers
-                                                    selectedCostCenters = cost_centers.map((cost_center) => cost_center);
-                                                    selectedCostCenterIds = cost_centers.map((cost_center) => cost_center.id);
-                                                }
-                    
-                                                setCostCenter(selectedCostCenters);
-                                                setValue('cost_center_ids', selectedCostCenterIds);
-                                                const filters = {
-                                                    as_at: watch('as_at'),
-                                                    store_id: watch('store_id'),
-                                                    cost_center_ids: selectedCostCenterIds,
-                                                    product_category_ids: watch('product_category_ids'),
-                                                };
-                                                getAvailableStock(filters);
-                                            }}
-                                        />
+                                    <CostCenterSelector
+                                        label="Cost and Profit Centers"
+                                        multiple={true}
+                                        allowSameType={true}
+                                        onChange={(cost_centers) => {
+                                            let selectedCostCenters, selectedCostCenterIds;
+                
+                                            if (cost_centers.length === 0) {
+                                                // If all options are deselected, set to all cost centers
+                                                selectedCostCenters = authOrganization.costCenters.map(cost_center => cost_center);
+                                                selectedCostCenterIds = authOrganization.costCenters.map(cost_center => cost_center.id);
+                                            } else {
+                                                // Otherwise, use the selected cost centers
+                                                selectedCostCenters = cost_centers.map((cost_center) => cost_center);
+                                                selectedCostCenterIds = cost_centers.map((cost_center) => cost_center.id);
+                                            }
+                
+                                            setCostCenter(selectedCostCenters);
+                                            setValue('cost_center_ids', selectedCostCenterIds);
+                                            const filters = {
+                                                as_at: watch('as_at'),
+                                                store_id: watch('store_id'),
+                                                cost_center_ids: selectedCostCenterIds,
+                                                product_category_ids: watch('product_category_ids'),
+                                            };
+                                            getAvailableStock(filters);
+                                        }}
+                                    />
                                 </Div>
                             </Grid>
-                            <Grid item xs={12} md={isFromDashboard ? 6 : 4} lg={isFromDashboard ? 6 : 4}>
+                            <Grid size={{xs: 12, md: 6}}>
                                 <Div sx={{ mt: 0.3 }}>
                                     <Autocomplete
                                         multiple
@@ -316,7 +318,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                     />
                                 </Div>
                             </Grid>
-                            <Grid item xs={12} md={isFromDashboard ? 6 : 4} lg={isFromDashboard ? 6 : 4}>
+                            <Grid size={{xs: 12, md: 6}}>
                                 <Div sx={{ mt: 0.3 }}>
                                         <DateTimePicker
                                             label="As at (MM/DD/YYYY HH:MM)"
@@ -347,7 +349,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                         />
                                 </Div>
                             </Grid>
-                            <Grid item xs={12} textAlign={'right'}>
+                            <Grid size={12} textAlign={'right'}>
                                 <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
                                     Filter
                                 </LoadingButton>

@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import { Box, Grid, IconButton, Tooltip, Typography } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import { UndoOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { listItemContext } from './InventoryTransferListItem';
 import { useStoreProfile } from '../../StoreProfileProvider';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function InventoryTransferTrns() {
     const {setSelectedInventoryTrn, transfer, setOpenDialog, setOpenDocumentDialog, inventoryTrns} = useContext(listItemContext);
@@ -29,24 +29,24 @@ function InventoryTransferTrns() {
             alignItems={'center'}
             container
             >
-            <Grid item xs={4} md={3}>
+            <Grid size={{xs: 4, md: 3}}>
                 <Tooltip title={'Date Received'}>
                     <Typography>
                         {readableDate(inventoryTrn?.date_received)}
                     </Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={4} md={3} align="center">
+            <Grid size={{xs: 4, md: 3}} align="center">
                 <Tooltip title={'Grn No.'}>
                    <Typography>{inventoryTrn?.trnNo}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={4} md={4} align="center">
+            <Grid size={4} align="center">
                 <Tooltip title={'Remark'}>
                   <Typography>{inventoryTrn?.remarks}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{xs: 12, md: 2}}>
                 <Box
                 display={'flex'}
                 flexDirection={'row'}

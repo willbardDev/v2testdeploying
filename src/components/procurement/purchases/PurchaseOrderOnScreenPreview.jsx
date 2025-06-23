@@ -1,8 +1,8 @@
 import React from 'react';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Divider } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function PurchaseOrderOnScreenPreview({ order }) {
     const currencyCode = order.currency.code;
@@ -19,42 +19,42 @@ function PurchaseOrderOnScreenPreview({ order }) {
     return (
         <div>
             <Grid container spacing={2} style={{ marginTop: 20 }}>
-                <Grid item xs={12} style={{ textAlign: 'center' }}>
+                <Grid size={12} style={{ textAlign: 'center' }}>
                     <Typography variant="h4" color={mainColor}>PURCHASE ORDER</Typography>
                     <Typography variant="subtitle1" fontWeight="bold">{order.orderNo}</Typography>
                 </Grid>
             </Grid>
 
             <Grid container spacing={2} style={{ marginTop: 5, marginBottom: 10 }}>
-                <Grid item xs={8}>
+                <Grid size={8}>
                     <Typography variant="body2" color={mainColor}>Order Date</Typography>
                     <Typography variant="body2">{readableDate(order.order_date)}</Typography>
                 </Grid>
                 {order?.date_required && (
-                    <Grid item xs={4}>
+                    <Grid size={4}>
                         <Typography variant="body2" color={mainColor}>Date Required</Typography>
                         <Typography variant="body2">{readableDate(order.date_required)}</Typography>
                     </Grid>
                 )}
                 {order?.cost_centers && (
-                    <Grid item xs={8}>
+                    <Grid size={8}>
                         <Typography variant="body2" color={mainColor}>Purchase For</Typography>
                         <Typography variant="body2">{order.cost_centers.map(cc => cc.name).join(',')}</Typography>
                     </Grid>
                 )}
-                <Grid item xs={8}>
+                <Grid size={8}>
                     <Typography variant="body2" color={mainColor}>Created By:</Typography>
                     <Typography variant="body2">{order?.creator.name}</Typography>
                 </Grid>
                 {(order?.reference || order?.requisitionNo) && (
-                    <Grid item xs={4}>
+                    <Grid size={4}>
                         <Typography variant="body2" color={mainColor}>Reference</Typography>
                         <Typography variant="body2">{order.reference}</Typography>
                         <Typography variant="body2">{order.requisitionNo}</Typography>
                     </Grid>
                 )}
                 {order?.currency_id > 1 && (
-                    <Grid item xs={8}>
+                    <Grid size={8}>
                         <Typography variant="body2" color={mainColor}>Exchange Rate</Typography>
                         <Typography variant="body2">{order.exchange_rate}</Typography>
                     </Grid>
@@ -62,7 +62,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
             </Grid>
 
             <Grid container spacing={1} marginTop={2} marginBottom={3}>
-                <Grid item xs={12} textAlign="center">
+                <Grid size={12} textAlign="center">
                     <Typography variant="body2" color={mainColor} style={{ padding: '5px' }}>SUPPLIER</Typography>
                     <Divider/>
                     <Typography variant="body1">{order.stakeholder.name}</Typography>
@@ -103,7 +103,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
             {
                 <>
                     <Grid container spacing={1} paddingTop={2}>
-                        <Grid item xs={12} textAlign={'center'}>
+                        <Grid size={12} textAlign={'center'}>
                             <Typography variant="h6" color={mainColor}>ITEMS</Typography>
                         </Grid>
                     </Grid>
@@ -155,10 +155,10 @@ function PurchaseOrderOnScreenPreview({ order }) {
                 withPrices &&
                 <>
                     <Grid container style={{ paddingTop: 15 }}>
-                        <Grid item xs={7}>
+                        <Grid size={7}>
                             <Typography variant="body2">Total</Typography>
                         </Grid>
-                        <Grid item xs={5} style={{ textAlign: 'right' }}>
+                        <Grid size={5} style={{ textAlign: 'right' }}>
                             <Typography variant="body2" fontWeight="bold">{order.amount.toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                         </Grid>
                     </Grid>
@@ -166,18 +166,18 @@ function PurchaseOrderOnScreenPreview({ order }) {
                     {vatAmount > 0 &&(
                         <>
                             <Grid container style={{ marginTop: 1 }}>
-                                <Grid item xs={7}>
+                                <Grid size={7}>
                                     <Typography variant="body2">VAT</Typography>
                                 </Grid>
-                                <Grid item xs={5} style={{ textAlign: 'right' }}>
+                                <Grid size={5} style={{ textAlign: 'right' }}>
                                     <Typography variant="body2" fontWeight="bold">{vatAmount.toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                                 </Grid>
                             </Grid>
                             <Grid container style={{ marginTop: 1 }}>
-                                <Grid item xs={7}>
+                                <Grid size={7}>
                                     <Typography variant="body2">Grand Total (VAT Incl.)</Typography>
                                 </Grid>
-                                <Grid item xs={5} style={{ textAlign: 'right' }}>
+                                <Grid size={5} style={{ textAlign: 'right' }}>
                                     <Typography variant="body2" fontWeight="bold">{(order.amount + vatAmount).toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                                 </Grid>
                             </Grid>

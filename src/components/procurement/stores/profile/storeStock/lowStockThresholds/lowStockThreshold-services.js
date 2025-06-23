@@ -3,41 +3,36 @@ const { default: axios } = require("app/services/config");
 
 const lowStockThresholdServices = {};
 
-lowStockThresholdServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`/low_stock_thresholds/${queryParams.store_id}`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams  
-        }
+lowStockThresholdServices.getList = async ({ type, keyword, page, limit }) => {
+    const response = await axios.get(`/api/lowStockThreshold/${queryParams.store_id}`, {
+      params: { type, keyword, page, limit },
     });
-    return data;
-};
+    return response.data;
+},
 
 lowStockThresholdServices.add = async(thresholdId) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/low_stock_thresholds`,thresholdId);
+         const {data} = await axios.post(`/api/lowStockThreshold/add`,thresholdId);
          return data;
      })
 }
 
 lowStockThresholdServices.update = async(thresholdId) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/low_stock_thresholds/${thresholdId}`,thresholdId)
+        const {data} = await axios.put(`/api/lowStockThreshold/${thresholdId}/update`,thresholdId)
         return data;
     })
 }
 
 lowStockThresholdServices.delete = async (thresholdId) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`low_stock_thresholds/${thresholdId}`);
+        const {data} = await axios.delete(`/api/lowStockThreshol/${thresholdId}/delete`);
         return data;
     })
 };
 
 lowStockThresholdServices.alerts = async (params) => {
-    const {data} = await axios.get(`low-stock-alerts`, {
+    const {data} = await axios.get(`/api/lowStockThreshold/alerts`, {
         params
     });
     return data;

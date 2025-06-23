@@ -1,10 +1,10 @@
 import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import React, { useState } from 'react'
 import StoreSelector from '../../stores/StoreSelector';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
 import { useFormContext } from 'react-hook-form';
 import storeServices from '../../stores/store-services';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
 function PurchaseOrderPaymentAndReceive() {
     const {items, setDisplayStoreSelector, instant_receive, instant_pay, displayStoreSelector, setValue, errors, order, watch, register} = useFormContext();
@@ -42,9 +42,9 @@ function PurchaseOrderPaymentAndReceive() {
     
   return (
     <Grid container spacing={1} paddingTop={1}>
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid size={{xs: 12, md: 6}}>
             <Grid container columnSpacing={1} rowSpacing={1}>
-                <Grid item xs={12} md={6} lg={6}>
+                <Grid size={{xs: 12, md: 6}}>
                     <TextField
                         size='small'
                         multiline
@@ -54,7 +54,7 @@ function PurchaseOrderPaymentAndReceive() {
                         {...register('terms_of_payment')}
                     />
                 </Grid>
-                <Grid item xs={12} md={6} lg={6}>
+                <Grid size={{xs: 12, md: 6}}>
                     <TextField
                         size='small'
                         multiline
@@ -66,9 +66,9 @@ function PurchaseOrderPaymentAndReceive() {
                 </Grid>
             </Grid>
         </Grid>
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid size={{xs: 12, md: 6}}>
             <Grid container columnSpacing={1} rowSpacing={1}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{xs: 12, md: 6}}>
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -88,6 +88,7 @@ function PurchaseOrderPaymentAndReceive() {
                     />
                     {instant_pay && (
                         <LedgerSelect
+
                             label='Pay from'
                             defaultValue={order?.credit_ledger}
                             frontError={errors.credit_ledger_id}
@@ -102,7 +103,7 @@ function PurchaseOrderPaymentAndReceive() {
                     )}
                 </Grid>
                 {displayStoreSelector && (
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6}}>
                         <FormControlLabel
                             control={
                                 <Checkbox

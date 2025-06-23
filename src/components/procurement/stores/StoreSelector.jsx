@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
-import { useQuery } from 'react-query';
 import storeServices from './store-services';
 import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from '@mui/material';
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import { useQuery } from '@tanstack/react-query';
 
 function StoreSelector({onChange, frontError = null, multiple = false, label = 'Store', defaultValue = null, allowSubStores = false, excludeStores = null, includeStores = null, proposedOptions = null}) {
   //Fetch Stores
-  const { data: stores, isLoading: isFetchingStores } = useQuery('storeOptions', storeServices.getStoreOptions);
+  const { data: stores, isLoading: isFetchingStores } = useQuery({
+    queryKey: ['storeOptions'],
+    queryFn: storeServices.getStoreOptions,
+  });
   const [selectedStore, setSelectedStore] = useState(defaultValue ? defaultValue : (multiple ? [] : null));
 
   // Engine for stores when allowSubStores is true 

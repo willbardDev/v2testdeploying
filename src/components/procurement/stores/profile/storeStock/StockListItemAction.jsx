@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu'
 import { MoreHorizOutlined, ViewTimelineOutlined } from '@mui/icons-material';
 import { Dialog, Tooltip, useMediaQuery } from '@mui/material';
 import ItemMovement from './ItemMovement';
-import { useJumboTheme } from '@jumbo/hooks';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { JumboDdMenu } from '@jumbo/components';
 
 function StockListItemAction({productStock}) {
    const [openMovementDialog, setOpenMovementDialog] = useState(false);

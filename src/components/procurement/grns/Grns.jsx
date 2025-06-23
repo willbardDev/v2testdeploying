@@ -1,17 +1,19 @@
+'use client'
+
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Box, Grid, IconButton, Stack, Tooltip } from '@mui/material';
 import React, { useState } from 'react'
-import { useParams } from 'react-router-dom';
 import GrnsListItem from './GrnsListItem';
 import grnServices from './grn-services';
 import { useStoreProfile } from '../stores/profile/StoreProfileProvider';
 import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import dayjs from 'dayjs';
 import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
+import { useParams } from 'next/navigation';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 function Grns() {
     const params = useParams();

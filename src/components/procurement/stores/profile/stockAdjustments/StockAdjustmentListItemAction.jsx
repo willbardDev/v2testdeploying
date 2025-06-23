@@ -2,17 +2,17 @@ import { DeleteOutlined, EditOutlined, HighlightOffOutlined, MoreHorizOutlined, 
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
 import StockAdjustmentDialogForm from './StockAdjustmentDialogForm';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
 import stockAdjustmentServices from './stock-adjustment-services';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import StockAdjustmentPDF from './StockAdjustmentPDF';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useSnackbar } from 'notistack';
-import { useJumboTheme } from '@jumbo/hooks';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import StockAdjustmentOnScreen from './StockAdjustmentOnScreen';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PDFContent from '@/components/pdf/PDFContent';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { JumboDdMenu } from '@jumbo/components';
 
 const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) => {
   const { data, isFetching } = useQuery(
@@ -34,7 +34,7 @@ const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) =
       <>
         {belowLargeScreen && (
           <Grid container alignItems="center" justifyContent="space-between" marginBottom={2}>
-            <Grid item xs={11}>
+            <Grid size={11}>
               <Tabs
                 value={activeTab}
                 onChange={(e, newValue) => setActiveTab(newValue)}
@@ -44,7 +44,7 @@ const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) =
                 <Tab label="PDF" />
               </Tabs>
             </Grid>
-            <Grid item xs={1} textAlign="right">
+            <Grid size={1} textAlign="right">
               <Tooltip title="Cancel">
                 <IconButton size="small" onClick={toggleOpen}>
                   <HighlightOffOutlined color="primary" />
@@ -90,15 +90,14 @@ function StockAdjustmentListItemAction({stockAdjustment}) {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
     
-    const { mutate: deleteAdjustment } = useMutation(stockAdjustmentServices.delete, {
+    const deleteAdjustment = useMutation({
+      mutationFn: stockAdjustmentServices.delete,
       onSuccess: (data) => {
-        queryClient.invalidateQueries(['storeStockAdjustments']);
-        enqueueSnackbar(data.message, {
-          variant: 'success',
-        });
+        queryClient.invalidateQueries({ queryKey: ['storeStockAdjustments'] });
+        enqueueSnackbar(data.message, { variant: 'success' });
       },
       onError: (error) => {
-        enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+        enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
       },
     });
   

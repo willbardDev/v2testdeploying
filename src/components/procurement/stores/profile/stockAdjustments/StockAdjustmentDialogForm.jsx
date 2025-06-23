@@ -1,26 +1,24 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
-import Div from '@jumbo/shared/Div'
 import { AddOutlined, DisabledByDefault } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Autocomplete, Button, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Input, LinearProgress, Stack, Switch, TextField, Tooltip, Typography } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers'
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services'
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect'
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
 import storeServices from '../../store-services'
 import { useStoreProfile } from '../StoreProfileProvider'
 import { useSnackbar } from 'notistack'
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector'
 import stockAdjustmentServices from './stock-adjustment-services'
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect'
-import { useLedgerSelect } from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider'
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
+import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Div } from '@jumbo/shared'
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector'
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect'
+import ProductSelect from '@/components/productAndServices/products/ProductSelect'
+import productServices from '@/components/productAndServices/products/productServices'
 
 function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
   //Initial necessary constants
@@ -89,26 +87,28 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
     return !!stockAdjustment ? {data: []} : await storeServices.getExistedProducts(activeStore.id);
   });
 
-  const addStockAdjustment = useMutation(stockAdjustmentServices.add,{
+  const addStockAdjustment = useMutation({
+    mutationFn: stockAdjustmentServices.add,
     onSuccess: (data) => {
       toggleOpen(false);
-      enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['storeStockAdjustments']);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['storeStockAdjustments'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-    }
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
   });
 
-  const updateStockAdjustment = useMutation(stockAdjustmentServices.update,{
+  const updateStockAdjustment = useMutation({
+    mutationFn: stockAdjustmentServices.update,
     onSuccess: (data) => {
-      data?.message && enqueueSnackbar(data.message,{variant:'success'});
+      if (data?.message) enqueueSnackbar(data.message, { variant: 'success' });
       toggleOpen(false);
-      queryClient.invalidateQueries(['storeStockAdjustments']);
+      queryClient.invalidateQueries({ queryKey: ['storeStockAdjustments'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-    }
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
   });
 
   useEffect(() => {
@@ -134,7 +134,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
       <DialogContent>
         <form autoComplete='false'>
           <Grid container columnSpacing={1}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{mt: 1, mb: 1}}>
                 <DateTimePicker
                   label="Adjustment Date (MM/DD/YYYY)"
@@ -163,7 +163,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{mt: 1, mb: 1}}>
                   <Autocomplete
                       size="small"
@@ -189,7 +189,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                   />
                 </Div>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
                 <Div sx={{mt: 1, mb: 1}}>
                     <TextField
                         size="small"
@@ -199,7 +199,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                     />
                 </Div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid size={{xs: 12, md: 8}}>
                 <Div sx={{mt: 1, mb: 1}}>
                     <CostCenterSelector
                       label="Cost Center"
@@ -216,7 +216,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                     />
                 </Div>
             </Grid>
-            <Grid item xs={12}  md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{mt: 1, mb: 1}}>
                 <LedgerSelect
                   label={'Stock Complement Ledger'}
@@ -230,7 +230,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Stack spacing={1} direction={'row'} p={1}>
                 <Typography>Import Excel</Typography>
                 <Switch
@@ -252,7 +252,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                           columnSpacing={1} 
                           marginTop={1} 
                         >
-                        <Grid item xs={12}  md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             {
                               isFetchingExistedProducts ? <LinearProgress/> :
@@ -298,7 +298,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                             }
                           </Div>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
                               label="Description"
@@ -310,7 +310,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                             />
                           </Div>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
                               label="Current Stock"
@@ -324,7 +324,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                             />
                           </Div>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
                               label="Actual Stock"
@@ -340,7 +340,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                             />
                           </Div>
                         </Grid>
-                        <Grid item xs={12} md={2}>
+                        <Grid size={{xs: 12, md: 2}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
                               label="Change in Stock"
@@ -352,7 +352,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                             />
                           </Div>
                         </Grid>
-                        <Grid item xs={10} md={3}>
+                        <Grid size={{xs: 10, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
                               label="Average Cost"
@@ -374,7 +374,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                           </Div>
                         </Grid>
                         {fields.length > 1 && !stockAdjustment && (
-                          <Grid item xs={2} md={1}>
+                          <Grid ssize={{xs: 2, md: 1}}>
                               <Div sx={{mt: 1, mb: 1}}>
                                   <Tooltip title='Remove Row'>
                                       <IconButton size='small' onClick={() => remove(index)}>
@@ -394,7 +394,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 {
                   !switchToExcell &&
                   !stockAdjustment &&
-                  <Grid item xs={12} sx={{ 
+                  <Grid size={12} sx={{ 
                       display: 'flex',
                       direction:'row',
                       justifyContent: 'flex-end'
@@ -409,7 +409,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                   </Grid>
                 }
                 {!!switchToExcell &&
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Input
                         label={'Stock Excel'}
                         type="file"
@@ -419,7 +419,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                     />
                   </Grid>
                 }
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Div sx={{mt: 1, mb: 1}}>
                         <TextField
                             label='Narration'
@@ -440,7 +440,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
         <Button size='small' onClick={() => toggleOpen(false)}>
           Cancel
         </Button>
-        <LoadingButton onClick={handleSubmit(saveStockAdjustment)} loading={addStockAdjustment.isLoading || updateStockAdjustment.isLoading} type='submit' size='small' variant='contained'>
+        <LoadingButton onClick={handleSubmit(saveStockAdjustment)} loading={addStockAdjustment.isPending || updateStockAdjustment.isPending} type='submit' size='small' variant='contained'>
           Submit
         </LoadingButton>
       </DialogActions>

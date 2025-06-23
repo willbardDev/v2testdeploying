@@ -1,9 +1,9 @@
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import PageFooter from '@/components/pdf/PageFooter';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import React from 'react'
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles';
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo';
-import PageFooter from 'app/prosServices/prosERP/pdf/PageFooter';
 
 function PurchaseGrnsReportPDF({organization,purchaseGrnsReport}) {
     const mainColor = organization.settings?.main_color || "#2113AD";

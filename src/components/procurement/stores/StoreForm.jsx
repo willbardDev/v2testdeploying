@@ -2,43 +2,41 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
 import { LoadingButton } from '@mui/lab';
 import { Autocomplete, Button, DialogActions, DialogContent, DialogTitle, Grid, TextField } from '@mui/material';
-import Div from '@jumbo/shared/Div';
 import storeServices from './store-services';
 import UsersSelector from '../../sharedComponents/UsersSelector';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
 
 const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate: addStore, isLoading, error } = useMutation(storeServices.add, {
+  const addStore = useMutation({
+    mutationFn: storeServices.add,
     onSuccess: (data) => {
-      setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['stores']);
-      queryClient.invalidateQueries(['showStore']);
+      setOpenDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['stores'] });
+      queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, {
-        variant: 'error',
-      });
+      enqueueSnackbar(error.response.data.message, { variant: 'error' });
     },
   });
 
-  const { mutate: updateStore, isLoading: updateIsLoading, error: updateError } = useMutation(storeServices.update, {
+  const updateStore = useMutation({
+    mutationFn: storeServices.update,
     onSuccess: (data) => {
-      setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['stores']);
-      queryClient.invalidateQueries(['showStore']);
+      setOpenDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['stores'] });
+      queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, {
-        variant: 'error',
-      });
+      enqueueSnackbar(error.response.data.message, { variant: 'error' });
     },
   });
 
@@ -77,14 +75,14 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   return (
     <>
       <DialogTitle>
-        <Grid item xs={12} textAlign="center">
+        <Grid size={12} textAlign="center">
           {!store ? (parentOptions ? 'Add Sub-store' : 'New Store') : `Edit ${store.name}`}
         </Grid>
       </DialogTitle>
       <DialogContent>
         <form autoComplete="off" onSubmit={onSubmit}>
           <Grid container spacing={1}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="name"
@@ -97,7 +95,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="alias"
@@ -111,7 +109,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
               </Div>
             </Grid>
             {Array.isArray(parentOptions) && (
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <Autocomplete
                     options={parentOptions}
@@ -143,7 +141,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                 </Div>
               </Grid>
             )}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <UsersSelector
                   label='Store Users'
@@ -159,7 +157,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="description"
@@ -172,7 +170,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <DialogActions>
                 <Button size="small" onClick={() => setOpenDialog(false)}>
                   Cancel
@@ -182,7 +180,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   variant="contained"
                   size="small"
                   sx={{ display: 'flex' }}
-                  loading={isLoading || updateIsLoading}
+                  loading={isPending || updateIsLoading}
                 >
                   Submit
                 </LoadingButton>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import {Card,Stack,} from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
 import LowStockThresholdListItem from './LowStockThresholdListItem';
 import lowStockThresholdServices from './lowStockThreshold-services';
+import { useParams } from 'next/navigation';
 
 function LowStockThreholdsList() {
     const params = useParams();

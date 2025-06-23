@@ -10,7 +10,7 @@ measurementUnitServices.getList = async (params = {}) => {
     return data;
 },
 
-measurementUnitServices.getAllMeasurementUnits = async(product) => {
+measurementUnitServices.getAllMeasurementUnits = async() => {
     const {data} = await axios.get(`/api/masters/measurement_units/all_measurement_units`)
     return data;
 }

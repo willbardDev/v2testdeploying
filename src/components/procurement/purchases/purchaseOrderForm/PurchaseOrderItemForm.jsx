@@ -4,14 +4,14 @@ import { useForm } from 'react-hook-form';
 import ProductSelect from '../../../productAndServices/products/ProductSelect';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import purchaseServices from '../purchase-services';
-import ProductQuickAdd from 'app/prosServices/prosERP/productAndServices/products/ProductQuickAdd';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, checked, getLastPriceItems, setIsDirty }) {
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -43,8 +43,8 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
             quantity: item && item.quantity,
             rate: item && item.rate,
             vat_percentage: item ? item.vat_percentage :
-                    !!preservedValues ? preservedValues.vat_percentage :
-                        0,
+                !!preservedValues ? preservedValues.vat_percentage :
+                    0,
             measurement_unit_id: item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit.id),
             unit_symbol: item && (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.unit_symbol),
         },
@@ -179,20 +179,20 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
             <Divider />
             <Grid container spacing={1} mb={1} mt={1}>
                 {!openProductQuickAdd && !item && (
-                    <Grid item xs={12} textAlign={'center'}>
+                    <Grid size={12} textAlign={'center'}>
                         <Typography variant='h5'>Add Item</Typography>
                     </Grid>
                 )}
 
                 {!!openProductQuickAdd && !item && (
-                    <Grid item xs={12} textAlign={'center'}>
+                    <Grid size={12} textAlign={'center'}>
                         <Typography variant='h5'>Quick Product Registration</Typography>
                     </Grid>
                 )}
 
                 {!openProductQuickAdd && (
                     <>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <ProductSelect
                                 label='Product/Service'
                                 frontError={errors.product}
@@ -236,7 +236,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 }
                             />
                         </Grid>
-                        <Grid item xs={12} md={2} lg={2}>
+                        <Grid size={{xs: 12, md: 2}}>
                             <TextField
                                 label='Quantity'
                                 fullWidth
@@ -290,7 +290,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 {...register(`quantity`)}
                             />
                         </Grid>
-                        <Grid item xs={12} md={1} lg={1}>
+                        <Grid size={{xs: 12, md: 1}}>
                             <Typography align='left' variant='body2'>
                                 VAT
                                 <Checkbox
@@ -308,7 +308,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 />
                             </Typography>
                         </Grid>
-                        <Grid item xs={12} md={vat_factor ? 2 : 3}>
+                        <Grid size={{xs: 3, md: vat_factor ? 2 : 3}}>
                             {isRetrieving ? (
                                 <LinearProgress />
                             ) : (
@@ -336,7 +336,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                             )}
                         </Grid>
                         {!!vat_factor && (
-                            <Grid item xs={12} md={2} lg={2}>
+                            <Grid size={{xs: 12, md: 2}}>
                                 <TextField
                                     label='Price (VAT Inclusive)'
                                     fullWidth
@@ -364,7 +364,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 />
                             </Grid>
                         )}
-                        <Grid item xs={12} md={vat_factor ? 2 : 3}>
+                        <Grid size={{xs: 12, md: vat_factor ? 2 : 3}}>
                             <TextField
                                 label='Amount'
                                 fullWidth
@@ -376,7 +376,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} textAlign={'end'}>
+                        <Grid size={12} textAlign={'end'}>
                             <Button
                                 variant='contained'
                                 size='small'

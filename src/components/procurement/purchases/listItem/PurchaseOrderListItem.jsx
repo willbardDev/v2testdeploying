@@ -12,14 +12,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import PurchaseOrderListItemAction from './PurchaseOrderListItemAction';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import purchaseServices from '../purchase-services';
-import { useQuery } from 'react-query';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useQuery } from '@tanstack/react-query';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 export const listItemContext = createContext({});//will be used as distrubuter of all useStates and needed data
 const PurchaseOrderGrns = lazy(() => import('./PurchaseOrderGrns'));
@@ -33,12 +33,12 @@ const PurchaseOrderListItem = ({ order }) => {
   const [attachDialog, setAttachDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
 
-  const { data: purchaseOrderGrns, isLoading } = useQuery(
-    ['purchaseOrderGrns', {orderId: order.id}],() => purchaseServices.getPurchaseOrderGrns(order.id),
-    {
-      enabled: expanded, // Fetch data only when the accordion is open
-    }
-  );
+  const { data: purchaseOrderGrns, isLoading } = useQuery({
+    queryKey: ['purchaseOrderGrns', { orderId: order.id }],
+    queryFn: () => purchaseServices.getPurchaseOrderGrns(order.id),
+    enabled: expanded,
+  });
+
   return (
     <listItemContext.Provider value={{attachDialog, setAttachDialog, purchaseOrderGrns,expanded,setExpanded,selectedOrderGrn,setSelectedOrderGrn,openDialog,setOpenDialog,openDocumentDialog,setOpenDocumentDialog}}>
       <React.Fragment>
@@ -83,13 +83,12 @@ const PurchaseOrderListItem = ({ order }) => {
             }}
           >
             <Grid
-              paddingLeft={1}
-              paddingRight={1}
-              columnSpacing={1}
-              alignItems={'center'}
               container
+              spacing={1}
+              alignItems="center"
+              sx={{ width: '100%', m: 0 }}
             >
-              <Grid item xs={6} md={2.5}>
+              <Grid size={{xs: 6, md: 2.5}}>
                 <ListItemText
                   primary={
                     <>
@@ -113,7 +112,7 @@ const PurchaseOrderListItem = ({ order }) => {
                   }
                 />
               </Grid>
-              <Grid item xs={6} md={5}>
+              <Grid size={{xs: 6, md: 5}}>
                 <Tooltip title={'Supplier'}>
                   <Typography>{order.stakeholder.name}</Typography>
                 </Tooltip>
@@ -132,7 +131,7 @@ const PurchaseOrderListItem = ({ order }) => {
                   </Tooltip>
                 )}
               </Grid>
-              <Grid item xs={12} md={4.5} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
+              <Grid size={{xs: 12, md: 4.5}} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                 <Tooltip title={'Status'}>
                   <Chip
                     size="small"
@@ -176,7 +175,7 @@ const PurchaseOrderListItem = ({ order }) => {
             isLoading && <LinearProgress/>
             }
             <Grid container>
-              <Grid item xs={12} textAlign={'end'}>
+              <Grid size={12} textAlign={'end'}>
                 <PurchaseOrderListItemAction order={order} />
               </Grid>
               

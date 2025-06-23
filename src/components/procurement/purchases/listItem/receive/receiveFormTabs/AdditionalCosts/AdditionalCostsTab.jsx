@@ -1,17 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import Div from '@jumbo/shared/Div';
 import { Divider, Grid, IconButton, LinearProgress, TextField, Tooltip } from '@mui/material';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
-import { useLedgerSelect } from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup';
 import { useForm, useFormContext } from 'react-hook-form';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { useCurrencySelect } from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
+import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import { Div } from '@jumbo/shared';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, setIsDirty}) {
   const {ungroupedLedgerOptions} = useLedgerSelect();
@@ -67,11 +67,11 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
 
   return (
   <form autoComplete='off' onSubmit={handleSubmit(updateItems)} >
-    <Grid item xs={12}>
+    <Grid size={12}>
       <Divider/>
     </Grid>
     <Grid container columnSpacing={1}>
-      <Grid item xs={12} md={3} lg={4}>
+      <Grid size={{xs: 12, md: 3, lg: 4}}>
         <Div sx={{ mt: 1 }}>
           <LedgerSelect
             multiple={false}
@@ -90,7 +90,7 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
           />
         </Div>
       </Grid>
-      <Grid item xs={12} md={2} lg={2}>
+      <Grid size={{xs: 12, md: 2, lg: 2}}>
         <Div sx={{mt: 1}}>
           <TextField
             label="Reference"
@@ -106,7 +106,7 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
           />
         </Div>
       </Grid>
-      <Grid item xs={12} md={watch(`currency_id`) > 1 ? 3.5 : 5} lg={watch(`currency_id`) > 1 ? 2 : 4}>
+      <Grid size={{xs: 12, md: watch(`currency_id`) > 1 ? 3.5 : 5, lg: watch(`currency_id`) > 1 ? 2 : 4}}>
         <Div sx={{mt: 1}}>
           <CurrencySelector
             frontError={errors?.currency_id}
@@ -124,7 +124,7 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
       </Grid>
       {
         watch(`currency_id`) > 1 &&
-        <Grid item xs={6} md={2}>
+        <Grid size={{xs: 6, md: 2, lg: 2}}>
           <Div sx={{mt: 1}}>
             <TextField
               label="Exchange Rate"
@@ -146,7 +146,7 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
           </Div>
         </Grid>
       }
-      <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={watch(`currency_id`) > 1 ? 1.5 : 2} lg={watch(`currency_id`) > 1 ? 2 : 2}>
+      <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 1.5 : 2, lg: watch(`currency_id`) > 1 ? 2 : 2}}>
         <Div sx={{mt: 1}}>
           <TextField
             label="Amount"
@@ -168,7 +168,7 @@ function AdditionalCostsTab({index = -1, setShowForm = null, additionalCost, set
         </Div>
       </Grid>
     </Grid>
-    <Grid item xs={12} md={12} lg={12} mt={1} textAlign={'end'}>
+    <Grid size={{xs: 12, md: 12, lg: 12}} mt={1} textAlign={'end'}>
       <LoadingButton
         loading={false}
         variant='contained'

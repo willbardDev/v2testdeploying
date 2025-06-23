@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Table, TableHead, TableBody, TableCell, TableRow, Grid } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
   const mainColor = organization.settings?.main_color || "#2113AD";
@@ -31,7 +31,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
   return (
     <div>
         <Grid container spacing={2} style={{ marginTop: 5, marginBottom: 10 }}>
-            <Grid item xs={12} style={{ textAlign: 'center' }}>
+            <Grid size={12} style={{ textAlign: 'center' }}>
                 <Typography variant="h4" color={mainColor}>PURCHASE ORDER GRNS REPORT</Typography>
                 <Typography variant="subtitle1" fontWeight="bold">{purchaseGrnsReport.orderNo}</Typography>
                 <Typography variant="body2">{`As at: ${readableDate(undefined, true)}`}</Typography>

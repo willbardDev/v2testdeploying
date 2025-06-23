@@ -1,25 +1,26 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { Autocomplete, DialogContent, DialogTitle, Grid, LinearProgress, TextField, Typography} from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
-import Div from '@jumbo/shared/Div/Div';
-import Span from '@jumbo/shared/Span/Span';
-import useProsERPStyles from 'app/helpers/style-helpers';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
 import purchaseServices from '../purchases/purchase-services';
 import StakeholderSelector from '../../masters/stakeholders/StakeholderSelector';
-import { useCurrencySelect } from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Div, Span } from '@jumbo/shared';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import PDFContent from '@/components/pdf/PDFContent';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const ReportDocument = ({reportData,authOrganization,user,checkOrganizationPermission,baseCurrency}) => {
+    console.log(reportData,'dataaaaaa')
+
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
     const lightColor = authOrganization.organization.settings?.light_color || "#bec5da";
     const contrastText = authOrganization.organization.settings?.contrast_text || "#FFFFFF";
@@ -183,10 +184,10 @@ return (
             <Span className={classes.hiddenOnPrint}>
                 <form autoComplete='off' onSubmit={handleSubmit(getPurchasesReport)} >
                     <Grid container columnSpacing={1} rowSpacing={1} alignItems={'center'} justifyContent={'center'}>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Typography variant='h3'>Purchases Report</Typography>
                         </Grid>
-                        <Grid item xs={12} md={5}>
+                        <Grid size={{xs: 12, md: 5}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <StakeholderSelector
                                     label='Suppliers'
@@ -197,12 +198,12 @@ return (
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} sm={5} md={3.5}>
+                        <Grid size={{xs: 12, sm: 5, md: 3.5}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="From (MM/DD/YYYY)"
                                     fullWidth
-                                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                                     maxDate={dayjs()}
                                     defaultValue={dayjs().startOf('day')}
                                     slotProps={{
@@ -221,12 +222,12 @@ return (
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} sm={5} md={3.5}>
+                        <Grid size={{xs: 12, sm: 5, md: 3.5}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="To (MM/DD/YYYY)"
                                     fullWidth
-                                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                                     maxDate={dayjs()}
                                     defaultValue={dayjs().endOf('day')}
                                     slotProps={{
@@ -245,7 +246,7 @@ return (
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={5}>
+                        <Grid size={{xs: 12, md: 5}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <CostCenterSelector
                                     label="Cost and Profit Centers"
@@ -257,7 +258,7 @@ return (
                                 />
                             </Div>
                         </Grid>
-                        <Grid item md={5.5} lg={6} xs={12} >
+                        <Grid size={{xs: 12, md: 5.5, lg: 6}}>
                             <Autocomplete
                                 size="small"
                                 defaultValue={currencies.length === 1 ? currencies[0] : null}
@@ -275,7 +276,7 @@ return (
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={2} md={1.5} lg={1} textAlign={'right'}>
+                        <Grid size={{xs: 12, sm: 2, md: 1.5, lg: 1}} textAlign={'right'}>
                             <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
                                 Filter
                             </LoadingButton>

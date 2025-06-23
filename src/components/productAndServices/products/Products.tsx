@@ -1,13 +1,15 @@
+"use client"
+
 import React from 'react'
 import ProductsList from './ProductsList';
 import ProductsProvider from './ProductsProvider';
 import { Typography } from '@mui/material';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
 import ProductsSelectProvider from './ProductsSelectProvider';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { MODULES } from 'app/utils/constants/modules';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { MODULES } from '@/utilities/constants/modules';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 const Products = () => {
     const {organizationHasSubscribed,checkOrganizationPermission} = useJumboAuth();

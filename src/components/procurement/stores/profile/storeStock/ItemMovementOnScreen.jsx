@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper as TablePaper } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 const ItemMovementOnScreen = ({ movementsData, authObject }) => {
     const { authOrganization } = authObject;

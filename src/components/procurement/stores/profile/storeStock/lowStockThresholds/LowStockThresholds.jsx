@@ -1,15 +1,17 @@
+'use client'
+
 import { AddAlertOutlined } from '@mui/icons-material'
 import { Dialog, DialogTitle, IconButton, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
 import LowStockThresholdDialogContent from './LowStockThresholdDialogContent';
-import { useJumboTheme } from '@jumbo/hooks';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function LowStockThresholds() {
-    const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
-    //Screen handling constants
-    const {theme} = useJumboTheme();
-    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  //Screen handling constants
+  const {theme} = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   return (
     <React.Fragment>

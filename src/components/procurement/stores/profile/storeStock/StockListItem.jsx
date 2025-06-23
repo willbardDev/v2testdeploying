@@ -17,24 +17,24 @@ function StockListItem({productStock}) {
             alignItems={'center'}
         >
             
-            <Grid item xs={12} md={6}>
+            <Grid size={{xs: 12, md: 6}}>
                 <Tooltip title='Brand and Name'>
                     <Typography>{`${productStock.name}`}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={4} md={3}>
+            <Grid size={{xs: 4, md: 2}}>
                 <Tooltip title='Product Category'>
                     <Typography>{productStock.category_name}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={4} md={2}>
+            <Grid size={{xs: 4, md: 2}}>
                 <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'} > 
                     <Tooltip title='Stock'>
                         <Typography>{`${productStock.balance} ${productStock.measurement_unit.symbol}`}</Typography>
                     </Tooltip>
                 </Box>
             </Grid>
-            <Grid item xs={4} md={1}>
+            <Grid size={{xs: 4, md: 1}}>
                 <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'} > 
                     <StockListItemAction productStock={productStock}/>
                 </Box>

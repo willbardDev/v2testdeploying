@@ -3,8 +3,8 @@ import { Autocomplete,Button, Dialog, Grid,TextField, Tooltip } from '@mui/mater
 import React, { useState } from 'react'
 import StoreForm from '../StoreForm';
 import { useStoreProfile } from './StoreProfileProvider'
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function StoreSelectionForMobile() {
     const {activeStore,setActiveStore,storeArrays:{selectOptions}} = useStoreProfile();
@@ -13,7 +13,7 @@ function StoreSelectionForMobile() {
 
   return (
     <Grid container m={2} spacing={2}>
-        <Grid item xs={10}>
+        <Grid size={10}>
             <Autocomplete
                 options={selectOptions}
                 getOptionLabel={(option) => option.name}
@@ -31,7 +31,7 @@ function StoreSelectionForMobile() {
                 }}
             />
         </Grid>
-        <Grid item xs={10}>
+        <Grid size={10}>
             <React.Fragment>
                 <Dialog maxWidth="xs" open={openDialog}>
                     <StoreForm setOpenDialog={setOpenDialog} parentOptions={selectOptions}/>

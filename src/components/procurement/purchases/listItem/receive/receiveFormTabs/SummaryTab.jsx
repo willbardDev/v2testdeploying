@@ -1,8 +1,8 @@
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
-import { useCurrencySelect } from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
 import React from 'react'
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import { useFormContext } from 'react-hook-form';
 
 function SummaryTab() {
@@ -19,10 +19,10 @@ function SummaryTab() {
     
   return (
     <Grid container spacing={1}>
-        <Grid item xs={12}>
+        <Grid size={12}>
         <Divider />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Typography variant="h3" color={mainColor} align="center">
                 Received Items
             </Typography>
@@ -47,23 +47,23 @@ function SummaryTab() {
                     </TableHead>
                     <TableBody>
                         {getReceivedItemsSummary().filter(item => item.receivedQuantity > 0).map((item, index) => (
-                        <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
-                            <TableCell>{index + 1}.</TableCell>
-                            <TableCell>{item.product}</TableCell>
-                            <TableCell>{item.unit}</TableCell>
-                            <TableCell align={'right'}>{item.receivedQuantity}</TableCell>
-                            {
-                                withPrices &&
-                                <>
-                                    <TableCell align={'right'}>{item.rate.toLocaleString()}</TableCell>
-                                    <TableCell align={'right'}>
-                                    <Typography noWrap>{(item.receivedQuantity * item.rate).toLocaleString("en-US", {style:"currency", currency:currency.code})}</Typography>
-                                    </TableCell>
-                                    <TableCell align={'right'}>{(item.exchangeRate * item.rate * item.costfactor).toLocaleString()}</TableCell>
-                                    <TableCell align={'right'}>{(item.exchangeRate * item.rate * item.costfactor * item.receivedQuantity).toLocaleString()}</TableCell>
-                                </>
-                            }
-                        </TableRow>
+                            <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
+                                <TableCell>{index + 1}.</TableCell>
+                                <TableCell>{item.product}</TableCell>
+                                <TableCell>{item.unit}</TableCell>
+                                <TableCell align={'right'}>{item.receivedQuantity}</TableCell>
+                                {
+                                    withPrices &&
+                                    <>
+                                        <TableCell align={'right'}>{item.rate.toLocaleString()}</TableCell>
+                                        <TableCell align={'right'}>
+                                        <Typography noWrap>{(item.receivedQuantity * item.rate).toLocaleString("en-US", {style:"currency", currency:currency.code})}</Typography>
+                                        </TableCell>
+                                        <TableCell align={'right'}>{(item.exchangeRate * item.rate * item.costfactor).toLocaleString()}</TableCell>
+                                        <TableCell align={'right'}>{(item.exchangeRate * item.rate * item.costfactor * item.receivedQuantity).toLocaleString()}</TableCell>
+                                    </>
+                                }
+                            </TableRow>
                         ))}
                     </TableBody>
                     {
@@ -84,7 +84,7 @@ function SummaryTab() {
         </Grid>
         {
             getAdditionalCostsSummary().length > 0 && 
-            <Grid item xs={12} mt={3}>
+            <Grid size={12} mt={3}>
                 <Typography variant="h3" color={mainColor} align="center">
                     Additional Costs
                 </Typography>

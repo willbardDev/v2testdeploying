@@ -10,7 +10,7 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function InventoryConsumptionsOnScreen({ inventoryConsumption, authObject }) {
   const {authOrganization: {organization}} = authObject;
@@ -29,7 +29,7 @@ function InventoryConsumptionsOnScreen({ inventoryConsumption, authObject }) {
   return (
     <div>
       <Grid container spacing={2} marginBottom={2} paddingTop={2}>
-        <Grid item xs={12} textAlign="center">
+        <Grid size={12} textAlign="center">
           <Typography variant="h4" color={mainColor}>INVENTORY CONSUMPTION</Typography>
           <Typography variant="subtitle1" fontWeight="bold">{inventoryConsumption.consumptionNo}</Typography>
           {inventoryConsumption.reference && <Typography variant="body2">Ref: {inventoryConsumption.reference}</Typography>}
@@ -37,11 +37,11 @@ function InventoryConsumptionsOnScreen({ inventoryConsumption, authObject }) {
       </Grid>
 
       <Grid container spacing={1} marginBottom={2}>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <Typography variant="body2" color={mainColor}>Consumption Date:</Typography>
           <Typography variant="body2">{readableDate(inventoryConsumption.consumption_date)}</Typography>
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
             <Typography variant="body2" color={mainColor}>Cost Center:</Typography>
             <Typography variant="body2">{inventoryConsumption.cost_center.name}</Typography>
         </Grid>

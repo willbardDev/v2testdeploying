@@ -1,4 +1,3 @@
-import Div from '@jumbo/shared/Div';
 import { AddOutlined, ChevronRightOutlined, ExpandMoreOutlined } from '@mui/icons-material'
 import { Box, Button, Dialog, Tooltip } from '@mui/material'
 import React from 'react'
@@ -7,6 +6,7 @@ import { useStoreProfile } from './StoreProfileProvider';
 import SubStoreTreeItemLabel from './SubStoreTreeItemLabel';
 import { useState } from 'react';
 import { TreeItem, TreeView } from '@mui/x-tree-view';
+import { Div } from '@jumbo/shared';
 
 function StoreProfileSidebar() {
 

@@ -4,23 +4,23 @@ import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
-import Div from '@jumbo/shared/Div';
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import {  KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material';
-import { useCurrencySelect } from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import purchaseServices from '../../purchase-services';
 import StoreSelector from '../../../stores/StoreSelector';
 import AdditionalCostsTabRow from './receiveFormTabs/AdditionalCosts/AdditionalCostsTabRow';
 import SummaryTab from './receiveFormTabs/SummaryTab';
 import AdditionalCostsTab from './receiveFormTabs/AdditionalCosts/AdditionalCostsTab';
 import ItemsTab from './receiveFormTabs/ItemsTab';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { Div } from '@jumbo/shared';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 function PurchaseOrderReceiveForm({ toggleOpen, order }) {
   const [additionalCosts, setAdditionalCosts] = useState([]);
@@ -55,16 +55,17 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
     setActiveTab(nextTab); 
   };
 
-  const receiveOrder = useMutation(purchaseServices.receive, {
+  const receiveOrder = useMutation({
+    mutationFn: purchaseServices.receive,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['purchaseOrders']);
-      queryClient.invalidateQueries(['purchaseOrderGrns']);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
   });
 
   const saveMutation = React.useMemo(() => {
@@ -239,10 +240,10 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
       <DialogTitle>
         <form autoComplete='off'>
           <Grid container spacing={1}>
-            <Grid item xs={12} textAlign={"center"} mb={1}> 
+            <Grid size={12} textAlign={"center"} mb={1}> 
               {`Receive ${order.orderNo}`}
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid size={{xs: 12, md: 6, lg: 4}}>
               <Div sx={{ mt: 1}}>
                 <DateTimePicker
                   fullWidth
@@ -266,7 +267,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid size={{xs: 12, md: 6, lg: 4}}>
               <Div sx={{ mt: 1}}>
                 <StoreSelector
                   allowSubStores={true}
@@ -281,7 +282,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={6} lg={3} sx={{ mt: 2, mb: 2 }}>
+            <Grid size={{xs: 12, md: 6, lg: 3}} sx={{ mt: 2, mb: 2 }}>
               <Stack direction="row" spacing={2}>
                 <Typography sx={{ fontWeight: 'bold'}}>Order Currency:</Typography>
                 <Typography>{order.currency?.name}</Typography>
@@ -289,7 +290,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
             </Grid>
             {
               order_currency_id > 1 &&
-              <Grid item xs={12} md={6} lg={4}>
+              <Grid size={{xs: 12, md: 6, lg: 4}}>
                 <Div sx={{mt: 1}}>
                   <TextField
                     label="Order Exchange Rate"
@@ -311,7 +312,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
                 </Div>
               </Grid>
             }
-              <Grid item xs={12} md={6} lg={4}>
+              <Grid size={{xs: 12, md: 6, lg: 4}}>
                 <Div sx={{mt: 1}}>
                   <TextField
                     label="Order Reference"
@@ -327,7 +328,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={6} lg={4}>
+              <Grid size={{xs: 12, md: 6, lg: 4}}>
                 <Div sx={{mt: 1}}>
                   <TextField
                     label="Cost Factor"
@@ -369,7 +370,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
       </DialogContent>
       <DialogActions>
         <Grid container spacing={1}>
-          <Grid item xs={12} md={9}>
+          <Grid size={{xs: 12, md: 8}}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <Tabs
                 value={activeTab}
@@ -384,7 +385,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
               </Tabs>
             </Div>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{xs: 12, md: 4}}>
             <Stack spacing={1} direction={'row'} justifyContent={'end'} sx={{ mt: 1, mb: 1 }}>
               <Button size='small' onClick={() => toggleOpen(false)}>
                   Cancel
@@ -406,7 +407,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order }) {
               {
                 activeTab === 2 &&
                 <LoadingButton
-                  loading={receiveOrder.isLoading}
+                  loading={receiveOrder.isPending}
                   variant='contained'
                   size='small'
                   onClick={handleSubmit(() => handleSubmitForm(getValues()))}

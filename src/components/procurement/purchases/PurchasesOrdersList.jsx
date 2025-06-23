@@ -1,6 +1,7 @@
+'use client'
+
 import React, { useState } from 'react'
 import ProductsSelectProvider from '../../productAndServices/products/ProductsSelectProvider'
-import { useParams } from 'react-router-dom';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
 import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
@@ -11,17 +12,17 @@ import LedgerSelectProvider from '../../accounts/ledgers/forms/LedgerSelectProvi
 import PurchaseOrderListItem from './listItem/PurchaseOrderListItem';
 import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
 import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSelectProvider';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
 import ProductsProvider from '../../productAndServices/products/ProductsProvider';
 import PurchasesOrderStatusSelector from './PurchasesOrderStatusSelector';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import dayjs from 'dayjs';
 import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
-import { MODULES } from 'app/utils/constants/modules';
+import { useParams } from 'next/navigation';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { MODULES } from '@/utilities/constants/modules';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function PurchasesOrdersList() {
   const params = useParams();
@@ -118,9 +119,9 @@ function PurchasesOrdersList() {
                                         { 
                                         openFilters &&
                                             <>
-                                                <Grid item xs={12} lg={12}>
+                                                <Grid size={12}>
                                                     <Grid container spacing={1}>
-                                                        <Grid item xs={12} md={6}>
+                                                        <Grid size={{xs: 12, md: 6}}>
                                                             <DateTimePicker
                                                                 label="From"
                                                                 defaultValue={filterDate.from ? dayjs(filterDate.from) : null}
@@ -136,7 +137,7 @@ function PurchasesOrdersList() {
                                                                 }}
                                                             />
                                                         </Grid>
-                                                        <Grid item xs={11} md={5.5}>
+                                                        <Grid size={{xs: 11, md: 5.5}}>
                                                             <DateTimePicker
                                                                 label="To"
                                                                 defaultValue={ filterDate.to ? dayjs(filterDate.to) : null}
@@ -152,7 +153,7 @@ function PurchasesOrdersList() {
                                                                 }}
                                                             />
                                                         </Grid>
-                                                        <Grid item xs={1} md={0.5} alignContent={'end'}>
+                                                        <Grid size={{xs: 1, md: 0.5}} alignContent={'end'}>
                                                             <Tooltip title="Filter Dates">
                                                                 <IconButton onClick={() => {
                                                                     setQueryOptions(state => ({
@@ -172,14 +173,14 @@ function PurchasesOrdersList() {
                                                 </Grid>
                                             </> 
                                         }
-                                        <Grid item xs={12} md={6} lg={3} alignItems={'center'}>
+                                        <Grid size={{xs: 12, md: 6, lg: 3}} alignItems={'center'}>
                                             <PurchasesOrderStatusSelector
                                                 value={queryOptions.queryParams.status}
                                                 onChange={handleOnStatusChange}
                                             />
                                         </Grid>
                                         {multiCostCenters &&
-                                            <Grid item xs={12} md={6} lg={3}>
+                                            <Grid size={{xs: 12, md: 6, lg: 3}}>
                                                 <CostCenterSelector
                                                     label="Cost Centers"
                                                     allowSameType={true}
@@ -190,7 +191,7 @@ function PurchasesOrdersList() {
                                                 />
                                             </Grid>
                                         }
-                                        <Grid item xs={1} lg={0.5}>
+                                        <Grid size={{xs: 1, lg: 0.5}}>
                                             <Tooltip title={!openFilters ? 'Filter' : 'Clear Filters'}>
                                                 <IconButton size='small' onClick={() => {
                                                     setOpenFilters(!openFilters);
@@ -209,13 +210,13 @@ function PurchasesOrdersList() {
                                                 </IconButton>
                                             </Tooltip>
                                         </Grid>
-                                        <Grid item xs={10} lg={5}>
+                                        <Grid size={{xs: 10, lg: 5}}>
                                             <JumboSearch
                                                 onChange={handleOnKeywordChange}
                                                 value={queryOptions.queryParams.keyword}
                                             />
                                         </Grid>
-                                        <Grid item xs={1} lg={0.5}>
+                                        <Grid size={{xs: 1, lg: 0.5}}>
                                             <PurchaseOrderActionTail /> 
                                         </Grid>
                                     </Grid>

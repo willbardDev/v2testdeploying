@@ -1,18 +1,20 @@
+'use client'
+
 import JumboCardQuick from '@jumbo/components/JumboCardQuick'
-import { useJumboTheme } from '@jumbo/hooks';
 import { InsightsOutlined, ShoppingCartOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, Grid, Typography, useMediaQuery } from '@mui/material'
-import useProsERPStyles from 'app/helpers/style-helpers';
 import React, { useState } from 'react'
 import ProductInsights from './productInsights/ProductInsights';
 import PurchasesReport from './PurchasesReport';
 import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSelectProvider';
 import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { MODULES } from 'app/utils/constants/modules';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { MODULES } from '@/utilities/constants/modules';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 function ProcurementReports() {
 
@@ -47,15 +49,14 @@ function ProcurementReports() {
             sx={{ height:'100%'  }}
           >
             <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
-                <Grid item
+                <Grid
                   sx={{ 
                       cursor: 'pointer',
                       '&:hover': {
                           bgcolor: 'action.hover',
                       }
-                  }} xs={6} 
-                  md={3} 
-                  lg={2} 
+                  }}
+                  size={{xs: 6, md: 3, lg: 2}}
                   p={1}
                   textAlign={'center'}
                   onClick={() => {
@@ -68,15 +69,14 @@ function ProcurementReports() {
                 </Grid>
                 {
                   checkOrganizationPermission(PERMISSIONS.PURCHASES_REPORTS) &&
-                  <Grid item
+                  <Grid
                     sx={{ 
                         cursor: 'pointer',
                         '&:hover': {
                             bgcolor: 'action.hover',
                         }
-                    }} xs={6} 
-                    md={3} 
-                    lg={2} 
+                    }}
+                    size={{xs: 6, md: 3, lg: 2}}
                     p={1}
                     textAlign={'center'}
                     onClick={() => {

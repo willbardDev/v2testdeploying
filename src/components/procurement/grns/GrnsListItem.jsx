@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers'
 import GrnsListItemAction from './GrnsListItemAction';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 const GrnsListItem = ({ grn }) => {
   return (

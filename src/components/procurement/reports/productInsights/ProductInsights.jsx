@@ -4,19 +4,19 @@ import { Accordion, AccordionDetails, AccordionSummary, Autocomplete, Checkbox, 
 import ProductSelect from '../../../productAndServices/products/ProductSelect'
 import CostCenterSelector from '../../../masters/costCenters/CostCenterSelector';
 import storeServices from '../../stores/store-services';
-import { useQuery } from 'react-query';
 import { CheckBox, CheckBoxOutlineBlank, ExpandMoreOutlined } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import productServices from '../../../productAndServices/products/product-services';
+import productServices from '../../../productAndServices/products/productServices';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useQuery } from '@tanstack/react-query';
 
 function ProductInsights() {
   const {authOrganization} = useJumboAuth();
   const [product, setProduct] = useState(null);
   const [averageCost, setAverageCost] = useState(0);
-  const {costCenters} = authOrganization;
+  const costCenters = authOrganization?.costCenters;
 
   const {setValue,watch} = useForm({
     defaultValues: {
@@ -27,34 +27,47 @@ function ProductInsights() {
     }
   });
 
-  //Fetching Stores
-  const { data: stores, isLoading: isFetchingStores } = useQuery('stores', storeServices.getStoreOptions);
+  // Fetching Stores
+  const { data: stores, isLoading: isFetchingStores } = useQuery({
+    queryKey: ['stores'],
+    queryFn: storeServices.getStoreOptions,
+  });
 
-   //Retrieve the latest unit cost
-  const {data: balances, isLoading: isLoadingBalances} = useQuery(
-    [
+  // Retrieve the latest unit cost
+  const cost_centers = watch('cost_centers') || [];
+  const store_ids = watch('store_ids') || [];
+  const to = watch('to');
+
+  const { data: balances, isLoading: isLoadingBalances } = useQuery({
+    queryKey: [
       'balances',
       {
         product_id: product?.id,
-        cost_center_ids: watch('cost_centers').map(cost_center => cost_center.id),
-        asOf: watch('to'),
-        store_ids: watch('store_ids')
-      }
+        cost_center_ids: cost_centers.map((cc) => cc.id),
+        asOf: to,
+        store_ids,
+      },
     ],
-    async() => {
-      const cost_center = !!watch('cost_centers') && watch('cost_centers').length === 1 && watch('cost_centers')[0];
-      if(product?.id && watch('to') && watch('store_ids').length > 0 && cost_center){
+    queryFn: async () => {
+      // Only fetch if required params are valid
+      if (
+        product?.id &&
+        to &&
+        store_ids.length > 0 &&
+        cost_centers.length === 1
+      ) {
+        const cost_center = cost_centers[0];
         return await productServices.getStoreBalances({
           productId: product.id,
-          costCenterId : cost_center.id,
-          storeIds: watch('store_ids'),
-          sales_outlet_id: cost_center.type === "Sales Outlet" && cost_center.cost_centerable_id
-        })
-      } else {
-        return null;
+          costCenterId: cost_center.id,
+          storeIds: store_ids,
+          sales_outlet_id:
+            cost_center.type === 'Sales Outlet' ? cost_center.cost_centerable_id : undefined,
+        });
       }
+      return null;
     }
-  );
+  });
 
   useEffect(() => {
     if(stores && stores.length === 1){
@@ -84,7 +97,7 @@ function ProductInsights() {
       <DialogContent>
         <ProductsSelectProvider>
           <Grid container columnSpacing={1} rowSpacing={2} mt={1}>
-            <Grid item xs={12} lg={6}>
+            <Grid size={{xs: 12, lg: 6}}>
                 <ProductSelect
                   onChange={(newValue) => {
                     setProduct(newValue);
@@ -92,10 +105,9 @@ function ProductInsights() {
                   }}
                 />
             </Grid>
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
               <DateTimePicker
                 label="From (MM/DD/YYYY)"
-                fullWidth
                 minDate={dayjs(authOrganization.organization.recording_start_date)}
                 defaultValue={dayjs().startOf('month')}
                 slotProps={{
@@ -112,10 +124,9 @@ function ProductInsights() {
                 }}
               />
             </Grid>
-            <Grid item xs={12}  md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
               <DateTimePicker
                 label="To (MM/DD/YYYY)"
-                fullWidth
                 minDate={dayjs(watch('from'))}
                 defaultValue={dayjs()}
                 slotProps={{
@@ -134,7 +145,7 @@ function ProductInsights() {
             </Grid>
             {
               product?.type === 'Inventory' &&
-              <Grid item xs={12} lg={6}>
+              <Grid size={{xs: 12, lg: 6}}>
                 <Autocomplete
                   multiple
                   id="checkboxes-stores"
@@ -150,83 +161,51 @@ function ProductInsights() {
                       fullWidth
                     />
                   )}
-                  onChange={(e, stores) => {
-                    setValue('store_ids', stores.map(store => store.id));
+                  onChange={(e, selectedStores) => {
+                    setValue('store_ids', selectedStores.map(store => store.id));
                   }}
-
-                  renderTags={(tagValue, getTagProps)=> {
-                    return tagValue.map((option, index)=>{
-                      const {key, ...restProps} = getTagProps({index});
-                      return <Chip {...restProps} key={option.id+"-"+key} label={option.name} />
-                    })
+                  renderTags={(tagValue, getTagProps) => {
+                    return tagValue.map((option, index) => {
+                      const { key, ...restProps } = getTagProps({ index });
+                      return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
+                    });
                   }}
-
-                  {...{ renderOption: (props, option, { selected }) => (
-                    <li {...props}>
-                      <Checkbox
-                        icon={<CheckBoxOutlineBlank fontSize="small" />}
-                        checkedIcon={<CheckBox fontSize="small" />}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      {option.name}
-                    </li>
-                  )}}
+                  renderOption={(props, option, { selected }) => {
+                    // Destructure key from props, pass key explicitly, and spread remaining props
+                    const { key, ...otherProps } = props;
+                    return (
+                      <li key={key} {...otherProps}>
+                        <Checkbox
+                          icon={<CheckBoxOutlineBlank fontSize="small" />}
+                          checkedIcon={<CheckBox fontSize="small" />}
+                          style={{ marginRight: 8 }}
+                          checked={selected}
+                        />
+                        {option.name}
+                      </li>
+                    );
+                  }}
                 />
               </Grid>
             }
-            <Grid item xs={12} lg={6}>
-                <CostCenterSelector
-                  allowSameType={true}
-                  defaultValue={costCenters.length === 1  && costCenters}
-                  onChange={(cost_centers) => {
-                    setValue('cost_centers',cost_centers)
-                  }}
-                />
+            <Grid size={{xs: 12, lg: 6}}>
+                    <CostCenterSelector
+                        label="Cost Centers"
+                        defaultValue={Array.isArray(costCenters) && costCenters.length === 1 ? costCenters : []}
+                        onChange={(newValue) => {
+                            const valueArray = Array.isArray(newValue)
+                            ? newValue
+                            : newValue
+                            ? [newValue]
+                            : [];
+
+                            setValue('cost_centers', valueArray, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                            });
+                        }}
+                    />
             </Grid>
-            {/* {
-              <React.Fragment>
-                <Grid item xs={6} md={4} lg={2}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox 
-                        onChange={(e) => {
-                            
-                        }} 
-                        name="cost_trend"
-                      />
-                    }
-                    label="Cost Trend"
-                  />
-                </Grid>
-                <Grid item xs={6} md={4} lg={2}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox 
-                        onChange={(e) => {
-                            
-                        }} 
-                        name="stock_trend"
-                      />
-                    }
-                    label="Stock Trend"
-                  />
-                </Grid>
-              </React.Fragment>
-            }
-            <Grid item xs={6} md={4} lg={2}>
-              <FormControlLabel
-                control={
-                  <Checkbox 
-                    onChange={(e) => {
-                        
-                    }} 
-                    name="Price Trend"
-                  />
-                }
-                label="Price Trend"
-              />
-            </Grid> */}
           </Grid>
           {
             isLoadingBalances ? <LinearProgress/> :
@@ -234,7 +213,7 @@ function ProductInsights() {
             <Grid container columnSpacing={1} rowSpacing={1} mt={2} mb={2}>
                 {
                   balances?.stock_balances &&
-                  <Grid item xs={12} md={6} lg={4}>
+                  <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
                       <Typography sx={{ fontWeight:'bold' }}>Latest Average Cost:</Typography>
                       <Typography>{averageCost.toLocaleString()}</Typography>
@@ -243,7 +222,7 @@ function ProductInsights() {
                 }
                 {
                   balances?.selling_price &&
-                  <Grid item xs={12} md={6} lg={4}>
+                  <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
                       <Typography sx={{ fontWeight:'bold' }}>Latest Selling Price:</Typography>
                       <Typography>{balances.selling_price.bottom_cap.toLocaleString()}</Typography>
@@ -252,7 +231,7 @@ function ProductInsights() {
                 }
                 {
                   balances?.stock_balances && balances?.selling_price &&
-                  <Grid item xs={12} md={6} lg={4}>
+                  <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
                       <Typography sx={{ fontWeight:'bold' }}>Potential Profit:</Typography>
                       <Typography>{(balances.selling_price.bottom_cap-averageCost).toLocaleString()}</Typography>
@@ -283,25 +262,25 @@ function ProductInsights() {
                             padding: 1,
                           }}
                         >
-                          <Grid item xs={12} md={6} lg={4}>
+                          <Grid size={{xs: 12, md: 6, lg: 4}}>
                             <Stack direction="row" spacing={1}>
                               <Typography sx={{ fontWeight:'bold' }}>Store:</Typography>
                               <Typography>{stores.find(store => store.id === stock_balance.store_id).name}</Typography>
                             </Stack>
                           </Grid>
-                          <Grid item xs={12} md={6} lg={2.5}>
+                          <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
                               <Typography sx={{ fontWeight:'bold' }}>Stock Balance:</Typography>
                               <Typography>{stock_balance.balance}</Typography>
                             </Stack>
                           </Grid>
-                          <Grid item xs={12} md={6} lg={2.5}>
+                          <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
                               <Typography sx={{ fontWeight:'bold' }}>Avg Cost:</Typography>
                               <Typography>{averageCost.toLocaleString()}</Typography>
                             </Stack>
                           </Grid>
-                          <Grid item xs={12} md={6} lg={2.5}>
+                          <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
                               <Typography sx={{ fontWeight:'bold' }}>Value:</Typography>
                               <Typography>{(stock_balance.balance*averageCost).toLocaleString()}</Typography>

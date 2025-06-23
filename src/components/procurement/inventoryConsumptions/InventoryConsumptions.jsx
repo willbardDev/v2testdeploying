@@ -1,22 +1,24 @@
+'use client'
+
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react'
-import { useParams } from 'react-router-dom';
 import InventoryConsumptionsListItem from './InventoryConsumptionListItem';
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
 import InventoryConsumptionsActionTail from './InventoryConsumptionsActionTail';
 import ProductsSelectProvider from '../../productAndServices/products/ProductsSelectProvider';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import dayjs from 'dayjs';
 import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
-import { MODULES } from 'app/utils/constants/modules';
 import LedgerSelectProvider from '../../accounts/ledgers/forms/LedgerSelectProvider';
+import { useParams } from 'next/navigation';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { MODULES } from '@/utilities/constants/modules';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 const InventoryConsumptions = () => {
     const params = useParams();
@@ -93,7 +95,7 @@ return (
                                     { 
                                     openFilters &&
                                         <>
-                                            <Grid item xs={12} md={5.5} lg={3}>
+                                            <Grid size={{xs: 12, md: 5.5, lg: 3}}>
                                                 <DateTimePicker
                                                 label="From"
                                                 defaultValue={filterDate.from ? dayjs(filterDate.from) : null}
@@ -109,7 +111,7 @@ return (
                                                 }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} md={5.5} lg={3}>
+                                            <Grid size={{xs: 12, md: 5.5, lg: 3}}>
                                                 <DateTimePicker
                                                 label="To"
                                                 defaultValue={ filterDate.to ? dayjs(filterDate.to) : null}
@@ -125,7 +127,7 @@ return (
                                                 }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={1.5} md={1} lg={0.5} alignContent={'end'}>
+                                            <Grid size={{xs: 1.5, md: 1, lg: 0.5}} alignContent={'end'}>
                                                 <Tooltip title="Filter Dates">
                                                     <IconButton onClick={() => {
                                                         setQueryOptions(state => ({
@@ -143,7 +145,7 @@ return (
                                             </Grid>
                                         </>
                                     }
-                                    <Grid item xs={1.5} md={1} lg={0.5}>
+                                    <Grid size={{xs: 1.5, md: 1, lg: 0.5}}>
                                         <Tooltip title={!openFilters ? 'Filter' : 'Clear Filters'}>
                                             <IconButton onClick={() => {
                                                 setOpenFilters(!openFilters);
@@ -162,7 +164,7 @@ return (
                                             </IconButton>
                                         </Tooltip>
                                     </Grid>
-                                    <Grid item xs={openFilters ? 9 : 10.5} md={11} lg={5}>
+                                    <Grid size={{xs: openFilters ? 9 : 10.5, md: 11, lg: 5}}>
                                         <Stack direction={'row'}>
                                             <JumboSearch
                                                 onChange={handleOnChange}

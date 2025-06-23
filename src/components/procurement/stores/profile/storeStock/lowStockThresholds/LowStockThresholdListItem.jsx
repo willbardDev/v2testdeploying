@@ -2,11 +2,7 @@ import { Box, Chip, Grid, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import LowStockThresholdItemAction from './LowStockThresholdItemAction'
 
-
-
 function LowStockThresholdListItem({lowStockAlert}) {
-
-
   return (
     <React.Fragment>
         <Grid
@@ -25,12 +21,12 @@ function LowStockThresholdListItem({lowStockAlert}) {
             alignItems={'center'}
         >
             
-            <Grid item xs={12} md={6}>
+            <Grid size={{xs: 12, md: 6}}>
                 <Tooltip title='Product Name'>
                   <Typography>{lowStockAlert.product.name}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{xs: 6, md: 3}}>
               <Tooltip title="Cost Center Name">
                 {lowStockAlert.cost_centers && lowStockAlert.cost_centers.length > 0 ? (
                   <div>
@@ -45,12 +41,12 @@ function LowStockThresholdListItem({lowStockAlert}) {
                 )}
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={2} textAlign='center'>
+            <Grid size={{xs: 6, md: 2}} textAlign='center'>
               <Tooltip title='Threshold'>
                 <Chip label={lowStockAlert.threshold} size="small" style={{ marginRight: 4 }} color='warning'/>
               </Tooltip>
             </Grid>
-            <Grid item xs={12} md={1}>
+            <Grid size={{xs: 12, md: 1}}>
                 <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'} > 
                   <LowStockThresholdItemAction lowStockAlert={lowStockAlert}/>
                 </Box>

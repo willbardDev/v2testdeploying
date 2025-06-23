@@ -1,5 +1,4 @@
 import JumboContentLayout from '@jumbo/components/JumboContentLayout'
-import { useJumboTheme } from '@jumbo/hooks';
 import { Card, useMediaQuery } from '@mui/material';
 import React from 'react'
 import StoreProfileContent from './StoreProfileContent';
@@ -7,6 +6,7 @@ import StoreProfileHeader from './StoreProfileHeader'
 import StoreProfileProvider from './StoreProfileProvider';
 import StoreProfileSidebar from './StoreProfileSidebar';
 import StoreSelectionForMobile from './StoreSelectionForMobile';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function StoreProfile() {
     const {theme} = useJumboTheme();

@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import { LoadingButton } from '@mui/lab';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
+import productServices from '@/components/productAndServices/products/productServices';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
 function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null,index = -1, setShowForm = null, items=[], setItems, getUpdatedBalanceItems, setIsDirty }) {
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -39,7 +39,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                     ),
                     otherwise: yup.number().positive("Quantity must be a positive number").typeError('Quantity is required'),
                 }
-            )        
+            )
             .test('quantity Exceeded', 'The quantity exceeds the balance', function (value) {
                 const availableBalance = parseFloat(watch('available_balance'));
                 return availableBalance === 'N/A' || !value || value <= availableBalance;
@@ -161,7 +161,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
     <>
         <form autoComplete='off' onSubmit={handleSubmit(updateItems)} >
             <Grid container columnSpacing={1} rowSpacing={1} mb={2} mt={1}>
-                <Grid item xs={12} md={4} lg={4}>
+                <Grid size={{xs: 12, md: 4}}>
                     <ProductSelect
                         label='Product'
                         frontError={errors.product}
@@ -197,7 +197,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                     />
                 </Grid>
                 {!!product &&
-                    <Grid item xs={12} md={2} lg={2}>
+                    <Grid size={{xs: 12, md: 2}}>
                         {
                             isRetrieving ? <LinearProgress/> :
                                 <TextField
@@ -214,7 +214,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                         }
                     </Grid>
                 }
-                <Grid item xs={12} md={!!product ? 2 : 4} lg={!!product ? 2 : 4}>
+                <Grid size={{xs: 6, md: !!product ? 2 : 4}}>
                     <TextField
                         label="Quantity"
                         fullWidth
@@ -265,7 +265,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                         defaultValue={item ? item?.quantity : null}
                     />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{xs: 12, md: 4}}>
                     <LedgerSelect
                         multiple={false}
                         label="Corresponding Ledger"
@@ -277,7 +277,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                         }} 
                     />
                 </Grid>
-                <Grid item xs={12} md={8}>
+                <Grid size={{xs: 12, md: 8}}>
                     <TextField
                         label="Description"
                         fullWidth
@@ -287,7 +287,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                         {...register(`description`)}
                     />
                 </Grid>
-                <Grid textAlign={'end'} item xs={12} md={4}>
+                <Grid textAlign={'end'} size={{xs: 12, md: 4}}>
                     <LoadingButton
                         loading={false}
                         variant='contained'

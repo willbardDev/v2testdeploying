@@ -1,10 +1,10 @@
 import { AddOutlined } from '@mui/icons-material'
 import { Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
-import { useJumboTheme } from '@jumbo/hooks';
 import PurchaseOrderDialogForm from './purchaseOrderForm/PurchaseOrderDialogForm';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function PurchaseOrderActionTail() {
     const {checkOrganizationPermission} = useJumboAuth()

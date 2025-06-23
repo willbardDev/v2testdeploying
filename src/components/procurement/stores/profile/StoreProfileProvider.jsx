@@ -1,12 +1,12 @@
 import { LinearProgress } from '@mui/material';
-import ProductsSelectProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
 import React, { createContext, useContext, useState } from 'react'
-import { useQuery } from 'react-query';
-import { useParams } from 'react-router-dom';
 import storeServices from '../store-services';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
-import { MODULES } from 'app/utils/constants/modules';
+import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { MODULES } from '@/utilities/constants/modules';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 
 const StoreProfileContext = createContext({});
 
@@ -14,10 +14,15 @@ export const useStoreProfile = () => useContext(StoreProfileContext);
 
 function StoreProfileProvider({children}) {
   const params = useParams();
-  const {data:mainStore,isFetching : isFetchingStore,isFetched} = useQuery(['showStore',{id:params.store_id}],storeServices.show);
   const [content, setContent] = useState(0);
   const [activeStore, setActiveStore] = useState(mainStore);
   const [storeArrays, setStoreArrays] = useState({ storeIds: [],selectOptions:[]})
+
+  const { data: mainStore, isFetching: isFetchingStore, isFetched } = useQuery({
+    queryKey: ['showStore', { id: params.store_id }],
+    queryFn: () => storeServices.show(params.store_id),
+    enabled: !!params.store_id,
+  });
 
   const populateStoreArrays = (store) => {
     setStoreArrays(storeArrays => ({

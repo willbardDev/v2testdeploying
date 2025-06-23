@@ -1,4 +1,3 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
 import { LoadingButton } from '@mui/lab'
 import { Button, DialogActions, DialogContent, DialogTitle, Divider, Grid, Alert, Dialog, Tooltip, IconButton } from '@mui/material'
 import dayjs from 'dayjs'
@@ -6,7 +5,6 @@ import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
 import purchaseServices from '../purchase-services'
 import { useSnackbar } from 'notistack'
 import stakeholderServices from '../../../masters/stakeholders/stakeholder-services'
@@ -16,6 +14,8 @@ import PurchaseOrderSummary from './PurchaseOrderSummary'
 import PurchaseOrderTopInformation from './PurchaseOrderTopInformation'
 import PurchaseOrderPaymentAndReceive from './PurchaseOrderPaymentAndReceive'
 import { HighlightOff } from '@mui/icons-material'
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   const {authOrganization} = useJumboAuth();
@@ -142,41 +142,46 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   },[rowAmount]);
 
   //Load Stakeholder credit ledgers
-  const {data: stakeholderPayableLedgers} = useQuery(['stakeholderPayableLedgers',{ stakeholderId : watch('stakeholder_id')}], async() => {
-    const stakeholder_id = watch('stakeholder_id');
-    let retVal = [];
-    if(stakeholder_id){
-      retVal = await stakeholderServices.getLedgers({stakeholder_id,type: 'all'});
-    }
-    if(retVal.length > 0){
-      setValue('stakeholder_ledger_id',retVal[0].id);
-    } else {
-      setValue('stakeholder_ledger_id',null);
-    }
-    return retVal;
+  const stakeholder_id = watch('stakeholder_id');
+  const { data: stakeholderPayableLedgers } = useQuery({
+    queryKey: ['stakeholderPayableLedgers', { stakeholderId: stakeholder_id }],
+    queryFn: async () => {
+      if (!stakeholder_id) return [];
+      return stakeholderServices.getLedgers({ stakeholder_id, type: 'all' });
+    },
+    enabled: !!stakeholder_id, // avoid unnecessary fetches
+    onSuccess: (data) => {
+      if (data.length > 0) {
+        setValue('stakeholder_ledger_id', data[0].id);
+      } else {
+        setValue('stakeholder_ledger_id', null);
+      }
+    },
   });
   
-  const addPurchaseOrder = useMutation(purchaseServices.add,{
+  const addPurchaseOrder = useMutation({
+    mutationFn: purchaseServices.add,
     onSuccess: (data) => {
       toggleOpen(false);
-      enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['purchaseOrders']);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-    }
-  })
-  
-  const updatePurchaseOrder = useMutation(purchaseServices.update,{
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
+  });
+
+  const updatePurchaseOrder = useMutation({
+    mutationFn: purchaseServices.update,
     onSuccess: (data) => {
       toggleOpen(false);
-      enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['purchaseOrders']);
-      queryClient.invalidateQueries(['purchaseOrderGrns']);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-    }
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
   });
 
   const saveMutation = React.useMemo(() => {
@@ -211,18 +216,18 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
     <FormProvider {...{items, instant_receive, instant_pay, displayStoreSelector, setDisplayStoreSelector, addedStakeholder, order_date, costCenters, totalAmount, vatableAmount, checked, setChecked, setValue, stakeholderQuickAddDisplay, errors, order, clearErrors, watch, setStakeholderQuickAddDisplay, setAddedStakeholder, register}}>
       <DialogTitle>
         <Grid container columnSpacing={2}>
-          <Grid textAlign={'center'} item xs={12} mb={3}>
+          <Grid textAlign={'center'} size={{xs: 12}} mb={5}>
             {!order ? `New Purchase Order` : `Edit Order: ${order.orderNo}` }
           </Grid>
-          <Grid item xs={12} md={8} lg={9} mb={2}>
+          <Grid size={{xs: 12, md: 8, lg: 9}}>
             <form autoComplete='off'>
               <PurchaseOrderTopInformation/>
             </form>
           </Grid>
-          <Grid item xs={12} md={4} lg={3}>
+          <Grid size={{xs: 12, md: 4, lg: 3}}>
             <PurchaseOrderSummary/>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <PurchaseOrderItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setItems={setItems} checked={checked} getLastPriceItems={getLastPriceItems}/>
             <Divider/>
           </Grid>
@@ -244,10 +249,10 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={11}>
+              <Grid size={11}>
                 Unsaved Changes
               </Grid>
-              <Grid item xs={1} textAlign="right">
+              <Grid size={1} textAlign="right">
                 <Tooltip title="Close">
                   <IconButton
                     size="small" 
@@ -280,7 +285,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
           variant='contained' 
           size='small'
           onClick={onSubmit}
-          loading={addPurchaseOrder.isLoading || updatePurchaseOrder.isLoading}>
+          loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}>
             Submit
         </LoadingButton>
       </DialogActions>

@@ -5,14 +5,14 @@ import { LoadingButton } from '@mui/lab';
 import {useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useStoreProfile } from '../../StoreProfileProvider';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
-import Div from '@jumbo/shared/Div/Div';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
 import LowStockThreholdsList from './LowStockThresholdsList';
 import lowStockThresholdServices from './lowStockThreshold-services';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import { Div } from '@jumbo/shared';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 
 function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
   const {activeStore} = useStoreProfile();
@@ -41,14 +41,15 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
   });
 
   //Mutation methods
-  const addLowStockAlerts = useMutation(lowStockThresholdServices.add, {
+  const addLowStockAlerts = useMutation({
+    mutationFn: lowStockThresholdServices.add,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['lowStockAlerts']);
+      queryClient.invalidateQueries({ queryKey: ['lowStockAlerts'] });
       reset();
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
@@ -63,9 +64,9 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
           onSubmit={handleSubmit(saveMutation)} 
         >
           {
-            addLowStockAlerts.isLoading ? <LinearProgress/> :
+            addLowStockAlerts.isPending ? <LinearProgress/> :
             <Grid container columnSpacing={1}>
-              <Grid item xs={12} md={4}>
+              <Grid size={{xs: 12, md: 4}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <ProductSelect
                     multiple={true}
@@ -82,7 +83,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid size={{xs: 12, md: 3}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
                     size='small'
@@ -101,7 +102,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid size={{xs: 12, md: 4}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <CostCenterSelector
                     fullWidth 
@@ -117,10 +118,10 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} lg={1} textAlign={'end'}>
+              <Grid size={{xs: 12, lg: 1}} textAlign={'end'}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <LoadingButton
-                      loading={addLowStockAlerts.isLoading} 
+                      loading={addLowStockAlerts.isPending} 
                       size='small' 
                       variant='contained'
                       type='submit'

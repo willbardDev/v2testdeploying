@@ -11,7 +11,7 @@ import {
   TableCell,
   TableBody
 } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function InventoryTransferOnScreen({ transfer, organization }) {
   const mainColor = organization.settings?.main_color || "#2113AD";
@@ -21,26 +21,26 @@ function InventoryTransferOnScreen({ transfer, organization }) {
   return (
     <div>
       <Grid container spacing={2} marginBottom={2} paddingTop={2}>
-        <Grid item xs={12} textAlign="center">
+        <Grid size={12} textAlign="center">
           <Typography variant="h4" color={mainColor}>INVENTORY TRANSFER</Typography>
           <Typography variant="subtitle1" fontWeight="bold">{transfer.transferNo}</Typography>
         </Grid>
       </Grid>
 
       <Grid container spacing={2} marginBottom={2}>
-        <Grid item xs={6} md={4}>
+        <Grid size={{xs: 6, md: 4}}>
           <Typography variant="body2" color={mainColor}>Transfer Date:</Typography>
           <Typography variant="body2">{readableDate(transfer.transfer_date)}</Typography>
         </Grid>
-        <Grid item xs={6} md={4}>
+        <Grid size={{xs: 6, md: 4}}>
           <Typography variant="body2" color={mainColor}>Cost Center:</Typography>
           <Typography variant="body2">{transfer.source_cost_center.name}</Typography>
         </Grid>
-        <Grid item xs={6} md={4}>
+        <Grid size={{xs: 6, md: 4}}>
           <Typography variant="body2" color={mainColor}>From:</Typography>
           <Typography variant="body2">{transfer.source_store.name}</Typography>
         </Grid>
-        <Grid item xs={6} md={4}>
+        <Grid size={{xs: 6, md: 4}}>
           <Typography variant="body2" color={mainColor}>To:</Typography>
           <Typography variant="body2">{transfer.destination_store.name}</Typography>
         </Grid>
@@ -49,7 +49,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
       {( 
         <>
           <Grid container spacing={1} paddingTop={2}>
-            <Grid item xs={12} textAlign={'center'}>
+            <Grid size={12} textAlign={'center'}>
               <Typography variant="h6" color={mainColor}>ITEMS</Typography>
             </Grid>
           </Grid>
@@ -79,7 +79,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
 
       {transfer.vehicle_information && (
         <Grid container paddingTop={3}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Tooltip title="Information about the vehicle used for the transfer">
               <Typography variant="body2" color={mainColor}>Vehicle Information:</Typography>
             </Tooltip>
@@ -90,7 +90,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
 
       {transfer.driver_information && (
         <Grid container paddingTop={3}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Tooltip title="Information about the driver handling the transfer">
               <Typography variant="body2" color={mainColor}>Driver Information:</Typography>
             </Tooltip>
@@ -100,7 +100,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
       )}
 
       <Grid container paddingTop={3}>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <Typography variant="body2" color={mainColor}>Narration</Typography>
           <Typography variant="body2">{transfer.narration}</Typography>
         </Grid>

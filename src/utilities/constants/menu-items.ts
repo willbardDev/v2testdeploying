@@ -89,6 +89,39 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.procurementAndSupply,
+      children: [
+        {
+          path: `/${locale}/procurement/purchases`,
+          label: sidebar.menuItem.purchases,
+          icon: 'purchases',
+        },
+        {
+          path: `/${locale}/procurement/consumptions`,
+          label: sidebar.menuItem.consumptions,
+          icon: 'consumptions',
+        },
+        {
+          path: `/${locale}/procurement/reports`,
+          label: sidebar.menuItem.reports,
+          icon: 'barcharts',
+        },
+        {
+          path: `/${locale}/procurement/products`,
+          label: sidebar.menuItem.products,
+        },
+        {
+          path: `/${locale}/procurement/product_categories`,
+          label: sidebar.menuItem.product_categories,
+        },
+        {
+          path: `/${locale}/procurement/stores`,
+          label: sidebar.menuItem.stores,
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.masters,
       children: [
         {

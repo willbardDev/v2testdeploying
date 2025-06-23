@@ -1,24 +1,28 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
 import grnServices from '../../grns/grn-services';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useCurrencySelect } from '../../../masters/Currencies/CurrencySelectProvider';
 import PDFContent from '../../../pdf/PDFContent';
 import GrnPDF from '../../grns/GrnPDF';
 import purchaseServices from '../purchase-services';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { useJumboTheme } from '@jumbo/hooks';
 import { useSnackbar } from 'notistack';
 import { useContext } from 'react';
 import { listItemContext } from './PurchaseOrderListItem';
-import AttachmentForm from 'app/prosServices/prosERP/filesShelf/attachments/AttachmentForm';
 import GrnOnScreenPreview from '../../grns/GrnOnScreenPreview';
 import { HighlightOff } from '@mui/icons-material';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 
 const DocumentDialog = ({ orderGrn, organization, checkOrganizationPermission, setOpenDocumentDialog }) => {
     const { currencies } = useCurrencySelect();
     const baseCurrency = currencies.find((currency) => !!currency?.is_base);
-    const { data: grn, isFetching } = useQuery(['grns', { id: orderGrn.id }], async () => grnServices.grnDetails(orderGrn.id));
+    
+    const { data: grn, isFetching } = useQuery({
+      queryKey: ['grns', { id: orderGrn.id }],
+      queryFn: () => grnServices.grnDetails(orderGrn.id),
+    });
 
     //Screen handling constants
     const {theme} = useJumboTheme();
@@ -38,13 +42,13 @@ const DocumentDialog = ({ orderGrn, organization, checkOrganizationPermission, s
       <DialogContent>
         {belowLargeScreen && (
           <Grid container alignItems="center" justifyContent="space-between" marginBottom={2}>
-            <Grid item xs={11}>
+            <Grid size={11}>
                 <Tabs value={activeTab} onChange={handleTabChange} aria-label="grn tabs">
                   <Tab label="ONSCREEN" />
                   <Tab label="PDF" />
                 </Tabs>
             </Grid>
-            <Grid item xs={1} textAlign="right">
+            <Grid size={1} textAlign="right">
               <Tooltip title="Close">
                 <IconButton
                   size="small"
@@ -89,18 +93,18 @@ function PurchaseOrderGrnsItemAction() {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: unReceiveGrn } = useMutation(purchaseServices.unReceiveOrderGrn, {
-        onSuccess: (data) => {
-          queryClient.invalidateQueries(['purchaseOrders']);
-          enqueueSnackbar(data.message, {
-            variant: 'success',
-          });
-          setExpanded(!expanded)
-        },
-        onError: (error) => {
-          enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
-        },
-    });
+  const { mutate: unReceiveGrn }  = useMutation({
+    mutationFn: purchaseServices.unReceiveOrderGrn,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+      setExpanded(prev => !prev);
+    },
+    onError: (error) => {
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
+  });
 
   return (
     <React.Fragment>

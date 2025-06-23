@@ -2,7 +2,7 @@ import { AddOutlined } from '@mui/icons-material'
 import { ButtonGroup, Tooltip,IconButton, Dialog, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
 import InventoryTransferForm from './form/InventoryTransferForm'
-import { useJumboTheme } from '@jumbo/hooks'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
 
 const InventoryTransferActionTail = ({type}) => {
     const [openDialog, setOpenDialog] = useState(false);

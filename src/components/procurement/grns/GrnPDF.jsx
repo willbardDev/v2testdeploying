@@ -1,10 +1,10 @@
 import React from 'react'
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import { Text, View,Document,Page} from '@react-pdf/renderer'
 import pdfStyles from '../../pdf/pdf-styles';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import PdfLogo from '../../pdf/PdfLogo';
 import PageFooter from '../../pdf/PageFooter';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 const styles = pdfStyles;
 

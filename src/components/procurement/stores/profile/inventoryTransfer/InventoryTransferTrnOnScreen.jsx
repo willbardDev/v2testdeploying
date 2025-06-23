@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function InventoryTransferTrnOnScreen({ trn, organization }) {
     const mainColor = organization.settings?.main_color || "#2113AD";
@@ -10,22 +10,22 @@ function InventoryTransferTrnOnScreen({ trn, organization }) {
     return (
         <div>
             <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                <Grid item xs={12} textAlign="center">
+                <Grid size={12} textAlign="center">
                     <Typography variant="h4" sx={{ color: mainColor }}>TRN</Typography>
                     <Typography variant="subtitle1" fontWeight="bold">{trn.trnNo}</Typography>
                 </Grid>
             </Grid>
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={4}>
+                <Grid size={4}>
                     <Typography variant="subtitle2" sx={{ color: mainColor }}>Transfer No</Typography>
                     <Typography>{trn.transfer.transferNo}</Typography>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={4}>
                     <Typography variant="subtitle2" sx={{ color: mainColor }}>Date Received</Typography>
                     <Typography>{readableDate(trn.date_received)}</Typography>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={4}>
                     <Typography variant="subtitle2" sx={{ color: mainColor }}>Received by</Typography>
                     <Typography>{trn.creator.name}</Typography>
                 </Grid>
@@ -53,7 +53,7 @@ function InventoryTransferTrnOnScreen({ trn, organization }) {
             </Paper>
 
             <Grid container sx={{ mt: 3 }}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="subtitle2" sx={{ color: mainColor }}>Remarks</Typography>
                     <Typography>{trn.remarks}</Typography>
                 </Grid>

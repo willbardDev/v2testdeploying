@@ -1,12 +1,15 @@
+'use client';
+
 import { Box, Grid, ListItemText, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import StoreItemAction from './StoreItemAction'
-import { useNavigate } from 'react-router-dom';
-
-
+import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 
 const StoreListItem = ({store}) => {
-  const navigate = useNavigate();
+  const lang = useLanguage();
+  const router = useRouter();
+
   return( 
     <Grid container 
     columnSpacing={1}
@@ -21,7 +24,7 @@ const StoreListItem = ({store}) => {
   }}
   alignItems={'center'}
   >
-    <Grid item xs={5}  lg={5}>
+    <Grid size={5}>
       <ListItemText
         primary={
           <Tooltip title="Name">
@@ -30,10 +33,10 @@ const StoreListItem = ({store}) => {
             </Typography>
           </Tooltip>
         }
-        onClick={() => navigate(`/procurement/stores/${store.id}`)}
+        onClick={() => router.push(`/${lang}/components/procurement/stores/${store.id}`)}
       />
     </Grid>
-    <Grid item xs={4} lg={4}>
+    <Grid size={4}>
       <ListItemText
         primary={
           <Tooltip title="symbol">
@@ -44,7 +47,7 @@ const StoreListItem = ({store}) => {
         }
       />
     </Grid>
-    <Grid item xs={3} lg={2}>
+    <Grid size={{xs: 3, lg: 2}}>
       <ListItemText
         primary={
           <Tooltip title="Description">
@@ -55,7 +58,7 @@ const StoreListItem = ({store}) => {
         }
       />
     </Grid>
-    <Grid item xs={12} lg={1}>
+    <Grid size={{xs: 12, lg: 1}}>
         <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'}> 
         <StoreItemAction store={store} />
         </Box>

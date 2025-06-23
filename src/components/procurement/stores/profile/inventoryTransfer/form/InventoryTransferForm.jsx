@@ -4,23 +4,22 @@ import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
-import Div from '@jumbo/shared/Div/Div';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import InventoryTransferItemRow from './InventoryTransferItemRow';
 import InventoryTrasferItemForm from './InventoryTrasferItemForm';
 import storeServices from '../../../store-services';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
 import inventoryTransferServices from '../inventoryTransfer-services';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
 import StoreSelector from '../../../StoreSelector';
-import posServices from 'app/prosServices/prosERP/pos/pos-services';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { HighlightOff } from '@mui/icons-material';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { Div } from '@jumbo/shared';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
 function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
   const [items, setItems] = useState(transfer ? transfer.items: []);
@@ -82,26 +81,30 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
 
   const transferDate = watch(`transfer_date`)
 
-  const addInventoryTransfer = useMutation(inventoryTransferServices.add, {
+  const addInventoryTransfer = useMutation({
+    mutationFn: inventoryTransferServices.add,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['inventoryTransfers']);
+      queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      const message = error?.response?.data?.message;
+      if (message) enqueueSnackbar(message, { variant: 'error' });
+    },
   });
 
-  const updateInventoryTransfer = useMutation(inventoryTransferServices.update, {
+  const updateInventoryTransfer = useMutation({
+    mutationFn: inventoryTransferServices.update,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['inventoryTransfers']);
+      queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      const message = error?.response?.data?.message;
+      if (message) enqueueSnackbar(message, { variant: 'error' });
+    },
   });
 
   const saveMutation = React.useMemo(() => {
@@ -140,9 +143,9 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
   return (
     <React.Fragment>
       <DialogTitle>
-        <Grid item xs={12} md={12} lg={12}>
+        <Grid size={12}>
           <form autoComplete='off'>
-            <Grid item xs={12} textAlign={"center"} mb={2}>
+            <Grid size={12} textAlign={"center"} mb={2}>
               {!transfer
                 ? type === 'external' ? 'New External Inventory Transfer'
                   : type === 'internal' ? 'New Internal Inventory Transfer'
@@ -151,7 +154,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                 : `Edit ${transfer.transferNo}`}
             </Grid>
             <Grid container spacing={1}>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid size={{xs: 12, md: 6, lg: 6}}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
                     fullWidth
@@ -176,7 +179,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                 </Div>
               </Grid>
               { (type === 'internal' || transfer?.type === 'Internal') &&
-                  <Grid item xs={12} md={6} lg={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1 }}>
                       <StoreSelector
                         allowSubStores={true}
@@ -196,7 +199,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                   </Grid>
                 }
               { (type === 'external' || transfer?.type === 'External') &&
-                  <Grid item xs={12} md={6} lg={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1 }}>
                       <Autocomplete
                         multiple={false}
@@ -225,7 +228,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                     </Div>
                   </Grid>
                 }
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1 }}>
                       <CostCenterSelector
                         multiple={false}
@@ -250,7 +253,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                   </Grid>
                {(type === 'cost center change' || transfer?.type === 'Cost Center Change') &&
                 <>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1 }}>
                       <CostCenterSelector
                         multiple={false}
@@ -268,7 +271,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                       />
                     </Div>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1 }}>
                       <LedgerSelect
                         multiple={false}
@@ -289,7 +292,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
               }
               { (type === 'external' || transfer?.type === 'External') &&
                 <>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{xs: 12, md: 6, lg: 6}}>
                     <Div sx={{ mt: 1}}>
                       <Checkbox
                         checked={change_cost_center}
@@ -308,7 +311,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                   </Grid>
                   {watch(`change_cost_center`) === 1 &&
                     <>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{xs: 12, md: 6, lg: 6}}>
                         <Div sx={{ mt: 1 }}>
                           <CostCenterSelector
                             multiple={false}
@@ -326,7 +329,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                           />
                         </Div>
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{xs: 12, md: 6, lg: 6}}>
                         <Div sx={{ mt: 1 }}>
                           <LedgerSelect
                             multiple={false}
@@ -350,7 +353,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
               { 
                 (type === 'external' || transfer?.type === 'External') &&
                   <>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6, lg: 6}}>
                       <Div sx={{ mt: 1 }}>
                             <Autocomplete
                                 id="checkboxes-vehicles"
@@ -383,7 +386,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                             />
                       </Div>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6, lg: 6}}>
                       <Div sx={{ mt: 1 }}>
                         <Autocomplete
                             id="checkboxes-drivers"
@@ -418,7 +421,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                   </Grid>
                 </>
               }
-              <Grid item xs={12} md={(type === 'internal' || transfer?.type === 'Internal') ? 6 : 12}>
+              <Grid size={{xs: 12, md: (type === 'internal' || transfer?.type === 'Internal') ? 6 : 12}}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
                     label='Narration'
@@ -435,7 +438,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
             </Grid>
           </form>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <InventoryTrasferItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setItems={setItems} items={items} transfer={transfer} sourceCostCenterId={watch('source_cost_center_id')} transferDate={transferDate}/>
         </Grid>
       </DialogTitle>
@@ -460,10 +463,10 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={11}>
+              <Grid size={11}>
                 Unsaved Changes
               </Grid>
-              <Grid item xs={1} textAlign="right">
+              <Grid size={1} textAlign="right">
                 <Tooltip title="Close">
                   <IconButton
                     size="small" 
@@ -493,7 +496,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
           Cancel
         </Button>
         <LoadingButton
-          loading={addInventoryTransfer.isLoading || updateInventoryTransfer.isLoading}
+          loading={addInventoryTransfer.isPending || updateInventoryTransfer.isPending}
           variant='contained'
           size='small'
           onClick={onSubmit}

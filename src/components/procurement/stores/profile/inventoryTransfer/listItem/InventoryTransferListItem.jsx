@@ -1,13 +1,13 @@
 import React, { createContext, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Chip, Divider, Grid, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import inventoryTransferServices from '../inventoryTransfer-services';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuery } from 'react-query';
 import InventoryTransferTrns from './InventoryTransferTrns';
 import InventoryTransferListItemAction from './InventoryTransferListItemAction';
 import InventoryTransferTrnsItemAction from './InventoryTransferTrnsItemAction';
+import { useQuery } from '@tanstack/react-query';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 export const listItemContext = createContext({});
 
@@ -17,12 +17,11 @@ const TransferListItem = ({ transfer, type }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
 
-  const { data: inventoryTrns, isLoading } = useQuery(
-    ['inventoryTrns', {orderId: transfer.id}],() => inventoryTransferServices.getInventoryTrns(transfer.id),
-    {
-      enabled: expanded, 
-    }
-  );
+  const { data: inventoryTrns, isLoading } = useQuery({
+    queryKey: ['inventoryTrns', { orderId: transfer.id }],
+    queryFn: () => inventoryTransferServices.getInventoryTrns(transfer.id),
+    enabled: expanded,
+  });
 
   return (
     <listItemContext.Provider value={{ transfer,inventoryTrns,expanded,setExpanded,selectedInventoryTrn,setSelectedInventoryTrn,openDialog,setOpenDialog,openDocumentDialog,setOpenDocumentDialog}}>
@@ -73,7 +72,7 @@ const TransferListItem = ({ transfer, type }) => {
                 columnSpacing={3}
                 container
               >
-                <Grid item xs={5} md={3}>
+                <Grid size={{xs: 5, md: 3}}>
                   <Tooltip title={'Transfer Date'}>
                     <Typography>{readableDate(transfer.transfer_date)}</Typography>
                   </Tooltip>
@@ -83,7 +82,7 @@ const TransferListItem = ({ transfer, type }) => {
                 </Grid>
               { (type === 'external' || type === 'internal') &&
                 <>
-                  <Grid item xs={7} md={6} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
+                  <Grid size={{xs: 7, md: 6}} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
                     <Tooltip title={'Source and Destination Store'}>
                       <Typography>{`${transfer.source_store?.name} ➡ ${transfer.destination_store?.name}`}</Typography>
                     </Tooltip>
@@ -100,13 +99,13 @@ const TransferListItem = ({ transfer, type }) => {
                 </>
               }
               { type === 'cost center change' &&
-                <Grid item xs={7} md={6} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
+                <Grid size={{xs: 7, md: 6}} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
                   <Tooltip title={'Source and Destination Cost Center'}>
                     <Chip label={`${transfer.source_cost_center?.name} ➡ ${transfer.destination_cost_center?.name}`} color="default" />
                   </Tooltip>
                 </Grid>
               }
-                <Grid item xs={11} md={3} textAlign='right'>
+                <Grid size={{xs: 11, md: 3}} textAlign='right'>
                   <Tooltip title={'Status'}>
                       <Chip
                         size='small' 

@@ -1,9 +1,8 @@
 import { Box, LinearProgress, Tab, Tabs } from '@mui/material'
 import React, { lazy } from 'react'
 import { useStoreProfile } from './StoreProfileProvider'
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 const StoreReports = lazy(() => import('./reports/StoreReports'));
 const StockAdjustments = lazy(() => import('./stockAdjustments/StockAdjustments'));
 const Transfer = lazy(() => import('./inventoryTransfer/InventoryTransfer'));

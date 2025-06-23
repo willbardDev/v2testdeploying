@@ -1,16 +1,15 @@
 import { AttachmentOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
-import {useQuery} from 'react-query';
 import React, { useState } from 'react';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent'
-import grnServices from './grn-services';
-import { useJumboTheme } from '@jumbo/hooks';
 import GrnPDF from './GrnPDF';
 import { useCurrencySelect } from '../../masters/Currencies/CurrencySelectProvider';
 import AttachmentForm from '../../filesShelf/attachments/AttachmentForm';
 import GrnOnScreenPreview from './GrnOnScreenPreview';
+import { useQuery } from '@tanstack/react-query';
+import grnServices from './grn-services';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PDFContent from '@/components/pdf/PDFContent';
+import { JumboDdMenu } from '@jumbo/components';
 
 const DocumentDialog = ({ grn_id, organization, checkOrganizationPermission, setOpenDocumentDialog }) => {
   const { currencies } = useCurrencySelect();

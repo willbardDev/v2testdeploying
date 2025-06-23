@@ -20,35 +20,35 @@ function AdditionalCostsTabRow({ additionalCost, setIsDirty, index}) {
               }
             }}
           >
-            <Grid item xs={1} md={0.5}>
+            <Grid size={{xs: 1, md: 0.5}}>
               {index+1}.
             </Grid>
-            <Grid item xs={7} md={2.5}>
+            <Grid size={{xs: 7, md: 2.5}}>
               <Tooltip title="Cost name">
                 <Typography>{additionalCost.credit_ledger_name}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={4} md={2} textAlign={{xs: 'right', md: 'start'}}>
+            <Grid size={{xs: 4, md: 2}} textAlign={{xs: 'right', md: 'start'}}>
               <Tooltip title="Reference">
                 <Typography>{additionalCost.reference}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{xs: 6, md: 3}}>
               <Tooltip title="Currency">
                 <Typography>{additionalCost.currency_name}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={1.5} textAlign={'right'}>
+            <Grid size={{xs: 6, md: 1.5}} textAlign={'right'}>
               <Tooltip title="Exchange Rate">
                 <Typography>{additionalCost.exchange_rate.toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={1.5} textAlign={{md: 'right'}}>
+            <Grid size={{xs: 6, md: 1.5}} textAlign={{md: 'right'}}>
               <Tooltip title="Amount">
                 <Typography>{additionalCost.amount.toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
-            <Grid textAlign={'end'} item xs={6} md={1}>
+            <Grid textAlign={'end'} size={{xs: 6, md: 1}}>
               <Tooltip title='Edit Additional Cost'>
                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                   <EditOutlined fontSize='small'/>

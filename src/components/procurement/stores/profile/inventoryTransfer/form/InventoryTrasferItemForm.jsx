@@ -5,10 +5,10 @@ import * as yup  from "yup";
 import { yupResolver } from '@hookform/resolvers/yup'
 import { LoadingButton } from '@mui/lab';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services';
 import { useStoreProfile } from '../../StoreProfileProvider';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import productServices from '@/components/productAndServices/products/productServices';
 
 function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, sourceCostCenterId = null, transferDate, setIsDirty}) {
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -150,11 +150,11 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
         <form autoComplete='off' onSubmit={handleSubmit(updateItems)} >
             <Grid container columnSpacing={1} rowSpacing={1} mb={2} mt={2}>
                 {!item && (
-                    <Grid item xs={12} textAlign={'center'} mt={1} mb={1}>
+                    <Grid size={12} textAlign={'center'} mt={1} mb={1}>
                         Add Item
                     </Grid>
                 )}
-                <Grid item xs={12} md={4} lg={6}>
+                <Grid size={{xs: 12, md: 4, lg: 6}}>
                     <ProductSelect
                         frontError={errors.product}
                         defaultValue={item && item?.product}
@@ -183,7 +183,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                         }}
                     />
                 </Grid>
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid size={{xs: 12, md: 4, lg: 3}}>
                     {
                         isRetrieving ? <LinearProgress /> :
                         <TextField
@@ -198,7 +198,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                         />
                     }
                 </Grid>
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid size={{xs: 12, md: 4, lg: 3}}>
                     <TextField
                         label="Quantity"
                         fullWidth
@@ -252,7 +252,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                         {...register(`quantity`)}
                     />
                 </Grid>
-                <Grid textAlign={'end'} item xs={12}>
+                <Grid textAlign={'end'} size={12}>
                     <LoadingButton
                         loading={false}
                         variant='contained'

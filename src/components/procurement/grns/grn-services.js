@@ -1,4 +1,4 @@
-const { default: axios } = require("app/services/config");
+import axios from "@/lib/services/config";
 
 const grnServices = {};
 

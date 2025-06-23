@@ -1,19 +1,19 @@
 import { DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useSnackbar } from 'notistack';
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
 import InventoryConsumptionsForm from './form/InventoryConsumptionForm';
 import InventoryConsumptionPDF from './InventoryConsumptionPDF';
-import { useJumboTheme } from '@jumbo/hooks';
 import InventoryConsumptionsOnScreen from './InventoryConsumptionsOnScreen';
 import dayjs from 'dayjs';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PDFContent from '@/components/pdf/PDFContent';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { JumboDdMenu } from '@jumbo/components';
 
 const ActionDialogContent = ({ inventoryConsumption, setOpenDialog, action = 'open', consumptionTab = false }) => {
   const { data, isFetching } = useQuery(['inventoryConsumption', { id: inventoryConsumption.id }], () =>
@@ -46,13 +46,13 @@ const ActionDialogContent = ({ inventoryConsumption, setOpenDialog, action = 'op
     dialogContent = (
       <>
         <Grid container alignItems="center" justifyContent="space-between" margin={1}>
-          <Grid item xs={11}>
+          <Grid size={11}>
             <Tabs value={activeTab} onChange={handleTabChange} aria-label="inventory consumption tabs">
               <Tab label="ONSCREEN" />
               <Tab label="PDF" />
             </Tabs>
           </Grid>
-          <Grid item xs={1} textAlign="right">
+          <Grid size={1} textAlign="right">
             <Tooltip title="Close">
               <IconButton size="small" onClick={() => setOpenDialog(false)}>
                 <HighlightOff color="primary" />

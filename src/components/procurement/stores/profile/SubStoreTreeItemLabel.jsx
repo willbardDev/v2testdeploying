@@ -1,14 +1,14 @@
-import JumboDdMenu from '@jumbo/components/JumboDdMenu';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import Div from '@jumbo/shared/Div';
 import { DeleteOutlined, EditOutlined, MoreVertOutlined } from '@mui/icons-material'
 import { Tooltip, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack';
 import React from 'react'
-import { useMutation, useQueryClient } from 'react-query';
 import storeServices from '../store-services';
 import StoreForm from '../StoreForm';
 import { useStoreProfile } from './StoreProfileProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { JumboDdMenu } from '@jumbo/components';
+import { Div } from '@jumbo/shared';
 
 function SubStoreTreeItemLabel({store}) {
     const {showDialog,hideDialog} = useJumboDialog();
@@ -21,16 +21,16 @@ function SubStoreTreeItemLabel({store}) {
         {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
     ] : [];
 
-    const deleteStore = useMutation(storeServices.delete,{
+    const deleteStore = useMutation({
+        mutationFn: storeServices.delete,
         onSuccess: (data) => {
-            data?.message && enqueueSnackbar(data.message,{variant:'success'});
-            hideDialog();
-            queryClient.invalidateQueries(['showStore']);
+            enqueueSnackbar(data?.message, { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['showStore'] });
         },
         onError: (error) => {
-            error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-        }
-    })
+            enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+        },
+    });
 
     const handleItemAction = (menuItem) => {
         switch (menuItem.action) {

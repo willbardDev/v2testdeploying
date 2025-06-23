@@ -2,17 +2,12 @@ import axios from "app/services/config";
 
 const inventoryTransferServices = {};
 
-inventoryTransferServices.getInventoryTransfersList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`stores/${queryParams.store_id}/inventory-transfers`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+inventoryTransferServices.getList = async ({ type, keyword, page, limit }) => {
+    const response = await axios.get(`stores/${queryParams.store_id}/inventory-transfers`, {
+      params: { type, keyword, page, limit },
     });
-    return data;
-};
+    return response.data;
+},
 
 inventoryTransferServices.add = async(transfers) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {

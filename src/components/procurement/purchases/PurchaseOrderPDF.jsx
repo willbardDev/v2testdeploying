@@ -1,11 +1,11 @@
 import React from 'react'
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import { Text, View,Document,Page} from '@react-pdf/renderer'
-import pdfStyles from '../../pdf/pdf-styles';
-import PdfLogo from '../../pdf/PdfLogo';
-import DocumentStakeholders from '../../pdf/DocumentStakeholders';
-import PageFooter from '../../pdf/PageFooter';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
+import DocumentStakeholders from '@/components/pdf/DocumentStakeholders';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import PageFooter from '@/components/pdf/PageFooter';
 
 const styles = pdfStyles;
 

@@ -135,12 +135,14 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
         }}
         {...(multiple && { 
           renderOption: (
-            props: React.HTMLAttributes<HTMLLIElement>, 
-            option: CostCenter, 
+            props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, // extend type to include key optionally
+            option: CostCenter,
             { selected }
           ) => {
+            const { key, ...otherProps } = props;
+
             return (
-              <li {...props} key={option.id}>
+              <li key={option.id} {...otherProps}>
                 <Checkbox
                   icon={<CheckBoxOutlineBlank fontSize="small" />}
                   checkedIcon={<CheckBox fontSize="small" />}

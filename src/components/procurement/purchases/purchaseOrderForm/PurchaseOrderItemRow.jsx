@@ -23,35 +23,35 @@ function PurchaseOrderItemRow({ setClearFormKey, submitMainForm, setSubmitItemFo
                         }
                     }}
                 >
-                    <Grid item xs={1} md={0.5}>
+                    <Grid size={{xs: 1, md: 0.5}}>
                         {index+1}.
                     </Grid>
-                    <Grid item xs={8} md={3.5} lg={3.5}>
+                    <Grid size={{xs: 8, md: 3.5}}>
                         <Tooltip title="Product">
                             <Typography>{product.name}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={3} md={2} lg={2}>
+                    <Grid textAlign={'end'} size={{xs: 3, md: 2}}>
                         <Tooltip title="Quantity">
                             <Typography>{item.quantity} {item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.product.unit_symbol)}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={4} md={1.5} lg={1.5}>
+                    <Grid textAlign={'end'} size={{xs: 4, md: 1.5}}>
                         <Tooltip title="Price">
                             <Typography>{item.rate.toLocaleString()}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={4} md={1.5} lg={1.5}>
+                    <Grid textAlign={'end'} size={{xs: 4, md: 1.5}}>
                         <Tooltip title="VAT">
                             <Typography>{lineVat.toLocaleString()}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={4} md={2}>
+                    <Grid textAlign={'end'} size={{xs: 4, md: 2}}>
                         <Tooltip title="Line Total">
                             <Typography>{lineTotalAmount.toLocaleString()}</Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid textAlign={'end'} item xs={12} md={1}>
+                    <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
                         <Tooltip title='Edit Item'>
                             <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                 <EditOutlined fontSize='small'/>

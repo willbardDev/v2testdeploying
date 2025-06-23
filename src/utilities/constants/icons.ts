@@ -13,7 +13,9 @@ import {
   HandshakeOutlined,
   StraightenOutlined,
   ReportOffOutlined,
-  ReceiptOutlined
+  ReceiptOutlined,
+  ShoppingCartOutlined,
+  OutdoorGrillOutlined
 } from '@mui/icons-material';
 
 import { SxProps, Theme } from '@mui/material';
@@ -56,6 +58,16 @@ const APP_ICONS: Icon[] = [
   {
     name: 'transactions',
     Component: ReceiptOutlined,
+    props: { sx: { fontSize: 20 } },
+  },
+  {
+    name: 'purchases',
+    Component: ShoppingCartOutlined,
+    props: { sx: { fontSize: 20 } },
+  },
+  {
+    name: 'consumptions',
+    Component: OutdoorGrillOutlined,
     props: { sx: { fontSize: 20 } },
   },{
     name: 'barcharts',

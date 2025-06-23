@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const StockMovementOnScreen = ({ movementsData, authOrganization, checkOrganizationPermission }) => {
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";

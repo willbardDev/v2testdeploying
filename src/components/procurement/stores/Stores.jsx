@@ -1,17 +1,19 @@
+'use client'
+
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, Stack, Typography } from '@mui/material';
 import React from 'react'
-import { useParams } from 'react-router-dom';
 import storeServices from './store-services';
 import StoreActionTail from './StoreActionTail';
 import StoreListItem from './StoreListItem';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { MODULES } from 'app/utils/constants/modules';
+import { useParams } from 'next/navigation';
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
+import { MODULES } from '@/utilities/constants/modules';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 const Stores = () => {
     const params = useParams();

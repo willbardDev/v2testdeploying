@@ -1,7 +1,7 @@
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
 import {Document, Page, Text, View } from '@react-pdf/renderer'
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo';
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles'
 import React from 'react'
 
 function InventoryConsumptionPDF({inventoryConsumption,authObject}) {

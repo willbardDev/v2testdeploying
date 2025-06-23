@@ -2,33 +2,28 @@ import axios from "@/lib/services/config";
 
 const productCategoryServices = {};
 
-productCategoryServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("product_categories", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+productCategoryServices.getList = async ({ type, keyword, page, limit }) => {
+    const response = await axios.get('/api/masters/products/product_categories', {
+      params: { type, keyword, page, limit },
     });
-    return data;
-};
+    return response.data;
+},
 
 productCategoryServices.getCategoryOptions = async() => {
-    const {data} = await axios.get(`product_category_options`);
+    const {data} = await axios.get(`/api/masters/products/product_categories/getCategoryOptions`);
     return data;
 }
 
 productCategoryServices.add = async(productCategory) => {
    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.post(`product_categories`,productCategory)
+        const {data} = await axios.post(`/api/masters/products/product_categories/add`,productCategory)
         return data;
     })
 }
 
 productCategoryServices.update = async(productCategory) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`product_categories/${productCategory.id}`,productCategory)
+        const {data} = await axios.put(`/api/masters/products/product_categories/${productCategory.id}/update`,productCategory)
         return data;
     });
 }
@@ -36,7 +31,7 @@ productCategoryServices.update = async(productCategory) => {
 
 productCategoryServices.delete = async (productCategory) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`product_categories/${productCategory.id}`);
+        const {data} = await axios.delete(`/api/masters/products/product_categories/${productCategory.id}/delete`);
         return data;
     })
 };

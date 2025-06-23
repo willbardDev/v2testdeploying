@@ -1,12 +1,14 @@
+'use client'
+
 import { FeedOutlined, TrendingDownOutlined, ViewTimelineOutlined } from '@mui/icons-material'
 import { Button, Dialog, Grid, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
 import ItemMovement from '../storeStock/ItemMovement';
 import StockMovement from './stockMovement/StockMovement';
 import StockReport from '../storeStock/StockReport';
-import { useJumboTheme } from '@jumbo/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function StoreReports() {
     const [stockReportDialogOpen, setStockReportDialogOpen] = useState(false);
@@ -33,7 +35,7 @@ function StoreReports() {
             {dormantStockDialogOpen && <StockMovement toggleOpen={setDormantStockDialogOpen} dormantStock={true} />}
         </Dialog>
         <Grid container p={2}>
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
                 <Tooltip title={'Stock Report'}>
                     <Button size='large' onClick={() => setStockReportDialogOpen(true)}>
                         <FontAwesomeIcon size='lg' icon={faCubes} style={{ fontSize: '30px', paddingRight: 5 }}/>
@@ -41,7 +43,7 @@ function StoreReports() {
                     </Button>
                 </Tooltip>
             </Grid>
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
                 <Tooltip title={'Item Movement'}>
                     <Button size='large' onClick={() => setItemMovementDialogOpen(true)}>
                         <ViewTimelineOutlined fontSize='large' />
@@ -49,7 +51,7 @@ function StoreReports() {
                     </Button>
                 </Tooltip>
             </Grid>
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
                 <Tooltip title={'Stock Movement'}>
                     <Button size='large' onClick={() => setStockMovementDialogOpen(true)}>
                         <FeedOutlined fontSize='large' />
@@ -57,7 +59,7 @@ function StoreReports() {
                     </Button>
                 </Tooltip>
             </Grid>
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
                 <Tooltip title={'Dormant Stock'}>
                     <Button size='large' onClick={() => setDormantStockDialogOpen(true)}>
                         <TrendingDownOutlined fontSize='large' />

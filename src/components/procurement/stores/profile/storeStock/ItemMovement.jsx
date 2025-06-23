@@ -1,5 +1,3 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
-import Div from '@jumbo/shared/Div/Div'
 import { LoadingButton } from '@mui/lab'
 import { Button, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
@@ -9,21 +7,22 @@ import { useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
 import { useStoreProfile } from '../StoreProfileProvider'
-import { readableDate } from 'app/helpers/input-sanitization-helpers'
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect'
-import Span from '@jumbo/shared/Span/Span'
-import useProsERPStyles from 'app/helpers/style-helpers'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles'
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector'
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo'
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent'
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider'
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services'
 import StoreSelector from '../../StoreSelector'
 import ItemMovementOnScreen from './ItemMovementOnScreen'
-import { useJumboTheme } from '@jumbo/hooks'
 import { HighlightOff } from '@mui/icons-material'
+import { readableDate } from '@/app/helpers/input-sanitization-helpers'
+import pdfStyles from '@/components/pdf/pdf-styles'
+import PdfLogo from '@/components/pdf/PdfLogo'
+import useProsERPStyles from '@/app/helpers/style-helpers'
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import { Div, Span } from '@jumbo/shared'
+import ProductSelect from '@/components/productAndServices/products/ProductSelect'
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector'
+import PDFContent from '@/components/pdf/PDFContent'
+import productServices from '@/components/productAndServices/products/productServices'
 
 const ReportDocument = ({movementsData,authObject,store}) => {
     const {authOrganization,authUser: { user}} = authObject;
@@ -156,29 +155,29 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
   return (
     <React.Fragment>
         <DialogTitle textAlign={'center'}>
-            <Span  className={classes.hiddenOnPrint}>
+            <Span className={classes.hiddenOnPrint}>
                 <form autoComplete='off' onSubmit={handleSubmit(getMovements)} >
                     <Grid container columnSpacing={1} paddingTop={2} rowSpacing={1} alignItems={'center'} justifyContent={'center'}>
                         <Grid container>
-                            <Grid item xs={belowLargeScreen ? 11 : 12}>
+                            <Grid size={belowLargeScreen ? 11 : 12}>
                                 <Typography variant="h3">{`${productName} Movement`}</Typography>
                             </Grid>
                             {belowLargeScreen && (
-                                <Grid item xs={1}>
-                                <Tooltip title="Close">
-                                    <IconButton 
-                                        size='small' 
-                                        sx={{ mb: 1 }} 
-                                        onClick={() => toggleOpen(false)}
-                                    >
-                                        <HighlightOff color="primary" />
-                                    </IconButton>
-                                </Tooltip>
+                                <Grid size={1}>
+                                    <Tooltip title="Close">
+                                        <IconButton 
+                                            size='small' 
+                                            sx={{ mb: 1 }} 
+                                            onClick={() => toggleOpen(false)}
+                                        >
+                                            <HighlightOff color="primary" />
+                                        </IconButton>
+                                    </Tooltip>
                                 </Grid>
                             )}
                         </Grid>
                         {isFromDashboard &&
-                            <Grid item xs={12} md={6} lg={6}>
+                            <Grid size={{xs: 12, md: 6}}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <StoreSelector
                                         allowSubStores={true}
@@ -196,7 +195,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 </Div>
                             </Grid>
                         }
-                        <Grid item xs={12} md={isFromDashboard ? 6 : 4}>
+                        <Grid size={{xs: 12, md: isFromDashboard ? 6 : 4}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <ProductSelect
                                     label="Product"
@@ -221,7 +220,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="From (MM/DD/YYYY)"
@@ -245,7 +244,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="To (MM/DD/YYYY)"
@@ -268,7 +267,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={isFromDashboard ? 5 : 9}>
+                        <Grid size={{xs: 12, md: isFromDashboard ? 5 : 9}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <CostCenterSelector
                                     label="Cost and Profit Centers"
@@ -280,7 +279,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={1} textAlign={'right'}>
+                        <Grid size={{xs: 12, md: 1}} textAlign={'right'}>
                             <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
                                 Filter
                             </LoadingButton>

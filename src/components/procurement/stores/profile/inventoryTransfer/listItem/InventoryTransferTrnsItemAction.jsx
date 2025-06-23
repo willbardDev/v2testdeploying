@@ -1,16 +1,16 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { useJumboTheme } from '@jumbo/hooks';
 import { useSnackbar } from 'notistack';
 import { useContext } from 'react';
 import inventoryTransferServices from '../inventoryTransfer-services';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
 import { listItemContext } from './InventoryTransferListItem';
 import InventoryTransferTrnPDF from '../InventoryTransferTrnPDF';
 import InventoryTransferTrnOnScreen from '../InventoryTransferTrnOnScreen';
 import { HighlightOff } from '@mui/icons-material';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import PDFContent from '@/components/pdf/PDFContent';
 
 function InventoryTransferTrnsItemAction() {
     const {authOrganization} = useJumboAuth();
@@ -23,16 +23,15 @@ function InventoryTransferTrnsItemAction() {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: unReceiveTrn } = useMutation(inventoryTransferServices.unReceiveTrn, {
+    const unReceiveTrn = useMutation({
+        mutationFn: inventoryTransferServices.unReceiveTrn,
         onSuccess: (data) => {
-          queryClient.invalidateQueries(['inventoryTransfers']);
-          enqueueSnackbar(data.message, {
-            variant: 'success',
-          });
-          setExpanded(!expanded)
+            queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
+            enqueueSnackbar(data.message, { variant: 'success' });
+            setExpanded((prev) => !prev);
         },
         onError: (error) => {
-          enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+            enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
         },
     });
     
@@ -57,7 +56,7 @@ function InventoryTransferTrnsItemAction() {
                 <DialogTitle>
                     {belowLargeScreen && (
                         <Grid container alignItems="center" justifyContent="space-between">
-                            <Grid item xs={11}>
+                            <Grid size={11}>
                                 <Tabs 
                                     value={activeTab} 
                                     onChange={handleChangeTab} 
@@ -67,7 +66,7 @@ function InventoryTransferTrnsItemAction() {
                                     <Tab label="PDF" />
                                 </Tabs>
                             </Grid>
-                            <Grid item xs={1} textAlign="right">
+                            <Grid size={1} textAlign="right">
                                 <Tooltip title="Close">
                                     <IconButton 
                                         size="small" 
@@ -85,7 +84,7 @@ function InventoryTransferTrnsItemAction() {
                     {belowLargeScreen && activeTab === 0 ? (
                         <InventoryTransferTrnOnScreen trn={trn} organization={organization} />
                     ) : (
-                        <PDFContent 
+                        <PDFContent
                             fileName={trn.trnNo} 
                             document={<InventoryTransferTrnPDF trn={trn} organization={organization} />}
                         />

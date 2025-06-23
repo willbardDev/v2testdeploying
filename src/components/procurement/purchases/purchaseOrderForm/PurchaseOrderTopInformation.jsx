@@ -1,15 +1,15 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import Div from '@jumbo/shared/Div';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
+import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { Div } from '@jumbo/shared';
 import { AddOutlined } from '@mui/icons-material';
 import { Grid, TextField, Tooltip } from '@mui/material';
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import StakeholderQuickAdd from 'app/prosServices/prosERP/masters/stakeholders/StakeholderQuickAdd';
-import StakeholderSelector from 'app/prosServices/prosERP/masters/stakeholders/StakeholderSelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form';
@@ -33,7 +33,7 @@ function PurchaseOrderTopInformation() {
     
   return (
     <Grid container columnSpacing={1} rowSpacing={2}>
-        <Grid item xs={12} md={4} lg={4}>
+        <Grid size={{xs: 12, md: 4}}>
             <Div sx={{mt: 0.3}}>
                 <DateTimePicker
                     fullWidth={true}
@@ -60,7 +60,7 @@ function PurchaseOrderTopInformation() {
             </Div>
         </Grid>
         { !stakeholderQuickAddDisplay && 
-            <Grid item xs={12} md={8} lg={8}>
+            <Grid size={{xs: 12, md: 8}}>
                 <Div sx={{ mt: 0.3 }}>
                     <StakeholderSelector
                         label='Supplier'
@@ -89,10 +89,10 @@ function PurchaseOrderTopInformation() {
                         startAdornment= {
                         <Tooltip title={'Add Supplier'}>
                             <AddOutlined
-                            onClick={() => setStakeholderQuickAddDisplay(true)}
-                            sx={{
-                                cursor: 'pointer',
-                            }}
+                                onClick={() => setStakeholderQuickAddDisplay(true)}
+                                sx={{
+                                    cursor: 'pointer',
+                                }}
                             />
                         </Tooltip>
                         }
@@ -103,9 +103,9 @@ function PurchaseOrderTopInformation() {
 
         {!!stakeholderQuickAddDisplay && <StakeholderQuickAdd setStakeholderQuickAddDisplay={setStakeholderQuickAddDisplay} create_payable={true} setAddedStakeholder={setAddedStakeholder}/>} 
 
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Grid container rowSpacing={2} columnSpacing={1}>
-                <Grid item  md={4} lg={4} xs={12} >
+                <Grid size={{xs: 12, md: 4}}>
                     <Div sx={{mt: 0.3}}>
                         <TextField
                             size='small'
@@ -117,7 +117,7 @@ function PurchaseOrderTopInformation() {
                         />
                     </Div>
                 </Grid>
-                <Grid item xs={12} md={4} lg={4}>
+                <Grid size={{xs: 12, md: 4}}>
                     <Div sx={{mt: 0.3}}>
                         <DatePicker
                             fullWidth={true}
@@ -142,7 +142,7 @@ function PurchaseOrderTopInformation() {
                         />
                     </Div>
                 </Grid>
-                <Grid item xs={12} md={4} lg={4}>
+                <Grid size={{xs: 12, md: 4}}>
                     <Div sx={{mt: 0.3}}>
                         <CurrencySelector
                             frontError={errors?.currency_id}
@@ -163,7 +163,7 @@ function PurchaseOrderTopInformation() {
                 </Grid>
                 {
                    watch('currency_id') > 1 &&
-                    <Grid item xs={12}  md={4} lg={4}>
+                    <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{mt: 0.3}}>
                             <TextField
                                 label="Exchange Rate"
@@ -185,16 +185,31 @@ function PurchaseOrderTopInformation() {
                         </Div>
                     </Grid>
                 }
-                <Grid item xs={12} md={watch('currency_id') > 1 ? 8 : 12}>
+                <Grid size={{xs: 12, md: watch('currency_id') > 1 ? 8 : 12}}>
                     <Div sx={{mt: 0.3}}>
                         <CostCenterSelector
+                            label="Cost Centers"
+                            frontError={errors.cost_centers}
                             multiple={true}
                             allowSameType={false}
-                            frontError={errors?.cost_centers}
-                            defaultValue={(order?.cost_centers && order.cost_centers) || (costCenters.length === 1 && costCenters)}
+                            defaultValue={
+                                Array.isArray(order?.cost_centers) && order.cost_centers.length > 0
+                                    ? order.cost_centers
+                                    : costCenters.length === 1 
+                                    ? costCenters 
+                                    : []
+                            }
                             onChange={(newValue) => {
-                                setValue('cost_centers', newValue);
-                                clearErrors('cost_centers');
+                                const valueArray = Array.isArray(newValue)
+                                ? newValue
+                                : newValue
+                                ? [newValue]
+                                : [];
+
+                                setValue('cost_centers', valueArray, {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                });
                             }}
                         />
                     </Div>

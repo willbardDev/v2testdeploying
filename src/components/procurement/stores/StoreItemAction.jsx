@@ -1,14 +1,13 @@
 import { DeleteOutlined,EditOutlined, MoreHorizOutlined} from '@mui/icons-material';
 import { Dialog,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import storeServices from '../../procurement/stores/store-services';
+import storeServices from './store-services';
 import StoreForm from './StoreForm';
-import { useJumboTheme } from '@jumbo/hooks';
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { JumboDdMenu } from '@jumbo/components';
 
 const StoreItemAction = ({store}) => {
   const [openEditDialog,setOpenEditDialog] = useState(false);
@@ -20,15 +19,14 @@ const StoreItemAction = ({store}) => {
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { mutate: deleteStore } = useMutation(storeServices.delete, {
+  const deleteStore = useMutation({
+    mutationFn: storeServices.delete,
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['stores']);
-      enqueueSnackbar(data.message, {
-        variant: 'success',
-      });
+      enqueueSnackbar(data?.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['stores'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
@@ -61,23 +59,23 @@ const StoreItemAction = ({store}) => {
 
   return (
     <>
-        <Dialog
-          open={openEditDialog}
-          fullWidth
-          maxWidth="xs" 
-          fullScreen={belowLargeScreen}
-        >
-          <StoreForm store={store} setOpenDialog={setOpenEditDialog} />
-        </Dialog>
-        <JumboDdMenu
-          icon={
-            <Tooltip title='Actions'>
-              <MoreHorizOutlined fontSize='small'/>
-            </Tooltip>
-        }
-          menuItems={menuItems}
-          onClickCallback={handleItemAction}
-        />
+      <Dialog
+        open={openEditDialog}
+        fullWidth
+        maxWidth="xs" 
+        fullScreen={belowLargeScreen}
+      >
+        <StoreForm store={store} setOpenDialog={setOpenEditDialog} />
+      </Dialog>
+      <JumboDdMenu
+        icon={
+          <Tooltip title='Actions'>
+            <MoreHorizOutlined fontSize='small'/>
+          </Tooltip>
+      }
+        menuItems={menuItems}
+        onClickCallback={handleItemAction}
+      />
     </>
   );
 };

@@ -4,24 +4,24 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Grid, TextField, Button, DialogContent, DialogActions, DialogTitle, LinearProgress, Alert, Dialog, Tooltip, IconButton, Autocomplete} from '@mui/material';
 import * as yup from 'yup';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
-import Div from '@jumbo/shared/Div/Div';
 import inventoryConsumptionsServices from '../inventoryConsumptionsServices';
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import CostCenterSelector from '../../../masters/costCenters/CostCenterSelector';
 import storeServices from '../../stores/store-services';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import StoreSelector from '../../stores/StoreSelector';
 import { useStoreProfile } from '../../stores/profile/StoreProfileProvider';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import InventoryConsumptionItemForm from './InventoryConsumptionItemForm';
 import InventoryConsumptionItemRow from './InventoryConsumptionItemRow';
 import { HighlightOff } from '@mui/icons-material';
-import { MODULES } from 'app/utils/constants/modules';
-import productionBatchesServices from 'app/prosServices/prosERP/production/batches/productionBatchesServices';
 import ConsumptionableSelector from '../ConsumptionableSelector';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { MODULES } from '@/utilities/constants/modules';
+import { Div } from '@jumbo/shared';
+import productionBatchesServices from '@/components/production/batches/productionBatchesServices';
 
 const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, consumptionTab = false}) => {
   const [items, setItems] = useState(() => {
@@ -167,12 +167,12 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
   return (
     <>
       <DialogTitle>
-        <Grid item xs={12} textAlign={"center"}>
+        <Grid size={12} textAlign={"center"}>
           <Grid container spacing={1}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               {!inventoryConsumption ? 'New Inventory Consumption' : `Edit ${inventoryConsumption.consumptionNo}`}
             </Grid>
-            <Grid item xs={12} md={4} lg={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <DateTimePicker
                 fullWidth
                 label="Consumption Date"
@@ -181,9 +181,9 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
                 maxDate={checkOrganizationPermission(PERMISSIONS.INVENTORY_CONSUMPTIONS_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
                 slotProps={{
                   textField: {
-                  size: 'small',
-                  fullWidth: true,
-                  readOnly: true,
+                    size: 'small',
+                    fullWidth: true,
+                    readOnly: true,
                   }
                 }}
                 onChange={(newValue) => {
@@ -198,7 +198,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={4} lg={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <StoreSelector
                 allowSubStores={true}
                 proposedOptions={!!consumptionTab ? [activeStore] : user.stores}
@@ -211,7 +211,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <CostCenterSelector
                 multiple={false}
                 defaultValue={(inventoryConsumption?.cost_center) || (costCenters.length === 1 && costCenters[0])}
@@ -235,7 +235,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
             { 
               organizationHasSubscribed(MODULES.MANUFACTURING_AND_PROCESSING) && isWorkCenter &&
               <>
-              <Grid item xs={12} md={4}>
+              <Grid size={{xs: 12, md: 4}}>
                 <ConsumptionableSelector
                   label='Used In'
                   // frontError={errors && errors?.consumptionable_type}
@@ -249,7 +249,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
                 />
               </Grid>
                 {watch(`consumptionable_type`) === 'production_batch' &&
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{xs: 12, md: 4}}>
                     {isLoading ? 
                       <LinearProgress/> : 
                       <Autocomplete
@@ -279,10 +279,10 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={1}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <InventoryConsumptionItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} items={items} setItems={setItems} getUpdatedBalanceItems={getUpdatedBalanceItems}/>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             {
               errors?.items?.message && items.length < 1 && <Alert severity='error'>{errors.items.message}</Alert>
             }
@@ -292,7 +292,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
               })
             }
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   label='Narration'
@@ -311,10 +311,10 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={11}>
+              <Grid size={11}>
                 Unsaved Changes
               </Grid>
-              <Grid item xs={1} textAlign="right">
+              <Grid size={1} textAlign="right">
                 <Tooltip title="Close">
                   <IconButton
                     size="small" 
@@ -345,7 +345,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
         </Button>
         <LoadingButton
           onClick={onSubmit}
-          loading={addInventoryConsumptions.isLoading || updateInventoryConsumptions.isLoading}
+          loading={addInventoryConsumptions.isPending || updateInventoryConsumptions.isPending}
           variant='contained'
           size='small'
           type='submit'

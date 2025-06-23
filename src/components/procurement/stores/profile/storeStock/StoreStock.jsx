@@ -3,7 +3,6 @@ import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Box, Dialog, IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import React from 'react'
-import { useParams } from 'react-router-dom';
 import storeServices from '../../store-services';
 import { useStoreProfile } from '../StoreProfileProvider';
 import StockListItem from './StockListItem';
@@ -11,7 +10,8 @@ import LowStockThresholds from './lowStockThresholds/LowStockThresholds';
 import { PrintOutlined } from '@mui/icons-material';
 import StockReport from './StockReport';
 import { useState } from 'react';
-import { useJumboTheme } from '@jumbo/hooks';
+import { useParams } from 'next/navigation';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function StoreStock() {
   const [openDialog, setOpenDialog] = useState(false);

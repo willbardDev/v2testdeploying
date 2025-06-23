@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Typography, Divider, Box, Tooltip } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function GrnOnScreenPreview({ grn, baseCurrency, checkOrganizationPermission, organization }) {
     const currencySymbol = grn.currency.symbol;

@@ -12,7 +12,7 @@ import {
   Paper,
   useTheme
 } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function StockAdjustmentOnScreen({ stockAdjustment, authObject }) {
   const { authOrganization: { organization } } = authObject;
@@ -31,7 +31,7 @@ function StockAdjustmentOnScreen({ stockAdjustment, authObject }) {
     <Box>
       {/* Header Section */}
       <Grid container spacing={2} alignItems="center" mb={2}>
-        <Grid item xs={12} textAlign="center">
+        <Grid size={{xs: 12, sm: 4}} textAlign="center">
           <Typography variant="h6" sx={{ color: mainColor }}>STOCK ADJUSTMENT</Typography>
           <Typography variant="subtitle1">{stockAdjustment.adjustmentNo}</Typography>
         </Grid>
@@ -39,15 +39,15 @@ function StockAdjustmentOnScreen({ stockAdjustment, authObject }) {
 
       {/* Info Section */}
       <Grid container spacing={2} mb={2}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Adjustment Date</Typography>
           <Typography>{readableDate(stockAdjustment.adjustment_date)}</Typography>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Store</Typography>
           <Typography>{stockAdjustment.store.name}</Typography>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Cost Center</Typography>
           <Typography>{stockAdjustment.cost_center.name}</Typography>
         </Grid>
@@ -99,15 +99,15 @@ function StockAdjustmentOnScreen({ stockAdjustment, authObject }) {
 
       {/* Footer Info */}
       <Grid container spacing={2} mt={3}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Adjustment Reason</Typography>
           <Typography>{stockAdjustment.reason}</Typography>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Narration</Typography>
           <Typography>{stockAdjustment.narration}</Typography>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{xs: 12, sm: 4}}>
           <Typography variant="caption" color={mainColor}>Posted By</Typography>
           <Typography>{stockAdjustment.creator.name}</Typography>
         </Grid>

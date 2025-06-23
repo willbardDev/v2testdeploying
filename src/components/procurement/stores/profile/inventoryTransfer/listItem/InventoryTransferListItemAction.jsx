@@ -21,19 +21,19 @@ import {
   Grid
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import inventoryTransferServices from '../inventoryTransfer-services';
 import InventoryTransferForm from '../form/InventoryTransferForm';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
 import InventoryTransferPDF from '../InventoryTransferPDF';
 import InventoryTransferReceiveForm from '../form/InventoryTransferReceiveForm';
 import InventoryTransferOnScreen from '../InventoryTransferOnScreen';
 import { useStoreProfile } from '../../StoreProfileProvider';
-import { useJumboTheme } from '@jumbo/hooks';
 import dayjs from 'dayjs';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PDFContent from '@/components/pdf/PDFContent';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const InventoryTransferListItemAction = ({ transfer }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -50,15 +50,14 @@ const InventoryTransferListItemAction = ({ transfer }) => {
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { mutate: deleteTransfers } = useMutation(inventoryTransferServices.delete, {
+  const deleteTransfers = useMutation({
+    mutationFn: inventoryTransferServices.delete,
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['inventoryTransfers']);
-      enqueueSnackbar(data.message, {
-        variant: 'success',
-      });
+      queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
@@ -84,7 +83,7 @@ const InventoryTransferListItemAction = ({ transfer }) => {
           <DialogContent>
             {belowLargeScreen && (
               <Grid container alignItems="center" justifyContent="space-between" marginBottom={2}>
-                <Grid item xs={openEditDialog ? 12 : 11}>
+                <Grid size={openEditDialog ? 12 : 11}>
                   <Tabs 
                     value={activeTab} 
                     onChange={handleChangeTab} 
@@ -96,7 +95,7 @@ const InventoryTransferListItemAction = ({ transfer }) => {
                 </Grid>
 
                 {!openEditDialog && (
-                  <Grid item xs={1} textAlign="right">
+                  <Grid size={1} textAlign="right">
                     <Tooltip title="Close">
                       <IconButton 
                         size="small" 

@@ -1,51 +1,46 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
 import { Button, DialogActions, DialogContent, DialogTitle, Grid, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import Div from '@jumbo/shared/Div/Div';
 import * as yup from 'yup';
 import purchaseServices from '../purchase-services';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import dayjs from 'dayjs';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {authOrganization,checkOrganizationPermission} = useJumboAuth();
 
-  const { mutate: closeOrder, isLoading } = useMutation(purchaseServices.closeOrder, {
+  const closeOrder = useMutation({
+    mutationFn: purchaseServices.closeOrder,
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['purchaseOrders']);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, {
-        variant: 'error',
-      });
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
-  const { mutate: reOpenOrder, isLoading: reOpenLoading} = useMutation(
-    purchaseServices.reOpenOrder,
-    {
-      onSuccess: (data) => {
-        setOpenDialog(false);
-        enqueueSnackbar(data.message, { variant: 'success' });
-        queryClient.invalidateQueries(['purchaseOrders']);
-      },
-      onError: (error) => {
-        enqueueSnackbar(error.response.data.message, {
-          variant: 'error',
-        });
-      },
-    }
-  );
+  const reOpenOrder = useMutation({
+    mutationFn: purchaseServices.reOpenOrder,
+    onSuccess: (data) => {
+      setOpenDialog(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+    },
+    onError: (error) => {
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
+    },
+  });
 
   const validationSchema = yup.object({
     datetime_closed: yup.string().when('isReOpen', {
@@ -71,52 +66,52 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
   });
 
   const saveMutation = React.useMemo(() => {
-    return isReOpen ? reOpenOrder : closeOrder;
+    return isReOpen ? reOpenOrder.mutate : closeOrder.mutate;
   }, [isReOpen, reOpenOrder, closeOrder]);
 
   return (
     <>
       <DialogTitle>
-        <Grid item xs={12} textAlign={"center"}>
+        <Grid size={12} textAlign={"center"}>
           {isReOpen ? `Re-Open Order: ${order.orderNo}` : `Close Order: ${order.orderNo}`}
         </Grid>
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={handleSubmit(saveMutation)}>
           <Grid container spacing={1}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
                         fullWidth
                         label={isReOpen ? 'Re-Opening Date' : 'Closing Date'}
                         defaultValue={dayjs()}
-                        minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization.organization.recording_start_date) : dayjs().startOf('day')}
+                        minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization?.organization.recording_start_date) : dayjs().startOf('day')}
                         maxDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
                         slotProps={{
-                            textField: {
-                                size: 'small',
-                                fullWidth: true,
-                                readOnly: true,
-                                error: !!(isReOpen ? errors?.datetime_reopened : errors?.datetime_closed),
-                                helperText: isReOpen 
-                                    ? errors?.datetime_reopened?.message 
-                                    : errors?.datetime_closed?.message
-                            }
+                          textField: {
+                            size: 'small',
+                            fullWidth: true,
+                            readOnly: true,
+                            error: !!(isReOpen ? errors?.datetime_reopened : errors?.datetime_closed),
+                            helperText: isReOpen 
+                              ? errors?.datetime_reopened?.message 
+                              : errors?.datetime_closed?.message
+                          }
                         }}
                         onChange={(newValue) => {
-                            setValue(
-                                isReOpen ? 'datetime_reopened' : 'datetime_closed',
-                                newValue ? newValue.toISOString() : null,
-                                {
-                                    shouldValidate: true,
-                                    shouldDirty: true
-                                }
-                            );
+                          setValue(
+                            isReOpen ? 'datetime_reopened' : 'datetime_closed',
+                            newValue ? newValue.toISOString() : null,
+                            {
+                              shouldValidate: true,
+                              shouldDirty: true
+                            }
+                          );
                         }}
                     />
                 </Div>
             </Grid>
-            <Grid xs={12} md={8} item>
+            <Grid size={{xs: 12, md: 8}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name='remarks'
@@ -139,7 +134,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
               variant="contained"
               size="small"
               sx={{ display: 'flex' }}
-              loading={isLoading || reOpenLoading}
+              loading={closeOrder.isPending || reOpenOrder.isPending}
             >
               Submit
             </LoadingButton>

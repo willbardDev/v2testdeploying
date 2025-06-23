@@ -26,26 +26,29 @@ import {
 } from '@mui/icons-material';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import purchaseServices from '../purchase-services';
 import PurchaseOrderPDF from '../PurchaseOrderPDF';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import PDFContent from '../../../pdf/PDFContent';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import AttachmentForm from 'app/prosServices/prosERP/filesShelf/attachments/AttachmentForm';
 import PurchaseOrderOnScreenPreview from '../PurchaseOrderOnScreenPreview';
 import CloseOrReopenForm from './CloseOrReopenForm';
-import { useJumboTheme } from '@jumbo/hooks';
 import PurchaseGrnsReportPDF from './purchaseGrnsReport/PurchaseGrnsReportPDF';
 import PurchaseGrnsReportOnScreen from './purchaseGrnsReport/PurchaseGrnsReportOnScreen';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import dayjs from 'dayjs';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 const PurchaseOrderReceiveForm = lazy(() => import('./receive/PurchaseOrderReceiveForm'));
 const PurchaseOrderDialogForm = lazy(() => import('../purchaseOrderForm/PurchaseOrderDialogForm'));
 
 const PurchaseGrnsReport = ({ organization, order, setOpenPurchasesGrnsReport }) => {
-  const { data: purchaseGrnsReport, isFetching } = useQuery(['PurchaseGrnsReport', { orderId: order.id }],() => purchaseServices.PurchaseGrnsReport(order.id));
+  const { data: purchaseGrnsReport, isFetching } = useQuery({
+    queryKey: ['PurchaseGrnsReport', { orderId: order.id }],
+    queryFn: () => purchaseServices.PurchaseGrnsReport(order.id),
+  });
   const [activeTab, setActiveTab] = useState(0);
 
   //Screen handling constants
@@ -71,12 +74,11 @@ const PurchaseGrnsReport = ({ organization, order, setOpenPurchasesGrnsReport })
         }
       </DialogTitle>
       <DialogContent>
-
         { 
-        belowLargeScreen && activeTab === 0 ?
-            <PurchaseGrnsReportOnScreen order={order} organization={organization} purchaseGrnsReport={purchaseGrnsReport}/>
+          belowLargeScreen && activeTab === 0 ?
+          <PurchaseGrnsReportOnScreen order={order} organization={organization} purchaseGrnsReport={purchaseGrnsReport}/>
           :
-            <PDFContent fileName={`${purchaseGrnsReport.orderNo} GRNs Report`} document={<PurchaseGrnsReportPDF organization={organization} purchaseGrnsReport={purchaseGrnsReport} />} />
+          <PDFContent fileName={`${purchaseGrnsReport.orderNo} GRNs Report`} document={<PurchaseGrnsReportPDF organization={organization} purchaseGrnsReport={purchaseGrnsReport} />} />
         }
       </DialogContent>
       {belowLargeScreen &&
@@ -93,7 +95,10 @@ const PurchaseGrnsReport = ({ organization, order, setOpenPurchasesGrnsReport })
 };
 
 const EditPurchaseOrdeDialog = ({order,toggleOpen}) => {
-  const {data:editOrder,isFetching} = useQuery(['editPurchaseOrder',{id:order.id}],async() => purchaseServices.getEditComplements(order.id));
+  const { data: editOrder, isFetching } = useQuery({
+    queryKey: ['editPurchaseOrder', { id: order.id }],
+    queryFn: () => purchaseServices.getEditComplements(order.id),
+  });
 
   if(isFetching){
     return <LinearProgress/>;
@@ -105,7 +110,10 @@ const EditPurchaseOrdeDialog = ({order,toggleOpen}) => {
 }
 
 const DocumentDialog = ({ order_id, organization,checkOrganizationPermission, setOpenDocumentDialog }) => {
-  const { data: order, isFetching } = useQuery(['purchaseOrder', { id: order_id }], async () => purchaseServices.orderDetails(order_id));
+  const { data: order, isFetching } = useQuery({
+    queryKey: ['purchaseOrder', { id: order_id }],
+    queryFn: () => purchaseServices.orderDetails(order_id),
+  });
   const [activeTab, setActiveTab] = useState(0);
 
   //Screen handling constants
@@ -113,7 +121,7 @@ const DocumentDialog = ({ order_id, organization,checkOrganizationPermission, se
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   if (isFetching) {
-    return <LinearProgress />;
+    return <LinearProgress/>;
   }
 
   const handleChange = (event, newValue) => {
@@ -125,13 +133,13 @@ const DocumentDialog = ({ order_id, organization,checkOrganizationPermission, se
       <DialogTitle>
         {belowLargeScreen && (
           <Grid container alignItems="center" justifyContent="space-between" margin={1}>
-            <Grid item xs={11}>
+            <Grid size={11}>
               <Tabs value={activeTab} onChange={handleChange} aria-label="purchase order tabs">
                 <Tab label="ONSCREEN" />
                 <Tab label="PDF" />
               </Tabs>
             </Grid>
-            <Grid item xs={1} textAlign="right">
+            <Grid size={1} textAlign="right">
               <Tooltip title="Close">
                 <IconButton
                   size="small"
@@ -185,26 +193,31 @@ function PurchaseOrderListItemAction({ order }) {
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const deleteSale = useMutation(purchaseServices.delete, {
+  const deleteSale = useMutation({
+    mutationFn: purchaseServices.delete,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['purchaseOrders']);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      const message = error?.response?.data?.message;
+      if (message) enqueueSnackbar(message, { variant: 'error' });
     },
   });
 
   // Receive Function component
   const ReceiveDialog = () => {
-    const {data : orderDetails, isLoading} = useQuery(['purchaseOrder',{id: order.id}], async() => purchaseServices.orderDetails(order.id));
-    if (isLoading) {
-      return <LinearProgress/>
-    }
-    return(
-      <PurchaseOrderReceiveForm order={orderDetails} toggleOpen={setOpenReceiveDialog}/>
-    )
-  }
+    const { data: orderDetails, isLoading } = useQuery({
+      queryKey: ['purchaseOrder', { id: order.id }],
+      queryFn: () => purchaseServices.orderDetails(order.id),
+    });
+
+    if (isLoading) return <LinearProgress />;
+
+    return (
+      <PurchaseOrderReceiveForm order={orderDetails} toggleOpen={setOpenReceiveDialog} />
+    );
+  };
 
   const handleDelete = () => {
     showDialog({

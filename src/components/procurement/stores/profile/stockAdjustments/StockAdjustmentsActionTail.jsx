@@ -2,9 +2,9 @@ import { AddOutlined } from '@mui/icons-material'
 import { Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material'
 import React from 'react'
 import StockAdjustmentDialogForm from './StockAdjustmentDialogForm';
-import { useJumboTheme } from '@jumbo/hooks';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function StockAdjustmentsActionTail() {
     const {checkOrganizationPermission} = useJumboAuth();
