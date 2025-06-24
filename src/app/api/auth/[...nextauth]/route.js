@@ -28,7 +28,7 @@ export const authOptions = {
             validateStatus: (status) => status < 500,
           });
 
-          if (!data?.authUser?.user || !data?.authUser?.user?.id) {
+          if (!data?.authUser?.user) {
             throw new Error('Invalid login credentials');
           }
 

@@ -1,8 +1,9 @@
+import FilesShelf from '@/components/filesShelf/FilesShelf'
 import React from 'react'
 
 function page() {
   return (
-    <div>Main dashboard</div>
+    <div>Dashboard will be here</div>
   )
 }
 
