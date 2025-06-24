@@ -19,7 +19,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-//movies are fictions
+//movies are fictions Halelujah
 const InventoryConsumptions = () => {
     const params = useParams();
     const listRef = React.useRef();
