@@ -19,7 +19,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-//one to many of drinks
+//fuga kuku ule mwenyewe
 const InventoryConsumptions = () => {
     const params = useParams();
     const listRef = React.useRef();
