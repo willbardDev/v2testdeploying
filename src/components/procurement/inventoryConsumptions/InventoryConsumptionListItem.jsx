@@ -4,7 +4,7 @@ import InventoryConsumptionItemAction from './InventoryConsumptionItemAction'
 import { readableDate } from '@/app/helpers/input-sanitization-helpers'
 
 function InventoryConsumptionListItem({inventoryConsumption, consumptionTab = false}) {
-
+//beda og
   return (
     <>
       <Grid
