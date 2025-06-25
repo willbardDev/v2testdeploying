@@ -4,7 +4,7 @@ import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListTo
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, Stack, Typography } from '@mui/material';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import storeServices from './store-services';
 import StoreActionTail from './StoreActionTail';
 import StoreListItem from './StoreListItem';
@@ -18,7 +18,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 const Stores = () => {
     const params = useParams();
     const listRef = React.useRef();
-    
+    const [mounted, setMounted] = useState(false);
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "stores",
@@ -49,6 +49,12 @@ const Stores = () => {
     }, []);
 
     const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
+
+    useEffect(() => {
+        setMounted(true);
+      }, []);
+    
+    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>

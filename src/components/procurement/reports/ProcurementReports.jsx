@@ -3,7 +3,7 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick'
 import { InsightsOutlined, ShoppingCartOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, Grid, Typography, useMediaQuery } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ProductInsights from './productInsights/ProductInsights';
 import PurchasesReport from './PurchasesReport';
 import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSelectProvider';
@@ -21,12 +21,19 @@ function ProcurementReports() {
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
   const [report, setReport] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
   //Screen handling constants
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
   if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
     return <UnsubscribedAccess modules={'Procurement & Supply'}/>
