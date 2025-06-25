@@ -30,6 +30,8 @@ function PurchasesOrdersList() {
   const [openFilters, setOpenFilters] = useState(false);
   const {authOrganization} = useJumboAuth();
   const [filterDate, setFilterDate] = useState({})
+    const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
+
   const [selectedCostCenter, setSelectedCostCenter] = useState([])
  const [mounted, setMounted] = useState(false);
   const [queryOptions, setQueryOptions] = React.useState({
@@ -87,7 +89,6 @@ function PurchasesOrdersList() {
 
   if (!mounted) return null; // ⛔ Prevent mismatch during hydration
   
-    const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>
