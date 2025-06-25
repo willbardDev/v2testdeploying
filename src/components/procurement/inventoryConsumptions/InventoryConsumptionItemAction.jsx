@@ -16,9 +16,15 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
 
 const ActionDialogContent = ({ inventoryConsumption, setOpenDialog, action = 'open', consumptionTab = false }) => {
-  const { data, isFetching } = useQuery(['inventoryConsumption', { id: inventoryConsumption.id }], () =>
-    inventoryConsumptionsServices.show(inventoryConsumption.id)
-  );
+  const { data, isFetching } = useQuery({
+    queryKey: ['inventoryConsumption', inventoryConsumption.id],
+    queryFn: ({ queryKey }) => {
+      const [, id] = queryKey;
+      return inventoryConsumptionsServices.show(id);
+    },
+    enabled: !!inventoryConsumption.id,
+  });
+
   const authObject = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -100,15 +106,14 @@ function InventoryConsumptionItemAction({inventoryConsumption, consumptionTab = 
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
     
-    const { mutate: deleteInventoryConsumption } = useMutation(inventoryConsumptionsServices.delete, {
+    const { mutate: deleteInventoryConsumption } = useMutation({
+      mutationFn: inventoryConsumptionsServices.delete,
       onSuccess: (data) => {
-        queryClient.invalidateQueries(['inventoryConsumptions']);
-        enqueueSnackbar(data.message, {
-          variant: 'success',
-        });
+        queryClient.invalidateQueries({ queryKey: ['inventoryConsumptions'] });
+        enqueueSnackbar(data.message, { variant: 'success' });
       },
       onError: (error) => {
-        enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+        enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
       },
     });
   

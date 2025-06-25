@@ -21,30 +21,24 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
         product: yup.object().required("Product is required").typeError('Product is required'),
         quantity: yup
         .number()
-        .when(['product'], {
-            is: (product) =>
-            !!product && product.type === 'Inventory',
-            then: yup
-                .number()
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity is required')
-                .when(['current_balance', 'available_balance'], {
-                    is: (currentBalance, availableBalance) => currentBalance < availableBalance,
-                    then: yup.number()
-                        .test('currentBalanceCheck', 'This quantity will lead to negative balance', function (value) {
-                            const currentBalance = parseFloat(watch('current_balance'));
-                            return value <= currentBalance;
-                        }
-                    ),
-                    otherwise: yup.number().positive("Quantity must be a positive number").typeError('Quantity is required'),
-                }
-            )
-            .test('quantity Exceeded', 'The quantity exceeds the balance', function (value) {
-                const availableBalance = parseFloat(watch('available_balance'));
+        .transform((value) => (isNaN(value) ? undefined : value))
+        .when('product', (product, schema) => {
+            if (!product || product.type !== 'Inventory') {
+            return schema.positive('Quantity must be a positive number').typeError('Quantity is required');
+            }
+
+            return schema
+            .required('Quantity is required')
+            .positive('Quantity must be a positive number')
+            .typeError('Quantity is required')
+            .test('not-negative-balance', 'This quantity will lead to negative balance', function (value) {
+                const currentBalance = parseFloat(this.resolve(yup.ref('current_balance')));
+                return !value || value <= currentBalance;
+            })
+            .test('quantity-exceeded', 'The quantity exceeds the balance', function (value) {
+                const availableBalance = this.resolve(yup.ref('available_balance'));
                 return availableBalance === 'N/A' || !value || value <= availableBalance;
-            }),
-            otherwise: yup.number().positive("Quantity must be a positive number").typeError('Quantity is required'),
+            });
         }),
     });
 

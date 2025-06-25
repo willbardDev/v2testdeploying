@@ -46,26 +46,32 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
   const [clearFormKey, setClearFormKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
 
-  const addInventoryConsumptions = useMutation(inventoryConsumptionsServices.add, {
+  const addInventoryConsumptions = useMutation({
+    mutationFn: inventoryConsumptionsServices.add,
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['inventoryConsumptions']);
+      queryClient.invalidateQueries({ queryKey: ['inventoryConsumptions'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      if (error?.response?.data?.message) {
+        enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      }
+    },
   });
 
-  const updateInventoryConsumptions = useMutation(inventoryConsumptionsServices.update, {
-    onSuccess: async(data) => {
-      await setOpenDialog(false);
+  const updateInventoryConsumptions = useMutation({
+    mutationFn: inventoryConsumptionsServices.update,
+    onSuccess: (data) => {
+      setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['inventoryConsumptions']);
+      queryClient.invalidateQueries({ queryKey: ['inventoryConsumptions'] });
     },
     onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      if (error?.response?.data?.message) {
+        enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      }
+    },
   });
 
   const saveMutation = React.useMemo(() => {
@@ -125,7 +131,10 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
     retrieveProductionBatches()
   }, [inventoryConsumption])
 
-  const { data: stores, isLoading: isFetchingStores } = useQuery('storeOptions', storeServices.getStoreOptions);
+  const { data: stores, isPending: isFetchingStores } = useQuery({
+    queryKey: ['storeOptions'],
+    queryFn: storeServices.getStoreOptions,
+  });
 
   useEffect(() => {
     if(stores && stores.length === 1){
@@ -214,7 +223,7 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
             <Grid size={{xs: 12, md: 4}}>
               <CostCenterSelector
                 multiple={false}
-                defaultValue={(inventoryConsumption?.cost_center) || (costCenters.length === 1 && costCenters[0])}
+                defaultValue={inventoryConsumption ? inventoryConsumption?.cost_center : (costCenters.length === 1 ? costCenters[0] : null)}
                 error={!!errors?.cost_center_id}
                 helperText={errors?.cost_center_id?.message}
                 onChange={(newValue) => {
