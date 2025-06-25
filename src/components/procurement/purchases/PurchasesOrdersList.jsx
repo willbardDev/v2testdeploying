@@ -38,6 +38,10 @@ function PurchasesOrdersList() {
     countKey: "total",
     dataKey: "data",
   });
+    const [isClient, setIsClient] = React.useState(false);
+   React.useEffect(() => {
+    setIsClient(true);
+    }, [])
 
     React.useEffect(() => {
         setQueryOptions(state => ({
@@ -55,7 +59,6 @@ function PurchasesOrdersList() {
             }
         }));
     }, [selectedCostCenter]);
-
     const renderOrder = React.useCallback((order) => {
         return <PurchaseOrderListItem order={order}/>
     });
