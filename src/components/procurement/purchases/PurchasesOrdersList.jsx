@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ProductsSelectProvider from '../../productAndServices/products/ProductsSelectProvider'
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
@@ -38,10 +38,13 @@ function PurchasesOrdersList() {
     countKey: "total",
     dataKey: "data",
   });
-    const [isClient, setIsClient] = React.useState(false);
-   React.useEffect(() => {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
     setIsClient(true);
-    }, [])
+    }, []);
+
+    
 
     React.useEffect(() => {
         setQueryOptions(state => ({
@@ -82,12 +85,14 @@ function PurchasesOrdersList() {
             }
         }))
     }, []);
+    
 
     const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
 
-    if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
-        return <UnsubscribedAccess modules={'Procurement & Supply'}/>
-    }
+   if (isClient && !organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
+    return <UnsubscribedAccess modules={'Procurement & Supply'} />;
+}
+
 
     const multiCostCenters = authOrganization?.costCenters.length > 1
 
