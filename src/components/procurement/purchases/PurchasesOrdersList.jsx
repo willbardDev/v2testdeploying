@@ -28,17 +28,16 @@ function PurchasesOrdersList() {
   const params = useParams();
   const listRef = React.useRef();
   const [openFilters, setOpenFilters] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const {authOrganization} = useJumboAuth();
   const [filterDate, setFilterDate] = useState({})
   const [selectedCostCenter, setSelectedCostCenter] = useState([])
- const [mounted, setMounted] = useState(false);
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: "purchaseOrders",
     queryParams: {id: params.id, keyword : '', status: 'All'},
     countKey: "total",
     dataKey: "data",
   });
-    
 
     React.useEffect(() => {
         setQueryOptions(state => ({
@@ -79,15 +78,14 @@ function PurchasesOrdersList() {
             }
         }))
     }, []);
-    
 
-  useEffect(() => {
+    const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
+
+    useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) return null; // ⛔ Prevent mismatch during hydration
-  
-    const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>
