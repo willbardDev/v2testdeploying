@@ -23,7 +23,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(error.response?.data?.message || 'Failed to add store', { variant: 'error' });
     },
   });
 
@@ -36,9 +36,19 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(error.response?.data?.message || 'Failed to update store', { variant: 'error' });
     },
   });
+
+  const {
+    error: addError,
+    isPending: isAdding,
+  } = addStore;
+
+  const {
+    error: updateError,
+    isPending: isUpdating,
+  } = updateStore;
 
   const saveMutation = React.useMemo(() => {
     return store?.id ? updateStore : addStore;
@@ -47,13 +57,23 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   const validationObject = {
     name: yup.string().required('Store Name is required'),
   };
+
   if (Array.isArray(parentOptions)) {
-    validationObject.parent_id = yup.number().required('Parent Store is required').positive('Parent Store is required');
+    validationObject.parent_id = yup
+      .number()
+      .required('Parent Store is required')
+      .positive('Parent Store is required');
   }
 
   const validationSchema = yup.object(validationObject);
 
-  const { register, handleSubmit, setValue, setError, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name: store?.id ? store.name : '',
@@ -68,9 +88,16 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
     if (store?.id) {
       setValue('id', store.id);
     }
-  }, [store]);
+  }, [store, setValue]);
 
-  const onSubmit = handleSubmit(saveMutation);
+  const onSubmit = handleSubmit((data) => {
+    saveMutation.mutate(data);
+  });
+
+  const getValidationMessage = (field) =>
+    errors[field]?.message ||
+    addError?.response?.data?.validation_errors?.[field] ||
+    updateError?.response?.data?.validation_errors?.[field];
 
   return (
     <>
@@ -81,7 +108,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
       </DialogTitle>
       <DialogContent>
         <form autoComplete="off" onSubmit={onSubmit}>
-          <Grid container spacing={1}>
+          <Grid container columnSpacing={1}>
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
@@ -89,8 +116,8 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   label="Store Name"
                   size="small"
                   fullWidth
-                  error={!!errors.name || !!error?.response.data.validation_errors.name || !!updateError?.response.data.validation_errors.name}
-                  helperText={errors.name?.message || error?.response.data.validation_errors.name || updateError?.response.data.validation_errors.name}
+                  error={!!getValidationMessage('name')}
+                  helperText={getValidationMessage('name')}
                   {...register('name')}
                 />
               </Div>
@@ -102,8 +129,8 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   label="Store Alias"
                   size="small"
                   fullWidth
-                  error={!!errors.alias || !!error?.response.data.validation_errors.alias || !!updateError?.response.data.validation_errors.alias}
-                  helperText={errors.alias?.message || error?.response.data.validation_errors.alias || updateError?.response.data.validation_errors.alias}
+                  error={!!getValidationMessage('alias')}
+                  helperText={getValidationMessage('alias')}
                   {...register('alias')}
                 />
               </Div>
@@ -115,7 +142,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                     options={parentOptions}
                     getOptionLabel={(option) => option.name}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
-                    defaultValue={parentOptions.find((parent) => parent.id === store?.parent_id)}
+                    defaultValue={parentOptions.find((parent) => parent.id === store?.parent_id) || null}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -129,7 +156,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                     onChange={(event, newValue) => {
                       if (store && store?.id === newValue?.id) {
                         setValue('parent_id', 0);
-                        setError('parent_id', { message: "Cannot be a parent of its own" });
+                        setError('parent_id', { message: 'Cannot be a parent of its own' });
                       } else {
                         setValue('parent_id', newValue ? newValue.id : 0, {
                           shouldValidate: true,
@@ -144,16 +171,20 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <UsersSelector
-                  label='Store Users'
+                  label="Store Users"
                   multiple={true}
                   defaultValue={store?.users}
                   frontError={errors && errors.user_ids}
                   onChange={(newValue) => {
-                    setValue('user_ids', newValue ? newValue.map((user) => user.id) : [], {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                  }}      
+                    setValue(
+                      'user_ids',
+                      newValue ? newValue.map((user) => user.id) : [],
+                      {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      }
+                    );
+                  }}
                 />
               </Div>
             </Grid>
@@ -180,7 +211,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   variant="contained"
                   size="small"
                   sx={{ display: 'flex' }}
-                  loading={isPending || updateIsLoading}
+                  loading={isAdding || isUpdating}
                 >
                   Submit
                 </LoadingButton>
