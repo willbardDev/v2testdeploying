@@ -4,7 +4,7 @@ import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListTo
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, LinearProgress, Stack, Typography } from '@mui/material';
-import React, { createContext } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import ProductCategoryActionTail from './ProductCategoryActionTail';
 import ProductCategoryListItem from './ProductCategoryListItem';
 import LedgerSelectProvider from '../../accounts/ledgers/forms/LedgerSelectProvider';
@@ -23,6 +23,7 @@ const ProductCategories = () => {
     const params = useParams();
     const listRef = React.useRef();
     const {organizationHasSubscribed,checkOrganizationPermission} = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "productCategories",
@@ -56,6 +57,12 @@ const ProductCategories = () => {
             }
         }))
     }, []);
+
+    useEffect(() => {
+        setMounted(true);
+      }, []);
+    
+      if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>

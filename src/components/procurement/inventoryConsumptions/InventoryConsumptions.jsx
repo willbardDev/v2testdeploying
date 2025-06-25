@@ -4,7 +4,7 @@ import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListTo
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import InventoryConsumptionsListItem from './InventoryConsumptionListItem';
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
 import InventoryConsumptionsActionTail from './InventoryConsumptionsActionTail';
@@ -26,6 +26,7 @@ const InventoryConsumptions = () => {
     const [openFilters, setOpenFilters] = useState(false);
     const {authOrganization} = useJumboAuth();
     const [filterDate, setFilterDate] = useState({})
+    const [mounted, setMounted] = useState(false);
   
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "inventoryConsumptions",
@@ -56,6 +57,12 @@ const InventoryConsumptions = () => {
     }, []);
 
     const {organizationHasSubscribed,checkOrganizationPermission} = useJumboAuth();
+
+    useEffect(() => {
+        setMounted(true);
+      }, []);
+    
+    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
       return <UnsubscribedAccess modules={'Procurement & Supply'}/>
