@@ -25,22 +25,21 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function PurchasesOrdersList() {
-  const params = useParams();
-  const listRef = React.useRef();
-  const [openFilters, setOpenFilters] = useState(false);
-  const {authOrganization} = useJumboAuth();
-  const [filterDate, setFilterDate] = useState({})
+    const params = useParams();
+    const listRef = React.useRef();
+    const [openFilters, setOpenFilters] = useState(false);
+    const {authOrganization} = useJumboAuth();
+    const [filterDate, setFilterDate] = useState({})
     const {checkOrganizationPermission,organizationHasSubscribed} = useJumboAuth();
 
-  const [selectedCostCenter, setSelectedCostCenter] = useState([])
- const [mounted, setMounted] = useState(false);
-  const [queryOptions, setQueryOptions] = React.useState({
-    queryKey: "purchaseOrders",
-    queryParams: {id: params.id, keyword : '', status: 'All'},
-    countKey: "total",
-    dataKey: "data",
-  });
-    
+    const [selectedCostCenter, setSelectedCostCenter] = useState([])
+    const [mounted, setMounted] = useState(false);
+    const [queryOptions, setQueryOptions] = React.useState({
+        queryKey: "purchaseOrders",
+        queryParams: {id: params.id, keyword : '', status: 'All'},
+        countKey: "total",
+        dataKey: "data",
+    });
 
     React.useEffect(() => {
         setQueryOptions(state => ({
@@ -82,13 +81,11 @@ function PurchasesOrdersList() {
         }))
     }, []);
     
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
-  
+    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>
@@ -125,61 +122,61 @@ function PurchasesOrdersList() {
                                 action={
                                     <Grid container columnSpacing={1} rowSpacing={1} justifyContent={'end'}>
                                         { 
-                                        openFilters &&
-                                            <>
-                                                <Grid size={12}>
-                                                    <Grid container spacing={1}>
-                                                        <Grid size={{xs: 12, md: 6}}>
-                                                            <DateTimePicker
-                                                                label="From"
-                                                                defaultValue={filterDate.from ? dayjs(filterDate.from) : null}
-                                                                minDate={dayjs(authOrganization?.organization?.recording_start_date)}
-                                                                slotProps={{
-                                                                    textField : {
-                                                                        size: 'small',
-                                                                        fullWidth: true,
-                                                                    }
-                                                                }}
-                                                                onChange={(value) => {
-                                                                    setFilterDate((filters) => { return {...filters,from: value.toISOString()}; });
-                                                                }}
-                                                            />
-                                                        </Grid>
-                                                        <Grid size={{xs: 11, md: 5.5}}>
-                                                            <DateTimePicker
-                                                                label="To"
-                                                                defaultValue={ filterDate.to ? dayjs(filterDate.to) : null}
-                                                                minDate={dayjs(filterDate.from)}
-                                                                slotProps={{
-                                                                    textField : {
-                                                                        size: 'small',
-                                                                        fullWidth: true,
-                                                                    }
-                                                                }}
-                                                                onChange={(value) => {
-                                                                    setFilterDate((filters) => { return {...filters,to: value.toISOString()}; });
-                                                                }}
-                                                            />
-                                                        </Grid>
-                                                        <Grid size={{xs: 1, md: 0.5}} alignContent={'end'}>
-                                                            <Tooltip title="Filter Dates">
-                                                                <IconButton onClick={() => {
-                                                                    setQueryOptions(state => ({
-                                                                        ...state,
-                                                                        queryParams: {
-                                                                            ...state.queryParams,
-                                                                            from: filterDate.from,
-                                                                            to: filterDate.to
+                                            openFilters &&
+                                                <>
+                                                    <Grid size={12}>
+                                                        <Grid container spacing={1}>
+                                                            <Grid size={{xs: 12, md: 6}}>
+                                                                <DateTimePicker
+                                                                    label="From"
+                                                                    defaultValue={filterDate.from ? dayjs(filterDate.from) : null}
+                                                                    minDate={dayjs(authOrganization?.organization?.recording_start_date)}
+                                                                    slotProps={{
+                                                                        textField : {
+                                                                            size: 'small',
+                                                                            fullWidth: true,
                                                                         }
-                                                                    }));
-                                                                }}>
-                                                                    <EventAvailableOutlined/>
-                                                                </IconButton> 
-                                                            </Tooltip>   
+                                                                    }}
+                                                                    onChange={(value) => {
+                                                                        setFilterDate((filters) => { return {...filters,from: value.toISOString()}; });
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                            <Grid size={{xs: 11, md: 5.5}}>
+                                                                <DateTimePicker
+                                                                    label="To"
+                                                                    defaultValue={ filterDate.to ? dayjs(filterDate.to) : null}
+                                                                    minDate={dayjs(filterDate.from)}
+                                                                    slotProps={{
+                                                                        textField : {
+                                                                            size: 'small',
+                                                                            fullWidth: true,
+                                                                        }
+                                                                    }}
+                                                                    onChange={(value) => {
+                                                                        setFilterDate((filters) => { return {...filters,to: value.toISOString()}; });
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                            <Grid size={{xs: 1, md: 0.5}} alignContent={'end'}>
+                                                                <Tooltip title="Filter Dates">
+                                                                    <IconButton onClick={() => {
+                                                                        setQueryOptions(state => ({
+                                                                            ...state,
+                                                                            queryParams: {
+                                                                                ...state.queryParams,
+                                                                                from: filterDate.from,
+                                                                                to: filterDate.to
+                                                                            }
+                                                                        }));
+                                                                    }}>
+                                                                        <EventAvailableOutlined/>
+                                                                    </IconButton> 
+                                                                </Tooltip>   
+                                                            </Grid>
                                                         </Grid>
                                                     </Grid>
-                                                </Grid>
-                                            </> 
+                                                </> 
                                         }
                                         <Grid size={{xs: 12, md: 6, lg: 3}} alignItems={'center'}>
                                             <PurchasesOrderStatusSelector
