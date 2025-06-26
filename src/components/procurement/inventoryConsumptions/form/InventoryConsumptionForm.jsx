@@ -11,7 +11,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import CostCenterSelector from '../../../masters/costCenters/CostCenterSelector';
 import storeServices from '../../stores/store-services';
 import StoreSelector from '../../stores/StoreSelector';
-import { useStoreProfile } from '../../stores/profile/StoreProfileProvider';
+import { useStoreProfile } from '../../stores/[store_id]/StoreProfileProvider';
 import InventoryConsumptionItemForm from './InventoryConsumptionItemForm';
 import InventoryConsumptionItemRow from './InventoryConsumptionItemRow';
 import { HighlightOff } from '@mui/icons-material';

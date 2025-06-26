@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
 import ProductsSelectProvider from '../../productAndServices/products/ProductsSelectProvider';
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
 import InventoryConsumptionsListItem from './InventoryConsumptionListItem';
-import { useStoreProfile } from '../stores/profile/StoreProfileProvider';
+import { useStoreProfile } from '../stores/[store_id]/StoreProfileProvider';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
 import dayjs from 'dayjs';

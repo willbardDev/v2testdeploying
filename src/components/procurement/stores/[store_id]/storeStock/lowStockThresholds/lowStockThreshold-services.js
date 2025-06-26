@@ -1,11 +1,10 @@
-const { default: axios } = require("app/services/config");
-
+import axios from "@/lib/services/config";
 
 const lowStockThresholdServices = {};
 
-lowStockThresholdServices.getList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get(`/api/lowStockThreshold/${queryParams.store_id}`, {
-      params: { type, keyword, page, limit },
+lowStockThresholdServices.getList = async ({ store_id, type, keyword, page, limit }) => {
+    const response = await axios.get(`/api/lowStockThreshold/${store_id}`, {
+      params: { store_id, type, keyword, page, limit },
     });
     return response.data;
 },
@@ -26,7 +25,7 @@ lowStockThresholdServices.update = async(thresholdId) => {
 
 lowStockThresholdServices.delete = async (thresholdId) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`/api/lowStockThreshol/${thresholdId}/delete`);
+        const {data} = await axios.delete(`/api/lowStockThreshold/${thresholdId}/delete`);
         return data;
     })
 };

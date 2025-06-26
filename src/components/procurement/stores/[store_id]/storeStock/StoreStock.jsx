@@ -14,45 +14,41 @@ import { useParams } from 'next/navigation';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function StoreStock() {
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const params = useParams();
-  const listRef = React.useRef();
-  const {activeStore:store} = useStoreProfile();
-
-    //Screen handling constants
+    const [openDialog, setOpenDialog] = useState(false);
+    const params = useParams();
+    const listRef = React.useRef();
+    const {activeStore:store} = useStoreProfile();
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const [queryOptions, setQueryOptions] = React.useState({
-    queryKey: "storeStock",
-    queryParams: {id: params.store_id, keyword : ''},
-    countKey: "total",
-    dataKey: "data",
-  });
+    const [queryOptions, setQueryOptions] = React.useState({
+        queryKey: "storeStock",
+        queryParams: {id: params.id, keyword : ''},
+        countKey: "total",
+        dataKey: "data",
+    });
 
-  React.useEffect(() => {
-      setQueryOptions(state => ({
-          ...state,
-          queryParams: {...state.queryParams, id: store?.id ? store.id : params.store_id}
-      }))
-  }, [params,store]);
+    React.useEffect(() => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: {...state.queryParams, id: store?.id ? store.id : params.id}
+        }))
+    }, [params,store]);
 
+    const renderProductStock = React.useCallback((productStock) => {
+        return <StockListItem productStock={productStock} />
+    });
 
-
-  const renderProductStock = React.useCallback((productStock) => {
-      return <StockListItem productStock={productStock} />
-  });
-
-  const handleOnChange = React.useCallback((keyword) => {
-    setQueryOptions(state => ({
-        ...state,
-        queryParams: {
-            ...state.queryParams,
-            keyword: keyword,
-        }
-    }))
-}, []);
+    const handleOnChange = React.useCallback((keyword) => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: {
+                ...state.queryParams,
+                keyword: keyword,
+            }
+        }))
+    }, []);
+    
 return (
     <JumboRqList
         ref={listRef}

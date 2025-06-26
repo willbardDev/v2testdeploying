@@ -10,11 +10,16 @@ import grnServices from './grn-services';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
 import { JumboDdMenu } from '@jumbo/components';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 const DocumentDialog = ({ grn_id, organization, checkOrganizationPermission, setOpenDocumentDialog }) => {
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies.find((currency) => !!currency?.is_base);
-  const { data: grn, isFetching } = useQuery(['grns', { id: grn_id }], async () => grnServices.grnDetails(grn_id));
+
+  const { data: grn, isPending: isFetching } = useQuery({
+    queryKey: ['grns', { id: grn_id }],
+    queryFn: () => grnServices.grnDetails(grn_id),
+  });
 
   //Screen handling constants
   const {theme} = useJumboTheme();
@@ -34,7 +39,7 @@ const DocumentDialog = ({ grn_id, organization, checkOrganizationPermission, set
     <DialogContent>
       {belowLargeScreen && (
         <Grid container alignItems="center" justifyContent="space-between" marginBottom={2}>
-          <Grid item xs={11}>
+          <Grid size={11}>
             <Tabs 
               value={activeTab} 
               onChange={handleTabChange} 
@@ -45,7 +50,7 @@ const DocumentDialog = ({ grn_id, organization, checkOrganizationPermission, set
             </Tabs>
           </Grid>
 
-          <Grid item xs={1} textAlign="right">
+          <Grid size={1} textAlign="right">
             <Tooltip title="Close">
               <IconButton 
                 size='small' 

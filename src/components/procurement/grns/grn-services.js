@@ -2,16 +2,11 @@ import axios from "@/lib/services/config";
 
 const grnServices = {};
 
-grnServices.getGrnsList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`stores/${queryParams.store_id}/grns`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
-    });
-    return data;
+grnServices.getGrnsList = async ({ store_id, type, keyword, page, limit, from, to }) => {
+  const response = await axios.get(`/api/stores/${store_id}/getGrnsList`, {
+    params: { store_id, type, keyword, page, limit, from, to },
+  });
+  return response.data;
 };
 
 grnServices.grnValues = async(params) => {
@@ -20,7 +15,7 @@ grnServices.grnValues = async(params) => {
 }
 
 grnServices.grnDetails = async (id) => {
-    const {data} = await axios.get(`grns/${id}`);
+    const {data} = await axios.get(`/api/grns/${id}/grnDetails`);
     return data;
 }
 

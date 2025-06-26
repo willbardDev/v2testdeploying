@@ -14,15 +14,15 @@ export const useStoreProfile = () => useContext(StoreProfileContext);
 
 function StoreProfileProvider({children}) {
   const params = useParams();
+
+  const { data: mainStore, isFetching: isFetchingStore, isFetched } = useQuery({
+    queryKey: ['showStore', { id: params.id }],
+    queryFn: storeServices.show,
+  });
+
   const [content, setContent] = useState(0);
   const [activeStore, setActiveStore] = useState(mainStore);
   const [storeArrays, setStoreArrays] = useState({ storeIds: [],selectOptions:[]})
-
-  const { data: mainStore, isFetching: isFetchingStore, isFetched } = useQuery({
-    queryKey: ['showStore', { id: params.store_id }],
-    queryFn: () => storeServices.show(params.store_id),
-    enabled: !!params.store_id,
-  });
 
   const populateStoreArrays = (store) => {
     setStoreArrays(storeArrays => ({
@@ -57,7 +57,7 @@ const {organizationHasSubscribed} = useJumboAuth();
     return <UnsubscribedAccess modules={'Procurement & Supply'}/>
   }
 
-  document.title = mainStore.name;
+  document.title = mainStore?.name;
 
   const contextValue = {
     mainStore,

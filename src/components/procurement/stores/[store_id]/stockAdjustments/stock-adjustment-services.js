@@ -1,4 +1,4 @@
-import axios from "app/services/config";
+import axios from "@/lib/services/config";
 
 const stockAdjustmentServices = {};
 

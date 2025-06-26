@@ -1,3 +1,5 @@
+'use client'
+
 import JumboContentLayout from '@jumbo/components/JumboContentLayout'
 import { Card, useMediaQuery } from '@mui/material';
 import React from 'react'
@@ -9,8 +11,9 @@ import StoreSelectionForMobile from './StoreSelectionForMobile';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function StoreProfile() {
-    const {theme} = useJumboTheme();
+    const { theme } = useJumboTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    
     const layoutOptions = React.useMemo(() => ({
         sidebar: {
             sx: {
@@ -31,22 +34,19 @@ function StoreProfile() {
             }
         },
     }), [theme]);
-  return (
-    <StoreProfileProvider>
-        <JumboContentLayout
-            header={<StoreProfileHeader/>}
-            sidebar={<StoreProfileSidebar/>}
-            layoutOptions={layoutOptions}
-        >
-            {
-                smallScreen && (
-                    <StoreSelectionForMobile/>
-                )
-            }
-            <StoreProfileContent/>
-        </JumboContentLayout>
-    </StoreProfileProvider>
-  )
+
+    return (
+        <StoreProfileProvider>
+            <JumboContentLayout
+                header={<StoreProfileHeader />}
+                sidebar={<StoreProfileSidebar />}
+                layoutOptions={layoutOptions}
+            >
+                {smallScreen && <StoreSelectionForMobile />}
+                <StoreProfileContent />
+            </JumboContentLayout>
+        </StoreProfileProvider>
+    );
 }
 
-export default StoreProfile
+export default StoreProfile;

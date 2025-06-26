@@ -35,7 +35,7 @@ const LowStockThresholdItemAction = ({lowStockAlert}) => {
                 content: 'Are you sure you want to delete this Low Stock Alert?',
                 onYes: () =>{ 
                     hideDialog();
-                    deleteLowStockAlert(lowStockAlert.id)
+                    deleteLowStockAlert.mutate(lowStockAlert.id);
                 },
                 onNo: () => hideDialog(),
                 variant:'confirm'

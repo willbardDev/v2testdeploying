@@ -15,15 +15,15 @@ function LowStockThresholds() {
 
   return (
     <React.Fragment>
-        <Tooltip title='Set low stock thresholds'>
-          <IconButton onClick={() => setOpenDialog(true)}>
-              <AddAlertOutlined color='warning'/>
-          </IconButton>
-        </Tooltip>
-        <Dialog fullWidth fullScreen={belowLargeScreen} open={openDialog} scroll={'paper'} maxWidth='lg'>
-          <DialogTitle textAlign='center'>Low Stock Thresholds</DialogTitle>
-          <LowStockThresholdDialogContent setOpenDialog={setOpenDialog}/>
-        </Dialog>
+      <Tooltip title='Set low stock thresholds'>
+        <IconButton onClick={() => setOpenDialog(true)}>
+          <AddAlertOutlined color='warning'/>
+        </IconButton>
+      </Tooltip>
+      <Dialog fullWidth fullScreen={belowLargeScreen} open={openDialog} scroll={'paper'} maxWidth='lg'>
+        <DialogTitle textAlign='center'>Low Stock Thresholds</DialogTitle>
+        <LowStockThresholdDialogContent setOpenDialog={setOpenDialog}/>
+      </Dialog>
     </React.Fragment>
   )
 }
