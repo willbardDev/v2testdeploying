@@ -158,7 +158,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
             <Span className={classes.hiddenOnPrint}>
                 <form autoComplete='off' onSubmit={handleSubmit(getMovements)} >
                     <Grid container columnSpacing={1} paddingTop={2} rowSpacing={1} alignItems={'center'} justifyContent={'center'}>
-                        <Grid container>
+                        <Grid size={12} container>
                             <Grid size={belowLargeScreen ? 11 : 12}>
                                 <Typography variant="h3">{`${productName} Movement`}</Typography>
                             </Grid>
@@ -220,7 +220,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: 3}}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="From (MM/DD/YYYY)"
@@ -244,7 +244,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: 3}}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="To (MM/DD/YYYY)"
@@ -267,7 +267,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: isFromDashboard ? 5 : 9}}>
+                        <Grid size={{xs: 12, md: isFromDashboard ? 5 : 11}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <CostCenterSelector
                                     label="Cost and Profit Centers"

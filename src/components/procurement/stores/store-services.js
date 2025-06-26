@@ -9,12 +9,12 @@ storeServices.getList = async ({ type, keyword, page, limit }) => {
     return response.data;
 },
 
-storeServices.getStockList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get(`/api/stores/${queryParams.id}/getStockList`, {
-      params: { type, keyword, page, limit },
-    });
-    return response.data;
-},
+storeServices.getStockList = async ({ id, keyword, page, limit }) => {
+  const response = await axios.get(`/api/stores/${id}/getStockList`, {
+    params: { keyword, page, limit },
+  });
+  return response.data;
+};
 
 storeServices.getExistedProducts = async (storeId) => {
     const {data} = await axios.get(`/api/stores/${storeId}/getExistedProducts`);

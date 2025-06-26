@@ -6,14 +6,17 @@ function StockListItem({productStock}) {
   return (
     <React.Fragment>
         <Grid
-            sx={{
+                container 
+                columnSpacing={1}
+                sx={{
                 cursor: 'pointer',
+                borderTop: 1,
+                borderColor: 'divider',
                 '&:hover': {
                     bgcolor: 'action.hover',
-                }
+                },
+                padding: 1,
             }}
-            container 
-            columnSpacing={1}
             alignItems={'center'}
         >
             
@@ -22,7 +25,7 @@ function StockListItem({productStock}) {
                     <Typography>{`${productStock.name}`}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid size={{xs: 4, md: 2}}>
+            <Grid size={{xs: 4, md: 3}}>
                 <Tooltip title='Product Category'>
                     <Typography>{productStock.category_name}</Typography>
                 </Tooltip>

@@ -11,6 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const keyword = searchParams.get('keyword') || '';
   const page = searchParams.get('page') || '1';
   const limit = searchParams.get('limit') || '10';
+
   const query = new URLSearchParams({ keyword, page, limit }).toString();
 
   const res = await fetch(`${API_BASE}/stores/${params.id}/stock_list?${query}`, {

@@ -33,7 +33,7 @@ const StoreListItem = ({store}) => {
             </Typography>
           </Tooltip>
         }
-        onClick={() => router.push(`/${lang}/components/procurement/stores/${store.id}`)}
+        onClick={() => router.push(`/${lang}/procurement/stores/${store.id}`)}
       />
     </Grid>
     <Grid size={4}>

@@ -7,7 +7,7 @@ import { Box, Grid, IconButton, Stack, Tooltip } from '@mui/material';
 import React, { useState } from 'react'
 import GrnsListItem from './GrnsListItem';
 import grnServices from './grn-services';
-import { useStoreProfile } from '../stores/profile/StoreProfileProvider';
+import { useStoreProfile } from '../stores/[store_id]/StoreProfileProvider';
 import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -25,7 +25,7 @@ function Grns() {
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: 'Grns',
-        queryParams: { store_id: params.store_id, keyword: '' },
+        queryParams: { store_id: params.id, keyword: '' },
         countKey: 'total',
         dataKey: 'data',
       });
@@ -33,7 +33,7 @@ function Grns() {
       React.useEffect(() => {
         setQueryOptions((state) => ({
           ...state,
-          queryParams: {...state.queryParams, store_id: store?.id ? store.id : params.store_id},
+          queryParams: {...state.queryParams, store_id: store?.id ? store.id : params.id},
         }));
       }, [params,store]);
 
