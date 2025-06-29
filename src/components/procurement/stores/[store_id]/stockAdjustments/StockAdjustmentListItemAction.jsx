@@ -15,10 +15,10 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
 
 const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) => {
-  const { data, isFetching } = useQuery(
-    ['stockAdjustment', { id: stockAdjustment.id }],
-    () => stockAdjustmentServices.show(stockAdjustment.id)
-  );
+  const { data, isFetching } = useQuery({
+    queryKey: ['stockAdjustment', { id: stockAdjustment.id }],
+    queryFn: () => stockAdjustmentServices.show(stockAdjustment.id),
+  });
 
   const authObject = useJumboAuth();
   const { theme } = useJumboTheme();

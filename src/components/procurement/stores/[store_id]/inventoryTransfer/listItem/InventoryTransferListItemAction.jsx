@@ -4,7 +4,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   HighlightOff,
-  VisibilityOutlined
+  VisibilityOutlined,
 } from '@mui/icons-material';
 import {
   Dialog,
@@ -18,7 +18,7 @@ import {
   Button,
   useMediaQuery,
   DialogActions,
-  Grid
+  Grid,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
@@ -38,8 +38,8 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 const InventoryTransferListItemAction = ({ transfer }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openReceiveDialog, setOpenReceiveDialog] = useState(false);
-  const { showDialog, hideDialog } = useJumboDialog();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
+  const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { authOrganization: { organization } } = useJumboAuth();
@@ -47,7 +47,7 @@ const InventoryTransferListItemAction = ({ transfer }) => {
   const checkOrganizationPermission = authObject.checkOrganizationPermission;
   const { activeStore } = useStoreProfile();
 
-  const {theme} = useJumboTheme();
+  const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const deleteTransfers = useMutation({
@@ -61,53 +61,49 @@ const InventoryTransferListItemAction = ({ transfer }) => {
     },
   });
 
-  const ActionDialog = ({ actionType = 'openDocument', openEditDialog }) => {
+  const ActionDialog = ({ actionType }) => {
     const [activeTab, setActiveTab] = useState(0);
-    
-    const { data: transferDetails, isLoading } = useQuery(
-      ['inventoryTransfer', { id: transfer.id }],
-      async () => inventoryTransferServices.transferDetails(transfer.id)
-    );
+
+    const {
+      data: transferDetails,
+      isLoading,
+    } = useQuery({
+      queryKey: ['inventoryTransfer', { id: transfer.id }],
+      queryFn: () => inventoryTransferServices.transferDetails(transfer.id),
+    });
 
     if (isLoading) {
       return <LinearProgress />;
     }
 
-    const handleChangeTab = (event, newValue) => {
+    const handleChangeTab = (_, newValue) => {
       setActiveTab(newValue);
     };
 
     return (
       <>
-        {actionType === 'openDocument' ? (
+        {actionType === 'openEditForm' ? (
+          <InventoryTransferForm transfer={transferDetails} toggleOpen={setOpenEditDialog} />
+        ) : (
           <DialogContent>
             {belowLargeScreen && (
               <Grid container alignItems="center" justifyContent="space-between" marginBottom={2}>
-                <Grid size={openEditDialog ? 12 : 11}>
-                  <Tabs 
-                    value={activeTab} 
-                    onChange={handleChangeTab} 
-                    aria-label="inventory transfer tabs"
-                  >
+                <Grid item xs={11}>
+                  <Tabs value={activeTab} onChange={handleChangeTab}>
                     <Tab label="ONSCREEN" />
                     <Tab label="PDF" />
                   </Tabs>
                 </Grid>
-
-                {!openEditDialog && (
-                  <Grid size={1} textAlign="right">
-                    <Tooltip title="Close">
-                      <IconButton 
-                        size="small" 
-                        onClick={() => setOpenDocumentDialog(false)}
-                      >
-                        <HighlightOff color="primary" />
-                      </IconButton>
-                    </Tooltip>
-                  </Grid>
-                )}
+                <Grid item xs={1} textAlign="right">
+                  <Tooltip title="Close">
+                    <IconButton size="small" onClick={() => setOpenDocumentDialog(false)}>
+                      <HighlightOff color="primary" />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
             )}
+
             {belowLargeScreen && activeTab === 0 ? (
               <InventoryTransferOnScreen transfer={transferDetails} organization={organization} />
             ) : (
@@ -117,12 +113,10 @@ const InventoryTransferListItemAction = ({ transfer }) => {
               />
             )}
           </DialogContent>
-        ) : (
-          <InventoryTransferForm transfer={transferDetails} toggleOpen={setOpenEditDialog} />
         )}
-      
+
         <DialogActions>
-          {belowLargeScreen && !openEditDialog && (
+          {belowLargeScreen && actionType !== 'openEditForm' && (
             <Box textAlign="right" marginTop={5}>
               <Button variant="outlined" size="small" color="primary" onClick={() => setOpenDocumentDialog(false)}>
                 Close
@@ -134,17 +128,17 @@ const InventoryTransferListItemAction = ({ transfer }) => {
     );
   };
 
-  // Receive Function component
   const ReceiveDialog = () => {
-    const { data: transferDetails, isLoading } = useQuery(['inventoryTransfer', { id: transfer.id }], async () => inventoryTransferServices.transferDetails(transfer.id));
+    const { data: transferDetails, isLoading } = useQuery({
+      queryKey: ['inventoryTransfer', { id: transfer.id }],
+      queryFn: () => inventoryTransferServices.transferDetails(transfer.id),
+    });
 
     if (isLoading) {
       return <LinearProgress />;
     }
 
-    return (
-      <InventoryTransferReceiveForm transfer={transferDetails} toggleOpen={setOpenReceiveDialog} />
-    );
+    return <InventoryTransferReceiveForm transfer={transferDetails} toggleOpen={setOpenReceiveDialog} />;
   };
 
   const handleDelete = () => {
@@ -153,16 +147,14 @@ const InventoryTransferListItemAction = ({ transfer }) => {
       content: 'If you click yes, this Inventory Transfer will be deleted',
       onYes: () => {
         hideDialog();
-        deleteTransfers(transfer);
+        deleteTransfers.mutate(transfer);
       },
       onNo: () => hideDialog(),
       variant: 'confirm',
     });
   };
 
-  const handleOpenEditForm = async () => {
-    // Refetch data when opening the edit form
-    await queryClient.refetchQueries(['inventoryTransfer', { id: transfer.id }]);
+  const handleOpenEditForm = () => {
     setOpenEditDialog(true);
   };
 
@@ -173,33 +165,36 @@ const InventoryTransferListItemAction = ({ transfer }) => {
         scroll={belowLargeScreen ? 'body' : 'paper'}
         fullWidth
         fullScreen={belowLargeScreen}
-        maxWidth={'md'}
+        maxWidth="md"
         onClose={() => {
-          openDocumentDialog && setOpenDocumentDialog(false);
+          setOpenDocumentDialog(false);
         }}
       >
-        {openEditDialog && <ActionDialog openEditDialog={openEditDialog} actionType='openEditForm' />}
-        {openDocumentDialog && <ActionDialog />}
+        {openEditDialog && <ActionDialog actionType="openEditForm" />}
+        {openDocumentDialog && <ActionDialog actionType="openDocument" />}
         {openReceiveDialog && <ReceiveDialog />}
       </Dialog>
 
-      {(belowLargeScreen || !belowLargeScreen) && (
-        <Tooltip title={`View ${transfer.transferNo}`}>
-          <IconButton onClick={() => setOpenDocumentDialog(true)}>
-            <VisibilityOutlined />
-          </IconButton>
-        </Tooltip>
-      )}
+      <Tooltip title={`View ${transfer.transferNo}`}>
+        <IconButton onClick={() => setOpenDocumentDialog(true)}>
+          <VisibilityOutlined />
+        </IconButton>
+      </Tooltip>
 
-      {(checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_BACKDATE) || transfer.transfer_date >= dayjs().startOf('date').toISOString()) && transfer.external_transfer === null && (activeStore.id === transfer.source_store_id) && (transfer?.status === 'Pending' || transfer?.status === 'Completed') && (
-        <Tooltip title={`Edit ${transfer.transferNo}`}>
-          <IconButton onClick={handleOpenEditForm}>
-            <EditOutlined />
-          </IconButton>
-        </Tooltip>
-      )}
+      {(checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_BACKDATE) ||
+        transfer.transfer_date >= dayjs().startOf('date').toISOString()) &&
+        transfer.external_transfer === null &&
+        activeStore.id === transfer.source_store_id &&
+        (transfer.status === 'Pending' || transfer.status === 'Completed') && (
+          <Tooltip title={`Edit ${transfer.transferNo}`}>
+            <IconButton onClick={handleOpenEditForm}>
+              <EditOutlined />
+            </IconButton>
+          </Tooltip>
+        )}
 
-      {((activeStore.id !== transfer.source_store_id) && (transfer?.status === 'Pending' || transfer?.status === 'Partially Received')) && (
+      {(activeStore.id !== transfer.source_store_id &&
+        (transfer.status === 'Pending' || transfer.status === 'Partially Received')) && (
         <Tooltip title={`Receive ${transfer.transferNo}`}>
           <IconButton onClick={() => setOpenReceiveDialog(true)}>
             <AssignmentTurnedInOutlined />
@@ -207,13 +202,17 @@ const InventoryTransferListItemAction = ({ transfer }) => {
         </Tooltip>
       )}
 
-      {(checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_BACKDATE) || transfer.transfer_date >= dayjs().startOf('date').toISOString()) && !transfer?.external_transfer && ((activeStore.id === transfer.source_store_id) && (transfer?.status === 'Pending' || !(transfer?.status === 'Fully Received' || transfer?.status === 'Partially Received'))) && (
-        <Tooltip title={`Delete ${transfer.transferNo}`}>
-          <IconButton onClick={handleDelete}>
-            <DeleteOutlined color="error" />
-          </IconButton>
-        </Tooltip>
-      )}
+      {(checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_BACKDATE) ||
+        transfer.transfer_date >= dayjs().startOf('date').toISOString()) &&
+        !transfer.external_transfer &&
+        activeStore.id === transfer.source_store_id &&
+        (transfer.status === 'Pending' || !['Fully Received', 'Partially Received'].includes(transfer.status)) && (
+          <Tooltip title={`Delete ${transfer.transferNo}`}>
+            <IconButton onClick={handleDelete}>
+              <DeleteOutlined color="error" />
+            </IconButton>
+          </Tooltip>
+        )}
     </>
   );
 };

@@ -45,16 +45,19 @@ const TransferListItem = ({ transfer, type }) => {
                 px: 2,
                 flexDirection: 'row-reverse',
                 '.MuiAccordionSummary-content': {
-                  alignItems: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                   '&.Mui-expanded': {
                     margin: '12px 0',
                   }},
                 '.MuiAccordionSummary-expandIconWrapper': {
-                  borderRadius: 1,
-                  border: 1,
-                  color: 'text.secondary',  
-                  transform: 'none',
-                  mr: 1,
+                    borderRadius: 1,
+                    border: 1,
+                    color: 'text.secondary',  
+                    transform: 'none',
+                    mr: 1,
                   '&.Mui-expanded': {
                     transform: 'none',
                     color: 'primary.main',
@@ -71,6 +74,7 @@ const TransferListItem = ({ transfer, type }) => {
                 paddingRight={0.5}
                 columnSpacing={3}
                 container
+                width="100%"
               >
                 <Grid size={{xs: 5, md: 3}}>
                   <Tooltip title={'Transfer Date'}>
@@ -127,9 +131,9 @@ const TransferListItem = ({ transfer, type }) => {
               isLoading && <LinearProgress/>
               }
               <Grid container>
-              <Grid item xs={12} textAlign={'end'}>
-                <InventoryTransferListItemAction transfer={transfer} />
-              </Grid>
+                <Grid size={12} textAlign={'end'}>
+                  <InventoryTransferListItemAction transfer={transfer} />
+                </Grid>
                 
                 {/*Trns*/}
                 <InventoryTransferTrns/>

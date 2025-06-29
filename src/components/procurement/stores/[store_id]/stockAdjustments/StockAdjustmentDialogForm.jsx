@@ -19,6 +19,7 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect'
 import ProductSelect from '@/components/productAndServices/products/ProductSelect'
 import productServices from '@/components/productAndServices/products/productServices'
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField'
 
 function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
   //Initial necessary constants
@@ -83,8 +84,11 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
   });
 
   //Retrieve already existed in store
-  const {data : existedProducts, isFetching : isFetchingExistedProducts} = useQuery(['existedProducts',{ storeId : activeStore.id, cost_center_id : watch('cost_center_id')}],async() => {
-    return !!stockAdjustment ? {data: []} : await storeServices.getExistedProducts(activeStore.id);
+  const { data: existedProducts, isFetching: isFetchingExistedProducts } = useQuery({
+    queryKey: ['existedProducts', { storeId: activeStore.id, cost_center_id: watch('cost_center_id') }],
+    queryFn: async () => {
+      return stockAdjustment ? { data: [] } : await storeServices.getExistedProducts(activeStore.id);
+    },
   });
 
   const addStockAdjustment = useMutation({

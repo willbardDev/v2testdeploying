@@ -141,11 +141,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     // Validation schema
-    const validationSchema = yup.object().shape({
-        store_id: yup.number().when('isFromDashboard', {
-            is: true,
-            then: yup.number().required('Store is required').typeError('Store is required'),
-            otherwise: yup.number().nullable(),
+    const validationSchema = yup.object({
+        isFromDashboard: yup.boolean(),
+        store_id: yup.number().nullable().when('isFromDashboard', (isFromDashboard, schema) => {
+            return isFromDashboard
+                ? schema.required('Store is required').typeError('Store is required')
+                : schema;
         }),
     });
 
@@ -234,51 +235,49 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 6, sm: 5}}>
+                            <Grid size={{ xs: 12, md: isFromDashboard ? 6 : 6, sm: 5 }}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <DateTimePicker
                                         label="From (MM/DD/YYYY)"
                                         fullWidth
                                         minDate={dayjs(authOrganization.organization.recording_start_date)}
                                         maxDate={dayjs()}
-                                        defaultValue={dormantStock ? dayjs().subtract(3, 'months') : dayjs().startOf('day')}
-                                        slotProps={{
-                                            textField: {
-                                                size: 'small',
-                                                fullWidth: true,
-                                            }
-                                        }}
+                                        value={watch('from') ? dayjs(watch('from')) : null}
                                         onChange={(newValue) => {
                                             setValue('from', newValue ? newValue.toISOString() : null, {
-                                                shouldValidate: true,
-                                                shouldDirty: true
+                                            shouldValidate: true,
+                                            shouldDirty: true,
                                             });
                                         }}
-
+                                        slotProps={{
+                                            textField: {
+                                            size: 'small',
+                                            fullWidth: true,
+                                            },
+                                        }}
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{xs: 12, md: isFromDashboard ? 5 : 6, sm: 5}}>
+                            <Grid size={{ xs: 12, md: isFromDashboard ? 5 : 6, sm: 5 }}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <DateTimePicker
                                         label="To (MM/DD/YYYY)"
                                         fullWidth
                                         minDate={dayjs(authOrganization.organization.recording_start_date)}
                                         maxDate={dayjs()}
-                                        defaultValue={dayjs()}
-                                        slotProps={{
-                                            textField: {
-                                                size: 'small',
-                                                fullWidth: true
-                                            }
-                                        }}
+                                        value={watch('to') ? dayjs(watch('to')) : null}
                                         onChange={(newValue) => {
                                             setValue('to', newValue ? newValue.toISOString() : null, {
-                                                shouldValidate: true,
-                                                shouldDirty: true
+                                            shouldValidate: true,
+                                            shouldDirty: true,
                                             });
                                         }}
-
+                                        slotProps={{
+                                            textField: {
+                                            size: 'small',
+                                            fullWidth: true,
+                                            },
+                                        }}
                                     />
                                 </Div>
                             </Grid>

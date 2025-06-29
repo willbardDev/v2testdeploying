@@ -116,23 +116,29 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     const validationSchema = yup.object({
-        product_id : yup.number().required("Product is required").positive('Product is required').typeError('Product is required'),
-        store_id: yup.number().when('isFromDashboard', {
-            is: true,
-            then: yup.number().required('Store is required').typeError('Store is required'),
-            otherwise: yup.number().nullable(),
-        }),
+        isFromDashboard: yup.boolean(),
+        product_id: yup.number()
+            .required("Product is required")
+            .positive('Product is required')
+            .typeError('Product is required'),
+        store_id: yup.number()
+            .nullable()
+            .when('isFromDashboard', (isFromDashboard, schema) =>
+                isFromDashboard
+                    ? schema.required('Store is required').typeError('Store is required')
+                    : schema
+            ),
     });
 
-    const {setValue,handleSubmit, watch, formState: {errors}} = useForm({
+    const { setValue, handleSubmit, watch, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues: {
+            isFromDashboard: isFromDashboard || false,
             from: today.startOf('day').toISOString(),
             to: today.endOf('day').toISOString(),
-            product_id: productStock && productStock.id,
-            isFromDashboard: isFromDashboard || false,
+            product_id: productStock?.id || null,
             store_id: isFromDashboard ? null : activeStore?.id,
-            cost_center_ids: authOrganization.costCenters.map(cost_center => cost_center.id)
+            cost_center_ids: authOrganization.costCenters.map(cc => cc.id)
         }
     });
 
@@ -224,23 +230,21 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="From (MM/DD/YYYY)"
-                                    fullWidth
+                                    value={dayjs(watch('from'))}
                                     minDate={dayjs(authOrganization.organization.recording_start_date)}
-                                    maxDate={dayjs(watch(`to`))}
-                                    defaultValue={today.startOf('day')}
+                                    maxDate={dayjs(watch('to'))}
                                     slotProps={{
-                                        textField : {
-                                            size: 'small',
-                                            fullWidth: true,
-                                        }
+                                        textField: {
+                                        size: 'small',
+                                        fullWidth: true,
+                                        },
                                     }}
                                     onChange={(newValue) => {
-                                        setValue('from', newValue ? newValue.toISOString() : null,{
-                                            shouldValidate: true,
-                                            shouldDirty: true
+                                        setValue('from', newValue ? newValue.toISOString() : null, {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
                                         });
                                     }}
-                                
                                 />
                             </Div>
                         </Grid>
@@ -248,22 +252,20 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="To (MM/DD/YYYY)"
-                                    fullWidth
-                                    minDate={dayjs(watch(`from`))}
-                                    defaultValue={today.endOf('day')}
+                                    value={dayjs(watch('to'))}
+                                    minDate={dayjs(watch('from'))}
                                     slotProps={{
-                                        textField : {
-                                            size: 'small',
-                                            fullWidth: true
-                                        }
+                                        textField: {
+                                        size: 'small',
+                                        fullWidth: true,
+                                        },
                                     }}
                                     onChange={(newValue) => {
-                                        setValue('to', newValue ? newValue.toISOString() : null,{
-                                            shouldValidate: true,
-                                            shouldDirty: true
+                                        setValue('to', newValue ? newValue.toISOString() : null, {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
                                         });
                                     }}
-                                
                                 />
                             </Div>
                         </Grid>

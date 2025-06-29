@@ -28,7 +28,7 @@ function Transfer() {
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: 'inventoryTransfers',
-        queryParams: { store_id: params.store_id, keyword: '',type: 'external' },
+        queryParams: { store_id: params.id, keyword: '',type: 'external' },
         countKey: 'total',
         dataKey: 'data',
     });
@@ -36,7 +36,7 @@ function Transfer() {
       React.useEffect(() => {
         setQueryOptions((state) => ({
           ...state,
-          queryParams: {...state.queryParams, store_id: store?.id ? store.id : params.store_id},
+          queryParams: {...state.queryParams, store_id: store?.id ? store.id : params.id},
         }));
       }, [params,store]);
 
@@ -79,7 +79,7 @@ return (
         <JumboRqList
             ref={listRef}
             wrapperComponent={Box}
-            service={inventoryTransferServices.getInventoryTransfersList}
+            service={inventoryTransferServices.getList}
             primaryKey={"id"}
             queryOptions={queryOptions}
             itemsPerPage={10}

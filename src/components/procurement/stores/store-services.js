@@ -58,7 +58,7 @@ storeServices.delete = async (id) => {
 };
 
 storeServices.getStockMovement = async (params, dormantStock = false) => {
-  const { data } = await axios.get(`/api/stores/${params.store_id}/stock_movement/getStockMovement`, {
+  const { data } = await axios.get(`/api/stores/${params.store_id}/getStockMovement`, {
     params: {
       ...params,
       dormant: dormantStock,
