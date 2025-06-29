@@ -42,10 +42,14 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
       is: (type) => type === 'external' || type === 'internal',
       then: yup.number().required('Destination Store is required').typeError('Destination Store is required'),
     }),
-    receivable_ledger_id: yup.number().when(['type', 'change_cost_center'], {
+    receivable_ledger_id: yup.mixed().when(['type', 'change_cost_center'], {
       is: (type, change_cost_center) =>
-        (type === 'cost center change' || type === 'Cost Center Change' || change_cost_center === 1),
-      then: yup.number().required('Ledger is Required').typeError('Ledger is required'),
+        type?.toLowerCase() === 'cost center change' || change_cost_center === 1,
+      then: yup
+        .number()
+        .required('Ledger is required')
+        .typeError('Ledger is required'),
+      otherwise: yup.number().nullable(),
     }),
   });  
 
@@ -53,7 +57,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
   useEffect(() => {
     async function loopItems() {
       await setValue(`items`, null);
-      await items.forEach((item, index) => {
+      await items?.forEach((item, index) => {
         setValue(`items.${index}.product_id`, item?.product?.id ? item.product.id : item.product_id);
         setValue(`items.${index}.quantity`, item?.sending_movement ? item.sending_movement.quantity : item.quantity);
         setValue(`items.${index}.measurement_unit_id`, item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit.id);
@@ -118,12 +122,15 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
         message: "You must add at least one item",
       });
       return;
-    } else if (isDirty) {
-      setShowWarning(true);
-    } else {
-      handleSubmit((data) => saveMutation.mutate(data))();
     }
-  };  
+
+    if (isDirty) {
+      setShowWarning(true);
+      return;
+    }
+
+    saveMutation.mutate(data);
+  };
 
   const handleConfirmSubmitWithoutAdd = () => {
     handleSubmit((data) => saveMutation.mutate(data))();
@@ -133,10 +140,23 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
   };
 
 
-  const { data: suggestions, isLoading: isFetchingAddresses } = useQuery('address', posServices.getAddresses);
-  const { data: stores, isLoading: isFetchingStores } = useQuery('stores', storeServices.getStoreOptions);
+  // const {
+  //   data: suggestions,
+  //   isLoading: isFetchingAddresses,
+  // } = useQuery({
+  //   queryKey: ['address'],
+  //   queryFn: posServices.getAddresses,
+  // });
 
-  if (isFetchingStores || isFetchingAddresses) {
+  const {
+    data: stores,
+    isLoading: isFetchingStores,
+  } = useQuery({
+    queryKey: ['stores'],
+    queryFn: storeServices.getStoreOptions,
+  });
+
+  if (isFetchingStores) {
     return <LinearProgress />;
   }
 
@@ -350,7 +370,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                   }
                 </>
               }
-              { 
+              {/* { 
                 (type === 'external' || transfer?.type === 'External') &&
                   <>
                     <Grid size={{xs: 12, md: 6, lg: 6}}>
@@ -420,7 +440,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                       </Div>
                   </Grid>
                 </>
-              }
+              } */}
               <Grid size={{xs: 12, md: (type === 'internal' || transfer?.type === 'Internal') ? 6 : 12}}>
                 <Div sx={{ mt: 1 }}>
                   <TextField

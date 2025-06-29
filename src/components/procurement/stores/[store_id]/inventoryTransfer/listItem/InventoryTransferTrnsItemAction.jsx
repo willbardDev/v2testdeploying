@@ -1,155 +1,154 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react';
+import {
+  Box, Button, Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery
+} from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useContext } from 'react';
-import inventoryTransferServices from '../inventoryTransfer-services';
-import { listItemContext } from './InventoryTransferListItem';
-import InventoryTransferTrnPDF from '../InventoryTransferTrnPDF';
-import InventoryTransferTrnOnScreen from '../InventoryTransferTrnOnScreen';
 import { HighlightOff } from '@mui/icons-material';
-import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { listItemContext } from './InventoryTransferListItem';
+import inventoryTransferServices from '../inventoryTransfer-services';
+import InventoryTransferTrnOnScreen from '../InventoryTransferTrnOnScreen';
+import InventoryTransferTrnPDF from '../InventoryTransferTrnPDF';
 import PDFContent from '@/components/pdf/PDFContent';
 
-function InventoryTransferTrnsItemAction() {
-    const {authOrganization} = useJumboAuth();
-    const {organization} = authOrganization;
-    const { enqueueSnackbar } = useSnackbar();
-    const queryClient = useQueryClient();
-    const {setExpanded,expanded,openDialog,setSelectedInventoryTrn,selectedInventoryTrn,setOpenDialog,openDocumentDialog,setOpenDocumentDialog} = useContext(listItemContext)
+// --- Extracted Component ---
+const DocumentDialog = ({ transferTrn, onClose }) => {
+  const [activeTab, setActiveTab] = useState(0);
+  const { authOrganization } = useJumboAuth();
+  const belowLargeScreen = useMediaQuery((theme) => theme.breakpoints.down('lg'));
 
-    //Screen handling constants
-    const {theme} = useJumboTheme();
-    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { data: trn, isPending } = useQuery({
+    queryKey: ['trns', { id: transferTrn.id }],
+    queryFn: () => inventoryTransferServices.trnDetails(transferTrn.id),
+  });
 
-    const unReceiveTrn = useMutation({
-        mutationFn: inventoryTransferServices.unReceiveTrn,
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
-            enqueueSnackbar(data.message, { variant: 'success' });
-            setExpanded((prev) => !prev);
-        },
-        onError: (error) => {
-            enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
-        },
-    });
-    
-    const DocumentDialog = ({ transferTrn, organization, setOpenDocumentDialog }) => {
-        const [activeTab, setActiveTab] = useState(0);
-        const { data: trn, isLoading } = useQuery(['trns', { id: transferTrn.id }], async () =>
-            inventoryTransferServices.trnDetails(transferTrn.id)
-        );
-        
-        const belowLargeScreen = useMediaQuery((theme) => theme.breakpoints.down('lg'));
-    
-        if (isLoading) {
-            return <LinearProgress />;
-        }
-    
-        const handleChangeTab = (event, newValue) => {
-            setActiveTab(newValue);
-        };
-    
-        return (
-            <>
-                <DialogTitle>
-                    {belowLargeScreen && (
-                        <Grid container alignItems="center" justifyContent="space-between">
-                            <Grid size={11}>
-                                <Tabs 
-                                    value={activeTab} 
-                                    onChange={handleChangeTab} 
-                                    aria-label="dialog tabs"
-                                >
-                                    <Tab label="ONSCREEN" />
-                                    <Tab label="PDF" />
-                                </Tabs>
-                            </Grid>
-                            <Grid size={1} textAlign="right">
-                                <Tooltip title="Close">
-                                    <IconButton 
-                                        size="small" 
-                                        onClick={() => setOpenDocumentDialog(false)}
-                                    >
-                                        <HighlightOff color="primary" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Grid>
-                        </Grid>
-                    )}
-                </DialogTitle>
-    
-                <DialogContent>
-                    {belowLargeScreen && activeTab === 0 ? (
-                        <InventoryTransferTrnOnScreen trn={trn} organization={organization} />
-                    ) : (
-                        <PDFContent
-                            fileName={trn.trnNo} 
-                            document={<InventoryTransferTrnPDF trn={trn} organization={organization} />}
-                        />
-                    )}
-                </DialogContent>
-
-                <DialogActions>
-                    {belowLargeScreen && (
-                        <Box textAlign="right" marginTop={5}>
-                            <Button variant="outlined" size="small" color="primary" onClick={() => setOpenDocumentDialog(false)}>
-                                Close
-                            </Button>
-                        </Box>
-                    )}
-                </DialogActions>
-            </>
-        );
-    };
-    
+  const handleChangeTab = (_, newValue) => setActiveTab(newValue);
 
   return (
-    <React.Fragment>
-      {/* Confirmation Dialog */}
-        <Dialog open={openDialog}>
-            <DialogTitle>Unreceive Confirmation</DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    Are you sure you want to unreceive this Trn?
-                </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => { setSelectedInventoryTrn(null); setOpenDialog(false); }} color="primary">
-                    Cancel
-                </Button>
-                <Button
-                    onClick={() => {
-                    if (selectedInventoryTrn) {
-                        unReceiveTrn(selectedInventoryTrn.id);
-                        setSelectedInventoryTrn(null);
-                        setOpenDialog(false);
-                    }
-                    }}
-                    variant='contained'
-                    color="primary"
-                >
-                    Yes
-                </Button>
-            </DialogActions>
-        </Dialog>
+    <>
+      <DialogTitle>
+        {belowLargeScreen && (
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item xs={11}>
+              <Tabs value={activeTab} onChange={handleChangeTab}>
+                <Tab label="ONSCREEN" />
+                <Tab label="PDF" />
+              </Tabs>
+            </Grid>
+            <Grid item xs={1} textAlign="right">
+              <Tooltip title="Close">
+                <IconButton size="small" onClick={onClose}>
+                  <HighlightOff color="primary" />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
+        )}
+      </DialogTitle>
 
-        {/* PDF Dialog */}
-        <Dialog
-            open={openDocumentDialog}
-            scroll={(belowLargeScreen || !openDocumentDialog) ? 'body' : 'paper'}
-            fullWidth
-            fullScreen={belowLargeScreen}
-            maxWidth="md"
+      <DialogContent>
+        {isPending ? (
+          <LinearProgress />
+        ) : belowLargeScreen && activeTab === 0 ? (
+          <InventoryTransferTrnOnScreen trn={trn} organization={authOrganization.organization} />
+        ) : (
+          <PDFContent
+            fileName={trn.trnNo}
+            document={<InventoryTransferTrnPDF trn={trn} organization={authOrganization.organization} />}
+          />
+        )}
+      </DialogContent>
+
+      {belowLargeScreen && (
+        <DialogActions>
+          <Box textAlign="right" width="100%">
+            <Button variant="outlined" size="small" onClick={onClose}>
+              Close
+            </Button>
+          </Box>
+        </DialogActions>
+      )}
+    </>
+  );
+};
+
+// --- Main Component ---
+const InventoryTransferTrnsItemAction = () => {
+  const {
+    openDialog, setOpenDialog,
+    selectedInventoryTrn, setSelectedInventoryTrn,
+    openDocumentDialog, setOpenDocumentDialog,
+    setExpanded,
+  } = useContext(listItemContext);
+
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const belowLargeScreen = useMediaQuery(useJumboTheme().theme.breakpoints.down('lg'));
+
+  const unReceiveTrn = useMutation({
+    mutationFn: inventoryTransferServices.unReceiveTrn,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['inventoryTransfers'] });
+      queryClient.invalidateQueries({ queryKey: ['inventoryTrns'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+      setExpanded(prev => !prev);
+    },
+    onError: (error) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Something went wrong.', { variant: 'error' });
+    },
+  });
+
+  const handleConfirmUnreceive = () => {
+    if (selectedInventoryTrn) {
+      unReceiveTrn.mutate(selectedInventoryTrn.id);
+      setOpenDialog(false);
+      setSelectedInventoryTrn(null);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedInventoryTrn(null);
+  };
+
+  return (
+    <>
+      {/* Unreceive Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Unreceive Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to unreceive this transaction?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button variant="contained" onClick={handleConfirmUnreceive}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* PDF / Onscreen Dialog */}
+      <Dialog
+        open={openDocumentDialog}
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullScreen={belowLargeScreen}
+        fullWidth
+        maxWidth="md"
+        onClose={() => setOpenDocumentDialog(false)}
+      >
+        {selectedInventoryTrn && (
+          <DocumentDialog
+            transferTrn={selectedInventoryTrn}
             onClose={() => setOpenDocumentDialog(false)}
-        >
-            {selectedInventoryTrn && (
-               <DocumentDialog transferTrn={selectedInventoryTrn} organization={organization} setOpenDocumentDialog={setOpenDocumentDialog}/>
-            )}
-        </Dialog>
-    </React.Fragment>
-  )
-}
+          />
+        )}
+      </Dialog>
+    </>
+  );
+};
 
-export default InventoryTransferTrnsItemAction
+export default InventoryTransferTrnsItemAction;

@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 
 function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
@@ -222,7 +222,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
           Cancel
         </Button>
         <LoadingButton
-          loading={receiveInventoryTransfer.isLoading}
+          loading={receiveInventoryTransfer.isPending}
           variant='contained'
           size='small'
           onClick={handleSubmit(() => handleSubmitForm(getValues()))} //calling lastest values

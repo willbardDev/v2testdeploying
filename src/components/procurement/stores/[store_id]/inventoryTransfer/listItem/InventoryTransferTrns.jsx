@@ -28,6 +28,7 @@ function InventoryTransferTrns() {
             columnSpacing={2}
             alignItems={'center'}
             container
+            width="100%"
             >
             <Grid size={{xs: 4, md: 3}}>
                 <Tooltip title={'Date Received'}>
