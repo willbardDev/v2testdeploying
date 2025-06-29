@@ -26,7 +26,7 @@ function StockAdjustments() {
 
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: "storeStockAdjustments",
-    queryParams: {id: params.store_id, keyword : ''},
+    queryParams: {store_id: params.id, keyword : ''},
     countKey: "total",
     dataKey: "data",
   });
@@ -34,11 +34,11 @@ function StockAdjustments() {
   React.useEffect(() => {
       setQueryOptions(state => ({
           ...state,
-          queryParams: {...state.queryParams, id: store?.id ? store.id : params.store_id}
+          queryParams: {...state.queryParams, store_id: store?.id ? store.id : params.id}
       }))
   }, [store]);
 
-  const renderStore = React.useCallback((stockAdjustment) => {
+  const renderStockAdjustment = React.useCallback((stockAdjustment) => {
       return <StockAdjustmentListItem stockAdjustment={stockAdjustment}  />
   });
 
@@ -62,7 +62,7 @@ return (
             queryOptions={queryOptions}
             itemsPerPage={10}
             itemsPerPageOptions={[10, 15, 20,50,100]}
-            renderItem={renderStore}
+            renderItem={renderStockAdjustment}
             componentElement={"div"}
             bulkActions={null}
             wrapperSx={{

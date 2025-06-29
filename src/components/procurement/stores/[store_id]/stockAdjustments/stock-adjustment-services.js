@@ -46,12 +46,12 @@ stockAdjustmentServices.delete = async (stockAdjustment) => {
     })
 };
 
-stockAdjustmentServices.getList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get(`/api/stockAdjustment/${queryParams.id}/getList`, {
-      params: { type, keyword, page, limit },
-    });
-    return response.data;
-},
+stockAdjustmentServices.getList = async ({ store_id, keyword, page, limit, from, to }) => {
+  const response = await axios.get(`/api/stores/${store_id}/getStockAdjustmentList`, {
+    params: { store_id, keyword, page, limit, from, to },
+  });
+  return response.data;
+};
 
 stockAdjustmentServices.show = async(id) => {
     const {data} = await axios.get(`/api/stockAdjustment/${id}/show`)
