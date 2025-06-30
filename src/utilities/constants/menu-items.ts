@@ -59,6 +59,18 @@ export async function getMenus(locale: string) {
           label: sidebar.menuItem.reports,
           icon: 'barcharts',
         },
+        {
+          path: `/${locale}/pos/outlets`,
+          label: sidebar.menuItem.outlets,
+        },
+        {
+          path: `/${locale}/pos/price_lists`,
+          label: sidebar.menuItem.price_lists,
+        },
+        {
+          path: `/${locale}/pos/settings`,
+          label: sidebar.menuItem.settings,
+        },
       ],
     },
 
