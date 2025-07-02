@@ -22,6 +22,7 @@ interface JumboRqListProps<TData = any> {
     itemsPerPage?: number;
     service: (params: any) => Promise<TData>;
     primaryKey: string;
+    refetchOnWindowFocus: boolean;
     itemsPerPageOptions?: number[];
     toolbar?: React.ReactNode;
     multiSelectOptions?: MultiSelectOption[];
@@ -56,6 +57,7 @@ const JumboRqList = React.forwardRef<{ refresh: () => Promise<void> }, JumboRqLi
             primaryKey,
             itemsPerPageOptions,
             toolbar,
+            refetchOnWindowFocus,
             multiSelectOptions,
             onSelectionChange,
             renderItem,
@@ -66,7 +68,6 @@ const JumboRqList = React.forwardRef<{ refresh: () => Promise<void> }, JumboRqLi
             sx,
             componentElement,
             itemSx,
-            transition,
             view,
             onRefresh = () => {},
         } = props;
@@ -93,6 +94,7 @@ const JumboRqList = React.forwardRef<{ refresh: () => Promise<void> }, JumboRqLi
         const listQuery = useQuery({
             queryKey,
             queryFn,
+            refetchOnWindowFocus,
         });
 
         React.useImperativeHandle(ref, () => ({
