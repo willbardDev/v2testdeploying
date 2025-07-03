@@ -33,7 +33,7 @@ measurementUnitServices.update = async(measurementUnit) => {
 
 measurementUnitServices.delete = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`//api/masters/measurement_units/${id}/delete`);
+        const {data} = await axios.delete(`/api/masters/measurement_units/${id}/delete`);
         return data;
     })
 };
