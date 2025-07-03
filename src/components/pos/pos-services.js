@@ -13,16 +13,11 @@ posServices.getCounterLedgers = async(counter_id) => {
     return data;
 }
 
-posServices.counterSales = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get(`pos/sales_counter/${queryParams.counterId}/sales`, {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
-    });
-    return data;
+posServices.getCounterSales = async ({ counterId, keyword, page, limit, from, to }) => {
+  const response = await axios.get(`/api/pos/counter/${counterId}/getCounterSales`, {
+    params: { counterId, keyword, page, limit, from, to },
+  });
+  return response.data;
 };
 
 posServices.salesManifest = async(params) => {

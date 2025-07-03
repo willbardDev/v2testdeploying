@@ -104,7 +104,7 @@ const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
             ref={listRef}
             refetchOnWindowFocus={true}
             wrapperComponent={Box}
-            service={posServices.counterSales}
+            service={posServices.getCounterSales}
             primaryKey={"id"}
             queryOptions={queryOptions}
             itemsPerPage={10}
