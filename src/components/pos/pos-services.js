@@ -2,11 +2,11 @@ import axios from "@/lib/services/config";
 
 const posServices = {};
 
-posServices.getUserOutlets = async({queryKey}) => {
-    const {userId} = queryKey[1];
-    const {data} = await axios.get(`pos/user_outlets/${userId}`);
+posServices.getUserOutlets = async (params) => {
+    const { userId } = params;
+    const { data } = await axios.get(`/api/pos/counter/${userId}/getUserOutlets`);
     return data;
-}
+};
 
 posServices.getCounterLedgers = async(counter_id) => {
     const {data} = await axios.get(`pos/sales_counter/${counter_id}/ledgers`);
