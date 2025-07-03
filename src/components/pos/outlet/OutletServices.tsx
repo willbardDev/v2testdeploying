@@ -4,7 +4,7 @@ const outletService: any = {};
 
 // Get paginated list with keyword filtering
 outletService.getList = async ({ keyword = '', page = 1, limit = 10 }) => {
-  const response = await axios.get('/sales_outlet', {
+  const response = await axios.get('/api/pos/outlet', {
     params: { keyword, page, limit },
   });
   return response.data;

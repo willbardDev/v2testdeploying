@@ -12,8 +12,6 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions'; 
 import OutletFormDialog from './OutletFormDialog';
 
-c
-
 const OutletActionTail = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();

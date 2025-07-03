@@ -24,7 +24,7 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h6">{outlet.name}</Typography>
           </Grid>
-          <Grid size={{ xs: 12, md: 4 }}> display="flex" justifyContent={{ xs: 'flex-start', sm: 'flex-end' }} alignItems="center">
+          <Grid size={{ xs: 12, md: 4 }}> display="flex" justifyContent={{ xs: 'flex-start', md: 'flex-end' }} alignItems="center">
             <Chip
               label={outletTypeLabels[outlet.type as OutletType] || outlet.type}
               size="small"
@@ -69,7 +69,7 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
             </Typography>
             <Grid container spacing={1}>
               {outlet.stores?.map((store) => (
-                <Grid item key={store.id}>
+                <Grid  key={store.id}>
                   <Chip label={store.name} size="small" />
                 </Grid>
               ))}
@@ -97,7 +97,7 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
             </Typography>
             <Grid container spacing={1}>
               {outlet.user_ids.map((userId) => (
-                <Grid item key={userId}>
+                <Grid key={userId}>
                   <Chip label={`User ${userId}`} size="small" variant="outlined" />
                 </Grid>
               ))}
