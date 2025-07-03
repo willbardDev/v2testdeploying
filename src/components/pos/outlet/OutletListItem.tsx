@@ -5,11 +5,11 @@ import {
   Chip,
   Typography,
   Grid,
-  Box
+  Box,
+  Tooltip,
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
-import { IconButton, Tooltip } from '@mui/material';
 import { Outlet, OutletType, outletTypeLabels } from './OutletType';
+import OutletItemActions from './OutletListItemAction';
 
 type OutletListItemProps = {
   outlet: Outlet;
@@ -20,53 +20,20 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
     <Card variant="outlined" sx={{ mb: 2 }}>
       <CardContent>
         <Grid container spacing={2}>
-          {/* Header: Name & Type */}
-          <Grid size={{ xs: 12, md: 8 }}>
+          {/* Name and Type */}
+        <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h6">{outlet.name}</Typography>
-          </Grid>
-          <Grid  size={{ xs: 12, md: 4 }}
-            container
-            direction="row"
-            sx={{
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
-          >
             <Chip
               label={outletTypeLabels[outlet.type as OutletType] || outlet.type}
               size="small"
               color="primary"
+              sx={{ mt: 1 }}
             />
-            <Grid size={{ xs: 12, md: 8 }}>
-            <Typography variant="h6">{outlet.name}</Typography>
-            </Grid>
+          </Grid>
 
-            <Grid  size={{ xs: 12, md: 4 }}
-            container
-            direction="row"
-            sx={{
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
-            <Chip
-                label={outletTypeLabels[outlet.type as OutletType] || outlet.type}
-                size="small"
-                color="primary"
-                sx={{ mr: 1 }}
-            />
-            <Tooltip title="Edit">
-                <IconButton size="small" onClick={() => handleEdit(outlet)}>
-                <Edit fontSize="small" />
-                </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-                <IconButton size="small" onClick={() => handleDelete(outlet)}>
-                <Delete fontSize="small" />
-                </IconButton>
-            </Tooltip>
-        </Grid>
-
+          {/* Edit/Delete Actions */}
+          <Grid size={{ xs: 12, md: 4 }} container justifyContent="flex-end">
+            <OutletItemActions outlet={outlet} />
           </Grid>
 
           {/* Address */}
@@ -83,7 +50,7 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
             </Typography>
             <Grid container spacing={1}>
               {outlet.stores?.map((store) => (
-                <Grid  key={store.id}>
+                <Grid key={store.id}>
                   <Chip label={store.name} size="small" />
                 </Grid>
               ))}
@@ -98,19 +65,20 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
             <Box>
               {outlet.counters?.map((counter, idx) => (
                 <Typography variant="body2" key={idx}>
-                  • {counter.name} — {counter?.ledger_ids?.length} ledger{Number(counter?.ledger_ids?.length) > 1 ? 's' : ''}
+                  • {counter.name} — {counter?.ledger_ids?.length || 0} ledger
+                  {counter?.ledger_ids?.length! > 1 ? 's' : ''}
                 </Typography>
               ))}
             </Box>
           </Grid>
 
-          {/* Assigned Users */}
+          {/* Users */}
           <Grid size={12}>
             <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
               Assigned Users:
             </Typography>
             <Grid container spacing={1}>
-              {outlet.user_ids.map((userId) => (
+              {outlet.user_ids?.map((userId) => (
                 <Grid key={userId}>
                   <Chip label={`User ${userId}`} size="small" variant="outlined" />
                 </Grid>

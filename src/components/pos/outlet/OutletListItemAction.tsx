@@ -21,23 +21,19 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { mutate: deleteOutlet } = useMutation({
-    mutationFn: outletService.delete,
-    onSuccess: (data: { message: string }) => {
-      queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-      enqueueSnackbar(data.message, { variant: 'success' });
-    },
-    onError: (error: unknown) => {
-      const message =
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-          ? (error as any).response.data.message
-          : 'Failed to delete outlet';
-      enqueueSnackbar(message, { variant: 'error' });
-    },
-  });
+const { mutate: deleteOutlet } = useMutation({
+  mutationFn: (id: number) => outletService.delete(id), // accept ID
+  onSuccess: (data: { message: string }) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+  },
+  onError: (error: any) => {
+    enqueueSnackbar(
+      error?.response?.data?.message || 'Failed to delete outlet',
+      { variant: 'error' }
+    );
+  },
+});
 
   const menuItems: MenuItemProps[] = [
     { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
@@ -55,7 +51,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
           content: 'Are you sure you want to delete this outlet?',
           onYes: () => {
             hideDialog();
-            deleteOutlet(outlet.);
+            deleteOutlet(outlet.id? outlet.id : 0); 
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

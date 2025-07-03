@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import outletService from "./OutletServices;
+import outletService from "./OutletServices";
 import { Outlet } from "./OutletType";
 
 interface OutletSelectorProps {
