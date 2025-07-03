@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -49,8 +49,22 @@ interface FormData {
 
 interface AddOutletResponse {
   message: string;
-  data?: any; // au structure ya data halisi
+  data?: any; // au structure ya data 
 }
+
+interface UpdateOutletResponse {
+  message: string;
+  data?: any; // au structure ya data 
+}
+
+interface StoreSelectorProps {
+  frontError?: FieldError | FieldError[] | null | undefined;
+  defaultValue?: any;
+  multiple?: boolean;
+  onChange: (value: any) => void;
+  label?: string;
+}
+
 
 
 const OUTLET_TYPES = [
