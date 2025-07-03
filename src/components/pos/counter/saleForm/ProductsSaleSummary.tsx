@@ -40,20 +40,20 @@ function ProductsSaleSummary() {
 
   return (
     <Grid container columnSpacing={1}>
-    <Grid item xs={12}>
+    <Grid size={12}>
         <Typography align='center' variant='h3'>Summary</Typography>
         <Divider/>
     </Grid>
-    <Grid item xs={6}>
+    <Grid size={6}>
         <Typography align='left' variant='body2'>Total:</Typography>
     </Grid>
-    <Grid item xs={6}>
+    <Grid size={6}>
         <Typography align='right' variant='h5'>{totalAmount.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
     </Grid>
     {
         watch('vat_registered') &&
         <React.Fragment>
-            <Grid item xs={6}>
+            <Grid size={6}>
                 <Typography align='left' variant='body2'>
                     VAT:
                     <Checkbox
@@ -70,28 +70,28 @@ function ProductsSaleSummary() {
                     />
                 </Typography>
             </Grid>
-            <Grid item xs={6}  display={'flex'} alignItems={'center'} justifyContent={'end'}>
+            <Grid size={6}  display={'flex'} alignItems={'center'} justifyContent={'end'}>
                 <Typography align='right' variant='h5'>{vatAmount.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
                 <Typography align='left' variant='body2'>Grand Total:</Typography>
             </Grid>
-            <Grid item xs={6}  display={'flex'} alignItems={'center'} justifyContent={'end'}>
+            <Grid size={6}  display={'flex'} alignItems={'center'} justifyContent={'end'}>
                 <Typography align='right' variant='h5'>{(totalAmount + vatAmount).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
             </Grid>
         </React.Fragment>
     }
     {   watch(`stakeholder_id`) !== null && !majorInfoOnly &&
         <>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Divider/>
             </Grid>
-            <Grid item xs={7} marginTop={2} marginBottom={2}>
+            <Grid size={7} marginTop={2} marginBottom={2}>
                 <Typography align='left' variant='body2'>
                    Instant Sale: 
                 </Typography>
             </Grid>
-            <Grid item xs={5} display={'flex'} alignItems={'end'} justifyContent={'end'} marginTop={1} marginBottom={2}>
+            <Grid size={5} display={'flex'} alignItems={'end'} justifyContent={'end'} marginTop={1} marginBottom={2}>
                 <Switch
                     checked={checkedForInstantSale}
                     size='small'
@@ -105,15 +105,15 @@ function ProductsSaleSummary() {
                     }}
                 />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Divider/>
             </Grid>
-            <Grid item xs={7} marginTop={1} marginBottom={2}>
+            <Grid size={7} marginTop={1} marginBottom={2}>
                 <Typography align='left' variant='body2'>
                     Suggest Recent Price: 
                 </Typography>
             </Grid>
-            <Grid item xs={5} display={'flex'} alignItems={'end'} justifyContent={'end'} marginTop={1} marginBottom={2}>
+            <Grid size={5} display={'flex'} alignItems={'end'} justifyContent={'end'} marginTop={1} marginBottom={2}>
                 <Switch
                     checked={checkedForSuggestPrice}
                     size='small'

@@ -22,7 +22,7 @@ interface JumboRqListProps<TData = any> {
     itemsPerPage?: number;
     service: (params: any) => Promise<TData>;
     primaryKey: string;
-    refetchOnWindowFocus: boolean;
+    refetchOnWindowFocus?: boolean;
     itemsPerPageOptions?: number[];
     toolbar?: React.ReactNode;
     multiSelectOptions?: MultiSelectOption[];
