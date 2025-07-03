@@ -213,21 +213,21 @@ function SaleDialogForm({toggleOpen,sale = null}) {
     }}>
         <DialogTitle>
             <Grid container columnSpacing={2}>
-                <Grid textAlign={'center'} item xs={12} mb={3}>
+                <Grid textAlign={'center'} size={12} mb={3}>
                     {!sale ? 'New Sale' : `Edit: ${sale.saleNo} `}
                 </Grid>
 
-                <Grid item xs={12} md={9} mb={2}>
+                <Grid size={{xs: 12, md: 9}} mb={2}>
                     <SaleTopInformation />
                 </Grid>
                 
-                <Grid item xs={12} md={3}>
+                <Grid size={{xs: 12, md: 3}}>
                     <ProductsSaleSummary />
                 </Grid>
                 
                 {
                     !majorInfoOnly &&
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <SaleItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} vat_percentage={vat_percentage} />
                     </Grid>
                 }
@@ -248,10 +248,10 @@ function SaleDialogForm({toggleOpen,sale = null}) {
                 <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
                     <DialogTitle>            
                         <Grid container alignItems="center" justifyContent="space-between">
-                            <Grid item xs={11}>
+                            <Grid size={11}>
                                 Unsaved Changes
                             </Grid>
-                            <Grid item xs={1} textAlign="right">
+                            <Grid size={1} textAlign="right">
                                 <Tooltip title="Close">
                                     <IconButton
                                         size="small" 
