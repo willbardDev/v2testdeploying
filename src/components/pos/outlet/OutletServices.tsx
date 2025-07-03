@@ -12,14 +12,14 @@ outletService.getList = async ({ keyword = '', page = 1, limit = 10 }) => {
 
 // Options for dropdowns or parent selections (if needed)
 outletService.getOutletOptions = async () => {
-  const { data } = await axios.get('/sales_outlet');
+  const { data } = await axios.get('/api/pos/outlet/all_outlet_options');
   return data;
 };
 
 // Create new outlet
 outletService.add = async (outlet: any) => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post('/sales_outlet', outlet);
+  const { data } = await axios.post('/api/pos/outlet/add', outlet);
   return data;
 };
 
