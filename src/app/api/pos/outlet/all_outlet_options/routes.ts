@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const url = new URL(`${API_BASE}/sales_outlet/all_outlet_options`);
+  const url = new URL(`${API_BASE}/pos/sales_outlet`);
   req.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value));
 
   const res = await fetch(url.toString(), {

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get('limit') || '10';
   const query = new URLSearchParams({ keyword, page, limit }).toString();
 
-  const res = await fetch(`${API_BASE}/sales_outlet?${query}`, {
+  const res = await fetch(`${API_BASE}/pos/sales_outlet?${query}`, {
     headers,
     credentials: 'include',
   });

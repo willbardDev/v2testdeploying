@@ -98,7 +98,7 @@ const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
             <Box>
               {outlet.counters?.map((counter, idx) => (
                 <Typography variant="body2" key={idx}>
-                  • {counter.name} — {counter.ledger_ids.length} ledger{counter.ledger_ids.length > 1 ? 's' : ''}
+                  • {counter.name} — {counter?.ledger_ids?.length} ledger{Number(counter?.ledger_ids?.length) > 1 ? 's' : ''}
                 </Typography>
               ))}
             </Box>

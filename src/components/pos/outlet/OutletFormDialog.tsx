@@ -36,9 +36,20 @@ interface FormData {
   name: string;
   address: string;
   type: string;
-  counters: { name: string; ledger_ids: number[] }[]; 
-  user_ids: number[]; 
-  stores: { id: number; name: string }[]; 
+  user_ids?: number[];
+  stores?: {
+    name: string;
+    id: number;
+  }[];
+  counters?: {
+    name: string;
+    ledger_ids?: number[]; 
+  }[];
+}
+
+interface AddOutletResponse {
+  message: string;
+  data?: any; // au structure ya data halisi
 }
 
 
@@ -47,79 +58,108 @@ const OUTLET_TYPES = [
   { value: 'shop', name: 'Shop' },
 ];
 
-const validationSchema = yup.object().shape({
-  name: yup.string().required('Outlet name is required'),
-  address: yup.string().required('Address is required'),
-  type: yup.string().required('Outlet type is required'),
-  counters: yup.array().of(
-    yup.object().shape({
-      name: yup.string().required('Counter name is required'),
-      ledger_ids: yup.array().of(yup.number().required()).min(1),
-    })
-  ),
-  user_ids: yup.array().of(yup.number().required()).min(1),
-  stores: yup.array().of(
-    yup.object().shape({
-      id: yup.number().required(),
-      name: yup.string().required(),
-    })
-  ).min(1),
+const validationSchema = yup.object({
+  name: yup.string().required(),
+  address: yup.string().required(),
+  type: yup.string().required(),
+  user_ids: yup.array().of(yup.number().required()).optional(),
+  stores: yup
+    .array()
+    .of(
+      yup.object({
+        name: yup.string().required(),
+        id: yup.number().required(),
+      })
+    )
+    .optional(),
+  counters: yup
+    .array()
+    .of(
+      yup.object({
+        name: yup.string().required(),
+        ledger_ids: yup.array().of(yup.number().required()).optional(), 
+      })
+    )
+    .optional(),
 });
+
 
 const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
   const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      name: outlet?.name || '',
-      address: outlet?.address || '',
-      type: outlet?.type || '',
-      counters: outlet?.counters || [{ name: '', ledger_ids: [] }],
-      user_ids: outlet?.user_ids || [],
-      stores: outlet?.stores || [],
-    },
-    resolver: yupResolver(validationSchema),
-  });
+  register,
+  handleSubmit,
+  control,
+  formState: { errors },
+} = useForm<FormData>({
+  defaultValues: {
+    name: outlet?.name || '',
+    address: outlet?.address || '',
+    type: outlet?.type || '',
+    counters: outlet?.counters || [{ name: '', ledger_ids: [] }], 
+    user_ids: outlet?.user_ids || [],
+    stores: outlet?.stores || [],
+  },
+  resolver: yupResolver(validationSchema), 
+});
+
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'counters',
   });
 
-  const { mutate: addOutlet, isPending: addLoading } = useMutation({
-    mutationFn: outletService.add,
-    onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-      setOpenDialog(false);
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(error.response?.data?.message || 'Something went wrong', {
-        variant: 'error',
-      });
-    },
-  });
+const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse>({
+  mutationFn: outletService.add,
+  onSuccess: (data) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+    setOpenDialog(false);
+  },
+  onError: (error: unknown) => {
+    let message = 'Something went wrong';
 
-  const { mutate: updateOutlet, isPending: updateLoading } = useMutation({
-    mutationFn: outletService.update,
-    onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-      setOpenDialog(false);
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(error.response?.data?.message || 'Something went wrong', {
-        variant: 'error',
-      });
-    },
-  });
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response?.data?.message === 'string'
+    ) {
+      message = (error as any).response.data.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
+    enqueueSnackbar(message, { variant: 'error' });
+  },
+});
+
+  const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse>({
+  mutationFn: outletService.update,
+  onSuccess: (data) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+    setOpenDialog(false);
+  },
+  onError: (error: unknown) => {
+    let message = 'Something went wrong';
+
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response?.data?.message === 'string'
+    ) {
+      message = (error as any).response.data.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
+    enqueueSnackbar(message, { variant: 'error' });
+  },
+});
 
   const saveMutation = useMemo(() => {
     return outlet?.id ? updateOutlet : addOutlet;

@@ -24,8 +24,8 @@ export interface Store {
 /** Counter structure used in outlet */
 export interface Counter {
   name: string;
-  ledger_ids: number[];
-}
+  ledger_ids?: number[]; 
+}[];
 
 /** Full Outlet structure for typing and forms */
 export interface Outlet {
