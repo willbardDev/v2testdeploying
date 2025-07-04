@@ -66,7 +66,7 @@ const validationSchema = yup.object({
   name: yup.string().required('outlet name is required'),
   address: yup.string().optional(),
   type: yup.string().optional(),
-  user_ids: yup.array().of(yup.number().required()).min(1, 'At least one user is required'),
+  user_ids: yup.array().of(yup.number().required()).min(1, 'At least one user is required').required('At least one user is required'),
   stores: yup
     .array()
     .of(
@@ -75,16 +75,18 @@ const validationSchema = yup.object({
         id: yup.number().required(),
       })
     )
-    .min(1, 'At least one store is required'),  
+    .min(1, 'At least one store is required')
+    .required('At least one store is required'),
   counters: yup
     .array()
     .of(
       yup.object({
         name: yup.string().required('counter name is required'),
-        ledger_ids: yup.array().of(yup.number().required()).min(1, 'At least one ledger account is required'), 
+        ledger_ids: yup.array().of(yup.number().required()).min(1, 'At least one ledger account is required').required('At least one ledger account is required'),
       })
     )
-    
+    .min(1, 'At least one counter is required')
+    .required('At least one counter is required'),
 });
 
 
@@ -172,7 +174,7 @@ const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletRespon
   
 const onSubmit = (formData: FormData) => {
   const data = outlet?.id ? { id: outlet.id, ...formData } : formData;
-  saveMutation(data);
+  saveMutation();
 };
 
   return (

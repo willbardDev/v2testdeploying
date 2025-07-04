@@ -26,14 +26,14 @@ outletService.add = async (outlet: any) => {
 // Update existing outlet
 outletService.update = async (outlet: any) => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(`/sales_outlet/${outlet.id}`, outlet);
+  const { data } = await axios.put(`/api/pos/outlet${outlet.id}`, outlet);
   return data;
 };
 
 // Delete outlet
 outletService.delete = async (outlet: any) => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(`/sales_outlet/${outlet.id}`);
+  const { data } = await axios.delete(`/api/pos/outlet${outlet.id}`);
   return data;
 };
 
