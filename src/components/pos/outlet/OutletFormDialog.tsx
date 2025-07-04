@@ -21,8 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
-import StoreSelector from '@/components/procurement/stores/StoreSelector';
-
+import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
 import type { Outlet } from './OutletType';
 import { Div } from '@jumbo/shared';
@@ -34,18 +33,19 @@ interface OutletFormDialogProps {
 
 interface FormData {
   name: string;
-  address: string;
-  type: string;
-  user_ids?: number[];
-  stores?: {
+  address?: string;
+  type?: string;
+  user_ids: number[]; // required
+  stores: {
     name: string;
     id: number;
-  }[];
-  counters?: {
+  }[]; // required
+  counters: {
     name: string;
-    ledger_ids?: number[]; 
-  }[];
+    ledger_ids: number[];
+  }[]; // required
 }
+
 
 interface AddOutletResponse {
   message: string;
@@ -57,26 +57,16 @@ interface UpdateOutletResponse {
   data?: any; // au structure ya data 
 }
 
-interface StoreSelectorProps {
-  frontError?: FieldError | FieldError[] | null | undefined;
-  defaultValue?: any;
-  multiple?: boolean;
-  onChange: (value: any) => void;
-  label?: string;
-}
-
-
-
 const OUTLET_TYPES = [
   { value: 'work center', name: 'Work Center' },
   { value: 'shop', name: 'Shop' },
 ];
 
 const validationSchema = yup.object({
-  name: yup.string().required(),
-  address: yup.string().required(),
-  type: yup.string().required(),
-  user_ids: yup.array().of(yup.number().required()).optional(),
+  name: yup.string().required('outlet name is required'),
+  address: yup.string().optional(),
+  type: yup.string().optional(),
+  user_ids: yup.array().of(yup.number().required()).min(1, 'At least one user is required'),
   stores: yup
     .array()
     .of(
@@ -85,16 +75,16 @@ const validationSchema = yup.object({
         id: yup.number().required(),
       })
     )
-    .optional(),
+    .min(1, 'At least one store is required'),  
   counters: yup
     .array()
     .of(
       yup.object({
-        name: yup.string().required(),
-        ledger_ids: yup.array().of(yup.number().required()).optional(), 
+        name: yup.string().required('counter name is required'),
+        ledger_ids: yup.array().of(yup.number().required()).min(1, 'At least one ledger account is required'), 
       })
     )
-    .optional(),
+    
 });
 
 
@@ -111,7 +101,7 @@ const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outl
   defaultValues: {
     name: outlet?.name || '',
     address: outlet?.address || '',
-    type: outlet?.type || '',
+    type: outlet?.type || 'shop',
     counters: outlet?.counters || [{ name: '', ledger_ids: [] }], 
     user_ids: outlet?.user_ids || [],
     stores: outlet?.stores || [],
@@ -273,7 +263,13 @@ const onSubmit = (formData: FormData) => {
                       <LedgerSelect
                         multiple
                         label="Ledger Accounts"
-                        onChange={(val) => field.onChange(val.map((v) => v.id))}
+                       onChange={(val) => {
+                        if (Array.isArray(val)) {
+                          field.onChange(val.map((v) => v.id));
+                        } else {
+                          field.onChange([]);
+                        }
+                      }}
                         frontError={errors?.counters?.[index]?.ledger_ids}
                       />
                     )}
@@ -303,12 +299,11 @@ const onSubmit = (formData: FormData) => {
               name="stores"
               control={control}
               render={({ field }) => (
-                <StoreSelector
-                  multiple
-                  defaultValue={field.value}
-                  onChange={field.onChange}
-                  frontError={errors.stores}
-                />
+              <StoreSelector
+                multiple
+                onChange={field.onChange}
+                frontError={errors.stores as any} // or handle with safe typing
+              />
               )}
             />
           </Grid>
@@ -321,7 +316,7 @@ const onSubmit = (formData: FormData) => {
               render={({ field }) => (
                 <UsersSelector
                   multiple
-                  defaultValue={field.value}
+                  defaultValue={[]} // Provide an empty array or fetch User[] objects if available
                   onChange={field.onChange}
                   frontError={errors.user_ids}
                 />
