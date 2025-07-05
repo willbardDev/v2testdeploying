@@ -20,7 +20,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import outletService from './OutletServices';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
-type myTyp = Outlet;
+type myType = Outlet;
 
 
 export const OutletListContext = createContext({});
@@ -44,7 +44,7 @@ const OutletList = () => {
       ...state,
       queryParams: { ...state.queryParams, id: params.id },
     }));
-  }, [params]);
+  }, [params.id]);
 
   const handleOnChange = (keyword: string) => {
     setQueryOptions((state) => ({

@@ -23,7 +23,7 @@ import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
 import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
-import type { Outlet } from './OutletType';
+import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
 
 interface OutletFormDialogProps {
@@ -46,16 +46,6 @@ interface FormData {
   }[]; // required
 }
 
-
-interface AddOutletResponse {
-  message: string;
-  data?: any; // au structure ya data 
-}
-
-interface UpdateOutletResponse {
-  message: string;
-  data?: any; // au structure ya data 
-}
 
 const OUTLET_TYPES = [
   { value: 'work center', name: 'Work Center' },
@@ -117,7 +107,7 @@ const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outl
     name: 'counters',
   });
 
-const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse>({
+const { mutate: addOutlet } = useMutation<AddOutletResponse, unknown, Outlet>({
   mutationFn: outletService.add,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
@@ -142,7 +132,7 @@ const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletRespon
   },
 });
 
-  const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse>({
+  const { mutate: updateOutlet } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
   mutationFn: outletService.update,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
@@ -172,10 +162,15 @@ const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletRespon
   }, [outlet, updateOutlet, addOutlet]);
 
   
-const onSubmit = (formData: FormData) => {
-  const data = outlet?.id ? { id: outlet.id, ...formData } : formData;
-  saveMutation();
+const onSubmit = (formData: Outlet) => {
+  const dataToSend = outlet?.id
+    ? { ...formData, id: outlet.id } // For update
+    : formData; // For add
+
+  saveMutation(dataToSend as any); // `as any` inahakikisha both types zinapita
 };
+
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>

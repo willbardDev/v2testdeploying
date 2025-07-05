@@ -15,25 +15,48 @@ export const outletTypeLabels: Record<OutletType, string> = {
 };
 
 /** Store structure used in outlet */
+
+export interface Counter {
+  name: string;
+  ledger_ids: number[];
+}
+
 export interface Store {
   id: number;
   name: string;
-  children: Store[];
+  children?: any;
 }
 
-/** Counter structure used in outlet */
-export interface Counter {
-  name: string;
-  ledger_ids?: number[]; 
-}[];
 
-/** Full Outlet structure for typing and forms */
 export interface Outlet {
-  id?: number; // optional if creating new
+  id?: number;
   name: string;
-  address: string;
-  type: OutletType;
-  stores: Store[];
+  address?: string;
+  type?: string;
   user_ids: number[];
+  stores: Store[];
   counters: Counter[];
+}
+
+export interface AddOutletResponse {
+  message: string;
+  data?: any; // au structure ya data 
+}
+export interface DeleteOutletResponse {
+  message: string;
+}
+export interface UpdateOutletResponse {
+  message: string;
+  data?: Outlet; // au structure ya data 
+}
+export interface PaginatedOutletResponse {
+  data: Outlet[];
+  current_page: number;
+  total: number;
+  last_page: number;
+}
+export interface OutletOption {
+  id: number;
+  name: string;
+  type: OutletType;
 }
