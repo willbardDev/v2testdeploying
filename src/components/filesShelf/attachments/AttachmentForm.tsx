@@ -25,12 +25,11 @@ import { Attachment } from './AttachmentsType';
 type AttachmentFormProps = {
   hideFeatures?: boolean;
   setAttachDialog: (open: boolean) => void;
-  attachmentable_id: number | string;
+  attachmentable_id: number;
   attachmentable_type: string;
   attachment_name?: string;
   attachment_sourceNo?: string;
 };
-
 
 const validationSchema = yup.object({
   name: yup
@@ -72,6 +71,7 @@ function AttachmentForm({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors }
   } = useForm<{ name: string, file: FileList}>({
     resolver: yupResolver(validationSchema) as any,
@@ -81,32 +81,32 @@ function AttachmentForm({
     }
   });
 
-    const addAttachment = useMutation({
-        mutationFn: attachmentsServices.addAttachment,
-        onSuccess: (data) => {
-            enqueueSnackbar(data?.message || 'Attachment uploaded', { variant: 'success' });
-            queryClient.invalidateQueries({ queryKey: ['attachments'] });
-            reset({ name: '', file: undefined as unknown as FileList });
-        },
-        onError: (error: any) => {
-            enqueueSnackbar(error?.response?.data?.message || 'Upload failed', { variant: 'error' });
-        }
-    });
+  const addAttachment = useMutation({
+      mutationFn: attachmentsServices.addAttachment,
+      onSuccess: (data) => {
+        enqueueSnackbar(data?.message || 'Attachment uploaded', { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['attachments'] });
+        reset({ name: '', file: undefined as unknown as FileList });
+      },
+      onError: (error: any) => {
+        enqueueSnackbar(error?.response?.data?.message || 'Upload failed', { variant: 'error' });
+      }
+  });
 
-    const fetchAttachments = async () => {
-        setIsFetching(true);
-        const response = await attachmentsServices.attachments({
-            attachmentable_id,
-            attachmentable_type
-        });
-        setIsFetching(false);
-        return response;
-    };
-
-    const { data: attachments = [] } = useQuery({
-        queryKey: ['attachments', attachmentable_id, attachmentable_type],
-        queryFn: fetchAttachments
+  const fetchAttachments = async () => {
+    setIsFetching(true);
+    const response = await attachmentsServices.attachments({
+      attachmentable_id,
+      attachmentable_type
     });
+    setIsFetching(false);
+    return response;
+  };
+
+  const { data: attachments = [] } = useQuery({
+    queryKey: ['attachments', attachmentable_id, attachmentable_type],
+    queryFn: fetchAttachments
+  });
 
   const onSubmit = (data:{ name: string, file: FileList}) => {
     const formData = {
@@ -142,8 +142,18 @@ function AttachmentForm({
             <Input
               type="file"
               id="file-input"
-              {...register('file')}
+              inputProps={{ accept: '*/*' }}
               error={!!errors?.file}
+                onChange={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  const files = target.files;
+                  if (files && files.length > 0) {
+                    setValue('file', files, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }
+                }}
             />
             {!errors?.file ? (
               <InputLabel htmlFor="file-input">File Attachment</InputLabel>

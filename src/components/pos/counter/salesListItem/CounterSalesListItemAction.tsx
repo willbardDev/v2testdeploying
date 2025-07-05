@@ -14,7 +14,7 @@ import {
   Typography, 
   useMediaQuery 
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { 
   AttachmentOutlined, 
   DeleteOutlined, 
@@ -102,7 +102,9 @@ const DocumentDialogContent: React.FC<DocumentDialogContentProps> = ({
 
       <DialogContent>
         {belowLargeScreen && activeTab === 0 ? (
-          <SalePreviewOnscreen organization={organization} sale={sale}/>
+          <Suspense fallback={<LinearProgress />}>
+            <SalePreviewOnscreen organization={organization} sale={sale}/>
+          </Suspense>
         ) : (
           <Box>
             <Box display="flex" alignItems="center" justifyContent="end" mb={2}>
@@ -194,20 +196,22 @@ const Receipt: React.FC<ReceiptProps> = ({
           <Tab label="Receipt" />
         </Tabs>
       }
-      {belowLargeScreen && activeTab === 0 ? 
-        <ReceiptPreviewOnScreen 
-          setOpenReceiptDialog={setOpenReceiptDialog} 
-          organization={organization} 
-          sale={sale} 
-        />
-        :
-        <SaleReceipt 
-          organization={organization} 
-          setOpenReceiptDialog={setOpenReceiptDialog} 
-          sale={sale} 
-          user={user} 
-        />
-      }
+      <Suspense fallback={<LinearProgress />}>
+        {belowLargeScreen && activeTab === 0 ? 
+          <ReceiptPreviewOnScreen 
+            setOpenReceiptDialog={setOpenReceiptDialog} 
+            organization={organization} 
+            sale={sale} 
+          />
+          :
+          <SaleReceipt 
+            organization={organization} 
+            setOpenReceiptDialog={setOpenReceiptDialog} 
+            sale={sale} 
+            user={user} 
+          />
+        }
+      </Suspense>
     </Box>
   );
 };
@@ -230,7 +234,9 @@ const EditSales: React.FC<EditSalesProps> = ({ saleId, toggleOpen }) => {
   if (!sale) return null;
 
   return (
-    <SaleDialogForm toggleOpen={toggleOpen} sale={sale} />
+    <Suspense fallback={<LinearProgress />}>
+      <SaleDialogForm toggleOpen={toggleOpen} sale={sale} />
+    </Suspense>
   );
 };
 
