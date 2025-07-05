@@ -3,12 +3,12 @@ import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
   const body = await req.json();
-  const res = await fetch(`${API_BASE}/pos/sale`, {
+  const res = await fetch(`${API_BASE}/pos/sales_counter/${params.id}/ledgers`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),

@@ -1,15 +1,15 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
-import { NextRequest } from 'next/server';
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL;
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
   const body = await req.json();
-  const res = await fetch(`${API_BASE}/pos/sale`, {
-    method: 'POST',
+  const res = await fetch(`${API_BASE}/pos/delivery-note/${params.id}`, {
+    method: 'PUT',
     headers,
     body: JSON.stringify(body),
   });
