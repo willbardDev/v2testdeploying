@@ -4,7 +4,6 @@ import type {
   AddOutletResponse,
   UpdateOutletResponse,
   DeleteOutletResponse,
-  OutletOption,
   PaginatedOutletResponse,
 } from './OutletType';
 

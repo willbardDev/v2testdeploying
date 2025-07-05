@@ -22,7 +22,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
 const { mutate: deleteOutlet } = useMutation({
-  mutationFn: (id: number) => outletService.delete(id), // accept ID
+  mutationFn: (params: { id: number }) => outletService.delete(params), 
   onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['Outlet'] });
@@ -51,7 +51,7 @@ const { mutate: deleteOutlet } = useMutation({
           content: 'Are you sure you want to delete this outlet?',
           onYes: () => {
             hideDialog();
-            deleteOutlet(outlet.id? outlet.id : 0); 
+            deleteOutlet({ id: outlet.id ? outlet.id : 0 }); 
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

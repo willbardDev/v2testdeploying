@@ -1,93 +1,80 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Chip,
-  Typography,
-  Grid,
-  Box,
-  Tooltip,
-} from '@mui/material';
-import { Outlet, OutletType, outletTypeLabels } from './OutletType';
-import OutletItemActions from './OutletListItemAction';
+import { Divider, Grid, Typography, Tooltip, Chip, Stack } from '@mui/material';
+import OutletListItemAction from './OutletListItemAction';
+import { Outlet } from './OutletType';
 
-type OutletListItemProps = {
+interface OutletListItemProps {
   outlet: Outlet;
-};
+}
 
 const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        <Grid container spacing={2}>
-          {/* Name and Type */}
-        <Grid size={{ xs: 12, md: 8 }}>
-            <Typography variant="h6">{outlet.name}</Typography>
-            <Chip
-              label={outletTypeLabels[outlet.type as OutletType] || outlet.type}
-              size="small"
-              color="primary"
-              sx={{ mt: 1 }}
-            />
-          </Grid>
+    <>
+      <Divider />
+      <Grid
+        container
+        spacing={1}
+        alignItems="center"
+        px={2}
+        py={1}
+        sx={{
+          cursor: 'pointer',
+          '&:hover': {
+            bgcolor: 'action.hover',
+          },
+        }}
+      >
+        {/* Outlet Name + Type */}
+        <Grid size={{ xs: 12, md: 3 }}>
+          <Typography variant="subtitle1" noWrap>
+            {outlet.name}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {outlet.type}
+          </Typography>
+        </Grid>
 
-          {/* Edit/Delete Actions */}
-          <Grid size={{ xs: 12, md: 4 }} container justifyContent="flex-end">
-            <OutletItemActions outlet={outlet} />
-          </Grid>
+        {/* Address */}
+        <Grid size={{ xs: 12, md: 3 }}>
+          <Typography variant="body2" noWrap>
+            {outlet.address}
+          </Typography>
+        </Grid>
 
-          {/* Address */}
-          <Grid size={12}>
-            <Typography variant="body2" color="text.secondary">
-              {outlet.address}
-            </Typography>
-          </Grid>
+        {/* Stores as chips */}
+        <Grid size={{ xs: 12, md: 3}}>
+          <Stack direction="row" spacing={0.5} flexWrap="wrap">
+            {outlet.stores?.map((store) => (
+              <Chip
+                key={store.id}
+                label={store.name}
+                size="small"
+                variant="outlined"
+              />
+            ))}
+          </Stack>
+        </Grid>
 
-          {/* Stores */}
-          <Grid size={12}>
-            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-              Stores:
-            </Typography>
-            <Grid container spacing={1}>
-              {outlet.stores?.map((store) => (
-                <Grid key={store.id}>
-                  <Chip label={store.name} size="small" />
-                </Grid>
-              ))}
-            </Grid>
+        {/* Counters & Users icon counts */}
+        <Grid size={{ xs: 12, md: 2 }} container justifyContent="flex-end" spacing={1}>
+          <Grid>
+            <Tooltip title="Counters">
+              <Typography fontWeight="bold">🧾 {outlet.counters?.length || 0}</Typography>
+            </Tooltip>
           </Grid>
-
-          {/* Counters */}
-          <Grid size={12}>
-            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-              Counters:
-            </Typography>
-            <Box>
-              {outlet.counters?.map((counter, idx) => (
-                <Typography variant="body2" key={idx}>
-                  • {counter.name} — {counter?.ledger_ids?.length || 0} ledger
-                  {counter?.ledger_ids?.length! > 1 ? 's' : ''}
-                </Typography>
-              ))}
-            </Box>
-          </Grid>
-
-          {/* Users */}
-          <Grid size={12}>
-            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-              Assigned Users:
-            </Typography>
-            <Grid container spacing={1}>
-              {outlet.user_ids?.map((userId) => (
-                <Grid key={userId}>
-                  <Chip label={`User ${userId}`} size="small" variant="outlined" />
-                </Grid>
-              ))}
-            </Grid>
+          <Grid>
+            <Tooltip title="Users">
+              <Typography fontWeight="bold">👥 {outlet.user_ids?.length || 0}</Typography>
+            </Tooltip>
           </Grid>
         </Grid>
-      </CardContent>
-    </Card>
+
+        {/* Action buttons */}
+        <Grid size={{ xs: 12, md: 1}} textAlign="end">
+          <OutletListItemAction outlet={outlet} />
+        </Grid>
+      </Grid>
+    </>
   );
 };
 

@@ -1,3 +1,4 @@
+import UsersSelector from "@/components/sharedComponents/UsersSelector";
 
 /** Allowed outlet types */
 export type OutletType = 'shop' | 'work center';
@@ -25,6 +26,11 @@ export interface Store {
   id: number;
   name: string;
   children?: any;
+}
+
+export interface user_ids {
+  id: number;
+  name: string;
 }
 
 

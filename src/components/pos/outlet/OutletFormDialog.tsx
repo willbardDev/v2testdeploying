@@ -25,6 +25,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
 import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
+import { UsersList } from '@/components/Organizations/profile/users/UsersList';
 
 interface OutletFormDialogProps {
   setOpenDialog: (open: boolean) => void;
@@ -107,7 +108,7 @@ const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outl
     name: 'counters',
   });
 
-const { mutate: addOutlet } = useMutation<AddOutletResponse, unknown, Outlet>({
+const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse, unknown, Outlet>({
   mutationFn: outletService.add,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
@@ -132,7 +133,7 @@ const { mutate: addOutlet } = useMutation<AddOutletResponse, unknown, Outlet>({
   },
 });
 
-  const { mutate: updateOutlet } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
+ const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
   mutationFn: outletService.update,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
@@ -164,10 +165,10 @@ const { mutate: addOutlet } = useMutation<AddOutletResponse, unknown, Outlet>({
   
 const onSubmit = (formData: Outlet) => {
   const dataToSend = outlet?.id
-    ? { ...formData, id: outlet.id } // For update
-    : formData; // For add
+    ? { ...formData, id: outlet.id }
+    : formData;
 
-  saveMutation(dataToSend as any); // `as any` inahakikisha both types zinapita
+  saveMutation(dataToSend as any);
 };
 
 
@@ -313,9 +314,8 @@ const onSubmit = (formData: Outlet) => {
               render={({ field }) => (
                 <UsersSelector
                   multiple
-                  defaultValue={[]} // Provide an empty array or fetch User[] objects if available
                   onChange={field.onChange}
-                  frontError={errors.user_ids}
+                  frontError={errors.user_ids as any}
                 />
               )}
             />
