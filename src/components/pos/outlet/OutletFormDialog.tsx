@@ -309,16 +309,18 @@ const onSubmit = (formData: Outlet) => {
           {/* Users */}
           <Grid size={12}>
             <Controller
-              name="user_ids"
-              control={control}
-              render={({ field }) => (
-                <UsersSelector
-                  multiple
-                  onChange={field.onChange}
-                  frontError={errors.user_ids as any}
-                />
-              )}
-            />
+  name="user_ids"
+  control={control}
+  render={({ field }) => (
+    <UsersSelector
+      multiple
+      value={field.value}
+      onChange={field.onChange} // ✅ This is correct
+      frontError={errors.user_ids}
+    />
+  )}
+/>
+
           </Grid>
         </Grid>
       </DialogContent>

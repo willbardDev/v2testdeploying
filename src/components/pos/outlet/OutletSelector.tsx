@@ -68,35 +68,29 @@ const OutletSelector: React.FC<OutletSelectorProps> = (props) => {
         />
       )}
 
-      renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => {
-          const { key, ...restProps } = getTagProps({ index });
-          return (
-            <Chip
-              {...restProps}
-              key={`${option.id}-${key}`}
-              label={option.name}
-            />
-          );
-        })
-      }
+        renderTags={(tagValue, getTagProps) =>
+      tagValue.map((option, index) => (
+        <Chip
+          {...getTagProps({ index })}
+          key={option.id}
+          label={option.name}
+        />
+      ))
+    }
 
-      renderOption={(props, option, { selected }) => {
-        const { key, ...restProps } = props;
-        return (
-          <li {...restProps} key={`${option.id}-${key}`}>
-            {multiple && (
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-            )}
-            {option.name}
-          </li>
-        );
-      }}
+    renderOption={(props, option, { selected }) => (
+      <li {...props} key={option.id}>
+        {multiple && (
+          <Checkbox
+            icon={<CheckBoxOutlineBlank fontSize="small" />}
+            checkedIcon={<CheckBox fontSize="small" />}
+            style={{ marginRight: 8 }}
+            checked={selected}
+          />
+        )}
+        {option.name}
+      </li>
+    )}
 
       onChange={(e, newValue) => {
         onChange(newValue);

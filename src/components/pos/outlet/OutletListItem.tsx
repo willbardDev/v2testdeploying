@@ -2,6 +2,7 @@ import React from 'react';
 import { Divider, Grid, Typography, Tooltip, Chip, Stack } from '@mui/material';
 import OutletListItemAction from './OutletListItemAction';
 import { Outlet } from './OutletType';
+import OutletList from './Outlet';
 
 interface OutletListItemProps {
   outlet: Outlet;

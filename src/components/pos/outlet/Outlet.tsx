@@ -25,7 +25,7 @@ type myType = Outlet;
 
 export const OutletListContext = createContext({});
 
-const OutletList = () => {
+const Outlet = () => {
   const params = useParams();
   const listRef = useRef(null);
   const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
@@ -126,4 +126,4 @@ const OutletList = () => {
   );
 };
 
-export default OutletList;
+export default Outlet;
