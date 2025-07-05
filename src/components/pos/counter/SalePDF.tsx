@@ -21,7 +21,7 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
     const contrastText = organization.settings?.contrast_text || "#FFFFFF";
 
     const PDF80mm = () => (
-        <Page size={[80 * 2.83465, 297 * 2.83465]} style={{...pdfStyles.page, padding: 10, transform: 'scale(0.7)', transformOrigin: 'top left' }}>
+        <Page size={[80 * 2.83465, 297 * 2.83465]} style={{...pdfStyles.page, padding: 10, scale: 0.7 }}>
             <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
                 <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250)}}>
                     <PdfLogo organization={organization} />
@@ -182,7 +182,13 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
             <View style={{ ...pdfStyles.tableRow, marginTop: 20}}>
                 <View style={{flex: 3, padding: 2}}>
                     <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        {' '.repeat(100)}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Text>
                     <Text style={{...pdfStyles.minInfo, color: mainColor }}>Name</Text>
                 </View>
@@ -190,13 +196,17 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
             <View style={{ ...pdfStyles.tableRow, marginTop: 15}}>
                 <View style={{flex: 1.5, padding: 2}}>
                     <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        {' '.repeat(50)}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Text>
                     <Text style={{...pdfStyles.minInfo, color: mainColor }}>Signature</Text>
                 </View>
                 <View style={{flex: 1.5, padding: 2}}>
                     <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        {' '.repeat(50)}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Text>
                     <Text style={{...pdfStyles.minInfo, color: mainColor }}>Date</Text>
                 </View>

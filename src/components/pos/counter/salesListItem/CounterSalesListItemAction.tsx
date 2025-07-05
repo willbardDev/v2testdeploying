@@ -2,6 +2,7 @@ import {
   Box, 
   Button, 
   Dialog, 
+  DialogActions, 
   DialogContent, 
   DialogTitle, 
   Grid, 
@@ -56,86 +57,102 @@ const DocumentDialogContent: React.FC<DocumentDialogContentProps> = ({
 }) => {
   const [thermalPrinter, setThermalPrinter] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [pdfKey, setPdfKey] = useState(0); // Force remount when changing format
+  
   const { data: sale, isFetching } = useQuery({
     queryKey: ['sale', { id: saleId }],
-    queryFn: () => posServices.saleDetails(saleId)
+    queryFn: () => posServices.saleDetails(saleId),
+    staleTime: 1000 * 60 * 5 // 5 minutes cache
   });
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
+    setThermalPrinter(false); // Reset format when switching tabs
+    setPdfKey(prev => prev + 1); // Force PDF remount
   };
 
-  if (isFetching) {
-    return <LinearProgress />;
-  }
+  const handleThermalToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThermalPrinter(e.target.checked);
+    setPdfKey(prev => prev + 1); // Force PDF remount when changing format
+  };
 
+  if (isFetching) return <LinearProgress />;
   if (!sale) return null;
 
   return (
     <>
       {belowLargeScreen && (
-        <DialogTitle>
-          <Grid container alignItems="center" justifyContent="space-between">
+        <DialogTitle sx={{ p: 2 }}>
+          <Grid container alignItems="center">
             <Grid size={11}>
-              <Tabs value={activeTab} onChange={handleTabChange}>
+              <Tabs 
+                value={activeTab} 
+                onChange={handleTabChange}
+                variant="fullWidth"
+              >
                 <Tab label="ONSCREEN" />
-                <Tab label="PDF/80mm" />
+                <Tab label="PRINT" />
               </Tabs>
             </Grid>
             <Grid size={1} textAlign="right">
-              <Tooltip title="Close">
-                <IconButton 
-                  size="small" 
-                  color="primary" 
-                  onClick={() => setOpenDocumentDialog(false)}
-                >
-                  <HighlightOff color="primary" />
-                </IconButton>
-              </Tooltip>
+              <IconButton 
+                size="small" 
+                onClick={() => setOpenDocumentDialog(false)}
+              >
+                <HighlightOff />
+              </IconButton>
             </Grid>
           </Grid>
         </DialogTitle>
       )}
 
-      <DialogContent>
+      <DialogContent dividers>
         {belowLargeScreen && activeTab === 0 ? (
           <Suspense fallback={<LinearProgress />}>
             <SalePreviewOnscreen organization={organization} sale={sale}/>
           </Suspense>
         ) : (
-          <Box>
-            <Box display="flex" alignItems="center" justifyContent="end" mb={2}>
-              <Typography variant="body1" style={{ marginRight: 8 }}>
-                A4
-              </Typography>
-              <Switch
+          <Box sx={{ minHeight: '300px' }}>
+            <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2}>
+              <Typography variant="body2">A4</Typography>
+              <Switch 
                 checked={thermalPrinter}
-                onChange={(e) => setThermalPrinter(e.target.checked)}
+                onChange={handleThermalToggle}
+                color="primary"
+                sx={{ mx: 1 }}
               />
-              <Typography variant="body1" style={{ marginLeft: 8 }}>
-                80mm
-              </Typography>
+              <Typography variant="body2">80mm</Typography>
             </Box>
-            <PDFContent
-              fileName={sale.saleNo} 
-              document={<SalePDF thermalPrinter={thermalPrinter} organization={organization} sale={sale} />} 
-            />
+            
+            <Suspense fallback={<LinearProgress />}>
+              <PDFContent
+                key={`pdf-${pdfKey}`}
+                fileName={`${sale.saleNo}_${thermalPrinter ? '80mm' : 'A4'}`}
+                document={
+                  <SalePDF 
+                    thermalPrinter={thermalPrinter} 
+                    organization={organization} 
+                    sale={sale} 
+                  />
+                }
+              />
+            </Suspense>
           </Box>
         )}
-        <Box textAlign="right" marginTop={5}>
-          <Button 
-            variant="outlined" 
-            size='small' 
-            color="primary" 
-            onClick={() => setOpenDocumentDialog(false)}
-          >
-            Close
-          </Button>
-        </Box>
       </DialogContent>
+
+      <DialogActions>
+        <Button 
+          variant="outlined"
+          onClick={() => setOpenDocumentDialog(false)}
+          sx={{ mt: 1, mb: 1 }}
+        >
+          Close
+        </Button>
+      </DialogActions>
     </>
   );
 };

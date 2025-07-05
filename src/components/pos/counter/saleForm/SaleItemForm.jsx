@@ -40,46 +40,60 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
     const [priceFieldKey, setPriceFieldKey] = useState(0)
     const [vatPriceFieldKey, setVatPriceFieldKey] = useState(0)
 
-    // Define validation Schema
-    const validationSchema = yup.object({
+    const baseSchema = {
         product: yup.object().required("Product is required").typeError('Product is required'),
-        store_id: yup.number()
-        .when(['product'], {
-            is: (product) => !!checkedForInstantSale && !!product && product.type === 'Inventory',
-            then: yup.number().required("Store is required").typeError('Store is required'),
-            otherwise: yup.number().nullable(),
-        }),
-        quantity: yup
-        .number()
-        .when(['product'], {
-            is: (product) =>
-            !!checkedForInstantSale && !!product && product.type === 'Inventory',
-            then: yup
-                .number()
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity is required')
-                .when(['current_balance', 'available_balance'], {
-                    is: (currentBalance, availableBalance) => currentBalance < availableBalance,
-                    then: yup.number()
-                        .test('currentBalanceCheck', 'This quantity will lead to negative balance', function (value) {
-                            const currentBalance = parseFloat(watch('current_balance'));
-                            return value <= currentBalance;
-                        }
-                    ),
-                    otherwise: yup.number().positive("Quantity must be a positive number").typeError('Quantity is required'),
+        rate: yup.number().required("Price is required").positive("Price must be positive").typeError('Price is required'),
+    };
+
+    // Inventory-specific validations
+    const inventoryValidations = {
+        store_id: yup.number().required("Store is required").typeError('Store is required'),
+        quantity: yup.number()
+            .required("Quantity is required")
+            .positive("Quantity must be positive")
+            .typeError('Quantity is required')
+            .test(
+                'balance-check',
+                'Quantity exceeds available balance',
+                function (value) {
+                    const availableBalance = this.parent.available_balance;
+                    return availableBalance === 'N/A' || !value || value <= availableBalance;
                 }
-            )        
-            .test('quantity Exceeded', 'The quantity exceeds the balance', function (value) {
-                const availableBalance = parseFloat(watch('available_balance'));
-                return availableBalance === 'N/A' || !value || value <= availableBalance;
-            }),
-            otherwise: yup.number().positive("Quantity must be a positive number").typeError('Quantity is required'),
-        }),
-            rate: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
+            )
+            .test(
+                'negative-balance-check',
+                'This quantity will lead to negative balance',
+                function (value) {
+                    const currentBalance = this.parent.current_balance;
+                    const availableBalance = this.parent.available_balance;
+                    if (currentBalance >= availableBalance) return true;
+                    return value <= currentBalance;
+                }
+            )
+    };
+
+    // Non-inventory validations
+    const nonInventoryValidations = {
+        quantity: yup.number()
+            .positive("Quantity must be positive")
+            .typeError('Quantity is required')
+    };
+
+    // Define validation Schema
+    const validationSchema = yup.lazy((values) => {
+        const isInventory = values?.product?.type === 'Inventory';
+        const requiresInventoryValidation = checkedForInstantSale && isInventory;
+        
+        return yup.object().shape({
+            ...baseSchema,
+            ...(requiresInventoryValidation ? inventoryValidations : nonInventoryValidations),
+            store_id: requiresInventoryValidation 
+                ? inventoryValidations.store_id 
+                : yup.number().nullable()
+        });
     });
 
-    const {setValue, handleSubmit, watch, clearErrors, reset, formState: {errors, dirtyFields}} = useForm({
+    const { setValue, handleSubmit, watch, clearErrors, reset, formState: { errors, dirtyFields } } = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues: {
             product: item && productOptions.find(product => product.id === item.product_id),

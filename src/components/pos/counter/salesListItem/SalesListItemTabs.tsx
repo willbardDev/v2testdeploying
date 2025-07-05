@@ -118,53 +118,20 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
 };
 
 interface DialogProps {
-  saleId?: number;
+  sale: SalesOrder;
   toggleOpen: (open: boolean) => void;
 }
 
-const DispatchDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
-  const { data: saleData, isFetching } = useQuery({
-    queryKey: ['sale', { id: saleId }],
-    queryFn: () => posServices.saleDetails(saleId)
-  });
-
-  if (isFetching) {
-    return <LinearProgress/>;
-  }
-
-  if (!saleData) return null;
-
-  return <SalesDispatchForm toggleOpen={toggleOpen} sale={saleData} />;
+const DispatchDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
+  return <SalesDispatchForm toggleOpen={toggleOpen} sale={sale} />;
 };
 
-const InvoicesDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
-  const { data: saleData, isFetching } = useQuery({
-    queryKey: ['sale', { id: saleId }],
-    queryFn: () => posServices.saleDetails(saleId)
-  });
-
-  if (isFetching) {
-    return <LinearProgress/>;
-  }
-
-  if (!saleData) return null;
-
-  return <SaleInvoiceForm toggleOpen={toggleOpen} sale={saleData} />;
+const InvoicesDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
+  return <SaleInvoiceForm toggleOpen={toggleOpen} sale={sale} />;
 };
 
-const ReceiptDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
-  const { data: saleData, isFetching } = useQuery({
-    queryKey: ['sale', { id: saleId }],
-    queryFn: () => posServices.saleDetails(saleId)
-  });
-
-  if (isFetching) {
-    return <LinearProgress/>;
-  }
-
-  if (!saleData) return null;
-
-  return <SaleReceiptForm toggleOpen={toggleOpen} sale={saleData} />;
+const ReceiptDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
+  return <SaleReceiptForm toggleOpen={toggleOpen} sale={sale} />;
 };
 
 interface SalesListItemTabsProps {
@@ -239,7 +206,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
 
       {/* Dispatches */}
       {activeTab === 0 && !sale.is_instant_sale && (
-        <Grid container>
+        <Grid container width={'100%'}>
           <Grid size={12} textAlign={'end'}>
             <Tooltip title={belowLargeScreen ? 
               `Download Dispatch Report For ${sale.saleNo}` : 
@@ -259,7 +226,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
               </Tooltip>
             )}
           </Grid>
-          <Grid size={12}>
+          <Grid size={12} >
             <SaleDeliveryNotes sale={sale} expanded={expanded}/>
           </Grid>
         </Grid>
@@ -270,7 +237,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
        !sale.vfd_receipt && 
        (!sale.is_instant_sale || sale.payment_method === 'On Account') && 
        activeTab === (sale.is_instant_sale ? tabIndex.receipts : 1) && (
-        <Grid container>
+        <Grid container width={'100%'}>
           {!!sale.is_receiptable && (
             <Grid size={12} textAlign={'end'}>
               <Tooltip title={`Receipt For ${sale.saleNo}`}>
@@ -291,7 +258,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
        !sale.vfd_receipt && 
        activeTab === (sale.is_instant_sale ? tabIndex.invoices : 2) && 
        (!!sale.is_invoiceable || !!sale.is_invoiced) && (
-        <Grid container>
+        <Grid container width={'100%'}>
           <Grid size={12} textAlign={'end'}>
             {!!sale.is_invoiceable && (
               <Tooltip title={`Invoice ${sale.saleNo}`}>
@@ -307,50 +274,67 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
         </Grid>
       )}
       
+      {/* Dialogs */}
       <Dialog
-        open={openInvoicesDialog || openDispatchDialog || openDispatchReport || openReceiptDialog}
-        maxWidth={openReceiptDialog ? 'md' : 'lg'}
+        open={openDispatchReport}
+        maxWidth="lg"
         fullScreen={belowLargeScreen}
-        scroll={belowLargeScreen && (openDispatchDialog || openInvoicesDialog || openReceiptDialog) ? 'body' : 'paper'}
         fullWidth
-        onClose={() => {
-          setOpenDispatchReport(false);
-          setOpenDispatchDialog(false);
-          setOpenInvoicesDialog(false);
-          setOpenReceiptDialog(false);
-        }}
+        onClose={() => setOpenDispatchReport(false)}
       >
-        {openDispatchReport && (
-          checkOrganizationPermission(PERMISSIONS.SALES_READ) ? (
-            <DispatchReport 
-              organization={organization as Organization} 
-              sale={sale} 
-              setOpenDispatchReport={setOpenDispatchReport}
-            />
-          ) : (
-            <UnauthorizedAccess/>
-          )
+        {checkOrganizationPermission(PERMISSIONS.SALES_READ) ? (
+          <DispatchReport 
+            organization={organization as Organization} 
+            sale={sale} 
+            setOpenDispatchReport={setOpenDispatchReport}
+          />
+        ) : (
+          <UnauthorizedAccess/>
         )}
-        {openDispatchDialog && (
-          checkOrganizationPermission(PERMISSIONS.SALES_DISPATCH) ? (
-            <DispatchDialog saleId={sale.id} toggleOpen={setOpenDispatchDialog}/>
-          ) : (
-            <UnauthorizedAccess/>
-          )
+      </Dialog>
+
+      <Dialog
+        open={openDispatchDialog}
+        maxWidth="lg"
+        fullScreen={belowLargeScreen}
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullWidth
+        onClose={() => setOpenDispatchDialog(false)}
+      >
+        {checkOrganizationPermission(PERMISSIONS.SALES_DISPATCH) ? (
+          <DispatchDialog sale={sale} toggleOpen={setOpenDispatchDialog}/>
+        ) : (
+          <UnauthorizedAccess/>
         )}
-        {openInvoicesDialog && (
-          checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
-            <InvoicesDialog saleId={sale.id} toggleOpen={setOpenInvoicesDialog}/>
-          ) : (
-            <UnauthorizedAccess/>
-          )
+      </Dialog>
+
+      <Dialog
+        open={openInvoicesDialog}
+        maxWidth="lg"
+        fullScreen={belowLargeScreen}
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullWidth
+        onClose={() => setOpenInvoicesDialog(false)}
+      >
+        {checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
+          <InvoicesDialog sale={sale} toggleOpen={setOpenInvoicesDialog}/>
+        ) : (
+          <UnauthorizedAccess/>
         )}
-        {openReceiptDialog && (
-          checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
-            <ReceiptDialog saleId={sale.id} toggleOpen={setOpenReceiptDialog}/>
-          ) : (
-            <UnauthorizedAccess/>
-          )
+      </Dialog>
+
+      <Dialog
+        open={openReceiptDialog}
+        maxWidth="md"
+        fullScreen={belowLargeScreen}
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullWidth
+        onClose={() => setOpenReceiptDialog(false)}
+      >
+        {checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
+          <ReceiptDialog sale={sale} toggleOpen={setOpenReceiptDialog}/>
+        ) : (
+          <UnauthorizedAccess/>
         )}
       </Dialog>
     </React.Fragment>
