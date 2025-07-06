@@ -25,7 +25,6 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
 import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
-import { UsersList } from '@/components/Organizations/profile/users/UsersList';
 
 interface OutletFormDialogProps {
   setOpenDialog: (open: boolean) => void;
@@ -309,18 +308,17 @@ const onSubmit = (formData: Outlet) => {
           {/* Users */}
           <Grid size={12}>
             <Controller
-  name="user_ids"
-  control={control}
-  render={({ field }) => (
-    <UsersSelector
-      multiple
-      value={field.value}
-      onChange={field.onChange} // ✅ This is correct
-      frontError={errors.user_ids}
-    />
-  )}
-/>
-
+            name="user_ids"
+            control={control}
+            render={({ field }) => (
+              <UsersSelector
+            multiple
+            value={field.value}
+            onChange={field.onChange}
+            frontError={errors.user_ids}
+          />
+        )}
+      />
           </Grid>
         </Grid>
       </DialogContent>
