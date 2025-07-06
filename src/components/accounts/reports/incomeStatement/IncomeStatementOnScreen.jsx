@@ -19,7 +19,7 @@ import {
   VisibilityOutlined 
 } from '@mui/icons-material';
 import LedgerStatementDialogContent from '../../ledgers/list/ledgerStatement/LedgerStatementDialogContent';
-import { useJumboTheme } from '@jumbo/hooks';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 const IncomeStatementOnScreen = ({ reportData }) => {
     const [openRows, setOpenRows] = useState({

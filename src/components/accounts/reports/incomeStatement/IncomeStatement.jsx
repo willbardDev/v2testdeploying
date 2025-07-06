@@ -18,18 +18,17 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import useProsERPStyles from 'app/helpers/style-helpers';
-import Div from '@jumbo/shared/Div/Div';
-import Span from '@jumbo/shared/Span/Span';
 import financialReportsServices from '../financial-reports-services';
 import CostCenterSelector from '../../../masters/costCenters/CostCenterSelector';
 import pdfStyles from '../../../pdf/pdf-styles';
 import { useForm } from 'react-hook-form';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import PdfLogo from '../../../pdf/PdfLogo';
 import PDFContent from '../../../pdf/PDFContent';
 import IncomeStatementOnScreen from './IncomeStatementOnScreen';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Div, Span } from '@jumbo/shared';
 
 const ReportDocumet = ({reportData,authOrganization,user}) => {
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -226,7 +225,7 @@ function IncomeStatement({from, to, cost_center_ids}) {
     <>
       <DialogTitle textAlign={'center'}>
         <Grid container>
-          <Grid item xs={12} mb={2}>
+          <Grid size={{xs: 12}}>
             <Typography variant="h3">Income Statement</Typography>
           </Grid>
         </Grid>
@@ -239,7 +238,7 @@ function IncomeStatement({from, to, cost_center_ids}) {
               alignItems="center"
               justifyContent="center"
             >
-              <Grid item xs={12} md={10} lg={5}>
+              <Grid size={{xs: 12, md: 10, lg: 5}}>
                 <CostCenterSelector
                   label="Cost and Profit Centers"
                   multiple={true}
@@ -249,12 +248,11 @@ function IncomeStatement({from, to, cost_center_ids}) {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={4} lg={3.5}>
+              <Grid size={{xs: 12, md: 4, lg: 3.5}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="From (MM/DD/YYYY)"
-                    fullWidth
-                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     defaultValue={from ? dayjs(from) : today.startOf('day')}
                     slotProps={{
                       textField: {
@@ -271,13 +269,12 @@ function IncomeStatement({from, to, cost_center_ids}) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={4} lg={3.5}>
+              <Grid size={{xs: 12, md: 4, lg: 3.5}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="To (MM/DD/YYYY)"
-                    fullWidth
                     defaultValue={to ? dayjs(to) : dayjs().endOf('day')}
-                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -293,12 +290,12 @@ function IncomeStatement({from, to, cost_center_ids}) {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={2} lg={12} textAlign="right">
+              <Grid size={{xs: 12, md: 2, lg: 12}} textAlign="right">
                 <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
                   Filter
                 </LoadingButton>
               </Grid>
-              <Grid item xs={12} lg={12}>
+              <Grid size={12}>
                 <FormControl>
                   <FormLabel id="display_as_radiobuttons">Display As</FormLabel>
                   <RadioGroup

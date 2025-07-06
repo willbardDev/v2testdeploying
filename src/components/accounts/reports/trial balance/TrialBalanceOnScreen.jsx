@@ -1,6 +1,6 @@
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Grid, Typography, Divider, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import React from 'react';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 
 const TrialBalanceOnScreen = ({ reportData, authOrganization, user }) => {
   if (!reportData) return null;
@@ -15,7 +15,7 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, user }) => {
 
       {/* Cost Centers and Printed Information */}
       <Grid container spacing={1}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography variant="subtitle1" style={{ color: mainColor }}>
             Printed On
           </Typography>

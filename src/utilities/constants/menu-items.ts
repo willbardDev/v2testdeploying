@@ -83,6 +83,11 @@ export async function getMenus(locale: string) {
           icon: 'transactions',
         },
         {
+          path: `/${locale}/accounts/reports`,
+          label: sidebar.menuItem.reports,
+          icon: 'barcharts',
+        },
+        {
           path: `/${locale}/accounts/ledger_groups`,
           label: sidebar.menuItem.ledgerGroups,
           icon: 'counter',
