@@ -8,12 +8,13 @@ import {
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import { user_ids } from "./OutletType";
+import outletService from "./OutletServices";
 
 type UsersSelectorProps = {
   multiple?: boolean;
   value: { id: number; name: string }[]; // must be controlled
   onChange: (value: { id: number; name: string }[]) => void;
-  frontError?: FieldError | FieldError[];
+  frontError?: Error | Error[];
   label?: string;
 };
 
@@ -25,8 +26,8 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
   label = "Users",
 }) => {
   const { data: users, isLoading } = useQuery<user_ids[], Error>({
-    queryKey: ["userOptions"],
-    queryFn: () => userService.getAllUsers(), // adjust this to your API call
+    queryKey: ["users"],
+    queryFn: () => outletService.getAllOutlets(),
   });
 
   if (isLoading) return <LinearProgress />;

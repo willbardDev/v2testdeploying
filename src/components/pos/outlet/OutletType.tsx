@@ -1,4 +1,4 @@
-import UsersSelector from "@/components/sharedComponents/UsersSelector";
+import OutletSelector from "./OutletSelector";
 
 /** Allowed outlet types */
 export type OutletType = 'shop' | 'work center';
@@ -61,8 +61,10 @@ export interface PaginatedOutletResponse {
   total: number;
   last_page: number;
 }
-export interface OutletOption {
-  id: number;
-  name: string;
-  type: OutletType;
+export interface OutletSelectorProps {
+  onChange: (value: Outlet | Outlet[] | null) => void;
+  multiple?: boolean;
+  label?: string;
+  defaultValue?: number | null;
+  frontError?: { message: string } | null;
 }

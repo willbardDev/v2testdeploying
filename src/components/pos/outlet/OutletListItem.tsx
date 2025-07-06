@@ -2,13 +2,13 @@ import React from 'react';
 import { Divider, Grid, Typography, Tooltip, Chip, Stack } from '@mui/material';
 import OutletListItemAction from './OutletListItemAction';
 import { Outlet } from './OutletType';
-import OutletList from './Outlet';
+import Outlets from './Outlet';
 
-interface OutletListItemProps {
+interface OutletItemProps {
   outlet: Outlet;
 }
 
-const OutletListItem: React.FC<OutletListItemProps> = ({ outlet }) => {
+const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
   return (
     <>
       <Divider />

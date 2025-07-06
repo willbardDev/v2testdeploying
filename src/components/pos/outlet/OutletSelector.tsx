@@ -3,15 +3,8 @@ import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from "@mui/ma
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import outletService from "./OutletServices";
-import { Outlet } from "./OutletType";
+import { Outlet, OutletSelectorProps } from "./OutletType";
 
-interface OutletSelectorProps {
-  onChange: (value: Outlet | Outlet[] | null) => void;
-  multiple?: boolean;
-  label?: string;
-  defaultValue?: number | null;
-  frontError?: { message: string } | null;
-}
 
 const OutletSelector: React.FC<OutletSelectorProps> = (props) => {
   const {
@@ -23,7 +16,7 @@ const OutletSelector: React.FC<OutletSelectorProps> = (props) => {
   } = props;
 
   const { data: outlets, isLoading } = useQuery<Outlet[], Error>({
-    queryKey: ["outletOptions"],
+    queryKey: ["outlet"],
     queryFn: () => outletService.getAllOutlets(),
   });
 
