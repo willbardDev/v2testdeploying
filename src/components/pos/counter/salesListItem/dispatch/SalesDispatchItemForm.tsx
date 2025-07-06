@@ -110,7 +110,7 @@ function SalesDispatchItemForm({ sale_items }: SaleItemFormProps) {
       retrieveBalances(
         item.product.id, 
         watch(`items.${index}.store_id`),
-        item.measurement_unit_id, 
+        Number(item.measurement_unit_id), 
         index
       );
     });
