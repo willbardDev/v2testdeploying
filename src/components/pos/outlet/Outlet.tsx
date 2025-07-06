@@ -20,12 +20,12 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import outletService from './OutletServices';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
-type myTyp = Outlet;
 
+type myType = Outlet;
 
 export const OutletListContext = createContext({});
 
-const OutletList = () => {
+const Outlet = () => {
   const params = useParams();
   const listRef = useRef(null);
   const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
@@ -38,24 +38,34 @@ const OutletList = () => {
     dataKey: 'data',
   });
 
-
   useEffect(() => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: { ...state.queryParams, id: params.id },
-    }));
-  }, [params]);
+    setQueryOptions((prev) => {
+      if (prev.queryParams.id === params.id) return prev;
+      return {
+        ...prev,
+        queryParams: {
+          ...prev.queryParams,
+          id: params.id,
+        },
+      };
+    });
+  }, [params.id]);
 
-  const handleOnChange = (keyword: string) => {
-    setQueryOptions((state) => ({
+ const handleOnChange = (keyword: string) => {
+  setQueryOptions((state) => {
+    if (state.queryParams.keyword === keyword) return state;
+    return {
       ...state,
       queryParams: {
         ...state.queryParams,
         keyword,
       },
-    }));
-  };
+    };
+  });
+};
 
+
+  // 🧠 Memoized render function for items
   const renderOutlet = React.useCallback((outlet: Outlet) => {
     return <OutletListItem outlet={outlet} />;
   }, []);
@@ -66,16 +76,11 @@ const OutletList = () => {
 
   if (!mounted) return null;
 
-  if (!organizationHasSubscribed(MODULES.POINT_OF_SALE
-)) {
+  if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
     return <UnsubscribedAccess modules="Point of Sale (POS)" />;
   }
 
-  if (
-    !checkOrganizationPermission([
-      PERMISSIONS.OUTLETS_READ,
-    ])
-  ) {
+  if (!checkOrganizationPermission([PERMISSIONS.OUTLETS_READ])) {
     return <UnauthorizedAccess />;
   }
 
@@ -85,6 +90,7 @@ const OutletList = () => {
         <Typography variant="h4" mb={2}>
           Sales Outlets
         </Typography>
+
         <JumboRqList
           ref={listRef}
           wrapperComponent={Card}
@@ -120,4 +126,4 @@ const OutletList = () => {
   );
 };
 
-export default OutletList;
+export default Outlet;

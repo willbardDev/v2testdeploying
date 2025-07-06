@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,11 +21,11 @@ import AddIcon from '@mui/icons-material/Add';
 
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
-import StoreSelector from '@/components/procurement/stores/StoreSelector';
-
+import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
-import type { Outlet } from './OutletType';
+import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
+import { UsersList } from '@/components/Organizations/profile/users/UsersList';
 
 interface OutletFormDialogProps {
   setOpenDialog: (open: boolean) => void;
@@ -34,11 +34,17 @@ interface OutletFormDialogProps {
 
 interface FormData {
   name: string;
-  address: string;
-  type: string;
-  counters: { name: string; ledger_ids: number[] }[]; 
-  user_ids: number[]; 
-  stores: { id: number; name: string }[]; 
+  address?: string;
+  type?: string;
+  user_ids: number[]; // required
+  stores: {
+    name: string;
+    id: number;
+  }[]; // required
+  counters: {
+    name: string;
+    ledger_ids: number[];
+  }[]; // required
 }
 
 
@@ -47,89 +53,125 @@ const OUTLET_TYPES = [
   { value: 'shop', name: 'Shop' },
 ];
 
-const validationSchema = yup.object().shape({
-  name: yup.string().required('Outlet name is required'),
-  address: yup.string().required('Address is required'),
-  type: yup.string().required('Outlet type is required'),
-  counters: yup.array().of(
-    yup.object().shape({
-      name: yup.string().required('Counter name is required'),
-      ledger_ids: yup.array().of(yup.number().required()).min(1),
-    })
-  ),
-  user_ids: yup.array().of(yup.number().required()).min(1),
-  stores: yup.array().of(
-    yup.object().shape({
-      id: yup.number().required(),
-      name: yup.string().required(),
-    })
-  ).min(1),
+const validationSchema = yup.object({
+  name: yup.string().required('outlet name is required'),
+  address: yup.string().optional(),
+  type: yup.string().optional(),
+  user_ids: yup.array().of(yup.number().required()).min(1, 'At least one user is required').required('At least one user is required'),
+  stores: yup
+    .array()
+    .of(
+      yup.object({
+        name: yup.string().required(),
+        id: yup.number().required(),
+      })
+    )
+    .min(1, 'At least one store is required')
+    .required('At least one store is required'),
+  counters: yup
+    .array()
+    .of(
+      yup.object({
+        name: yup.string().required('counter name is required'),
+        ledger_ids: yup.array().of(yup.number().required()).min(1, 'At least one ledger account is required').required('At least one ledger account is required'),
+      })
+    )
+    .min(1, 'At least one counter is required')
+    .required('At least one counter is required'),
 });
+
 
 const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
   const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      name: outlet?.name || '',
-      address: outlet?.address || '',
-      type: outlet?.type || '',
-      counters: outlet?.counters || [{ name: '', ledger_ids: [] }],
-      user_ids: outlet?.user_ids || [],
-      stores: outlet?.stores || [],
-    },
-    resolver: yupResolver(validationSchema),
-  });
+  register,
+  handleSubmit,
+  control,
+  formState: { errors },
+} = useForm<FormData>({
+  defaultValues: {
+    name: outlet?.name || '',
+    address: outlet?.address || '',
+    type: outlet?.type || 'shop',
+    counters: outlet?.counters || [{ name: '', ledger_ids: [] }], 
+    user_ids: outlet?.user_ids || [],
+    stores: outlet?.stores || [],
+  },
+  resolver: yupResolver(validationSchema), 
+});
+
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'counters',
   });
 
-  const { mutate: addOutlet, isPending: addLoading } = useMutation({
-    mutationFn: outletService.add,
-    onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-      setOpenDialog(false);
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(error.response?.data?.message || 'Something went wrong', {
-        variant: 'error',
-      });
-    },
-  });
+const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse, unknown, Outlet>({
+  mutationFn: outletService.add,
+  onSuccess: (data) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+    setOpenDialog(false);
+  },
+  onError: (error: unknown) => {
+    let message = 'Something went wrong';
 
-  const { mutate: updateOutlet, isPending: updateLoading } = useMutation({
-    mutationFn: outletService.update,
-    onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-      setOpenDialog(false);
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(error.response?.data?.message || 'Something went wrong', {
-        variant: 'error',
-      });
-    },
-  });
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response?.data?.message === 'string'
+    ) {
+      message = (error as any).response.data.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
+    enqueueSnackbar(message, { variant: 'error' });
+  },
+});
+
+ const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
+  mutationFn: outletService.update,
+  onSuccess: (data) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+    setOpenDialog(false);
+  },
+  onError: (error: unknown) => {
+    let message = 'Something went wrong';
+
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response?.data?.message === 'string'
+    ) {
+      message = (error as any).response.data.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
+    enqueueSnackbar(message, { variant: 'error' });
+  },
+});
 
   const saveMutation = useMemo(() => {
     return outlet?.id ? updateOutlet : addOutlet;
   }, [outlet, updateOutlet, addOutlet]);
 
   
-const onSubmit = (formData: FormData) => {
-  const data = outlet?.id ? { id: outlet.id, ...formData } : formData;
-  saveMutation(data);
+const onSubmit = (formData: Outlet) => {
+  const dataToSend = outlet?.id
+    ? { ...formData, id: outlet.id }
+    : formData;
+
+  saveMutation(dataToSend as any);
 };
+
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -219,7 +261,13 @@ const onSubmit = (formData: FormData) => {
                       <LedgerSelect
                         multiple
                         label="Ledger Accounts"
-                        onChange={(val) => field.onChange(val.map((v) => v.id))}
+                       onChange={(val) => {
+                        if (Array.isArray(val)) {
+                          field.onChange(val.map((v) => v.id));
+                        } else {
+                          field.onChange([]);
+                        }
+                      }}
                         frontError={errors?.counters?.[index]?.ledger_ids}
                       />
                     )}
@@ -249,12 +297,11 @@ const onSubmit = (formData: FormData) => {
               name="stores"
               control={control}
               render={({ field }) => (
-                <StoreSelector
-                  multiple
-                  defaultValue={field.value}
-                  onChange={field.onChange}
-                  frontError={errors.stores}
-                />
+              <StoreSelector
+                multiple
+                onChange={field.onChange}
+                frontError={errors.stores as any} // or handle with safe typing
+              />
               )}
             />
           </Grid>
@@ -262,17 +309,18 @@ const onSubmit = (formData: FormData) => {
           {/* Users */}
           <Grid size={12}>
             <Controller
-              name="user_ids"
-              control={control}
-              render={({ field }) => (
-                <UsersSelector
-                  multiple
-                  defaultValue={field.value}
-                  onChange={field.onChange}
-                  frontError={errors.user_ids}
-                />
-              )}
-            />
+  name="user_ids"
+  control={control}
+  render={({ field }) => (
+    <UsersSelector
+      multiple
+      value={field.value}
+      onChange={field.onChange} // ✅ This is correct
+      frontError={errors.user_ids}
+    />
+  )}
+/>
+
           </Grid>
         </Grid>
       </DialogContent>
