@@ -46,7 +46,7 @@ financialReportsServices.fetchCashierReport = async(params) => {
 }
 
 financialReportsServices.fetchSalesAndCashSummary = async(params) => {
-  const {data} = await axios.get(`/api/financialReports/pos/fetchSalesAndCashSummary`,{
+  const {data} = await axios.get(`/api/financialReports/fetchSalesAndCashSummary`,{
     params
   })
   return data;
