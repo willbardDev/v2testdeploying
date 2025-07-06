@@ -1,24 +1,23 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import useJumboAuth from "@jumbo/hooks/useJumboAuth";
-import Span from "@jumbo/shared/Span/Span";
 import { DialogContent, DialogTitle, FormControl, Grid, InputLabel, LinearProgress, MenuItem, Select, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import { readableDate } from "app/helpers/input-sanitization-helpers";
-import useProsERPStyles from "app/helpers/style-helpers";
 import dayjs from "dayjs";
-import { DateTimePicker } from '@mui/x-date-pickers';
 import { useState } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import CostCenterSelector from "../../../masters/costCenters/CostCenterSelector";
-import Div from "@jumbo/shared/Div/Div";
 import { LoadingButton } from "@mui/lab";
 import financialReportsServices from "../financial-reports-services";
 import PDFContent from "../../../pdf/PDFContent";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import pdfStyles from "../../../pdf/pdf-styles";
 import PdfLogo from "../../../pdf/PdfLogo";
-import { useJumboTheme } from "@jumbo/hooks";
 import DebtorCreditorOnScreen from "./DebtorCreditorOnScreen";
+import { readableDate } from "@/app/helpers/input-sanitization-helpers";
+import useProsERPStyles from "@/app/helpers/style-helpers";
+import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { DateTimePicker } from "@mui/x-date-pickers";
+import { Div, Span } from "@jumbo/shared";
 
 const ReportDocumet = ({reportData,authOrganization,user}) => {
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -94,7 +93,7 @@ function DebtorCreditorReport() {
     const [reportData, setReportData] = useState(null);
     const [selectedType, setSelectedType] = useState('creditors');
     const [activeTab, setActiveTab] = useState(0);
-    const [costCenterIds, setCostCenterIds] = useState(authOrganization.costCenters.map(cost_center => cost_center.id));
+    const [costCenterIds, setCostCenterIds] = useState(authOrganization?.costCenters.map(cost_center => cost_center.id));
 
     //Screen handling constants
     const {theme} = useJumboTheme();
@@ -108,7 +107,7 @@ function DebtorCreditorReport() {
       resolver: yupResolver(validationSchema),
       defaultValues: {
         as_at: dayjs().toISOString(),
-        cost_center_ids: authOrganization.costCenters.map(cost_center => cost_center.id),
+        cost_center_ids: authOrganization?.costCenters.map(cost_center => cost_center.id),
       },
     });
 
@@ -142,7 +141,7 @@ function DebtorCreditorReport() {
       <>
         <DialogTitle textAlign={'center'}>
           <Grid container>
-            <Grid item xs={12} mb={2}>
+            <Grid xs={12} textAlign={'center'}>
               <Typography variant="h3">{selectedType === 'debtors' ? 'Debtors Report' : 'Creditors Report'}</Typography>
             </Grid>
           </Grid>
@@ -155,12 +154,11 @@ function DebtorCreditorReport() {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid size={{xs: 12, md: 4, lg: 3}}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
                       label="As at"
-                      fullWidth
-                      minDate={dayjs(authOrganization.organization.recording_start_date)}
+                      minDate={dayjs(authOrganization?.organization.recording_start_date)}
                       defaultValue={dayjs()}
                       slotProps={{
                         textField: {
@@ -177,7 +175,7 @@ function DebtorCreditorReport() {
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid size={{xs: 12, md: 4, lg: 3}}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <FormControl fullWidth size='small' label="Type" align={'left'}>
                       <InputLabel id="type_select">Type</InputLabel>
@@ -192,12 +190,12 @@ function DebtorCreditorReport() {
                     </FormControl>
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={10} lg={5}>
+                <Grid size={{xs: 12, md: 10, lg: 5}}>
                   <CostCenterSelector
                     label="Cost Centers"
                     multiple={true}
                     allowSameType={true}
-                    defaultValue={authOrganization.costCenters}
+                    defaultValue={authOrganization?.costCenters}
                     onChange={(cost_centers) => {
                       const ids = cost_centers.map((cost_center) => cost_center.id);
                       setCostCenterIds(ids); // Update the state with selected cost centers

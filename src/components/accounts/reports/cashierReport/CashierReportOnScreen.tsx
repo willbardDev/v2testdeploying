@@ -10,13 +10,40 @@ import {
 } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { AuthOrganization } from '@/types/auth-types';
 
-function CashierReportOnScreen({ reportData, authOrganization }) {
-  const [expanded, setExpanded] = useState(Array(reportData.length).fill(false));
+interface Transaction {
+  transactionDate: string;
+  voucherNo: string;
+  reference: string;
+  description: string;
+  amount: number;
+}
+
+interface ReportItem {
+  name: string;
+  opening_balance: number;
+  incoming_total: number;
+  outgoing_total: number;
+  closing_balance: number;
+  incoming_transactions?: Record<string, Transaction>;
+  outgoing_transactions?: Record<string, Transaction>;
+}
+
+interface CashierReportOnScreenProps {
+  reportData: ReportItem[];
+  authOrganization: AuthOrganization;
+}
+
+const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({ 
+  reportData, 
+  authOrganization 
+}) => {
+  const [expanded, setExpanded] = useState<boolean[]>(Array(reportData.length).fill(false));
   const currencyCode = authOrganization.base_currency.code;
 
-  const handleChange = (index) => {
+  const handleChange = (index: number) => {
     const newExpanded = [...expanded];
     newExpanded[index] = !newExpanded[index];
     setExpanded(newExpanded);
@@ -26,11 +53,17 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
     <>
       {reportData.map((item, index) => {
         const incomingTotal = item.incoming_transactions
-          ? Object.values(item.incoming_transactions).reduce((sum, transaction) => sum + transaction.amount, 0)
+          ? Object.values(item.incoming_transactions).reduce(
+              (sum: number, transaction: Transaction) => sum + transaction.amount, 
+              0
+            )
           : 0;
 
         const outgoingTotal = item.outgoing_transactions
-          ? Object.values(item.outgoing_transactions).reduce((sum, transaction) => sum + transaction.amount, 0)
+          ? Object.values(item.outgoing_transactions).reduce(
+              (sum: number, transaction: Transaction) => sum + transaction.amount, 
+              0
+            )
           : 0;
 
         return (
@@ -88,30 +121,56 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
                 rowSpacing={1}
                 alignItems={'center'}
                 container
+                width={'100%'}
               >
-                <Grid item xs={12} textAlign={'center'}
+                <Grid size={12} textAlign={'center'}
                   sx={{
                     borderBottom: 2,
                     borderColor: 'divider'
                   }}
                 >
-                  <Typography variant="h4" sx={{ fontWeight: expanded[index] ? 'bold' : 'normal' }}>{item.name}</Typography>
+                  <Typography 
+                    variant="h4" 
+                    sx={{ fontWeight: expanded[index] ? 'bold' : 'normal' }}
+                  >
+                    {item.name}
+                  </Typography>
                 </Grid>
-                <Grid item xs={12} md={3} lg={3}>
+                <Grid size={{xs: 12, md: 3}}>
                   <Typography>Opening Balance</Typography>
-                  <Typography>{item.opening_balance.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}</Typography>
+                  <Typography>
+                    {item.opening_balance.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: currencyCode 
+                    })}
+                  </Typography>
                 </Grid>
-                <Grid item xs={12} md={3} lg={3}>
+                <Grid size={{xs: 12, md: 3}}>
                   <Typography>Incoming Total</Typography>
-                  <Typography sx={{color:'green'}} variant="caption">{item.incoming_total.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}</Typography>
+                  <Typography sx={{color:'green'}} variant="caption">
+                    {item.incoming_total.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: currencyCode 
+                    })}
+                  </Typography>
                 </Grid>
-                <Grid item xs={12} md={3} lg={3}>
+                <Grid size={{xs: 12, md: 3}}>
                   <Typography>Outgoing Total</Typography>
-                  <Typography sx={{color:'red'}} variant="caption">{item.outgoing_total.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}</Typography>
+                  <Typography sx={{color:'red'}} variant="caption">
+                    {item.outgoing_total.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: currencyCode 
+                    })}
+                  </Typography>
                 </Grid>
-                <Grid item xs={12} md={3} lg={3}>
+                <Grid size={{xs: 12, md: 3}}>
                   <Typography>Closing Balance</Typography>
-                  <Typography sx={{color:'blue'}}>{item.closing_balance.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}</Typography>
+                  <Typography sx={{color:'blue'}}>
+                    {item.closing_balance.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: currencyCode 
+                    })}
+                  </Typography>
                 </Grid>
               </Grid>
               <Divider />
@@ -123,17 +182,19 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
               }}
             >
               <Grid container>
-                <Grid item xs={12}>
-                  {item.incoming_transactions && Object.values(item.incoming_transactions)?.length > 0 && (
+                <Grid size={12}>
+                  {item.incoming_transactions && Object.values(item.incoming_transactions).length > 0 && (
                     <>
-                      <Typography variant="h5" sx={{ marginBottom: 1, marginTop: 2, textAlign: 'center' }}>
+                      <Typography 
+                        variant="h5" 
+                        sx={{ marginBottom: 1, marginTop: 2, textAlign: 'center' }}
+                      >
                         Incoming Transactions
                       </Typography>
-                      {Object.values(item.incoming_transactions)?.map((incomingItem, index) => (
+                      {Object.values(item.incoming_transactions).map((incomingItem, idx) => (
                         <Grid
-                          key={index}
-                          item
-                          xs={12}
+                          key={idx}
+                          size={12}
                           sx={{
                             cursor: 'pointer',
                             borderTop: 2,
@@ -147,32 +208,42 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
                           alignItems={'center'}
                           container
                         >
-                          <Grid item xs={6} md={3}>
+                          <Grid size={{xs: 6, md: 3}}>
                             <Tooltip title="Transaction Date">
                               <Typography>{readableDate(incomingItem.transactionDate)}</Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} sx={{ textAlign: { xs: 'end', md: 'center' } }}>
+                          <Grid size={{xs: 6, md: 3}} sx={{ textAlign: { xs: 'end', md: 'center' } }}>
                             <Tooltip title="Reference">
-                              <Typography>{`${incomingItem.voucherNo} ${!!incomingItem.reference && incomingItem.reference !== ' ' ? '/' : ''} ${incomingItem.reference}`}</Typography>
+                              <Typography>
+                                {`${incomingItem.voucherNo} ${incomingItem.reference?.trim() ? '/' : ''} ${incomingItem.reference}`}
+                              </Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} sx={{ textAlign: { xs: 'start'} }}>
+                          <Grid size={{xs: 6, md: 3}} sx={{ textAlign: { xs: 'start'} }}>
                             <Tooltip title="Description">
                               <Typography>{incomingItem.description}</Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} align="end">
+                          <Grid size={{xs: 6, md: 3}} textAlign="end">
                             <Tooltip title="Amount">
-                              <Typography>{incomingItem.amount.toLocaleString()}</Typography>
+                              <Typography>
+                                {incomingItem.amount.toLocaleString('en-US', {
+                                  style: 'currency',
+                                  currency: currencyCode
+                                })}
+                              </Typography>
                             </Tooltip>
                           </Grid>
                         </Grid>
                       ))}
                       {/* Incoming Transactions Total */}
-                      <Grid item xs={12} sx={{ marginTop: 2 }}>
+                      <Grid size={12} sx={{ marginTop: 2 }}>
                         <Typography variant="h6" sx={{ textAlign: 'end', fontWeight: 'bold' }}>
-                          Total: {incomingTotal.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}
+                          Total: {incomingTotal.toLocaleString('en-US', { 
+                            style: 'currency', 
+                            currency: currencyCode 
+                          })}
                         </Typography>
                       </Grid>
                     </>
@@ -180,17 +251,19 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
                 </Grid>
               </Grid>
               <Grid container marginTop={2}>
-                <Grid item xs={12}>
-                  {item.outgoing_transactions && Object.values(item.outgoing_transactions)?.length > 0 && (
+                <Grid size={12}>
+                  {item.outgoing_transactions && Object.values(item.outgoing_transactions).length > 0 && (
                     <>
-                      <Typography variant="h5" sx={{ marginBottom: 1, marginTop: 2, textAlign: 'center' }}>
+                      <Typography 
+                        variant="h5" 
+                        sx={{ marginBottom: 1, marginTop: 2, textAlign: 'center' }}
+                      >
                         Outgoing Transactions
                       </Typography>
-                      {Object.values(item.outgoing_transactions)?.map((outgoingItem, index) => (
+                      {Object.values(item.outgoing_transactions).map((outgoingItem, idx) => (
                         <Grid
-                          key={index}
-                          item
-                          xs={12}
+                          key={idx}
+                          size={12}
                           sx={{
                             cursor: 'pointer',
                             borderTop: 1,
@@ -204,32 +277,42 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
                           alignItems={'center'}
                           container
                         >
-                          <Grid item xs={6} md={3}>
+                          <Grid size={{xs: 6, md: 3}}>
                             <Tooltip title="Transaction Date">
                               <Typography>{readableDate(outgoingItem.transactionDate)}</Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} sx={{ textAlign: { xs: 'end', md: 'center' } }}>
+                          <Grid size={{xs: 6, md: 3}} sx={{ textAlign: { xs: 'end', md: 'center' } }}>
                             <Tooltip title="Reference">
-                              <Typography>{`${outgoingItem.voucherNo} ${!!outgoingItem.reference && outgoingItem.reference !== ' ' ? '/' : ''} ${outgoingItem.reference}`}</Typography>
+                              <Typography>
+                                {`${outgoingItem.voucherNo} ${outgoingItem.reference?.trim() ? '/' : ''} ${outgoingItem.reference}`}
+                              </Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} sx={{ textAlign: { xs: 'start'} }}>
+                          <Grid size={{xs: 6, md: 3}} sx={{ textAlign: { xs: 'start'} }}>
                             <Tooltip title="Description">
                               <Typography>{outgoingItem.description}</Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid item xs={6} md={3} align="end">
+                          <Grid size={{xs: 6, md: 3}} textAlign="end">
                             <Tooltip title="Amount">
-                              <Typography>{outgoingItem.amount.toLocaleString()}</Typography>
+                              <Typography>
+                                {outgoingItem.amount.toLocaleString('en-US', {
+                                  style: 'currency',
+                                  currency: currencyCode
+                                })}
+                              </Typography>
                             </Tooltip>
                           </Grid>
                         </Grid>
                       ))}
                       {/* Outgoing Transactions Total */}
-                      <Grid item xs={12} sx={{ marginTop: 2 }}>
+                      <Grid size={12} sx={{ marginTop: 2 }}>
                         <Typography variant="h6" sx={{ textAlign: 'end', fontWeight: 'bold' }}>
-                          Total: {outgoingTotal.toLocaleString('en-US', { style: 'currency', currency: currencyCode })}
+                          Total: {outgoingTotal.toLocaleString('en-US', { 
+                            style: 'currency', 
+                            currency: currencyCode 
+                          })}
                         </Typography>
                       </Grid>
                     </>
@@ -242,6 +325,6 @@ function CashierReportOnScreen({ reportData, authOrganization }) {
       })}
     </>
   );
-}
+};
 
 export default CashierReportOnScreen;

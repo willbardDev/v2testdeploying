@@ -1,8 +1,9 @@
+import SalesReports from '@/components/pos/reports/SalesReports'
 import React from 'react'
 
 function page() {
   return (
-    <div>All sales reports will go here</div>
+    <SalesReports/>
   )
 }
 

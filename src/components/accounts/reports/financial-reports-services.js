@@ -1,83 +1,83 @@
-import { readableDate } from "app/helpers/input-sanitization-helpers";
-import axios from "app/services/config";
+import { readableDate } from "@/app/helpers/input-sanitization-helpers";
+import axios from "@/lib/services/config";
 
 const financialReportsServices = {};
 
 financialReportsServices.incomeStatement = async(params) => {
-    const {data} = await axios.get(`income-statement`,{
-        params
-    })
-    return data;
+  const {data} = await axios.get(`/api/financialReports/incomeStatement`,{
+    params
+  })
+  return data;
 }
 
 financialReportsServices.zReport = async(params) => {
-  const {data} = await axios.get(`/tra-z-report`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/zReport`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.vfdReceipts = async(params) => {
-  const {data} = await axios.get(`/vfd-receipts`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/vfdReceipts`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.trialBalance = async(params) => {
-    const {data} = await axios.get(`trial-balance`,{
-        params
-    })
-    return data;
+  const {data} = await axios.get(`/api/financialReports/trialBalance`,{
+    params
+  })
+  return data;
 }
 
 financialReportsServices.codedTrialBalance = async(params) => {
-  const {data} = await axios.get(`/coded-trial-balance`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/codedTrialBalance`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.fetchCashierReport = async(params) => {
-  const {data} = await axios.get(`/cashier-report`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/fetchCashierReport`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.fetchSalesAndCashSummary = async(params) => {
-  const {data} = await axios.get(`pos/sales-and-cash-summary`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/pos/fetchSalesAndCashSummary`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.balanceSheet = async(params) => {
-    const {data} = await axios.get(`balance-sheet`,{
-        params : params,
+    const {data} = await axios.get(`/api/financialReports/balanceSheet`,{
+      params : params,
         responseType: params.display_as === 'excel' ? 'blob' : 'json'
     })
     return data;
 }
 
 financialReportsServices.debtors = async(params) => {
-  const {data} = await axios.get(`/debtors-report`,{
-      params
+  const {data} = await axios.get(`/api/financialReports/debtors`,{
+    params
   })
   return data;
 }
 
 financialReportsServices.creditors = async(params) => {
-    const {data} = await axios.get(`/creditors-report`,{
-        params
+    const {data} = await axios.get(`/api/financialReports/creditors`,{
+      params
     })
     return data;
 }
 
 
 financialReportsServices.cashierReport = async({from,to,detailed,ledger_ids,groupBy}) => {
-    const {data: reportData} = await axios.get(`cashier-report`,{
-        params: {from,to,detailed,ledger_ids}
+    const {data: reportData} = await axios.get(`/api/financialReports/cashierReport`,{
+      params: {from,to,detailed,ledger_ids}
     });
 
     const groupedData = {};
@@ -265,36 +265,36 @@ financialReportsServices.cashierReport = async({from,to,detailed,ledger_ids,grou
 }
 
 financialReportsServices.incomeFigures =async (params) => {
-  const {data} = await axios.get(`accounts/income-figures`, {
-      params
+  const {data} = await axios.get(`/api/financialReports/incomeFigures`, {
+    params
   });
   return data;
 }
 
 financialReportsServices.profitAndLossFigures =async (params) => {
-  const {data} = await axios.get(`accounts/profit-and-loss-figures`, {
-      params
+  const {data} = await axios.get(`/api/financialReports/profitAndLossFigures`, {
+    params
   });
   return data;
 }
 
 financialReportsServices.balanceSheetFigures =async (params) => {
-  const {data} = await axios.get(`accounts/balance-sheet-figures`, {
-      params
+  const {data} = await axios.get(`/api/financialReports/balanceSheetFigures`, {
+    params
   });
   return data;
 }
 
 financialReportsServices.expenseFigures =async (params) => {
-  const {data} = await axios.get(`accounts/expense-figures`, {
-      params
+  const {data} = await axios.get(`/api/financialReports/expenseFigures`, {
+    params
   });
   return data;
 }
 
 financialReportsServices.inventoryValue =async (params) => {
-  const {data} = await axios.get(`accounts/inventory-value`, {
-      params
+  const {data} = await axios.get(`/api/financialReports/inventoryValue`, {
+    params
   });
   return data;
 }

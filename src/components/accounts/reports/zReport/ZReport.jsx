@@ -1,5 +1,3 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import useProsERPStyles from 'app/helpers/style-helpers';
 import React from 'react'
 import { useState } from 'react';
 import * as yup from 'yup';
@@ -9,12 +7,13 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import Div from '@jumbo/shared/Div/Div';
 import { LoadingButton } from '@mui/lab';
-import Span from '@jumbo/shared/Span/Span';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import PDFContent from '../../../pdf/PDFContent';
 import ZReportPDF from './ZReportPDF';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { Div, Span } from '@jumbo/shared';
 
 function ZReport() {
   document.title = 'Z Report';
@@ -51,7 +50,7 @@ function ZReport() {
     {
       <DialogTitle textAlign={'center'} className={hiddenOnPrint}>
         <Grid container>
-          <Grid item xs={12} mb={2}>
+          <Grid size={{xs: 12}}>
             <Typography variant="h3">Z Report</Typography>
           </Grid>
         </Grid>
@@ -64,12 +63,11 @@ function ZReport() {
               alignItems="center"
               justifyContent="center"
             >
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="From (MM/DD/YYYY)"
-                    fullWidth
-                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     defaultValue={today.startOf('day')}
                     slotProps={{
                       textField: {
@@ -86,13 +84,12 @@ function ZReport() {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="To (MM/DD/YYYY)"
-                    fullWidth
                     defaultValue={dayjs().endOf('day')}
-                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -108,7 +105,7 @@ function ZReport() {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} textAlign="right">
+              <Grid size={12} textAlign="right">
                 <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
                   Filter
                 </LoadingButton>

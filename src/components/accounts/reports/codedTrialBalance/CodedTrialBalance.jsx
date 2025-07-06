@@ -1,25 +1,23 @@
-import Span from '@jumbo/shared/Span/Span';
 import { DialogContent, DialogTitle, Grid, LinearProgress, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
-import Div from '@jumbo/shared/Div/Div';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
-import useProsERPStyles from 'app/helpers/style-helpers';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import { useJumboTheme } from '@jumbo/hooks';
 import financialReportsServices from '../financial-reports-services';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles';
-import PdfLogo from 'app/prosServices/prosERP/pdf/PdfLogo';
-
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { Div, Span } from '@jumbo/shared';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import PDFContent from '@/components/pdf/PDFContent';
 
 const ReportDocumet = ({reportData,authOrganization,user}) => {
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -106,7 +104,7 @@ function CodedTrialBalance() {
         resolver: yupResolver(validationSchema),
         defaultValues: {
           as_at: dayjs().toISOString(),
-          cost_center_ids: checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL) ? 'all' : authOrganization.costCenters.map(cost_center => cost_center.id)
+          cost_center_ids: checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL) ? 'all' : authOrganization?.costCenters.map(cost_center => cost_center.id)
         },
     });
 
@@ -150,24 +148,23 @@ function CodedTrialBalance() {
               alignItems="center"
               justifyContent="center"
             >
-              <Grid item xs={12} md={10} lg={5}>
+              <Grid size={{xs: 12, md: 10, lg: 5}}>
                 <CostCenterSelector
                   label="Cost Centers"
                   multiple={true}
-                  defaultValue={authOrganization.costCenters}
+                  defaultValue={authOrganization?.costCenters}
                   allowSameType={true}
                   onChange={(cost_centers) => {
                     setValue('cost_center_ids', cost_centers.map((cost_center) => cost_center.id));
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={4} lg={3}>
+              <Grid size={{xs: 12, md: 4, lg: 3}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="As at (MM/DD/YYYY)"
-                    fullWidth
                     defaultValue={dayjs()}
-                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -183,7 +180,7 @@ function CodedTrialBalance() {
                   />
                 </Div>
               </Grid>
-              <Grid item xs={12} md={2} lg={1} textAlign="right">
+              <Grid size={{xs: 12, md: 2, lg: 1}} textAlign="right">
                 <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
                   Filter
                 </LoadingButton>

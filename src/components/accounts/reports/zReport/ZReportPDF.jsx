@@ -1,5 +1,5 @@
+import pdfStyles from '@/components/pdf/pdf-styles';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import pdfStyles from 'app/prosServices/prosERP/pdf/pdf-styles';
 import React from 'react'
 
 function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {

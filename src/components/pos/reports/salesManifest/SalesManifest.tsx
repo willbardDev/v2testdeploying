@@ -1,0 +1,610 @@
+import { Autocomplete, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Grid, IconButton, LinearProgress, Radio, RadioGroup, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { DateTimePicker } from '@mui/x-date-pickers';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import dayjs from 'dayjs';
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form';
+import { LoadingButton } from '@mui/lab';
+import posServices from '../../pos-services';
+import OutletSelector from '../../outlets/OutletSelector';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import pdfStyles from '../../../pdf/pdf-styles';
+import PDFContent from '../../../pdf/PDFContent';
+import PdfLogo from '../../../pdf/PdfLogo';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
+import StakeholderSelector from '../../../masters/stakeholders/StakeholderSelector';
+import { useQuery } from 'react-query';
+import SalesManifestOnScreen from './SalesManifestOnScreen';
+import { PERMISSIONS } from 'app/utils/constants/permissions';
+import UsersSelector from 'app/prosServices/prosERP/sharedComponents/UsersSelector';
+import { useJumboTheme } from '@jumbo/hooks';
+import { HighlightOff } from '@mui/icons-material';
+
+const SalesManifestPDF = ({userNames, reportData, separateVAT,authObject, title = `Sales Manifest ${readableDate(reportData.filters.from,true)} - ${readableDate(reportData.filters.to,true)}`}) => {
+  const {authUser:{ user}, checkOrganizationPermission, authOrganization: {organization}} = authObject;
+  const mainColor = organization.settings?.main_color || "#2113AD";
+  const lightColor = organization.settings?.light_color || "#bec5da";
+  const contrastText = organization.settings?.contrast_text || "#FFFFFF";
+
+  const financePersonnel = checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS]);
+
+  const saleAmount = (sale) => {
+    return sale.items.reduce((amount, saleItem) => {
+      if (saleItem.product.vat_exempted) {
+        // If the product is VAT exempted, do not include VAT in the calculation
+        return amount + saleItem.quantity * saleItem.rate;
+      } else {
+        // Include VAT in the calculation
+        return amount + saleItem.quantity * saleItem.rate * (1 + sale.vat_percentage * 0.01);
+      }
+    }, 0);
+  };
+  const totalSalesVatInclusive = reportData.transactions.reduce((totalSales, sale) => {
+    // Calculate total sales including VAT
+    return totalSales + saleAmount(sale);
+  }, 0);
+
+  const saleCost = (sale) => {
+    return sale.items.reduce((cost, saleItem) => cost + saleItem.cost, 0);
+  };
+  const totalCoGS = reportData.transactions.reduce((totalCogs, sale) => totalCogs + saleCost(sale), 0);
+
+  const totalSaleAmount = (sale) => {
+    return sale.items.reduce((amount,saleItem) => amount + saleItem.quantity*saleItem.rate,0);
+  }
+  const totalSales = reportData.transactions.reduce((totalSales, sale) => totalSales + totalSaleAmount(sale), 0);
+
+  // Calculate total for Cash Distribution table
+  const totalCollectedAmount = reportData?.collection_distribution ? reportData.collection_distribution.reduce((acc, cd) => acc + (cd.amount || 0), 0) : 0;
+
+  return (
+    <Document 
+      creator={` ${user.name} | Powered By ProsERP` }
+      producer='ProsERP'
+      title={title}
+    >
+      <Page size="A4" orientation={'landscape'} style={pdfStyles.page}>
+        <View style={{ ...pdfStyles.table, marginBottom: 40  }}>
+          <View style={{ ...pdfStyles.tableRow, marginBottom: 15}}>
+            <View style={{ flex: 1, maxWidth: (organization?.logo_path ? 130 : 250)}}>
+              <PdfLogo organization={organization}/>
+            </View>
+            <View style={{ flex: 1, textAlign: 'right' }}>
+              <Text style={{...pdfStyles.majorInfo, color: mainColor }}>{`SALES MANIFEST`}</Text>
+              <Text style={{ ...pdfStyles.minInfo }}>{`${readableDate(reportData.filters.from,true)} - ${readableDate(reportData.filters.to,true)}`}</Text>
+            </View>
+          </View>
+          <View style={{ ...pdfStyles.tableRow}}>
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Outlets</Text>
+                <Text style={{...pdfStyles.minInfo }}>{reportData.filters.sales_outlets.map((sales_outlet) => sales_outlet.name).join(', ')}</Text>
+              </View>
+            {
+              reportData.filters.counters.length > 0 &&
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Counters</Text>
+                <Text style={{...pdfStyles.minInfo }}>{reportData.filters.counters.map((sales_outlet) => sales_outlet.name).join(', ')}</Text>
+              </View>
+            }
+            { 
+              reportData.filters.stakeholders.length > 0 &&
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Clients</Text>
+                <Text style={{...pdfStyles.minInfo }}>{reportData.filters.stakeholders.map((client) => client.name).join(', ')}</Text>
+              </View>
+            }
+            { 
+              userNames?.length > 0 &&
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Recorded By</Text>
+                <Text style={{...pdfStyles.minInfo }}>{userNames.map((user) => user).join(', ')}</Text>
+              </View>
+            }
+            { 
+              reportData.filters.sales_people.length > 0 &&
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Sales People</Text>
+                <Text style={{...pdfStyles.minInfo }}>{reportData.filters.sales_people.map((salesPerson) => salesPerson).join(', ')}</Text>
+              </View>
+            }
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+                <Text style={{...pdfStyles.minInfo }}>{user.name}</Text>
+              </View>
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+                <Text style={{...pdfStyles.minInfo }}>{readableDate(undefined,true)}</Text>
+              </View>
+          </View>
+        </View>
+
+        <View style={{ ...pdfStyles.tableRow, justifyContent: 'space-between', marginBottom: 5 }}>
+          <View style={{ flex: 2 }}>
+            <View style={{ ...pdfStyles.tableRow }}>
+              <View style={{ ...pdfStyles.table, flex: 1 }}>
+                <View style={{ ...pdfStyles.tableRow }}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, ...pdfStyles.midInfo, flex: 1, textAlign: 'center' }}>
+                    Summary
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Summary Data Rows */}
+            <View style={{ ...pdfStyles.tableRow, marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ ...pdfStyles.minInfo }}>Total Sales:</Text>
+              <Text style={{ ...pdfStyles.minInfo, color: 'blue' }}>
+                {totalSalesVatInclusive.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+              </Text>
+            </View>
+
+            {separateVAT && (totalSalesVatInclusive - totalSales > 0) && (
+              <>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ ...pdfStyles.minInfo }}>Sales (VAT Excl.)</Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>
+                    {totalSales.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ ...pdfStyles.minInfo }}>VAT</Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>
+                    {(totalSalesVatInclusive - totalSales).toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+              </>
+            )}
+
+            {financePersonnel && (
+              <>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ ...pdfStyles.minInfo }}>Total CoGS:</Text>
+                  <Text style={{ ...pdfStyles.minInfo, color: 'red' }}>
+                    {totalCoGS.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ ...pdfStyles.minInfo }}>Total Profit:</Text>
+                  <Text style={{ ...pdfStyles.minInfo, color: 'green' }}>
+                    {(totalSales - totalCoGS).toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+          <View style={{ flex: 0.8}}></View>
+          <View style={{ flex: 2}}>
+            {reportData?.collection_distribution && (
+              <View style={{ ...pdfStyles.tableRow, marginBottom: 3, justifyContent: 'flex-end' }}>
+                <View style={{ ...pdfStyles.table, minHeight: 50 }}>
+                  <View style={{ ...pdfStyles.tableRow }}>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>
+                      Collected Cash Distribution
+                    </Text>
+                  </View>
+                  {reportData.collection_distribution.map((cd, index) => (
+                    <View key={index} style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
+                      <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.7 }}>{cd.name}</Text>
+                      <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.3, textAlign: 'right' }}>
+                        {cd.amount.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Total</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.3, textAlign: 'right' }}>
+                      {totalCollectedAmount.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Sales */}
+        <View style={{ ...pdfStyles.tableRow, marginTop: 30}}>
+          <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, ...pdfStyles.midInfo, flex: 1, textAlign: 'center' }}>Sales Details</Text>
+        </View>
+        {
+          reportData.transactions.map((sale,index) => {
+            const vat_percentage = sale.vat_percentage
+            const totalProfit = sale.items.reduce((total, item) => total + ((item.quantity*item.rate) - (item.cost)), 0)
+
+            return (
+            <React.Fragment key={index}>
+              <View style={{ ...pdfStyles.tableRow, marginTop:20 }}>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{readableDate(sale.transaction_date)}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{sale.transaction_no}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 2 }}>{sale.stakeholder.name}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{sale.reference && sale.reference}</Text>
+              </View>
+              <View style={{ ...pdfStyles.tableRow}}>
+                <Text style={{ ...pdfStyles.midInfo, textAlign:'right' }}>{sale.counter}</Text>
+              </View>
+              
+              <View style={{ ...pdfStyles.table,backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, padding:2 }}>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex:0.5 }}>S/N</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4 }}>Product</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Quantity</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Price</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Amount</Text>
+                  {
+                    !!separateVAT && !!sale.vat_percentage &&
+                    <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>VAT</Text>
+                  }
+                  {
+                    financePersonnel &&
+                    <React.Fragment>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>P.U Cost</Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>CoGS</Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Profit</Text>
+                    </React.Fragment>
+                  }
+                </View>
+                {
+                  sale.items.map((saleItem,itemIndex) => (
+                    <View key={itemIndex} style={pdfStyles.tableRow}>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,flex:0.5 }}>{itemIndex+1}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,flex:4 }}>{saleItem.product.name}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign:'right' }}>{`${saleItem.quantity} ${saleItem.measurement_unit.symbol}`}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!separateVAT ? saleItem.rate.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}) : (saleItem.rate + (!!saleItem.product.vat_exempted ? 0 : saleItem.rate * vat_percentage * 0.01)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!separateVAT ? (saleItem.quantity*saleItem.rate).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}) : ((saleItem.quantity*saleItem.rate) + (!!saleItem.product.vat_exempted ? 0 : (saleItem.quantity*saleItem.rate)*vat_percentage*0.01)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                      {
+                        !!separateVAT && !!sale.vat_percentage &&
+                        <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!saleItem.product.vat_exempted ? 0 : (saleItem.quantity*saleItem.rate*vat_percentage*0.01).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                      }
+                      {
+                        financePersonnel &&
+                        <React.Fragment>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{(saleItem.cost/saleItem.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{saleItem.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{((saleItem.quantity*saleItem.rate) - (saleItem.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                        </React.Fragment>
+                      }
+                    </View>
+                  ))
+                }
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 8.6, textAlign: 'right' }}>Total</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>{sale.items.reduce((total, currentItem) => total + (!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                  {
+                    !!separateVAT && !!vat_percentage &&
+                    <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>
+                      {sale.items.reduce((total, currentItem) => total + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate*vat_percentage*0.01)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
+                    </Text>
+                  }
+                  {
+                    financePersonnel &&
+                    <React.Fragment>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}></Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>
+                        {sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
+                      </Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>{sale.items.reduce((total, currentItem) => total + ((currentItem.quantity*currentItem.rate) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                    </React.Fragment>
+                  }
+                </View>
+              </View>
+            </React.Fragment>
+          )})
+        }
+      </Page>
+  </Document>
+    )
+}
+
+function SalesManifest({setOpenSalesManifest}) {
+  const css = useProsERPStyles();
+  const authObject = useJumboAuth();
+  const { authOrganization } = authObject;
+  const { organization } = authOrganization;
+  const is_vat_registered = organization.settings?.vat_registered
+
+  const [displayAs, setDisplayAs] = useState('on screen');
+  const [counters, setCounters] = useState([]);
+  const [selectedCounter,setSelectedCounter] = useState([]);
+  const [separateVAT, setSeparateVAT] = useState(false);
+  const [updatedUsers, setUpdatedUsers] = useState([]);
+  const [withCashDistribution, setWithCashDistribution] = useState(false);
+
+  //Screen handling constants
+  const {theme} = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
+  const validationSchema = yup.object({
+    from: yup.string().required('Start Date is required').typeError('Start Date is required'),
+  });
+
+  const [reportData, setReportData] = useState(null);
+
+  const { setValue, handleSubmit, watch } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      from: dayjs().startOf('day').toISOString(),
+      to: dayjs().toISOString(),
+      with_collection_distribution: withCashDistribution
+    },
+  });
+
+  const [isFetching, setisFetching] = useState(false);
+
+  const retrieveReport = async (filters) => {
+    setisFetching(true);
+    const report = await posServices.salesManifest(filters);
+    
+    setReportData(report);
+    setisFetching(false);
+  };
+
+  const { data: salesPersons, isLoading: isFetchingSalesPerson } = useQuery('salesPerson', posServices.getSalesPerson);
+
+  if (isFetchingSalesPerson) {
+    return <LinearProgress />;
+  }
+
+  const downloadFileName = reportData ? `Sales Manifest ${readableDate(reportData.filters.from,true)} - ${readableDate(reportData.filters.to,true)}` : undefined;
+
+  return (
+    <React.Fragment>
+      <DialogTitle textAlign={'center'}>
+        <Grid container>
+          <Grid item xs={belowLargeScreen ? 11 : 12}>
+            <Typography variant="h3">Sales Manifest</Typography>
+          </Grid>
+          {belowLargeScreen && (
+            <Grid item xs={1}>
+              <Tooltip title="Close">
+                <IconButton 
+                  sx={{ mb: 1 }} 
+                  size='small' 
+                  onClick={() => setOpenSalesManifest(false)} 
+                >
+                  <HighlightOff color="primary" />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          )}
+        </Grid>
+        <Span className={css.hiddenOnPrint}>
+          <form autoComplete="off" onSubmit={handleSubmit(retrieveReport)}>
+            <Grid
+              container
+              columnSpacing={1}
+              rowSpacing={1}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Grid item xs={12} md={6}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <OutletSelector
+                    onChange={(newValue) => {
+                      setValue('sales_outlet_id',newValue ? newValue.id : null);
+
+                      if(newValue){
+                        setCounters(newValue.counters);
+                      } else {
+                        setCounters([]);
+                      }
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid item md={3} xs={12}>
+                <Autocomplete
+                  size="small"
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  options={counters}
+                  multiple={true}
+                  disableCloseOnSelect={true}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedCounter}
+                  renderInput={(params) => (
+                    <TextField 
+                      {...params} 
+                      label="Counter"
+                    />
+                  )}
+
+                  renderTags={(tagValue, getTagProps)=> {
+                    return tagValue.map((option, index)=>{
+                      const {key, ...restProps} = getTagProps({index});
+                      return <Chip {...restProps} key={option.id+"-"+key} label={option.name} />
+                    })
+                  }}
+                  renderOption={(props, option, { selected }) => {
+                    const { key, ...restProps} = props
+                    return (
+                      <li {...restProps} key={option.id+"-"+key}>
+                        <Checkbox
+                          icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                          checkedIcon={<CheckBoxIcon fontSize="small" />}
+                          style={{ marginRight: 8 }}
+                          checked={selected}
+                        />
+                        {option.name}
+                      </li>
+                    )
+                  }}
+                  onChange={(event, newValue) => {
+                    setValue('counter_ids',newValue ? newValue.map( counter => counter.id) : null);
+                    setSelectedCounter(newValue);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Div sx={{mt: 1, mb: 1}}>
+                  <StakeholderSelector
+                    label='Clients'
+                    multiple={true}
+                    onChange={(newValue) => {
+                      setValue('stakeholder_ids', newValue ? newValue.map(value => value.id): []);
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <UsersSelector
+                  label='Recorded By'
+                  multiple={true}
+                  onChange={(newValue) => {
+                    setValue(`user_ids`, newValue.map(user => user.id))
+                    setValue(`user_names`, newValue.map(user => user.name))
+                  }}      
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Autocomplete
+                  id="checkboxes-salesPerson"
+                  options={salesPersons}
+                  multiple
+                  isOptionEqualToValue={(option,value) => option === value}
+                  getOptionLabel={(option) => option}
+                  renderInput={
+                    (params) => 
+                      <TextField 
+                        {...params} 
+                        label="Sales Person" 
+                        size="small" 
+                        fullWidth 
+                    />
+                  }
+                  renderTags={(tagValue, getTagProps)=> {
+                    return tagValue.map((option, index)=>{
+                      const {key, ...restProps} = getTagProps({index});
+                      return <Chip {...restProps} key={option.id+"-"+key} label={option} />
+                    })
+                  }}
+                  onChange={(e, newValue) => {
+                    setValue('sales_people', newValue && newValue);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <DateTimePicker
+                    label="From (MM/DD/YYYY)"
+                    fullWidth
+                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    defaultValue={dayjs().startOf('day')}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue('from', newValue ? newValue.toISOString() : null, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <DateTimePicker
+                    label="To (MM/DD/YYYY)"
+                    fullWidth
+                    defaultValue={dayjs().endOf('day')}
+                    minDate={dayjs(authOrganization.organization.recording_start_date)}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue('to', newValue ? newValue.toISOString() : null, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                </Div>
+              </Grid>
+              {
+                !!is_vat_registered &&
+                <Grid item xs={12} md={3.5} textAlign="start">
+                  <Div sx={{ mt: 1, mb: 1 }}>
+                    <Checkbox
+                      checked={separateVAT}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setSeparateVAT(isChecked);
+                      }}
+                    />
+                    Separate VAT
+                  </Div>
+                </Grid>
+              }
+              <Grid item xs={12} md={!!is_vat_registered ? 3.5 : 5} textAlign="start">
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <Checkbox
+                    checked={withCashDistribution}
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      setValue(`with_collection_distribution`, isChecked);
+                      setWithCashDistribution(isChecked);
+                    }}
+                  />
+                  Collection Distribution
+                </Div>
+              </Grid>
+              <Grid item xs={12} md={!!is_vat_registered ? 4 : 6} textAlign={"start"}>
+                <FormControl>
+                  <FormLabel id="display_as_radiobuttons" sx={{textAlign: 'center'}}>Display As</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="display_as_radiobuttons"
+                    name="row-radio-buttons-group"
+                    value={displayAs}
+                    onChange={(e) => setDisplayAs(e.target.value)}
+                  >
+                    <FormControlLabel value="on screen" control={<Radio />} label="On Screen" />
+                    <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={1} textAlign="right">
+                <LoadingButton loading={isFetching} type="submit" size="small" variant="contained" onClick={()=> setUpdatedUsers(watch(`user_names`))}>
+                  Filter
+                </LoadingButton>
+              </Grid>
+            </Grid>
+          </form>
+        </Span>
+      </DialogTitle>
+      {
+        isFetching ? <LinearProgress/> :
+        reportData?.transactions.length > 0 &&
+        (
+          <DialogContent>
+            {
+              (displayAs === 'pdf') ? (
+                <PDFContent
+                  document={<SalesManifestPDF authObject={authObject} reportData={reportData} title={downloadFileName} userNames={updatedUsers} separateVAT={separateVAT}/>}
+                  fileName={downloadFileName}
+                />
+              ) : (displayAs === 'on screen') ? (
+                <SalesManifestOnScreen reportData={reportData} authObject={authObject} separateVAT={separateVAT}/>
+              ) : ''
+            }
+          </DialogContent>
+        )
+      }
+      <DialogActions className={css.hiddenOnPrint}>
+        <Button sx={{ mt:1 }} size='small' variant='outlined' onClick={() => {setOpenSalesManifest(false)}}>
+          Close
+        </Button>
+      </DialogActions>
+    </React.Fragment>
+  )
+}
+
+export default SalesManifest

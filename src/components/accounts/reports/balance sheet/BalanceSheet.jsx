@@ -1,23 +1,22 @@
-import Span from '@jumbo/shared/Span/Span';
 import { Alert, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Grid, LinearProgress, Radio, RadioGroup, Typography } from '@mui/material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
-import Div from '@jumbo/shared/Div/Div';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
-import useProsERPStyles from 'app/helpers/style-helpers';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import PdfLogo from '../../../pdf/PdfLogo';
 import pdfStyles from '../../../pdf/pdf-styles';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import PDFContent from '../../../pdf/PDFContent';
 import financialReportsServices from '../financial-reports-services';
 import BalanceSheetOnScreen from './BalanceSheetOnScreen';
 import { useSnackbar } from 'notistack';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Div, Span } from '@jumbo/shared';
 
 const ReportDocument = ({reportData,authOrganization,user}) => {
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -215,7 +214,7 @@ const ReportDocument = ({reportData,authOrganization,user}) => {
           display_as: displayAs
         });
         setTriggerFetch(true);
-      } else if (!!triggerFetch && !reportData.balanceSheetData && (displayAs === 'on screen' || displayAs === 'pdf')) {
+      } else if (!!triggerFetch && !reportData?.balanceSheetData && (displayAs === 'on screen' || displayAs === 'pdf')) {
         retrieveReport({
           as_at: watch(`as_at`),
           display_as: displayAs
@@ -227,7 +226,7 @@ const ReportDocument = ({reportData,authOrganization,user}) => {
       <>
         <DialogTitle textAlign={'center'}>
           <Grid container>
-            <Grid item xs={12} mb={2}>
+            <Grid size={{xs: 12 }}>
               <Typography variant="h3">Balance Sheet</Typography>
             </Grid>
           </Grid>
@@ -240,13 +239,12 @@ const ReportDocument = ({reportData,authOrganization,user}) => {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Grid item xs={12} md={4} lg={4}>
+                <Grid size={{xs: 12, md: 4}}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
                       label="As at (MM/DD/YYYY)"
-                      fullWidth
                       defaultValue={as_at ? dayjs(as_at) : dayjs()}
-                      minDate={dayjs(authOrganization.organization.recording_start_date)}
+                      minDate={dayjs(authOrganization?.organization.recording_start_date)}
                       slotProps={{
                         textField: {
                           size: 'small',
@@ -262,12 +260,12 @@ const ReportDocument = ({reportData,authOrganization,user}) => {
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={2} lg={1} textAlign="right">
+                <Grid size={{xs: 12, md: 2, lg: 1}} textAlign="right">
                   <LoadingButton loading={isFetching} type="submit" onClick={()=> setTriggerFetch(true)} size="small" variant="contained">
                     Filter
                   </LoadingButton>
                 </Grid>
-                <Grid item xs={12} lg={12}>
+                <Grid size={{xs: 12}}>
                   <FormControl>
                     <FormLabel id="display_as_radiobuttons">Display As</FormLabel>
                     <RadioGroup

@@ -1,24 +1,26 @@
+'use client'
+
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import { BalanceOutlined, DeckOutlined, Money, ReceiptLongOutlined, TableChartOutlined, ViewTimelineOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, Grid,Typography, useMediaQuery } from '@mui/material'
-import useProsERPStyles from 'app/helpers/style-helpers'
 import React, { useState } from 'react'
 import IncomeStatement from './incomeStatement/IncomeStatement'
 import LedgerSelectProvider from '../ledgers/forms/LedgerSelectProvider'
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess'
 import TrialBalance from './trial balance/TrialBalance'
 import BalanceSheet from './balance sheet/BalanceSheet'
 import XReport from './zReport/ZReport'
 import DebtorCreditorReport from './debtorCreditor/DebtorCreditorReport'
-import UnsubscribedAccess from 'app/shared/Information/UnsubscribedAccess'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoneyBill1} from '@fortawesome/free-regular-svg-icons'
 import CashierReport from './cashierReport/CashierReport'
-import { PERMISSIONS } from 'app/utils/constants/permissions'
-import { useJumboTheme } from '@jumbo/hooks'
-import { MODULES } from 'app/utils/constants/modules'
 import CodedTrialBalance from './codedTrialBalance/CodedTrialBalance'
+import useProsERPStyles from '@/app/helpers/style-helpers'
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import { MODULES } from '@/utilities/constants/modules'
+import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess'
+import { PERMISSIONS } from '@/utilities/constants/permissions'
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess'
 
 function AccountsReports() {
     const css = useProsERPStyles();
@@ -64,14 +66,13 @@ function AccountsReports() {
                 sx={{ height:'100%'  }}
             >
                 <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                             cursor: 'pointer',
                             '&:hover': {
                                 bgcolor: 'action.hover',
                             }
-                        }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                        }}
+                        size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
@@ -82,14 +83,13 @@ function AccountsReports() {
                         <FontAwesomeIcon size='lg' icon={faMoneyBill1}  style={{ fontSize: '48px' }}/>
                         <Typography>Cashier Report</Typography>
                     </Grid>
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                                 cursor: 'pointer',
                                 '&:hover': {
                                     bgcolor: 'action.hover',
                                 }
-                            }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                            }}
+                            size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
@@ -100,14 +100,13 @@ function AccountsReports() {
                         <ViewTimelineOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Income Statement</Typography>
                     </Grid>
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                             cursor: 'pointer',
                             '&:hover': {
                                 bgcolor: 'action.hover',
                             }
-                        }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                        }}
+                        size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
@@ -118,14 +117,13 @@ function AccountsReports() {
                         <DeckOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Trial Balance</Typography>
                     </Grid>
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                             cursor: 'pointer',
                             '&:hover': {
                                 bgcolor: 'action.hover',
                             }
-                        }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                        }}
+                        size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
@@ -136,14 +134,13 @@ function AccountsReports() {
                         <TableChartOutlined sx={{ fontSize: '40px' }} />
                         <Typography>C-Trial Balance</Typography>
                     </Grid>
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                             cursor: 'pointer',
                             '&:hover': {
                                 bgcolor: 'action.hover',
                             }
-                        }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                        }}
+                        size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
@@ -157,7 +154,7 @@ function AccountsReports() {
                     {
                         authOrganization?.organization?.tra_serial_number &&
                         <React.Fragment>
-                            <Grid item sx={{ 
+                            <Grid sx={{ 
                                 cursor: 'pointer',
                                 '&:hover': {
                                     bgcolor: 'action.hover',
@@ -177,14 +174,13 @@ function AccountsReports() {
                         </Grid>
                         </React.Fragment>
                     }
-                    <Grid item sx={{ 
+                    <Grid sx={{ 
                             cursor: 'pointer',
                             '&:hover': {
                                 bgcolor: 'action.hover',
                             }
-                        }} xs={6} 
-                        md={3} 
-                        lg={2} 
+                        }}
+                        size={{xs: 6, md: 3, lg: 2}} 
                         p={1}
                         textAlign={'center'}
                         onClick={() => {
