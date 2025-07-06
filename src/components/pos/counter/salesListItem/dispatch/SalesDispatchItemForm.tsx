@@ -9,45 +9,30 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 
 interface SaleItem {
   id: number;
+  product_id?: number;
   product: {
     id: number;
     name: string;
-    measurement_unit: {
+    measurement_unit?: {
       symbol: string;
     };
+    vat_exempted?: boolean;
   };
-  measurement_unit_id: number;
-  measurement_unit: {
+  measurement_unit_id?: number;
+  measurement_unit?: {
     symbol: string;
   };
   undispatched_quantity: number;
   quantity: number;
+  rate: number;
   available_balance: number;
-  current_balance: number;
-  store_id?: number | null;
+  current_balance?: number;
+  store_id?: any;
+  vat_exempted?: number;
 }
 
 interface SaleItemFormProps {
-  sale_items: Array<{
-    id: number;
-    product_id: number;
-    product: {
-      id: number;
-      name: string;
-      measurement_unit: {
-        symbol: string;
-      };
-    };
-    measurement_unit_id: number;
-    measurement_unit: {
-      symbol: string;
-    };
-    undispatched_quantity: number;
-    quantity: number;
-    available_balance: number;
-    current_balance: number;
-    store_id?: number | null;
-  }>;
+  sale_items: SaleItem[];
 }
 
 function SalesDispatchItemForm({ sale_items }: SaleItemFormProps) {

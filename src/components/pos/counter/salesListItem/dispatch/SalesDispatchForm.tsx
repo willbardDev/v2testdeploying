@@ -18,15 +18,28 @@ import { SalesOrder } from '../../SalesOrderType';
 
 interface DispatchItem {
   id?: number;
+  product_id: number;
+  product: {
+    id: number;
+    name: string;
+    measurement_unit?: {
+      symbol: string;
+    };
+    vat_exempted?: boolean;
+  };
+  measurement_unit_id: number;
+  measurement_unit?: {
+    symbol: string;
+  };
   sale_item_id: number;
-  product_id?: number;
   quantity: number;
+  rate?: number;
   available_balance: number;
   current_balance?: number;
   store_id: number | null;
   store?: any;
   undispatched_quantity: number;
-  measurement_unit_id?: number;
+  vat_exempted?: number;
 }
 
 interface DispatchFormValues {
@@ -150,21 +163,42 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
       dispatch_date: dispatch_date.toISOString(),
       items: deliveryData
         ? items.map((item: any) => ({
-          undispatched_quantity: item.quantity,
-          quantity: item.quantity,
-          sale_item_id: item.sale_item.id,
-          available_balance: 0,
-          store_id: item.store.id,
-          store: item.store
-        }))
+            id: item.id,
+            product_id: item.product.id,
+            product: {
+              id: item.product.id,
+              name: item.product.name,
+              measurement_unit: item.product.measurement_unit,
+              vat_exempted: item.product.vat_exempted
+            },
+            measurement_unit_id: item.measurement_unit_id,
+            measurement_unit: item.measurement_unit,
+            undispatched_quantity: item.quantity,
+            quantity: item.quantity,
+            available_balance: 0,
+            current_balance: 0,
+            store_id: item.store.id,
+            store: item.store
+          }))
         : sale_items?.filter((item: any) => item.undispatched_quantity > 0).map((item: any) => ({
-          undispatched_quantity: item.undispatched_quantity,
-          quantity: item.undispatched_quantity,
-          sale_item_id: item.id,
-          product_id: item.product_id,
-          available_balance: 0,
-          store_id: null
-        })) || [],
+            id: item.id,
+            product_id: item.product_id,
+            product: {
+              id: item.product_id,
+              name: item.product?.name || '',
+              measurement_unit: item.measurement_unit,
+              vat_exempted: item.vat_exempted
+            },
+            measurement_unit_id: item.measurement_unit_id,
+            measurement_unit: item.measurement_unit,
+            undispatched_quantity: item.undispatched_quantity,
+            quantity: item.undispatched_quantity,
+            rate: item.rate,
+            available_balance: 0,
+            current_balance: 0,
+            store_id: null,
+            vat_exempted: item.vat_exempted
+          })) || [],
     }
   });
 
@@ -373,7 +407,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
         </form>
       </DialogTitle>
       <DialogContent>
-        {deliveryData ? <SalesEditDispatchItemForm items={items}/> : <SalesDispatchItemForm sale_items={sale_items}/>}
+        {deliveryData ? <SalesEditDispatchItemForm items={items}/> : <SalesDispatchItemForm sale_items={sale_items as any}/>}
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
