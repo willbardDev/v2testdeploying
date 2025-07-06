@@ -65,8 +65,6 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
   const items = deliveryData?.items ?? [];
   const sale_items = sale?.sale_items ?? [];
 
-  console.log(sale, sale_items)
-
   // Mutation methods
   const newDispatchSale = useMutation({
     mutationFn: posServices.dispatchSale,
