@@ -36,7 +36,11 @@ interface FormItem {
   current_balance?: number;
 }
 
-function SalesEditDispatchItemForm() {
+interface SalesEditDispatchItemFormProps {
+  items: FormItem[];
+}
+
+function SalesEditDispatchItemForm({ items }: SalesEditDispatchItemFormProps) {
   const { outlet } = useCounter();
   const { stores, cost_center } = outlet || {};
   const { authOrganization } = useJumboAuth();
@@ -44,8 +48,7 @@ function SalesEditDispatchItemForm() {
     items: FormItem[];
     dispatch_date: string;
   }>();
-  
-  const items = watch('items') || [];
+
   const [isRetrieving, setIsRetrieving] = useState<Record<number, boolean>>({});
 
   const retrieveBalances = useCallback(async (productId: number, storeId: number | undefined, index: number) => {

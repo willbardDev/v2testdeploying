@@ -27,12 +27,35 @@ interface SaleItem {
   store_id?: number | null;
 }
 
-function SalesDispatchItemForm() {
+interface SaleItemFormProps {
+  sale_items: Array<{
+    id: number;
+    product_id: number;
+    product: {
+      id: number;
+      name: string;
+      measurement_unit: {
+        symbol: string;
+      };
+    };
+    measurement_unit_id: number;
+    measurement_unit: {
+      symbol: string;
+    };
+    undispatched_quantity: number;
+    quantity: number;
+    available_balance: number;
+    current_balance: number;
+    store_id?: number | null;
+  }>;
+}
+
+function SalesDispatchItemForm({ sale_items }: SaleItemFormProps) {
   const { outlet } = useCounter();
   const { stores, cost_center } = outlet || {};
   const { 
     setValue, 
-    watch, 
+    watch,
     formState: { errors } 
   } = useFormContext<{
     items: SaleItem[];
@@ -41,7 +64,6 @@ function SalesDispatchItemForm() {
   
   const { authOrganization } = useJumboAuth();
   const [isRetrieving, setIsRetrieving] = useState<Record<number, boolean>>({});
-  const sale_items = watch('items') || [];
   const dispatch_date = watch('dispatch_date');
 
   // Memoize filtered items to prevent unnecessary re-renders
@@ -101,7 +123,7 @@ function SalesDispatchItemForm() {
   useEffect(() => {
     filteredItems.forEach((item, index) => {
       retrieveBalances(
-        watch(`items.${index}.product_id`), 
+        item.product.id, 
         watch(`items.${index}.store_id`),
         item.measurement_unit_id, 
         index

@@ -16,7 +16,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import posServices from '../../pos-services';
 import { HighlightOff } from '@mui/icons-material';
@@ -61,142 +61,130 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
 }) => {
   const [thermalPrinter, setThermalPrinter] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [contentKey, setContentKey] = useState(0); // Key to force remount
 
-  // Screen handling constants
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const { data: deliveryNoteData, isLoading } = useQuery({
     queryKey: ['deliveryNotes', { id: deliveryNote.id }],
-    queryFn: async () => posServices.deliveryNoteDetails(deliveryNote.id)
+    queryFn: async () => posServices.deliveryNoteDetails(deliveryNote.id),
   });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
+    setThermalPrinter(false); // Reset printer format when switching tabs
+    setContentKey(prev => prev + 1); // Force content remount
+  };
+
+  const handleThermalToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThermalPrinter(e.target.checked);
+    setContentKey(prev => prev + 1); // Force content remount when changing format
   };
 
   if (isLoading) {
     return <LinearProgress />;
   }
 
+  if (!deliveryNoteData) return null;
+
   return (
-    <>
-      {!openDispatchPreview ? (
-        <DialogTitle>
-          <Grid container alignItems="center" justifyContent="space-between">
-            {(!belowLargeScreen || (belowLargeScreen && activeTab === 1)) && (
-              <Grid size={belowLargeScreen ? 11 : 12}>
-                <Box display="flex" alignItems="center" justifyContent="flex-start">
-                  <Typography variant="body1" style={{ marginRight: 8 }}>
-                    A4
-                  </Typography>
-                  <Switch
-                    checked={thermalPrinter}
-                    onChange={(e) => setThermalPrinter(e.target.checked)}
-                  />
-                  <Typography variant="body1" style={{ marginLeft: 8 }}>
-                    80mm
-                  </Typography>
-                </Box>
-              </Grid>
-            )}
-
-            {belowLargeScreen && (
-              <Grid size={belowLargeScreen && activeTab === 0 ? 12 : 1} textAlign="right">
-                <Tooltip title="Cancel">
-                  <IconButton
-                    size="small"
-                    onClick={() => setOpenDocumentDialog(false)}
-                  >
-                    <HighlightOff color="primary" />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-            )}
-
-            {belowLargeScreen && (
-              <Grid size={12}>
-                <Tabs
-                  value={activeTab}
-                  onChange={handleTabChange}
-                  indicatorColor="primary"
-                  textColor="primary"
-                >
-                  <Tab label="On Screen" />
-                  <Tab label="PDF" />
-                </Tabs>
-              </Grid>
-            )}
-          </Grid>
-        </DialogTitle>
-      ) : (
-        <DialogTitle>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid size={12}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                {belowLargeScreen && (
-                  <Tabs
-                    value={activeTab}
-                    onChange={handleTabChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                  >
-                    <Tab label="On Screen" />
-                    <Tab label="PDF" />
-                  </Tabs>
-                )}
-
-                {belowLargeScreen && (
-                  <Tooltip title="Close">
-                    <IconButton
-                      size="small"
-                      onClick={() => setOpenDocumentDialog(false)}
-                    >
-                      <HighlightOff color="primary" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+    <Dialog
+      open
+      fullWidth
+      maxWidth="lg"
+      fullScreen={belowLargeScreen}
+      onClose={() => setOpenDocumentDialog(false)}
+    >
+      <DialogTitle sx={{ p: 2 }}>
+        <Grid container alignItems="center" justifyContent="space-between">
+          {/* Printer format toggle - shown for PDF tab and desktop */}
+          {(!belowLargeScreen || activeTab === 1) && !openDispatchPreview && (
+            <Grid size={belowLargeScreen ? 8 : 6}>
+              <Box display="flex" alignItems="center">
+                <Typography variant="body2">A4</Typography>
+                <Switch
+                  checked={thermalPrinter}
+                  onChange={handleThermalToggle}
+                  color="primary"
+                  sx={{ mx: 1 }}
+                />
+                <Typography variant="body2">80mm</Typography>
               </Box>
             </Grid>
-          </Grid>
-        </DialogTitle>
-      )}
-      <DialogContent>
-        <Box>
-          {belowLargeScreen && activeTab === 0 ? (
-            openDispatchPreview ? (
-              <DispatchOnScreen delivery={deliveryNoteData} organization={organization}/>
-            ) : (
-              <DeliveryNoteOnScreen delivery={deliveryNoteData} organization={organization}/>
-            )
-          ) : (
-            openDispatchPreview ? (
-              <PDFContent
-                fileName={`Dispatch ${deliveryNote.deliveryNo}`} 
-                document={<DispatchPDF delivery={deliveryNoteData} organization={organization}/>} 
-              />
-            ) : (
-              <PDFContent
-                fileName={`Delivery Note ${deliveryNote.deliveryNo}`} 
-                document={<DeliveryNotePDF thermalPrinter={thermalPrinter} delivery={deliveryNoteData} organization={organization}/>} 
-              />
-            )
           )}
+
+          {/* Tabs - shown on mobile */}
           {belowLargeScreen && (
-            <Box textAlign="right" marginTop={5}>
-              <Button 
-                variant="outlined" 
-                size="small" 
-                color="primary" 
-                onClick={() => setOpenDocumentDialog(false)}
+            <Grid size={openDispatchPreview ? 12 : 4}>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                variant="fullWidth"
               >
-                Close
-              </Button>
-            </Box>
+                <Tab label="On Screen" />
+                <Tab label="PDF" />
+              </Tabs>
+            </Grid>
           )}
-        </Box>
+
+          {/* Close button */}
+          <Grid size={belowLargeScreen ? (openDispatchPreview ? 0 : 2) : 1} textAlign="right">
+            <IconButton
+              size="small"
+              onClick={() => setOpenDocumentDialog(false)}
+              sx={{ ml: 'auto' }}
+            >
+              <HighlightOff color="primary" />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </DialogTitle>
+
+      <DialogContent dividers sx={{ minHeight: '60vh' }}>
+        <Suspense fallback={<LinearProgress />}>
+          <Box key={`content-${contentKey}`}>
+            {belowLargeScreen && activeTab === 0 ? (
+              openDispatchPreview ? (
+                <DispatchOnScreen delivery={deliveryNoteData} organization={organization} />
+              ) : (
+                <DeliveryNoteOnScreen delivery={deliveryNoteData} organization={organization} />
+              )
+            ) : (
+              openDispatchPreview ? (
+                <PDFContent
+                  fileName={`Dispatch_${deliveryNote.deliveryNo}`}
+                  document={<DispatchPDF delivery={deliveryNoteData} organization={organization} />}
+                />
+              ) : (
+                <PDFContent
+                  fileName={`DeliveryNote_${deliveryNote.deliveryNo}_${thermalPrinter ? '80mm' : 'A4'}`}
+                  document={
+                    <DeliveryNotePDF 
+                      thermalPrinter={thermalPrinter} 
+                      delivery={deliveryNoteData} 
+                      organization={organization} 
+                    />
+                  }
+                />
+              )
+            )}
+          </Box>
+        </Suspense>
       </DialogContent>
-    </>
+
+      {belowLargeScreen && (
+        <DialogActions>
+          <Button
+            variant="outlined"
+            onClick={() => setOpenDocumentDialog(false)}
+            sx={{ mb: 1 }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      )}
+    </Dialog>
   );
 };
 
@@ -212,7 +200,7 @@ const AttachDialog: React.FC<AttachDialogProps> = ({ deliveryNote, setAttachDial
       attachment_sourceNo={deliveryNote.deliveryNo} 
       attachmentable_type={'delivery_note'} 
       attachment_name={'Delivery Note'} 
-      attachmentable_id={deliveryNote.id}
+      attachmentable_id={Number(deliveryNote.id)}
     />
   );
 };

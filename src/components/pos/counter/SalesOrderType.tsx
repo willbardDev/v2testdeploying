@@ -42,6 +42,19 @@ export interface SalesOrder {
     };
     vat_exempted?: number; // Add this if needed
   }>;
+  items?: Array<{
+    id: number;
+    product: {
+      name: string;
+      vat_exempted?: boolean;
+    };
+    quantity: number;
+    rate: number;
+    measurement_unit: {
+      symbol: string;
+    };
+    vat_exempted?: number; // Add this if needed
+  }>;
   is_receiptable: boolean;
   payment_method: string;
   receiptable_amount: number;

@@ -60,8 +60,12 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
   const [dispatch_date] = useState<Dayjs>(deliveryData ? dayjs(deliveryData.dispatch_date) : dayjs());
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
-  const { items, sale_items } = deliveryData ? deliveryData : sale;
   const { checkOrganizationPermission } = useJumboAuth();
+
+  const items = deliveryData?.items ?? [];
+  const sale_items = sale?.sale_items ?? [];
+
+  console.log(sale, sale_items)
 
   // Mutation methods
   const newDispatchSale = useMutation({
@@ -193,7 +197,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
         <form autoComplete='off'>
             <Grid container spacing={1}>
                 <Grid size={12} textAlign={"center"} mb={2}> 
-                    {items ? `Edit Dispatch for ${deliveryData.deliveryNo}` : `Dispatch for ${sale?.saleNo}`}
+                    {deliveryData ? `Edit Dispatch for ${deliveryData?.deliveryNo}` : `Dispatch for ${sale?.saleNo}`}
                 </Grid>
                 <Grid size={{xs: 12, md: 4}}>
                     <Div sx={{ mt: 1, mb: 1 }}>
@@ -371,7 +375,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({ toggleOpen, sale 
         </form>
       </DialogTitle>
       <DialogContent>
-        {deliveryData ? <SalesEditDispatchItemForm /> : <SalesDispatchItemForm />}
+        {deliveryData ? <SalesEditDispatchItemForm items={items}/> : <SalesDispatchItemForm sale_items={sale_items}/>}
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>

@@ -144,7 +144,7 @@ const DeliveryNotePDF: React.FC<DeliveryNotePDFProps> = ({ delivery, organizatio
   );
 
   const PDF80mm = () => (
-    <Page size={[80 * 2.83465, 297 * 2.83465]} style={{ ...pdfStyles.page, padding: 10, transform: 'scale(0.7)', transformOrigin: 'top left', width: '143%', height: '143%' }}>
+    <Page size={[80 * 2.83465, 297 * 2.83465]} style={{ ...pdfStyles.page, padding: 10, scale: 0.7 }}>
       {/* Header */}
       <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
         <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250) }}>

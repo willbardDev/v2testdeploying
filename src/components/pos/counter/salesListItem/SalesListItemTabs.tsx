@@ -20,14 +20,13 @@ import {
   Tooltip, 
   useMediaQuery 
 } from '@mui/material';
-import React, { useState } from 'react';
+import { InventoryOutlined, HighlightOff } from '@mui/icons-material';
+import React, { useState, lazy, Suspense } from 'react';
 import posServices from '../../pos-services';
-import { InventoryOutlined } from '@mui/icons-material';
 import SaleDeliveryNotes from './SaleDeliveryNotes';
 import SaleReceipts from './receipt/SaleReceipts';
 import SaleInvoices from './SaleInvoices';
-import SalesDispatchReport from './saleDispatchReport/SalesDispatchReport';
-import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Organization } from '@/types/auth-types';
@@ -36,10 +35,12 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { DispatchReportOnScreen } from './saleDispatchReport/DispatchReportOnScreen';
 
-const SaleInvoiceForm = React.lazy(() => import('./invoice/SaleInvoiceForm'));
-const SaleReceiptForm = React.lazy(() => import('./receipt/SaleReceiptForm'));
-const SalesDispatchForm = React.lazy(() => import('./dispatch/SalesDispatchForm'));
-const PDFContent = React.lazy(() => import('@/components/pdf/PDFContent'));
+// Lazy-loaded components
+const SaleInvoiceForm = lazy(() => import('./invoice/SaleInvoiceForm'));
+const SaleReceiptForm = lazy(() => import('./receipt/SaleReceiptForm'));
+const SalesDispatchForm = lazy(() => import('./dispatch/SalesDispatchForm'));
+const SalesDispatchReport = lazy(() => import('./saleDispatchReport/SalesDispatchReport'));
+const PDFContent = lazy(() => import('@/components/pdf/PDFContent'));
 
 interface DispatchReportProps {
   organization: Organization;
@@ -57,8 +58,7 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
     queryFn: () => posServices.saleDispatchReport(sale.id)
   });
   const [activeTab, setActiveTab] = useState(0);
-
-  const { theme } = useJumboTheme();
+  const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -75,42 +75,42 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
     <>
       <DialogTitle>
         {belowLargeScreen && (
-          <Tabs value={activeTab} onChange={handleChange} aria-label="purchase order tabs">
+          <Tabs value={activeTab} onChange={handleChange} aria-label="dispatch report tabs">
             <Tab label="ONSCREEN"/>
             <Tab label="PDF"/>
           </Tabs>
         )}
       </DialogTitle>
       <DialogContent>
-        {belowLargeScreen && activeTab === 0 ? (
-          <DispatchReportOnScreen
-            organization={organization as Organization} 
-            dispatchReport={saleDispatchReport}
-          />
-        ) : (
-          <PDFContent 
-            fileName={`Dispatch Report For ${saleDispatchReport.saleNo}`} 
-            document={
-              <SalesDispatchReport 
-                organization={organization} 
-                dispatchReport={saleDispatchReport} 
-              />
-            } 
-          />
-        )}
+        <Suspense fallback={<LinearProgress />}>
+          {belowLargeScreen && activeTab === 0 ? (
+            <DispatchReportOnScreen
+              organization={organization} 
+              dispatchReport={saleDispatchReport}
+            />
+          ) : (
+            <PDFContent 
+              fileName={`Dispatch Report For ${saleDispatchReport.saleNo}`} 
+              document={
+                <SalesDispatchReport 
+                  organization={organization} 
+                  dispatchReport={saleDispatchReport} 
+                />
+              } 
+            />
+          )}
+        </Suspense>
       </DialogContent>
       {belowLargeScreen && (
         <DialogActions>
-          <Box textAlign="right" marginTop={5}>
-            <Button 
-              variant="outlined" 
-              size='small' 
-              color="primary" 
-              onClick={() => setOpenDispatchReport(false)}
-            >
-              Cancel
-            </Button>
-          </Box>
+          <Button 
+            variant="outlined" 
+            size='small' 
+            color="primary" 
+            onClick={() => setOpenDispatchReport(false)}
+          >
+            Cancel
+          </Button>
         </DialogActions>
       )}
     </>
@@ -118,20 +118,59 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
 };
 
 interface DialogProps {
-  sale: SalesOrder;
+  saleId: number;
   toggleOpen: (open: boolean) => void;
 }
 
-const DispatchDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
-  return <SalesDispatchForm toggleOpen={toggleOpen} sale={sale} />;
+const DispatchDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
+  const { data: saleData, isFetching } = useQuery({
+    queryKey: ['sale', { id: saleId }],
+    queryFn: () => posServices.saleDetails(saleId)
+  });
+
+  if (isFetching) {
+    return <LinearProgress/>;
+  }
+
+  return (
+    <Suspense fallback={<LinearProgress />}>
+      {saleData && <SalesDispatchForm toggleOpen={toggleOpen} sale={saleData} />}
+    </Suspense>
+  );
 };
 
-const InvoicesDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
-  return <SaleInvoiceForm toggleOpen={toggleOpen} sale={sale} />;
+const InvoicesDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
+  const { data: saleData, isFetching } = useQuery({
+    queryKey: ['sale', { id: saleId }],
+    queryFn: () => posServices.saleDetails(saleId)
+  });
+
+  if (isFetching) {
+    return <LinearProgress/>;
+  }
+
+  return (
+    <Suspense fallback={<LinearProgress />}>
+      {saleData && <SaleInvoiceForm toggleOpen={toggleOpen} sale={saleData} />}
+    </Suspense>
+  );
 };
 
-const ReceiptDialog: React.FC<DialogProps> = ({ sale, toggleOpen }) => {
-  return <SaleReceiptForm toggleOpen={toggleOpen} sale={sale} />;
+const ReceiptDialog: React.FC<DialogProps> = ({ saleId, toggleOpen }) => {
+  const { data: saleData, isFetching } = useQuery({
+    queryKey: ['sale', { id: saleId }],
+    queryFn: () => posServices.saleDetails(saleId)
+  });
+
+  if (isFetching) {
+    return <LinearProgress/>;
+  }
+
+  return (
+    <Suspense fallback={<LinearProgress />}>
+      {saleData && <SaleReceiptForm toggleOpen={toggleOpen} sale={saleData} />}
+    </Suspense>
+  );
 };
 
 interface SalesListItemTabsProps {
@@ -159,7 +198,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
     PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE
   ]);
 
-  const { theme } = useJumboTheme();
+  const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   if (sale?.status?.toLowerCase() === 'pending') {
@@ -182,37 +221,41 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
   const tabIndex = getTabIndex();
 
   return (
-    <React.Fragment>
+    <>
       <Grid size={12}>
         <Divider/>
         <Tabs
           value={activeTab}
           onChange={(e: React.SyntheticEvent, newValue: number) => setActiveTab(newValue)}
           variant="scrollable"
-          scrollButtons='auto'
+          scrollButtons="auto"
           allowScrollButtonsMobile
+          aria-label="sales item tabs"
         >
           {!sale.is_instant_sale && (
-            <Tab label="Dispatches"/>
+            <Tab label="Dispatches" aria-label="dispatches tab"/>
           )}
           {accountsPersonnel && !sale.vfd_receipt && (!sale.is_instant_sale || sale.payment_method === 'On Account') && (
-            <Tab label="Receipts"/>
+            <Tab label="Receipts" aria-label="receipts tab"/>
           )}
           {accountsPersonnel && !sale.vfd_receipt && (!!sale.is_invoiceable || !!sale.is_invoiced) && (
-            <Tab label="Invoices"/>
+            <Tab label="Invoices" aria-label="invoices tab"/>
           )}
         </Tabs>
       </Grid>
 
       {/* Dispatches */}
       {activeTab === 0 && !sale.is_instant_sale && (
-        <Grid container width={'100%'}>
-          <Grid size={12} textAlign={'end'}>
+        <Grid container spacing={2} sx={{ width: '100%' }}>
+          <Grid size={12} sx={{ textAlign: 'right' }}>
             <Tooltip title={belowLargeScreen ? 
               `Download Dispatch Report For ${sale.saleNo}` : 
               `View Dispatch Report For ${sale.saleNo}`
             }>
-              <IconButton onClick={() => setOpenDispatchReport(true)}>
+              <IconButton 
+                onClick={() => setOpenDispatchReport(true)}
+                aria-label="dispatch report"
+              >
                 <InventoryOutlined/>
               </IconButton>
             </Tooltip>
@@ -220,13 +263,16 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
              sale.status !== 'Fulfilled' && 
              checkOrganizationPermission([PERMISSIONS.SALES_DISPATCH]) && (
               <Tooltip title={`Dispatch ${sale.saleNo}`}>
-                <IconButton onClick={() => setOpenDispatchDialog(true)}>
+                <IconButton 
+                  onClick={() => setOpenDispatchDialog(true)}
+                  aria-label="dispatch item"
+                >
                   <FontAwesomeIcon icon={faTruckArrowRight} size={'xs'} />
                 </IconButton>
               </Tooltip>
             )}
           </Grid>
-          <Grid size={12} >
+          <Grid size={12}>
             <SaleDeliveryNotes sale={sale} expanded={expanded}/>
           </Grid>
         </Grid>
@@ -237,11 +283,14 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
        !sale.vfd_receipt && 
        (!sale.is_instant_sale || sale.payment_method === 'On Account') && 
        activeTab === (sale.is_instant_sale ? tabIndex.receipts : 1) && (
-        <Grid container width={'100%'}>
+        <Grid container spacing={2} sx={{ width: '100%' }}>
           {!!sale.is_receiptable && (
-            <Grid size={12} textAlign={'end'}>
+            <Grid size={12} sx={{ textAlign: 'right' }}>
               <Tooltip title={`Receipt For ${sale.saleNo}`}>
-                <IconButton onClick={() => setOpenReceiptDialog(true)}>
+                <IconButton 
+                  onClick={() => setOpenReceiptDialog(true)}
+                  aria-label="create receipt"
+                >
                   <FontAwesomeIcon icon={faReceipt} size={'xs'} />
                 </IconButton>
               </Tooltip>
@@ -258,11 +307,14 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
        !sale.vfd_receipt && 
        activeTab === (sale.is_instant_sale ? tabIndex.invoices : 2) && 
        (!!sale.is_invoiceable || !!sale.is_invoiced) && (
-        <Grid container width={'100%'}>
-          <Grid size={12} textAlign={'end'}>
+        <Grid container spacing={2} sx={{ width: '100%' }}>
+          <Grid size={12} sx={{ textAlign: 'right' }}>
             {!!sale.is_invoiceable && (
               <Tooltip title={`Invoice ${sale.saleNo}`}>
-                <IconButton onClick={() => setOpenInvoicesDialog(true)}>
+                <IconButton 
+                  onClick={() => setOpenInvoicesDialog(true)}
+                  aria-label="create invoice"
+                >
                   <FontAwesomeIcon icon={faFileInvoice} size={'xs'} />
                 </IconButton>
               </Tooltip>
@@ -302,7 +354,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
         onClose={() => setOpenDispatchDialog(false)}
       >
         {checkOrganizationPermission(PERMISSIONS.SALES_DISPATCH) ? (
-          <DispatchDialog sale={sale} toggleOpen={setOpenDispatchDialog}/>
+          <DispatchDialog saleId={Number(sale.id)} toggleOpen={setOpenDispatchDialog}/>
         ) : (
           <UnauthorizedAccess/>
         )}
@@ -317,7 +369,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
         onClose={() => setOpenInvoicesDialog(false)}
       >
         {checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
-          <InvoicesDialog sale={sale} toggleOpen={setOpenInvoicesDialog}/>
+          <InvoicesDialog saleId={Number(sale.id)} toggleOpen={setOpenInvoicesDialog}/>
         ) : (
           <UnauthorizedAccess/>
         )}
@@ -332,12 +384,12 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
         onClose={() => setOpenReceiptDialog(false)}
       >
         {checkOrganizationPermission(PERMISSIONS.SALES_EDIT) ? (
-          <ReceiptDialog sale={sale} toggleOpen={setOpenReceiptDialog}/>
+          <ReceiptDialog saleId={Number(sale.id)} toggleOpen={setOpenReceiptDialog}/>
         ) : (
           <UnauthorizedAccess/>
         )}
       </Dialog>
-    </React.Fragment>
+    </>
   );
 };
 
