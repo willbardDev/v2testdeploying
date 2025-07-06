@@ -15,6 +15,7 @@ import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Counter } from './CounterProvider';
+import CounterSalesListItem from './salesListItem/CounterSalesListItem';
 
 interface QueryOptions {
   queryKey: string;
@@ -66,7 +67,7 @@ const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
   }, [activeCounter]);
 
   const renderSale = useCallback((sale: any) => {
-    return <div>here list items</div>;
+    return <CounterSalesListItem sale={sale} />;
   }, []);
 
   const handleOnStatusChange = useCallback((status: string) => {
@@ -104,7 +105,7 @@ const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
             ref={listRef}
             refetchOnWindowFocus={true}
             wrapperComponent={Box}
-            service={posServices.counterSales}
+            service={posServices.getCounterSales}
             primaryKey={"id"}
             queryOptions={queryOptions}
             itemsPerPage={10}

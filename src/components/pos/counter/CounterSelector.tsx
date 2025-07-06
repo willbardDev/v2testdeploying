@@ -14,16 +14,19 @@ function CounterSelector() {
     const { authUser, authOrganization } = useJumboAuth();
     const organization = authOrganization?.organization;
 
-const { 
-    data: outlets, 
-    isFetching 
-} = useQuery<Outlet[], Error, Outlet[], ['userSalesOutlets', UserOutletsParams]>({
-    queryKey: ['userSalesOutlets', {
+    const userOutletsParams = {
         userId: authUser?.user?.id,
         organizationId: organization?.id
-    }],
-    queryFn: ({ queryKey }) => posServices.getUserOutlets(queryKey[1] as any)
-});
+    };
+
+    const { 
+        data: outlets, 
+        isFetching 
+    } = useQuery<Outlet[], Error, Outlet[], ['userSalesOutlets', UserOutletsParams]>({
+        queryKey: ['userSalesOutlets', userOutletsParams],
+        queryFn: ({ queryKey }) => posServices.getUserOutlets(queryKey[1]),
+        enabled: !!authUser?.user?.id && !!organization?.id,
+    });
 
     const [counters, setCounters] = useState<Counter[]>([]);
     const { activeCounter, setActiveCounter, setOutlet } = useCounter();

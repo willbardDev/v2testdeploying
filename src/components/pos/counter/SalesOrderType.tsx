@@ -1,5 +1,5 @@
+import { Stakeholder } from "@/components/masters/stakeholders/StakeholderType";
 import { Currency } from "../../masters/Currencies/CurrencyType";
-import { StakeholderType } from "../../masters/stakeholders/StakeholderType";
 
 interface DebitLedger {
   id: number;
@@ -8,13 +8,14 @@ interface DebitLedger {
 }
 
 export interface SalesOrder {
-  id: number;
+  id?: number;
   transaction_date: string | Date;
   saleNo: string;
   reference: string | null;
   amount: number;
   created_at: string;
   currency: Currency;
+  currency_id?: number;
   debit_ledger: DebitLedger;
   exchange_rate: number;
   has_receipts: boolean;
@@ -22,13 +23,45 @@ export interface SalesOrder {
   is_instant_sale: boolean;
   is_invoiceable: boolean;
   is_invoiced: boolean;
+  creator?: {
+    name: string
+  };
+  sales_outlet?: {
+    name: string
+  };
+  sale_items?: Array<{
+    id: number;
+    product: {
+      name: string;
+      vat_exempted?: boolean;
+    };
+    quantity: number;
+    rate: number;
+    measurement_unit: {
+      symbol: string;
+    };
+    vat_exempted?: number; // Add this if needed
+  }>;
+  items?: Array<{
+    id: number;
+    product: {
+      name: string;
+      vat_exempted?: boolean;
+    };
+    quantity: number;
+    rate: number;
+    measurement_unit: {
+      symbol: string;
+    };
+    vat_exempted?: number; // Add this if needed
+  }>;
   is_receiptable: boolean;
   payment_method: string;
   receiptable_amount: number;
   remarks: string | null;
   sales_person: string;
-  stakeholder: StakeholderType;
-  status: string;
+  stakeholder: Stakeholder;
+  status: 'Complete' | 'Fulfilled' | 'Partially Fulfilled' | 'Over Fulfilled' | 'Pending' | 'Ordered';
   vat_amount: number;
   vat_percentage: number;
   vfd_receipt: null;
