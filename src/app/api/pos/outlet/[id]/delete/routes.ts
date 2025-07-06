@@ -11,7 +11,7 @@ export async function DELETE(
   if (response) return response;
 
   // Corrected URL formatting
-  const res = await fetch(`${API_BASE}/pos/sales_outlet/${params.id}`, {
+  const res = await fetch(`${API_BASE}DELETE/sales_outlet/${params.id}`, {
     method: 'DELETE',
     headers,
   });
