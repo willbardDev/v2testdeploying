@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, Stack, Typography } from '@mui/material';
 import { useParams } from 'next/navigation';
 
@@ -21,54 +21,41 @@ import outletService from './OutletServices';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
 
-type myType = Outlet;
-
-export const OutletListContext = createContext({});
 
 const Outlet = () => {
-  const params = useParams();
-  const listRef = useRef(null);
+  const params = useParams<{ category?: string; id?: string; keyword?: string }>();
+  const listRef = useRef<any>(null);
   const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
   const [mounted, setMounted] = useState(false);
 
   const [queryOptions, setQueryOptions] = useState({
-    queryKey: 'sales_outlet',
+    queryKey: 'outlet',
     queryParams: { id: params.id, keyword: '' },
     countKey: 'total',
     dataKey: 'data',
   });
 
-  useEffect(() => {
-    setQueryOptions((prev) => {
-      if (prev.queryParams.id === params.id) return prev;
-      return {
-        ...prev,
-        queryParams: {
-          ...prev.queryParams,
-          id: params.id,
-        },
-      };
-    });
-  }, [params.id]);
+  React.useEffect(() => {
+      setQueryOptions((state) => ({
+        ...state,
+        queryParams: { ...state.queryParams, id: params.id },
+      }));
+    }, [params]);
 
- const handleOnChange = (keyword: string) => {
-  setQueryOptions((state) => {
-    if (state.queryParams.keyword === keyword) return state;
-    return {
-      ...state,
-      queryParams: {
-        ...state.queryParams,
-        keyword,
-      },
-    };
-  });
-};
-
-
-  // 🧠 Memoized render function for items
   const renderOutlet = React.useCallback((outlet: Outlet) => {
     return <OutletListItem outlet={outlet} />;
   }, []);
+
+
+ const handleOnChange = React.useCallback((keyword: string) => {
+     setQueryOptions((state) => ({
+       ...state,
+       queryParams: {
+         ...state.queryParams,
+         keyword: keyword,
+       },
+     }));
+   }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -85,7 +72,7 @@ const Outlet = () => {
   }
 
   return (
-    <OutletListContext.Provider value={{}}>
+      <React.Fragment>
       <LedgerSelectProvider>
         <Typography variant="h4" mb={2}>
           Sales Outlets
@@ -108,7 +95,7 @@ const Outlet = () => {
           }}
           toolbar={
             <JumboListToolbar
-              hideItemsPerPage
+              hideItemsPerPage={true}
               actionTail={
                 <Stack direction="row">
                   <JumboSearch
@@ -122,7 +109,7 @@ const Outlet = () => {
           }
         />
       </LedgerSelectProvider>
-    </OutletListContext.Provider>
+      </React.Fragment> 
   );
 };
 
