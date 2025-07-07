@@ -35,16 +35,14 @@ interface FormData {
   name: string;
   address?: string;
   type?: string;
-  user_ids: number[]; // required
-  stores: {
-    name: string;
-    id: number;
-  }[]; // required
+  users: { id: number; name: string }[]; // ✅ updated
+  stores: { name: string; id: number }[];
   counters: {
     name: string;
     ledger_ids: number[];
-  }[]; // required
+  }[];
 }
+
 
 
 const OUTLET_TYPES = [
@@ -56,7 +54,16 @@ const validationSchema = yup.object({
   name: yup.string().required('outlet name is required'),
   address: yup.string().optional(),
   type: yup.string().optional(),
-  user_ids: yup.array().of(yup.number().required()).min(1, 'At least one user is required').required('At least one user is required'),
+  users: yup
+    .array()
+    .of(
+      yup.object({
+        id: yup.number().required(),
+        name: yup.string().required(),
+      })
+    )
+    .min(1, 'At least one user is required')
+    .required('At least one user is required'),
   stores: yup
     .array()
     .of(
@@ -72,11 +79,15 @@ const validationSchema = yup.object({
     .of(
       yup.object({
         name: yup.string().required('counter name is required'),
-        ledger_ids: yup.array().of(yup.number().required()).min(1, 'At least one ledger account is required').required('At least one ledger account is required'),
+        ledger_ids: yup
+          .array()
+          .of(yup.number().required())
+          .min(1, 'At least one ledger account is required')
+          .required(),
       })
     )
     .min(1, 'At least one counter is required')
-    .required('At least one counter is required'),
+    .required(),
 });
 
 
@@ -94,12 +105,13 @@ const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outl
     name: outlet?.name || '',
     address: outlet?.address || '',
     type: outlet?.type || 'shop',
-    counters: outlet?.counters || [{ name: '', ledger_ids: [] }], 
-    user_ids: outlet?.user_ids || [],
+    counters: outlet?.counters || [{ name: '', ledger_ids: [] }],
+    users: outlet?.users || [], // ✅ updated
     stores: outlet?.stores || [],
   },
-  resolver: yupResolver(validationSchema), 
+  resolver: yupResolver(validationSchema),
 });
+
 
 
   const { fields, append, remove } = useFieldArray({
@@ -162,13 +174,16 @@ const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletRespon
   }, [outlet, updateOutlet, addOutlet]);
 
   
-const onSubmit = (formData: Outlet) => {
-  const dataToSend = outlet?.id
-    ? { ...formData, id: outlet.id }
-    : formData;
+const onSubmit = (formData: FormData) => {
+  const dataToSend = {
+    ...formData,
+    user_ids: formData.users.map((u) => u.id), // ✅ send only user ids
+    ...(outlet?.id ? { id: outlet.id } : {}),
+  };
 
-  saveMutation(dataToSend as any);
+  saveMutation(dataToSend as any); // cast since Outlet type still uses user_ids
 };
+
 
 
 
@@ -307,19 +322,19 @@ const onSubmit = (formData: Outlet) => {
 
           {/* Users */}
           <Grid size={12}>
-            <Controller
-            name="user_ids"
-            control={control}
-            render={({ field }) => (
-              <UsersSelector
-            multiple
-            value={field.value}
-            onChange={field.onChange}
-            frontError={errors.user_ids}
-          />
-        )}
+  <Controller
+    name="users"
+    control={control}
+    render={({ field }) => (
+      <UsersSelector
+        multiple
+        onChange={field.onChange}
+        frontError={errors.users}
       />
-          </Grid>
+    )}
+  />
+</Grid>
+
         </Grid>
       </DialogContent>
 

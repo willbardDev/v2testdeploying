@@ -28,7 +28,7 @@ export interface Store {
   children?: any;
 }
 
-export interface user_ids {
+export interface user {
   id: number;
   name: string;
 }
@@ -39,7 +39,7 @@ export interface Outlet {
   name: string;
   address?: string;
   type?: string;
-  user_ids: number[];
+  users: user[];
   stores: Store[];
   counters: Counter[];
 }
