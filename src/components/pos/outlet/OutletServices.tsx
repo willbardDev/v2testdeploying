@@ -34,9 +34,10 @@ outletServices.add = async (outlet: Outlet): Promise<AddOutletResponse> => {
 
 // 🔹 Update outlet
 outletServices.update = async (outlet: Outlet & { id: number }): Promise<UpdateOutletResponse> => {
-  await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(`/api/pos/outlet/${outlet.id}/update`, outlet);
-  return data;
+  return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+    const { data } = await axios.put(`/api/pos/outlet/${outlet.id}/update`, outlet);
+    return data;
+  });
 };
 
 // 🔹 Delete outlet

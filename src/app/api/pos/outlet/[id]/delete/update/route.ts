@@ -8,7 +8,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (response) return response;
 
   const body = await req.json();
-  const res = await fetch(`${API_BASE}PUT/sales_outlet/${params.id}`, {
+  const res = await fetch(`${API_BASE}/sales_outlet/${params.id}`, {
     method: 'PUT',
     headers,
     body: JSON.stringify(body),
