@@ -3,6 +3,10 @@ import { Divider, Grid, Typography, Tooltip, Chip, Stack } from '@mui/material';
 import OutletListItemAction from './OutletListItemAction';
 import { Outlet } from './OutletType';
 import Outlets from './Outlet';
+import PointOfSaleOutlinedIcon from '@mui/icons-material/PointOfSaleOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import IconButton from '@mui/material/IconButton';
+
 
 interface OutletItemProps {
   outlet: Outlet;
@@ -56,19 +60,30 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
           </Stack>
         </Grid>
 
-        {/* Counters & Users icon counts */}
-        <Grid size={{ xs: 12, md: 2 }} container justifyContent="flex-end" spacing={1}>
-          <Grid>
-            <Tooltip title="Counters">
-              <Typography fontWeight="bold">🧾 {outlet.counters?.length}</Typography>{/* kwenye counters tumia PointOfSaleOutlined and kwenye users tumia PeopleOutlined iconbuttons.....refers ile screenshot niiyotuma */}
-            </Tooltip>
+                {/* Counters & Users icon counts */}
+          <Grid size={{ xs: 12, md: 2 }} container justifyContent="flex-end" spacing={1}>
+            <Grid>
+              <Tooltip title={`Counters: ${outlet.counters?.length ?? 0}`}>
+                <IconButton size="small" disabled>
+                  <PointOfSaleOutlinedIcon fontSize="small" />
+                  <Typography variant="body2" fontWeight="bold" ml={0.5}>
+                    {outlet.counters?.length ?? 0}
+                  </Typography>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid>
+              <Tooltip title={`Users: ${outlet.users?.length ?? 0}`}>
+                <IconButton size="small" disabled>
+                  <PeopleOutlinedIcon fontSize="small" />
+                  <Typography variant="body2" fontWeight="bold" ml={0.5}>
+                    {outlet.users?.length ?? 0}
+                  </Typography>
+                </IconButton>
+              </Tooltip>
+            </Grid>
           </Grid>
-          <Grid>
-            <Tooltip title="Users">
-              <Typography fontWeight="bold">👥 {outlet.users?.length}</Typography>
-            </Tooltip>
-          </Grid>
-        </Grid>
+
 
         {/* Action buttons */}
         <Grid size={{ xs: 12, md: 1}} textAlign="end">

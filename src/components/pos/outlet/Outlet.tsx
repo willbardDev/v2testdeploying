@@ -73,42 +73,41 @@ const Outlet = () => {
 
   return (
       <React.Fragment>
-      <LedgerSelectProvider>
-        <Typography variant="h4" mb={2}>
-          Sales Outlets
-        </Typography>
-
-        <JumboRqList
-          ref={listRef}
-          wrapperComponent={Card}
-          service={outletServices.getList}
-          primaryKey="id"
-          queryOptions={queryOptions}
-          itemsPerPage={10}
-          itemsPerPageOptions={[5, 10, 15, 20]}
-          renderItem={renderOutlet}
-          componentElement="div"
-          wrapperSx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-          toolbar={
-            <JumboListToolbar
-              hideItemsPerPage={true}
-              actionTail={
-                <Stack direction="row">
-                  <JumboSearch
-                    onChange={handleOnChange}
-                    value={queryOptions.queryParams.keyword}
-                  />
-                  <OutletActionTail />
-                </Stack>
+        <LedgerSelectProvider>
+          <Typography variant="h4" mb={2}>
+            Sales Outlets
+          </Typography>
+            <JumboRqList
+              ref={listRef}
+              wrapperComponent={Card}
+              service={outletServices.getList}
+              primaryKey="id"
+              queryOptions={queryOptions}
+              itemsPerPage={10}
+              itemsPerPageOptions={[5, 10, 15, 20]}
+              renderItem={renderOutlet}
+              componentElement="div"
+              wrapperSx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+              toolbar={
+                <JumboListToolbar
+                  hideItemsPerPage={true}
+                  actionTail={
+                    <Stack direction="row">
+                      <JumboSearch
+                        onChange={handleOnChange}
+                        value={queryOptions.queryParams.keyword}
+                      />
+                      <OutletActionTail />
+                    </Stack>
+                  }
+                />
               }
             />
-          }
-        />
-      </LedgerSelectProvider>
+        </LedgerSelectProvider>
       </React.Fragment> 
   );
 };

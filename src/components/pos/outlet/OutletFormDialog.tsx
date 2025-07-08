@@ -26,67 +26,67 @@ import { Div } from '@jumbo/shared';
 import { DisabledByDefault } from '@mui/icons-material';
 import outletServices from './OutletServices';
 
-interface OutletFormDialogProps {
-  setOpenDialog: (open: boolean) => void;
-  outlet?: Outlet | null;
-}
+    interface OutletFormDialogProps {
+      setOpenDialog: (open: boolean) => void;
+      outlet?: Outlet | null;
+    }
 
-interface FormData {
-  name: string;
-  address?: string;
-  type?: string;
-  users: { id: number; name: string }[]; // ✅ updated
-  stores: { name: string; id: number }[];
-  counters: {
-    name: string;
-    ledger_ids: number[];
-  }[];
-}
+    interface FormData {
+      name: string;
+      address?: string;
+      type: string;
+      users: { id: number; name: string }[]; // ✅ updated
+      stores: { name: string; id: number }[];
+      counters: {
+        name: string;
+        ledger_ids: number[];
+      }[];
+    }
 
-const OUTLET_TYPES = [
-  { value: 'work center', name: 'Work Center' },
-  { value: 'shop', name: 'Shop' },
-];
+      const OUTLET_TYPES = [
+        { value: 'work center', name: 'Work Center' },
+        { value: 'shop', name: 'Shop' },
+      ];
 
-const validationSchema = yup.object({
-  name: yup.string().required('outlet name is required'),
-  address: yup.string().optional(),
-  type: yup.string().optional(),
-  users: yup
-    .array()
-    .of(
-      yup.object({
-        id: yup.number().required(),
-        name: yup.string().required(),
-      })
-    )
-    .min(1, 'At least one user is required')
-    .required('At least one user is required'),
-  stores: yup
-    .array()
-    .of(
-      yup.object({
-        name: yup.string().required(),
-        id: yup.number().required(),
-      })
-    )
-    .min(1, 'At least one store is required')
-    .required('At least one store is required'),
-  counters: yup
-    .array()
-    .of(
-      yup.object({
-        name: yup.string().required('counter name is required'),
-        ledger_ids: yup
+      const validationSchema = yup.object({
+        name: yup.string().required('outlet name is required'),
+        address: yup.string().optional(),
+        type: yup.string().required(),
+        users: yup
           .array()
-          .of(yup.number().required())
-          .min(1, 'At least one ledger account is required')
+          .of(
+            yup.object({
+              id: yup.number().required(),
+              name: yup.string().required(),
+            })
+          )
+          .min(1, 'At least one user is required')
+          .required('At least one user is required'),
+        stores: yup
+          .array()
+          .of(
+            yup.object({
+              name: yup.string().required(),
+              id: yup.number().required(),
+            })
+          )
+          .min(1, 'At least one store is required')
+          .required('At least one store is required'),
+        counters: yup
+          .array()
+          .of(
+            yup.object({
+              name: yup.string().required('counter name is required'),
+              ledger_ids: yup
+                .array()
+                .of(yup.number().required())
+                .min(1, 'At least one ledger account is required')
+                .required(),
+            })
+          )
+          .min(1, 'At least one counter is required')
           .required(),
-      })
-    )
-    .min(1, 'At least one counter is required')
-    .required(),
-});
+      });
 
     const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
       const queryClient = useQueryClient();
@@ -103,81 +103,81 @@ const validationSchema = yup.object({
         address: outlet?.address || '',
         type: outlet?.type || 'shop',
         counters: outlet ? outlet.counters : [{ name: '', ledger_ids: [] }],
-        users: outlet?.users || [], // ✅ updated
+        users: outlet?.users || [],
         stores: outlet?.stores || [],
       },
       resolver: yupResolver(validationSchema),
     });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'counters',
-  });
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: 'counters',
+    });
 
-const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse, unknown, Outlet>({
-  mutationFn: outletServices.add,
-  onSuccess: (data) => {
-    enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-    setOpenDialog(false);
-  },
-  onError: (error: unknown) => {
-    let message = 'Something went wrong';
+    const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse, unknown, Outlet>({
+      mutationFn: outletServices.add,
+      onSuccess: (data) => {
+        enqueueSnackbar(data.message, { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+        setOpenDialog(false);
+      },
+      onError: (error: unknown) => {
+        let message = 'Something went wrong';
 
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'response' in error &&
-      typeof (error as any).response?.data?.message === 'string'
-    ) {
-      message = (error as any).response.data.message;
-    } else if (error instanceof Error) {
-      message = error.message;
-    }
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error &&
+          typeof (error as any).response?.data?.message === 'string'
+        ) {
+          message = (error as any).response.data.message;
+        } else if (error instanceof Error) {
+          message = error.message;
+        }
 
-    enqueueSnackbar(message, { variant: 'error' });
-  },
-});
+        enqueueSnackbar(message, { variant: 'error' });
+      },
+    });
 
- const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
-  mutationFn: outletServices.update,
-  onSuccess: (data) => {
-    enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-    setOpenDialog(false);
-  },
-  onError: (error: unknown) => {
-    let message = 'Something went wrong';
+    const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
+      mutationFn: outletServices.update,
+      onSuccess: (data) => {
+        enqueueSnackbar(data.message, { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['Outlet'] });
+        setOpenDialog(false);
+      },
+      onError: (error: unknown) => {
+        let message = 'Something went wrong';
 
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'response' in error &&
-      typeof (error as any).response?.data?.message === 'string'
-    ) {
-      message = (error as any).response.data.message;
-    } else if (error instanceof Error) {
-      message = error.message;
-    }
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error &&
+          typeof (error as any).response?.data?.message === 'string'
+        ) {
+          message = (error as any).response.data.message;
+        } else if (error instanceof Error) {
+          message = error.message;
+        }
 
-    enqueueSnackbar(message, { variant: 'error' });
-  },
-});
+        enqueueSnackbar(message, { variant: 'error' });
+      },
+    });
 
-  const saveMutation = useMemo(() => {
-    return outlet?.id ? updateOutlet : addOutlet;
-  }, [outlet, updateOutlet, addOutlet]);
+    const saveMutation = useMemo(() => {
+      return outlet?.id ? updateOutlet : addOutlet;
+    }, [outlet, updateOutlet, addOutlet]);
 
   
-const onSubmit = (formData: FormData) => {
-  const dataToSend = {
-    ...formData,
-    user_ids: formData.users.map((u) => u.id), // ✅ send only user ids
-    ...(outlet?.id ? { id: outlet.id } : {}),
-  };
+    const onSubmit = (formData: FormData) => {
+      const dataToSend = {
+        ...formData,
+        user_ids: formData.users.map((u) => u.id), // ✅ send only user ids
+        ...(outlet?.id ? { id: outlet.id } : {}),
+      };
 
-  saveMutation(dataToSend as any); // cast since Outlet type still uses user_ids
-};
+      saveMutation(dataToSend as any); // cast since Outlet type still uses user_ids
+    };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -282,11 +282,14 @@ const onSubmit = (formData: FormData) => {
                       />
                       </Div>
                     </Grid>
-                    <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-                      <IconButton onClick={() => remove(index)} color="error">
-                        <DisabledByDefault />
-                      </IconButton>
-                    </Grid>
+                      <Grid size={{ xs: 12, md: 1 }} textAlign="end">
+                        {fields.length > 1 && (
+                          <IconButton onClick={() => remove(index)} color="error">
+                            <DisabledByDefault />
+                          </IconButton>
+                        )}
+                      </Grid>
+
                   </Grid>
                 ))}
               </Grid>
