@@ -9,8 +9,8 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 
 import OutletForm from './OutletFormDialog';
-import outletService from './OutletServices';
 import { Outlet } from './OutletType';
+import outletServices from './OutletServices';
 
 const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -22,7 +22,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
 const { mutate: deleteOutlet } = useMutation({
-  mutationFn: (params: { id: number }) => outletService.delete(params), 
+  mutationFn: (params: { id: number }) => outletServices.delete(params), 
   onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['Outlet'] });

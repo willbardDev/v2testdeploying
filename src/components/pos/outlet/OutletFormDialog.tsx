@@ -21,10 +21,10 @@ import AddIcon from '@mui/icons-material/Add';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
 import StoreSelector from '@/components/procurement/stores/StoreSelector'
-import outletService from './OutletServices';
 import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
 import { DisabledByDefault } from '@mui/icons-material';
+import outletServices from './OutletServices';
 
 interface OutletFormDialogProps {
   setOpenDialog: (open: boolean) => void;
@@ -115,7 +115,7 @@ const validationSchema = yup.object({
   });
 
 const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletResponse, unknown, Outlet>({
-  mutationFn: outletService.add,
+  mutationFn: outletServices.add,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['Outlet'] });
@@ -140,7 +140,7 @@ const { mutate: addOutlet, isPending: addLoading } = useMutation<AddOutletRespon
 });
 
  const { mutate: updateOutlet, isPending: updateLoading } = useMutation<UpdateOutletResponse, unknown, Outlet & { id: number }>({
-  mutationFn: outletService.update,
+  mutationFn: outletServices.update,
   onSuccess: (data) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['Outlet'] });

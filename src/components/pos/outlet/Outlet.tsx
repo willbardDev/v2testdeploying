@@ -17,9 +17,9 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
-import outletService from './OutletServices';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
+import outletServices from './OutletServices';
 
 
 const Outlet = () => {
@@ -81,7 +81,7 @@ const Outlet = () => {
         <JumboRqList
           ref={listRef}
           wrapperComponent={Card}
-          service={outletService.getList}
+          service={outletServices.getList}
           primaryKey="id"
           queryOptions={queryOptions}
           itemsPerPage={10}

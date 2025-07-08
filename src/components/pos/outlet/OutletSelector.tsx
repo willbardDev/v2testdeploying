@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import outletService from "./OutletServices";
 import { Outlet, OutletSelectorProps } from "./OutletType";
+import outletServices from "./OutletServices";
 
 
 const OutletSelector: React.FC<OutletSelectorProps> = (props) => {
@@ -17,7 +17,7 @@ const OutletSelector: React.FC<OutletSelectorProps> = (props) => {
 
   const { data: outlets, isLoading } = useQuery<Outlet[], Error>({
     queryKey: ["outlet"],
-    queryFn: () => outletService.getAllOutlets(),
+    queryFn: () => outletServices.getAllOutlets(),
   });
 
   const [selectedOutlets, setSelectedOutlets] = useState<Outlet | Outlet[] | null>(() => {
