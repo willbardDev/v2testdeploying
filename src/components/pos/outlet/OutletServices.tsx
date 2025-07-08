@@ -24,12 +24,13 @@ outletServices.getAllOutlets = async (): Promise<Outlet[]> => {
   return data;
 };
 
-// 🔹 Add new outlet
 outletServices.add = async (outlet: Outlet): Promise<AddOutletResponse> => {
-  await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post('/api/pos/outlet/add', outlet);
-  return data;
+  return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+    const {data} = await axios.post(`/api/pos/outlet/add`,outlet)
+    return data;
+  })
 };
+
 
 // 🔹 Update outlet
 outletServices.update = async (outlet: Outlet & { id: number }): Promise<UpdateOutletResponse> => {
@@ -39,9 +40,9 @@ outletServices.update = async (outlet: Outlet & { id: number }): Promise<UpdateO
 };
 
 // 🔹 Delete outlet
-outletServices.delete = async (id: number): Promise<DeleteOutletResponse> => {
+outletServices.delete = async (params: { id: any; }): Promise<DeleteOutletResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(`/api/pos/outlet/${id}/delete`);
+  const { data } = await axios.delete(`/api/pos/outlet/${params.id}/delete`);
   return data;
 };
 

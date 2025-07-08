@@ -66,7 +66,7 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
               <Tooltip title={`Counters: ${outlet.counters?.length ?? 0}`}>
                 <IconButton size="small" disabled>
                   <PointOfSaleOutlinedIcon fontSize="small" />
-                  <Typography variant="body2" fontWeight="bold" ml={0.5}>
+                  <Typography variant="body2" fontWeight="bold" mr={0.5}>
                     {outlet.counters?.length ?? 0}
                   </Typography>
                 </IconButton>

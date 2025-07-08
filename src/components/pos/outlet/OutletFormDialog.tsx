@@ -25,6 +25,7 @@ import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletTy
 import { Div } from '@jumbo/shared';
 import { DisabledByDefault } from '@mui/icons-material';
 import outletServices from './OutletServices';
+import Users from '@/components/Organizations/profile/users/Users';
 
     interface OutletFormDialogProps {
       setOpenDialog: (open: boolean) => void;
