@@ -11,12 +11,11 @@ import {
   Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useForm, Controller, useFieldArray, FieldError } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
@@ -25,6 +24,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import outletService from './OutletServices';
 import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
+import { DisabledByDefault } from '@mui/icons-material';
 
 interface OutletFormDialogProps {
   setOpenDialog: (open: boolean) => void;
@@ -42,8 +42,6 @@ interface FormData {
     ledger_ids: number[];
   }[];
 }
-
-
 
 const OUTLET_TYPES = [
   { value: 'work center', name: 'Work Center' },
@@ -90,29 +88,26 @@ const validationSchema = yup.object({
     .required(),
 });
 
+    const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
+      const queryClient = useQueryClient();
+      const { enqueueSnackbar } = useSnackbar();
 
-const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
-  const queryClient = useQueryClient();
-  const { enqueueSnackbar } = useSnackbar();
-
-  const {
-  register,
-  handleSubmit,
-  control,
-  formState: { errors },
-} = useForm<FormData>({
-  defaultValues: {
-    name: outlet?.name || '',
-    address: outlet?.address || '',
-    type: outlet?.type || 'shop',
-    counters: outlet?.counters || [{ name: '', ledger_ids: [] }],
-    users: outlet?.users || [], // ✅ updated
-    stores: outlet?.stores || [],
-  },
-  resolver: yupResolver(validationSchema),
-});
-
-
+      const {
+      register,
+      handleSubmit,
+      control,
+      formState: { errors },
+    } = useForm<FormData>({
+      defaultValues: {
+        name: outlet ? outlet.name : '',
+        address: outlet?.address || '',
+        type: outlet?.type || 'shop',
+        counters: outlet ? outlet.counters : [{ name: '', ledger_ids: [] }],
+        users: outlet?.users || [], // ✅ updated
+        stores: outlet?.stores || [],
+      },
+      resolver: yupResolver(validationSchema),
+    });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -184,9 +179,6 @@ const onSubmit = (formData: FormData) => {
   saveMutation(dataToSend as any); // cast since Outlet type still uses user_ids
 };
 
-
-
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle>Outlet Form</DialogTitle>
@@ -251,58 +243,64 @@ const onSubmit = (formData: FormData) => {
 
           {/* Counters */}
            <Grid size={12}>
-            <Typography fontWeight="bold" mb={1}>Counters</Typography>
-            {fields.map((item, index) => (
-              <Grid container spacing={2} alignItems="center" key={item.id} sx={{ mb: 1 }}>
-                 <Grid size={{xs: 12, md: 5}}>
-                  <Div sx={{ mt: 1, mb: 1 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Counter Name"
-                    {...register(`counters.${index}.name`)}
-                    error={!!errors?.counters?.[index]?.name}
-                    helperText={errors?.counters?.[index]?.name?.message}
-                  />
-                  </Div>
-                </Grid>
-                 <Grid size={{xs: 12, md: 5}}>
-                  <Div sx={{ mt: 1, mb: 1 }}>
-                  <Controller
-                    control={control}
-                    name={`counters.${index}.ledger_ids`}
-                    render={({ field }) => (
-                      <LedgerSelect
-                        multiple
-                        label="Ledger Accounts"
-                       onChange={(val) => {
-                        if (Array.isArray(val)) {
-                          field.onChange(val.map((v) => v.id));
-                        } else {
-                          field.onChange([]);
-                        }
-                      }}
-                        frontError={errors?.counters?.[index]?.ledger_ids}
+            <Grid container spacing={1}>
+              <Grid size={12}>
+                <Typography fontWeight="bold" mb={1}>Counters</Typography>
+                {fields.map((item, index) => (
+                  <Grid container spacing={1} alignItems="center" key={item.id} sx={{ mb: 1 }}>
+                    <Grid size={{xs: 12, md: 5.5}}>
+                      <Div sx={{ mt: 1, mb: 1 }}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Counter Name"
+                          {...register(`counters.${index}.name`)}
+                          error={!!errors?.counters?.[index]?.name}
+                          helperText={errors?.counters?.[index]?.name?.message}
+                        />
+                      </Div>
+                    </Grid>
+                    <Grid size={{xs: 12, md: 5.5}}>
+                      <Div sx={{ mt: 1, mb: 1 }}>
+                      <Controller
+                        control={control}
+                        name={`counters.${index}.ledger_ids`}
+                        render={({ field }) => (
+                          <LedgerSelect
+                            multiple
+                            label="Ledger Accounts"
+                            onChange={(val) => {
+                              if (Array.isArray(val)) {
+                                field.onChange(val.map((v) => v.id));
+                              } else {
+                                field.onChange([]);
+                              }
+                            }}
+                            frontError={errors?.counters?.[index]?.ledger_ids}
+                          />
+                        )}
                       />
-                    )}
-                  />
-                  </Div>
-                </Grid>
-                 <Grid size={{xs: 12, md: 2}}>
-                  <IconButton onClick={() => remove(index)} color="error">
-                    <CloseIcon />
-                  </IconButton>
-                </Grid>
+                      </Div>
+                    </Grid>
+                    <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
+                      <IconButton onClick={() => remove(index)} color="error">
+                        <DisabledByDefault />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => append({ name: '', ledger_ids: [] })}
-            >
-              Add Counter
-            </Button>
+              <Grid size={12} textAlign={'end'}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => append({ name: '', ledger_ids: [] })}
+                >
+                  Add
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
 
           {/* Stores */}
@@ -322,19 +320,18 @@ const onSubmit = (formData: FormData) => {
 
           {/* Users */}
           <Grid size={12}>
-  <Controller
-    name="users"
-    control={control}
-    render={({ field }) => (
-      <UsersSelector
-        multiple
-        onChange={field.onChange}
-        frontError={errors.users}
-      />
-    )}
-  />
-</Grid>
-
+            <Controller
+              name="users"
+              control={control}
+              render={({ field }) => (
+                <UsersSelector
+                  multiple
+                  onChange={field.onChange}
+                  frontError={errors.users}
+                />
+              )}
+            />
+          </Grid>
         </Grid>
       </DialogContent>
 

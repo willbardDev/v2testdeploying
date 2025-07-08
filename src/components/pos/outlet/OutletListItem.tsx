@@ -60,12 +60,12 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
         <Grid size={{ xs: 12, md: 2 }} container justifyContent="flex-end" spacing={1}>
           <Grid>
             <Tooltip title="Counters">
-              <Typography fontWeight="bold">🧾 {outlet.counters?.length || 0}</Typography>
+              <Typography fontWeight="bold">🧾 {outlet.counters?.length}</Typography>{/* kwenye counters tumia PointOfSaleOutlined and kwenye users tumia PeopleOutlined iconbuttons.....refers ile screenshot niiyotuma */}
             </Tooltip>
           </Grid>
           <Grid>
             <Tooltip title="Users">
-              <Typography fontWeight="bold">👥 {outlet.user_ids?.length || 0}</Typography>
+              <Typography fontWeight="bold">👥 {outlet.users?.length}</Typography>
             </Tooltip>
           </Grid>
         </Grid>
