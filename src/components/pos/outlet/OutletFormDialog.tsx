@@ -108,6 +108,7 @@ import Users from '@/components/Organizations/profile/users/Users';
         stores: outlet?.stores || [],
       },
       resolver: yupResolver(validationSchema),
+      
     });
 
     const { fields, append, remove } = useFieldArray({
@@ -182,7 +183,9 @@ import Users from '@/components/Organizations/profile/users/Users';
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <DialogTitle>Outlet Form</DialogTitle>
+      <DialogTitle sx={{ textAlign: 'center' }}>
+          Outlet Form
+        </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2}>
           {/* Name */}
