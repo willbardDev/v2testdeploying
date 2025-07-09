@@ -4,6 +4,7 @@ import React from "react";
 
 interface BackdropSpinnerProps {
   message?: string;
+  isRouterTransfer?: boolean;
 }
 
 export const BackdropSpinner: React.FC<BackdropSpinnerProps> = (props) => {
@@ -15,7 +16,9 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = (props) => {
       }}
       open={true}
     >
-      <CircularProgress color="primary" />
+      {!props.isRouterTransfer &&
+        <CircularProgress color="primary" />
+      }
       {props?.message && (
         <Div sx={{ p: 2 }}>
           <h2>{props.message}</h2>
