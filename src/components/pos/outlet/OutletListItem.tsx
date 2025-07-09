@@ -80,17 +80,24 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
               </Typography>
             </Grid>
                 {/* Stores */}
-              <Grid size={{ xs: 12, md: 3 }}>
-                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                    {outlet.stores?.map((store) => (
-                      <StyledBadgeChip
-                        key={store.id}
-                        label={store.name}
-                        size="small"
-                      />
-                    ))}
-                  </Stack>
-                </Grid>
+              <Grid size={{ xs: 12, md: 3, }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  rowGap={0.5}
+                  flexWrap="wrap"
+                  useFlexGap
+                >
+                  {outlet.stores?.map((store) => (
+                    <StyledBadgeChip
+                      key={store.id}
+                      label={store.name}
+                      size="small"
+                    />
+                  ))}
+                </Stack>
+              </Grid>
+
                   <Grid size={{ xs: 12, md: 2 }}container justifyContent="flex-end" spacing={1}>
                     <Grid>
                       <Tooltip title={`Counters: ${outlet.counters?.length ?? 0}`}>
