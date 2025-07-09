@@ -57,6 +57,7 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
           alignItems="center"
           px={2}
           py={1}
+          paddingRight={3}
           sx={{
             cursor: 'pointer',
             '&:hover': {
@@ -80,7 +81,7 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
               </Typography>
             </Grid>
                 {/* Stores */}
-              <Grid size={{ xs: 12, md: 3, }}>
+              <Grid size={{ xs: 8, md: 3, }}>
                 <Stack
                   direction="row"
                   spacing={0.5}
@@ -98,7 +99,7 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
                 </Stack>
               </Grid>
 
-                  <Grid size={{ xs: 12, md: 2 }}container justifyContent="flex-end" spacing={1}>
+                  <Grid size={{ xs: 4, md: 2 }} container justifyContent="flex-end">
                     <Grid>
                       <Tooltip title={`Counters: ${outlet.counters?.length ?? 0}`}>
                         <StyledCountBadge

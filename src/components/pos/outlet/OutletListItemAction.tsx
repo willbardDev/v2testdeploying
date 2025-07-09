@@ -37,7 +37,7 @@ const { mutate: deleteOutlet } = useMutation({
 
   const menuItems: MenuItemProps[] = [
     { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-    { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
+    // { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {

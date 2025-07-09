@@ -50,9 +50,9 @@ import Users from '@/components/Organizations/profile/users/Users';
       ];
 
       const validationSchema = yup.object({
-        name: yup.string().required('outlet name is required'),
+        name: yup.string().required('Outlet name is required'),
         address: yup.string().optional(),
-        type: yup.string().required(),
+        type: yup.string().required('Outlet type is required'),
         users: yup
           .array()
           .of(
@@ -77,7 +77,7 @@ import Users from '@/components/Organizations/profile/users/Users';
           .array()
           .of(
             yup.object({
-              name: yup.string().required('counter name is required'),
+              name: yup.string().required('Counter name is required'),
               ledger_ids: yup
                 .array()
                 .of(yup.number().required())
@@ -186,8 +186,8 @@ import Users from '@/components/Organizations/profile/users/Users';
       <DialogTitle sx={{ textAlign: 'center' }}>
           Outlet Form
         </DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={2}>
+      <DialogContent>
+        <Grid container columnSpacing={1}>
           {/* Name */}
           <Grid size={{xs: 12, md: 6}}>
            <Div sx={{ mt: 1, mb: 1 }}>
@@ -249,11 +249,11 @@ import Users from '@/components/Organizations/profile/users/Users';
            <Grid size={12}>
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography fontWeight="bold" mb={1}>Counters</Typography>
+                <Typography mb={0.5}>Counters</Typography>
                 {fields.map((item, index) => (
-                  <Grid container spacing={1} alignItems="center" key={item.id} sx={{ mb: 1 }}>
-                    <Grid size={{xs: 12, md: 5.5}}>
-                      <Div sx={{ mt: 1, mb: 1 }}>
+                  <Grid container columnSpacing={1} alignItems="center" key={item.id}>
+                    <Grid size={{xs: 12, md: fields.length > 1 ? 5.5 : 6}}>
+                      <Div sx={{ mt: 0.3, mb: 0.3 }}>
                         <TextField
                           fullWidth
                           size="small"
@@ -264,8 +264,8 @@ import Users from '@/components/Organizations/profile/users/Users';
                         />
                       </Div>
                     </Grid>
-                    <Grid size={{xs: 12, md: 5.5}}>
-                      <Div sx={{ mt: 1, mb: 1 }}>
+                    <Grid size={{xs: 12, md: fields.length > 1 ? 5.5 : 6}}>
+                      <Div sx={{ mt: 0.3, mb: 0.3 }}>
                       <Controller
                         control={control}
                         name={`counters.${index}.ledger_ids`}
@@ -311,7 +311,8 @@ import Users from '@/components/Organizations/profile/users/Users';
           </Grid>
 
           {/* Stores */}
-          <Grid size={12}>
+          <Grid size={12} sx={{ mt: 1, mb: 1 }}>
+            <div>
             <Controller
               name="stores"
               control={control}
@@ -323,10 +324,12 @@ import Users from '@/components/Organizations/profile/users/Users';
               />
               )}
             />
+            </div>
           </Grid>
 
           {/* Users */}
-          <Grid size={12}>
+          <Grid size={12} sx={{ mt: 1, mb: 1 }}>
+            <div>
             <Controller
               name="users"
               control={control}
@@ -338,6 +341,7 @@ import Users from '@/components/Organizations/profile/users/Users';
                 />
               )}
             />
+            </div>
           </Grid>
         </Grid>
       </DialogContent>
