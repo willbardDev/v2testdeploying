@@ -1,5 +1,5 @@
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { AttachmentOutlined, DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
+import { AttachmentOutlined, ContentCopyOutlined, DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react'
@@ -100,6 +100,7 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false)
   const {showDialog,hideDialog} = useJumboDialog();
   const {enqueueSnackbar} = useSnackbar();
+  const [openDuplicateDialog, setOpenDuplicateDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
   const authObject = useJumboAuth();
@@ -123,11 +124,18 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
   });
 
   const menuItems: MenuItemProps[] = [
-    (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,PERMISSIONS.PAYMENTS_READ]) && {icon: <VisibilityOutlined/> , title : "View" , action : "open"}) as MenuItemProps,
-    {icon: <AttachmentOutlined/> , title : "Attach" , action : "attach"} as MenuItemProps,
-    (!transaction.requisition_approval_id && checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,PERMISSIONS.PAYMENTS_EDIT]) && (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,PERMISSIONS.PAYMENTS_BACKDATE]) || transaction.transaction_date >= dayjs().startOf('date').toISOString())) ? {icon: <EditOutlined/>, title: 'Edit', action: 'edit'} as MenuItemProps : null,
-    (!transaction.requisition_approval_id && checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,PERMISSIONS.PAYMENTS_DELETE]) && (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,PERMISSIONS.PAYMENTS_BACKDATE]) || transaction.transaction_date >= dayjs().startOf('date').toISOString()))  ? {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'} as MenuItemProps : null
-  ].filter(item => item !== null);
+    (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ, PERMISSIONS.PAYMENTS_READ]) && {icon: <VisibilityOutlined/>, title: "View", action: "open"}),
+    {icon: <AttachmentOutlined/>, title: "Attach", action: "attach"},
+    (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE, PERMISSIONS.PAYMENTS_CREATE]) && {icon: <ContentCopyOutlined/>, title: "Duplicate", action: "duplicate"}),
+    (!transaction.requisition_approval_id && checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT, PERMISSIONS.PAYMENTS_EDIT]) && 
+      (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE, PERMISSIONS.PAYMENTS_BACKDATE]) || 
+      transaction.transaction_date >= dayjs().startOf('date').toISOString())) && 
+      {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
+    (!transaction.requisition_approval_id && checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE, PERMISSIONS.PAYMENTS_DELETE]) && 
+      (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE, PERMISSIONS.PAYMENTS_BACKDATE]) || 
+      transaction.transaction_date >= dayjs().startOf('date').toISOString())) && 
+      {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+  ].filter(Boolean) as MenuItemProps[];
 
   const EditPaymentDialog = () => {
     const { data: payment, isFetching } = useQuery({
@@ -142,6 +150,25 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
     );
   }
 
+  const DuplicatePaymentDialog = () => {
+    const { data: payment, isFetching } = useQuery({
+      queryKey: ['payment', transaction.id],
+      queryFn: () => paymentServices.show(transaction.id),
+    });
+
+    if (isFetching) {
+      return <LinearProgress />;
+    }
+
+    return (
+      <PaymentFormDialogContent 
+        setOpen={setOpenDuplicateDialog} 
+        payment={payment} 
+        isDuplicate={true}
+      />
+    );
+  }
+
   React.useEffect(() => {
     if (openEditDialog) {
       queryClient.invalidateQueries({ queryKey: ['payment', transaction.id] });
@@ -152,7 +179,7 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
     switch (menuItem.action) {
       case 'delete':
         showDialog({
-          title : 'Confirm Delete?',
+          title: 'Confirm Delete?',
           content: 'If you say yes, this payment will be deleted',
           onYes: () => {
             hideDialog();
@@ -160,10 +187,13 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
           },
           onNo: () => hideDialog(),
           variant: 'confirm'
-        })
+        });
         break;
       case 'edit':
         setOpenEditDialog(true);
+        break;
+      case 'duplicate':
+        setOpenDuplicateDialog(true);
         break;
       case 'attach':
         setAttachDialog(true);
@@ -171,27 +201,44 @@ function PaymentItemAction({transaction}:{transaction: Transaction}) {
       case 'open':
         setOpenDocumentDialog(true);
         break;
-        default:
-          break;
+      default:
+        break;
     }
   }
 
   return (
     <React.Fragment>
-      <Dialog
-        open={openEditDialog || openDocumentDialog || attachDialog}
-        scroll={'paper'}
-        fullScreen={belowLargeScreen}
-        fullWidth
-        onClose={() => {
-          if (openDocumentDialog) setOpenDocumentDialog(false);
-        }}
-        maxWidth={openEditDialog ? 'lg' : 'md'}
-      >
-        {openEditDialog && (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,PERMISSIONS.PAYMENTS_EDIT]) ? <EditPaymentDialog/> : <UnauthorizedAccess/>)}
-        {openDocumentDialog && (checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,PERMISSIONS.PAYMENTS_READ]) ? <DocumentDialog transaction={transaction} authObject={authObject as unknown as AuthObject} setOpenDocumentDialog={setOpenDocumentDialog}/> : <UnauthorizedAccess/>)}
-        {attachDialog && <AttachDialog transaction={transaction} setAttachDialog={setAttachDialog}/>}
-      </Dialog>
+    <Dialog
+      open={openEditDialog || openDuplicateDialog || openDocumentDialog || attachDialog}
+      scroll={'paper'}
+      fullScreen={belowLargeScreen}
+      fullWidth
+      onClose={() => {
+        if (openDocumentDialog) setOpenDocumentDialog(false);
+      }}
+      maxWidth={openEditDialog || openDuplicateDialog ? 'lg' : 'md'}
+    >
+      {openEditDialog && (
+        checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT, PERMISSIONS.PAYMENTS_EDIT]) ? 
+          <EditPaymentDialog/> : 
+          <UnauthorizedAccess/>
+      )}
+      {openDuplicateDialog && (
+        checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE, PERMISSIONS.PAYMENTS_CREATE]) ? 
+          <DuplicatePaymentDialog/> : 
+          <UnauthorizedAccess/>
+      )}
+      {openDocumentDialog && (
+        checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ, PERMISSIONS.PAYMENTS_READ]) ? 
+          <DocumentDialog 
+            transaction={transaction} 
+            authObject={authObject as unknown as AuthObject} 
+            setOpenDocumentDialog={setOpenDocumentDialog}
+          /> : 
+          <UnauthorizedAccess/>
+      )}
+      {attachDialog && <AttachDialog transaction={transaction} setAttachDialog={setAttachDialog}/>}
+    </Dialog>
       
       <JumboDdMenu
         icon={

@@ -64,9 +64,10 @@ type PaymentData = {
 type PaymentFormDialogContentProps = {
   setOpen: (open: boolean) => void;
   payment?: PaymentData;
+  isDuplicate?: boolean;
 };
 
-const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ setOpen, payment }) => {
+const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ setOpen, payment, isDuplicate=false }) => {
     const { authOrganization, checkOrganizationPermission } = useJumboAuth();
     const costCenters = authOrganization?.costCenters;
     const queryClient = useQueryClient();
@@ -166,9 +167,9 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ set
             currency_id: payment?.currency?.id || 1,
             exchange_rate: payment?.exchange_rate || 1,
             cost_centers: payment?.cost_centers || (costCenters.length === 1 ? costCenters : []),
-            transactionDate: payment?.transactionDate || dayjs().toISOString(),
+            transactionDate: (payment && !isDuplicate) ? payment?.transactionDate : dayjs().toISOString(),
             items: payment?.items || items,
-            id: payment?.id
+            id: (payment && !isDuplicate) ? payment?.id : undefined
         }
     });
 
@@ -178,9 +179,9 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ set
 
     const totalAmount = items.reduce((totalAmount, item) => totalAmount + item.amount, 0);
 
-    const savePayment = React.useMemo(() => {
-        return payment ? updatePayment : addPayment;
-    }, [payment, updatePayment, addPayment]);
+  const savePayment = React.useMemo(() => {
+    return (payment && !isDuplicate) ? updatePayment : addPayment;
+  }, [payment, isDuplicate, updatePayment, addPayment]);
 
     const onSubmit = (data: PaymentFormValues) => {
         if (items.length === 0) {
@@ -217,7 +218,8 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ set
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {payment ? `Edit: ${payment.voucherNo}` : `New Payment Form`}
+        {isDuplicate ? `Duplicate: ${payment?.voucherNo}` : 
+        payment ? `Edit: ${payment.voucherNo}` : `New Payment Form`}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='false' onSubmit={handleSubmit(onSubmit)}>
@@ -236,7 +238,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({ set
                       dayjs().add(10, 'year').endOf('year') :
                       dayjs().endOf('day')
                   }
-                  defaultValue={payment ? dayjs(payment.transactionDate) : dayjs()}
+                  defaultValue={(payment && !isDuplicate) ? dayjs(payment.transactionDate) : dayjs()}
                   slotProps={{
                     textField: {
                       size: 'small',
