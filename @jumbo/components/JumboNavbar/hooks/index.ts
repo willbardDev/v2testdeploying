@@ -79,6 +79,7 @@ function useJumboNavItemSx(path: string) {
     overflow: 'hidden',
     borderRadius: miniAndClosed ? '50%' : '0 24px 24px 0',
     margin: miniAndClosed ? '0 auto' : '0',
+    transition: 'all 0.2s ease',
     ...(miniAndClosed
       ? { width: 40, height: 40, justifyContent: 'center' }
       : {}),
@@ -96,6 +97,15 @@ function useJumboNavItemSx(path: string) {
             },
           }
         : {}),
+      // Nested item specific styles
+      '&.nested': {
+        pl: miniAndClosed ? 2 : 4,
+        ml: miniAndClosed ? 0 : 2,
+        borderLeft: (theme) => `2px solid ${theme.palette.divider}`,
+        '& .MuiListItemIcon-root': {
+          minWidth: miniAndClosed ? 16 : 24,
+        },
+      },
     },
     ...(isActive(path)
       ? {

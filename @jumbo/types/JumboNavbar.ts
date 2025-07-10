@@ -10,6 +10,7 @@ type NavbarContext = {
 };
 
 type NavbarItem = {
+  type: 'item';
   label: string;
   path: string;
   icon?: string;
@@ -17,6 +18,7 @@ type NavbarItem = {
 };
 
 type NavbarGroup = {
+  type: 'group';
   label: string;
   children: (NavbarGroup | NavbarItem)[];
   collapsible?: boolean;

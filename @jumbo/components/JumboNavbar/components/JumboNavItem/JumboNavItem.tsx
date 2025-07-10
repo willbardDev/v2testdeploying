@@ -17,9 +17,10 @@ import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 type JumboNavItemProps = {
   item: NavbarItem | undefined;
   isNested: boolean;
+  depth?: number; // Added depth prop
 };
 
-function JumboNavItem({ item, isNested }: JumboNavItemProps) {
+function JumboNavItem({ item, isNested, depth = 0 }: JumboNavItemProps) {
   const navSx: SxProps<Theme> = useJumboNavItemSx(item?.path ?? '');
   const { miniAndClosed } = useJumboNavbar();
   const [isLoading, setIsLoading] = useState(false);
@@ -45,15 +46,23 @@ function JumboNavItem({ item, isNested }: JumboNavItemProps) {
     <>
       <ListItemButton 
         component={'li'} 
-        sx={{ 
-          ...navSx,
-          position: 'relative',
-          '&.Mui-disabled': {
-            opacity: 0.7,
-          }
-        }}
         onClick={handleClick}
         disabled={isLoading}
+        sx={{ 
+          ...navSx,
+          // Dynamic padding based on depth and nested status
+          pl: isNested ? (miniAndClosed ? 2 : 4 + (depth * 2)) : 2,
+          // Visual indicator for nested items
+          ...(isNested && !miniAndClosed && {
+            borderLeft: (theme) => `2px solid ${theme.palette.divider}`,
+            ml: 2,
+          }),
+          // Loading state styling
+          ...(isLoading && {
+            opacity: 0.7,
+            pointerEvents: 'none',
+          }),
+        }}
       >
         <Link
           underline={'none'}
@@ -78,15 +87,25 @@ function JumboNavItem({ item, isNested }: JumboNavItemProps) {
             sx={{ 
               minWidth: miniAndClosed ? 20 : 32, 
               color: 'inherit',
+              // Smaller icon for nested items
+              ...(isNested && {
+                minWidth: miniAndClosed ? 16 : 24,
+              }),
+              // Loading state for icon
               ...(isLoading && {
                 color: (theme) => theme.palette.action.disabled,
               }),
             }}
           >
             {isNested ? (
-              <CircleIcon sx={{ fontSize: 6, ml: 1 }} />
+              <CircleIcon sx={{ 
+                fontSize: 6, 
+                ml: 1,
+                // Different color for nested items
+                color: (theme) => theme.palette.text.secondary,
+              }} />
             ) : (
-              <Icon name={item.icon} sx={{ fontSize: 20 }} />
+              <Icon name={item.icon || '·'} sx={{ fontSize: 15 }} />
             )}
           </ListItemIcon>
           {!miniAndClosed && (
@@ -96,8 +115,15 @@ function JumboNavItem({ item, isNested }: JumboNavItemProps) {
                 m: 0,
                 '& .MuiTypography-root': {
                   whiteSpace: 'nowrap',
+                  fontSize: 13,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
+                  // Different typography for nested items
+                  ...(isNested && {
+                    fontSize: 10,
+                    fontWeight: 'normal',
+                  }),
+                  // Loading state for text
                   ...(isLoading && {
                     color: (theme) => theme.palette.text.disabled,
                   }),
