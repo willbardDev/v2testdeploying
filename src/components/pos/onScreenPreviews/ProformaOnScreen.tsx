@@ -1,8 +1,41 @@
 import React from 'react';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { Currency } from '@/components/masters/Currencies/CurrencyType';
+import { Organization } from '@/types/auth-types';
 
-function ProformaOnScreen({ proforma, organization }) {
+interface Product {
+  name: string;
+  vat_exempted?: boolean;
+}
+
+interface ProformaItem {
+  id: number;
+  product: Product;
+  measurement_unit: MeasurementUnit;
+  quantity: number;
+  rate: number;
+}
+
+interface Proforma {
+  proformaNo: string;
+  proforma_date: string;
+  expiry_date?: string;
+  items: ProformaItem[];
+  amount: number;
+  vat_amount: number;
+  vat_percentage: number;
+  currency: Currency;
+  remarks?: string | null;
+}
+
+interface ProformaOnScreenProps {
+  proforma: Proforma;
+  organization: Organization;
+}
+
+function ProformaOnScreen({ proforma, organization }: ProformaOnScreenProps) {
     const currencyCode = proforma.currency?.code;
     const mainColor = organization.settings?.main_color || "#2113AD";
     const lightColor = organization.settings?.light_color || "#bec5da";
@@ -11,19 +44,19 @@ function ProformaOnScreen({ proforma, organization }) {
     return (
         <div>
             <Grid container spacing={2} style={{ marginTop: 20 }}>
-                <Grid item xs={12} style={{ textAlign: 'center' }}>
+                <Grid size={{ xs: 12 }} style={{ textAlign: 'center' }}>
                     <Typography variant="h4" style={{ color: mainColor }}>PROFORMA INVOICE</Typography>
                     <Typography variant="subtitle1" fontWeight="bold">{proforma.proformaNo}</Typography>
                 </Grid>
             </Grid>
 
             <Grid container spacing={2} style={{ marginTop: 5, marginBottom: 10 }}>
-                <Grid item xs={8}>
+                <Grid size={{ xs: 8 }}>
                     <Typography variant="body2" style={{ color: mainColor }}>Proforma Date</Typography>
                     <Typography variant="body2">{readableDate(proforma.proforma_date)}</Typography>
                 </Grid>
                 {proforma?.expiry_date && (
-                    <Grid item xs={4} textAlign={'center'}>
+                    <Grid size={{ xs: 4 }} textAlign={'center'}>
                         <Typography variant="body2" style={{ color: mainColor }}>Valid Until</Typography>
                         <Typography variant="body2">{readableDate(proforma.expiry_date)}</Typography>
                     </Grid>
@@ -71,10 +104,10 @@ function ProformaOnScreen({ proforma, organization }) {
                 </Table>
             </TableContainer>
             <Grid container style={{ paddingTop: 50 }}>
-                <Grid item xs={7}>
+                <Grid size={{ xs: 7 }}>
                     <Typography variant="body2">Total</Typography>
                 </Grid>
-                <Grid item xs={5} style={{ textAlign: 'right' }}>
+                <Grid size={{ xs: 5 }} style={{ textAlign: 'right' }}>
                     <Typography variant="body2" fontWeight="bold">{proforma.amount.toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                 </Grid>
             </Grid>
@@ -82,18 +115,18 @@ function ProformaOnScreen({ proforma, organization }) {
             {proforma.vat_percentage > 0 && (
                 <>
                     <Grid container style={{ marginTop: 1 }}>
-                        <Grid item xs={7}>
+                        <Grid size={{ xs: 7 }}>
                             <Typography variant="body2">VAT</Typography>
                         </Grid>
-                        <Grid item xs={5} style={{ textAlign: 'right' }}>
+                        <Grid size={{ xs: 5 }} style={{ textAlign: 'right' }}>
                             <Typography variant="body2" fontWeight="bold">{proforma.vat_amount.toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                         </Grid>
                     </Grid>
                     <Grid container style={{ marginTop: 1 }}>
-                        <Grid item xs={7}>
+                        <Grid size={{ xs: 7 }}>
                             <Typography variant="body2">Grand Total (VAT Incl.)</Typography>
                         </Grid>
-                        <Grid item xs={5} style={{ textAlign: 'right' }}>
+                        <Grid size={{ xs: 5 }} style={{ textAlign: 'right' }}>
                             <Typography variant="body2" fontWeight="bold">{(proforma.amount + proforma.vat_amount).toLocaleString("en-US", { style: "currency", currency: currencyCode })}</Typography>
                         </Grid>
                     </Grid> 
@@ -102,7 +135,7 @@ function ProformaOnScreen({ proforma, organization }) {
 
             {proforma?.remarks && (
                 <Grid container style={{ marginTop: 20 }}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Typography variant="body2" style={{ color: mainColor }}>Remarks</Typography>
                         <Typography variant="body2">{proforma.remarks}</Typography>
                     </Grid>

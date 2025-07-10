@@ -6,7 +6,7 @@ posServices.getUserOutlets = async (params) => {
     const { userId } = params;
     const { data } = await axios.get(`/api/pos/counter/${userId}/getUserOutlets`);
     return data;
-};
+},
 
 posServices.getCounterLedgers = async(counter_id) => {
     const {data} = await axios.get(`/api/pos/counter/${counter_id}/getCounterLedgers`);

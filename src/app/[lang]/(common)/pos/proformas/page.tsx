@@ -1,9 +1,9 @@
-import Stores from '@/components/procurement/stores/Stores'
+import ProformaInvoices from '@/components/pos/proformaInvoices/ProformaInvoices'
 import React from 'react'
 
 function page() {
   return (
-    <Stores/>
+    <ProformaInvoices/>
   )
 }
 
