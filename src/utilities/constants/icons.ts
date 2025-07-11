@@ -1,6 +1,5 @@
 import {
   DashboardCustomizeOutlined,
-  SvgIconComponent,
   RocketLaunchOutlined,
   FormatListNumberedOutlined,
   ChecklistRtlOutlined,
@@ -12,17 +11,17 @@ import {
   CurrencyExchangeOutlined,
   HandshakeOutlined,
   StraightenOutlined,
-  ReportOffOutlined,
   ReceiptOutlined,
   ShoppingCartOutlined,
-  OutdoorGrillOutlined
+  OutdoorGrillOutlined,
+  FolderOutlined // MUI equivalent for faFolderOpen
 } from '@mui/icons-material';
+import { SvgIconProps } from '@mui/material';
+import { SxProps, Theme } from '@mui/material/styles';
 
-import { SxProps, Theme } from '@mui/material';
-import { IconType } from 'react-icons';
 type Icon = {
   name: string;
-  Component: SvgIconComponent | IconType;
+  Component: React.ComponentType<SvgIconProps>;
   props?: {
     sx?: SxProps<Theme>;
   };
@@ -34,64 +33,80 @@ const APP_ICONS: Icon[] = [
     Component: RocketLaunchOutlined,
     props: { sx: { fontSize: 20 } }
   },
-  { name: 'dashboard', 
+  { 
+    name: 'dashboard', 
     Component: DashboardCustomizeOutlined, 
     props: { sx: { fontSize: 20 } } 
   },
   {
     name: 'requisitions',
     Component: FormatListNumberedOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'approvals',
     Component: ChecklistRtlOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'counter',
     Component: PointOfSaleOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'proforma',
     Component: RequestQuoteOutlined,
-    props: { sx: { fontSize: 20 } },
+    props: { sx: { fontSize: 20 } }
   },
   {
     name: 'transactions',
     Component: ReceiptOutlined,
-    props: { sx: { fontSize: 20 } },
+    props: { sx: { fontSize: 20 } }
   },
   {
     name: 'purchases',
     Component: ShoppingCartOutlined,
-    props: { sx: { fontSize: 20 } },
+    props: { sx: { fontSize: 20 } }
   },
   {
     name: 'consumptions',
     Component: OutdoorGrillOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'barcharts',
     Component: AssessmentOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'organizations',
     Component: CorporateFareOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'invitations',
     Component: ShareOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{ name: 'stakeholders',
+    props: { sx: { fontSize: 20 } }
+  },
+  { 
+    name: 'stakeholders',
     Component: HandshakeOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'currencies',
     Component: CurrencyExchangeOutlined,
-    props: { sx: { fontSize: 20 } },
-  },{
+    props: { sx: { fontSize: 20 } }
+  },
+  {
     name: 'measurement_units',
     Component: StraightenOutlined,
-    props: { sx: { fontSize: 20 } },
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'filesShelf',
+    Component: FolderOutlined,
+    props: { sx: { fontSize: 20 } }
   }
 ];
 

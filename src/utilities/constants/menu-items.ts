@@ -139,6 +139,17 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.tools,
+      children: [
+        {
+          path: `/${locale}/filesShelf`,
+          label: sidebar.menuItem.filesShelf,
+          icon: 'filesShelf',
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.masters,
       children: [
         {

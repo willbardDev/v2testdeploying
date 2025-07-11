@@ -132,7 +132,7 @@ const FilesShelfListItem: React.FC<Props> = ({ attachment }) => {
             secondary={
               <Tooltip title="Relatable No">
                 <Typography variant="caption" noWrap>
-                  {attachment.attachmentableNo || 'N/A'}
+                  {attachment.attachmentableNo}
                 </Typography>
               </Tooltip>
             }
