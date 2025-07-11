@@ -1,10 +1,10 @@
-import axios from "app/services/config";
+import axios from "@/lib/services/config";
 
 const moduleSettingsServices = {};
 
 moduleSettingsServices.updateSettings = async(updatedSettings) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/api/sharedComponents/module-settings`,updatedSettings);
+         const {data} = await axios.post(`/api/sharedComponents/moduleSettings`,updatedSettings);
          return data;
      })
 }

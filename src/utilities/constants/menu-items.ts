@@ -68,7 +68,7 @@ export async function getMenus(locale: string) {
           label: sidebar.menuItem.priceLists,
         },
         {
-          path: `/${locale}/pos/settings`,
+          path: `/${locale}/pos/pos-settings`,
           label: sidebar.menuItem.settings,
         },
       ],
