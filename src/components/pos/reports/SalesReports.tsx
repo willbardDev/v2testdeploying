@@ -45,7 +45,7 @@ function SalesReports() {
                         scroll={belowLargeScreen ? 'body' : 'paper'} 
                         fullScreen={belowLargeScreen} 
                         fullWidth 
-                        maxWidth={openSalesAndCashSummary ? 'md' : 'lg'} 
+                        maxWidth={openSalesAndCashSummary ? 'md' : 'xl'} 
                         open={openCashierReport || openSalesManifest || openSalesAndCashSummary}
                     >
                         {report}
@@ -89,7 +89,7 @@ function SalesReports() {
                                 p={1}
                                 textAlign={'center'}
                                 onClick={() => {
-                                    // setReport(<SalesManifest setOpenSalesManifest={setOpenSalesManifest} />);
+                                    setReport(<SalesManifest setOpenSalesManifest={setOpenSalesManifest} />);
                                     setOpenSalesManifest(true);
                                 }}
                             >
