@@ -18,7 +18,7 @@ const ProformaActionTail = () => {
   return (
     <React.Fragment>
         <Dialog fullWidth scroll={belowLargeScreen ? 'body' : 'paper'} fullScreen={belowLargeScreen}  maxWidth="lg" open={openDialog}>
-            {/* <ProformaForm toggleOpen={setOpenDialog} /> */}
+            <ProformaForm toggleOpen={setOpenDialog} />
         </Dialog>
         <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
             {

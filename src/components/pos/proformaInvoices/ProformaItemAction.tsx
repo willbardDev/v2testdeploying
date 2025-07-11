@@ -45,9 +45,9 @@ const EditProforma: React.FC<EditProformaProps> = ({ proforma, setOpenEditDialog
     return <LinearProgress />;
   }
 
-  // return (
-  //   <ProformaForm toggleOpen={setOpenEditDialog} proforma={proformaDetails} />
-  // );
+  return (
+    <ProformaForm toggleOpen={setOpenEditDialog} proforma={proformaDetails} />
+  );
 };
 
 const SaleProforma: React.FC<SaleProformaProps> = ({ proforma, setOpenSaleDialog }) => {
@@ -60,9 +60,9 @@ const SaleProforma: React.FC<SaleProformaProps> = ({ proforma, setOpenSaleDialog
     return <LinearProgress />;
   }
 
-  // return (
-  //   <ProformaSaleForm toggleOpen={setOpenSaleDialog} proforma={proformaDetails} />
-  // );
+  return (
+    <ProformaSaleForm toggleOpen={setOpenSaleDialog} proforma={proformaDetails} />
+  );
 };
 
 const DocumentDialog: React.FC<DocumentDialogProps> = ({ 

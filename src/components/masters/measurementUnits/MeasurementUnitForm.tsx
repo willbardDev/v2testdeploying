@@ -8,13 +8,7 @@ import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
-
-interface MeasurementUnit {
-  id?: number;
-  name: string;
-  symbol: string;
-  description?: string | null;
-}
+import { MeasurementUnit } from './MeasurementUnitType';
 
 interface MeasurementUnitFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -76,7 +70,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
   });
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       name: measurementUnit?.name || '',
       symbol: measurementUnit?.symbol || '',

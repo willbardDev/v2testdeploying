@@ -9,8 +9,16 @@ interface ProformaListItemProps {
 }
 
 const ProformaListItem: React.FC<ProformaListItemProps> = ({ proforma }) => {
-  const status = new Date() < new Date(proforma.expiry_date) ? "valid" : "expired";
-  const statusColor = new Date() < new Date(proforma.expiry_date) ? "primary" : "warning";
+  const expiryDate = proforma.expiry_date ? new Date(proforma.expiry_date) : null;
+  const currentDate = new Date();
+  
+  const status = expiryDate ? 
+    (currentDate < expiryDate ? "valid" : "expired") : 
+    "N/A";
+  
+  const statusColor = expiryDate ? 
+    (currentDate < expiryDate ? "primary" : "warning") : 
+    "default";
 
   return (
     <React.Fragment>
@@ -42,7 +50,7 @@ const ProformaListItem: React.FC<ProformaListItemProps> = ({ proforma }) => {
         </Grid>
         <Grid size={{ xs: 6, md: 3, lg: 3 }}>
           <Tooltip title='Client'>
-            <Typography>{proforma.stakeholder.name}</Typography>
+            <Typography>{proforma.stakeholder?.name}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 2, lg: 2 }}>
@@ -60,7 +68,7 @@ const ProformaListItem: React.FC<ProformaListItemProps> = ({ proforma }) => {
           </Tooltip>
           <Tooltip title='Amount'>
             <Typography>
-              {(proforma.amount + proforma.vat_amount).toLocaleString("en-US", {
+              {((proforma.amount || 0) + (proforma.vat_amount || 0))?.toLocaleString("en-US", {
                 style: "currency",
                 currency: proforma.currency.code
               })}

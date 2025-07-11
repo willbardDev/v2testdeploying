@@ -1,8 +1,26 @@
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import React, { useContext, useState, ReactNode } from 'react';
+
+interface Store {
+  id: number;
+  name: string;
+}
+
+interface Counter {
+  id: number;
+  name: string;
+  ledgers: Array<{
+    id: number;
+    name: string;
+  }>;
+}
 
 export interface OutletType {
   id: number;
   name: string;
+  stores: Store[];
+  counters: Counter[];
+  cost_center: CostCenter;
 }
 
 interface OutletContextType {
