@@ -1,22 +1,17 @@
-const { default: axios } = require("app/services/config");
+import axios from "@/lib/services/config";
 
 
 const priceListServices = {};
 
-priceListServices.getList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("price_list", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams  
-        }
-    });
-    return data;
+priceListServices.getList = async (params) => {
+  const response = await axios.get('/api/pos/priceLists', {
+    params,
+  });
+  return response.data;
 };
 
 priceListServices.getCostInsights = async(params) => {
-    const {data} = await axios.get(`/products/${params.product_id}/average-cost`,{
+    const {data} = await axios.get(`/api/pos/priceLists/${params.product_id}/getCostInsights`,{
         params
     });
     return data;
@@ -24,27 +19,27 @@ priceListServices.getCostInsights = async(params) => {
 
 priceListServices.add = async(priceList) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`price_list`,priceList);
+         const {data} = await axios.post(`/api/pos/priceLists/add`,priceList);
          return data;
      })
 }
 
 priceListServices.update = async(priceList) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`price_list/${priceList.id}`,priceList)
+        const {data} = await axios.put(`/api/pos/priceLists/${priceList.id}/update`,priceList)
         return data;
     })
 }
 
 priceListServices.delete = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`price_list/${id}`);
+        const {data} = await axios.delete(`/api/pos/priceLists/${id}/delete`);
         return data;
     })
 };
 
 priceListServices.show = async (id) => {
-    const {data} = await axios.get(`/price_list/${id}`);
+    const {data} = await axios.get(`/api/pos/priceLists/${id}/show`);
     return data;
 }
 
@@ -63,7 +58,7 @@ priceListServices.importPriceListsExcel = async (postData) => {
             }
         });
 
-        const { data } = await axios.post(`pricelist-excel-upload`, formData, {
+        const { data } = await axios.post(`/api/pos/priceLists/importPriceListsExcel`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -74,7 +69,7 @@ priceListServices.importPriceListsExcel = async (postData) => {
 };
 
 priceListServices.downloadExcelTemplate = async (stores) => {
-    const { data } = await axios.post(`/pricelist-excel-template`, stores, {
+    const { data } = await axios.post(`/api/pos/priceLists/downloadExcelTemplate`, stores, {
       responseType: 'blob',
     });      
     return data;

@@ -4,34 +4,7 @@ import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
-import { CostCenter } from "@/components/masters/costCenters/CostCenterType";
-
-interface Counter {
-  id: number;
-  name: string;
-  description: string | null;
-  ledgers: Array<{
-    id: number;
-    name: string;
-    alias: string | null;
-    ledger_group_id: number;
-  }>;
-}
-
-interface Store {
-  id: number;
-  name: string;
-}
-
-interface Outlet {
-  id: number;
-  name: string;
-  address: string | null;
-  status: string;
-  cost_center: CostCenter;
-  counters: Counter[];
-  stores: Store[];
-}
+import { Outlet } from "./OutletType";
 
 interface OutletSelectorProps {
   onChange: (newValue: Outlet | Outlet[] | null) => void;
@@ -66,7 +39,7 @@ const OutletSelector = (props: OutletSelectorProps) => {
       counters: outlet.counters,
       stores: outlet.stores
     })),
-    enabled: !!authUser?.user?.id // Only fetch when userId is available
+    enabled: !!authUser?.user?.id
   });
 
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(
@@ -104,27 +77,32 @@ const OutletSelector = (props: OutletSelectorProps) => {
         />
       )}
       renderTags={(tagValue: Outlet[], getTagProps) => {
-        return tagValue?.map((option, index) => (
-          <Chip 
-            {...getTagProps({ index })}
-            key={`${option.id}-${index}`}
-            label={option.name}
-          />
-        ));
+          return tagValue.map((option: Outlet, index: number) => {
+            const { key, ...restProps } = getTagProps({ index });
+            return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
+          });
       }}
-      {...(multiple && {
-        renderOption: (props, option: Outlet, { selected }) => (
-          <li {...props} key={option.id}>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option.name}
-          </li>
-        )
-      })}
+       {...(multiple && { 
+          renderOption: (
+            props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, // extend type to include key optionally
+            option: Outlet,
+            { selected }
+          ) => {
+            const { key, ...otherProps } = props;
+
+            return (
+              <li key={option.id} {...otherProps}>
+                <Checkbox
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                {option.name}
+              </li>
+            );
+          }
+        })}
       onChange={(e, newValue: Outlet | Outlet[] | null) => {
         onChange(newValue);
         setSelectedOutlet(newValue);

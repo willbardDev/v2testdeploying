@@ -49,7 +49,7 @@ import { MeasurementUnit } from '@/components/masters/measurementUnits/Measureme
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
-import { AuthObject, AuthOrganization, AuthUser } from '@/types/auth-types';
+import { AuthObject } from '@/types/auth-types';
 
 interface SaleItem {
   id: number;
@@ -844,38 +844,40 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }}>
-                <Autocomplete
-                  size="small"
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  options={counters}
-                  multiple={true}
-                  disableCloseOnSelect={true}
-                  getOptionLabel={(option) => option.name}
-                  value={selectedCounter}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Counter" />
-                  )}
-                  renderTags={(tagValue, getTagProps) => {
-                    return tagValue.map((option, index) => (
-                      <Chip {...getTagProps({ index })} key={option.id} label={option.name} />
-                    ))
-                  }}
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props} key={option.id}>
-                      <Checkbox
-                        icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                        checkedIcon={<CheckBoxIcon fontSize="small" />}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      {option.name}
-                    </li>
-                  )}
-                  onChange={(event, newValue) => {
-                    setValue('counter_ids', newValue ? newValue.map(counter => counter.id) : null);
-                    setSelectedCounter(newValue);
-                  }}
-                />
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <Autocomplete
+                    size="small"
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    options={counters}
+                    multiple={true}
+                    disableCloseOnSelect={true}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedCounter}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Counter" />
+                    )}
+                    renderTags={(tagValue, getTagProps) => {
+                      return tagValue.map((option, index) => (
+                        <Chip {...getTagProps({ index })} key={option.id} label={option.name} />
+                      ))
+                    }}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props} key={option.id}>
+                        <Checkbox
+                          icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                          checkedIcon={<CheckBoxIcon fontSize="small" />}
+                          style={{ marginRight: 8 }}
+                          checked={selected}
+                        />
+                        {option.name}
+                      </li>
+                    )}
+                    onChange={(event, newValue) => {
+                      setValue('counter_ids', newValue ? newValue.map(counter => counter.id) : null);
+                      setSelectedCounter(newValue);
+                    }}
+                  />
+                </Div>
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }}>
@@ -891,34 +893,38 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }}>
-                <UsersSelector
-                  label='Recorded By'
-                  multiple={true}
-                  onChange={(newValue: any) => {
-                    setValue('user_ids', newValue.map((user: any) => user.id));
-                    setValue('user_names', newValue.map((user: any) => user.name));
-                  }}      
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <UsersSelector
+                    label='Recorded By'
+                    multiple={true}
+                    onChange={(newValue: any) => {
+                      setValue('user_ids', newValue.map((user: any) => user.id));
+                      setValue('user_names', newValue.map((user: any) => user.name));
+                    }}      
                 />
+                </Div>
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }}>
-                <Autocomplete
-                  options={salesPersons || []}
-                  multiple
-                  isOptionEqualToValue={(option, value) => option === value}
-                  getOptionLabel={(option) => option}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Sales Person" size="small" fullWidth />
-                  )}
-                  renderTags={(tagValue, getTagProps) => {
-                    return tagValue.map((option, index) => (
-                      <Chip {...getTagProps({ index })} key={option} label={option} />
-                    ))
-                  }}
-                  onChange={(e, newValue) => {
-                    setValue('sales_people', newValue);
-                  }}
-                />
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <Autocomplete
+                    options={salesPersons || []}
+                    multiple
+                    isOptionEqualToValue={(option, value) => option === value}
+                    getOptionLabel={(option) => option}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Sales Person" size="small" fullWidth />
+                    )}
+                    renderTags={(tagValue, getTagProps) => {
+                      return tagValue.map((option, index) => (
+                        <Chip {...getTagProps({ index })} key={option} label={option} />
+                      ))
+                    }}
+                    onChange={(e, newValue) => {
+                      setValue('sales_people', newValue);
+                    }}
+                  />
+                </Div>
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }}>
@@ -1033,7 +1039,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
             <PDFContent
               document={
                 <SalesManifestPDF 
-                  authObject={authObject as AuthObject} 
+                  authObject={authObject as any} 
                   reportData={reportData} 
                   title={downloadFileName} 
                   userNames={updatedUsers} 
