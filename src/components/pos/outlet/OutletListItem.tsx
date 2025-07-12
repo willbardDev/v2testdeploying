@@ -67,18 +67,24 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
         >
         {/* Name + Type */}
           <Grid size={{ xs: 12, md: 3 }}>
+            <Tooltip title={outlet.name}>
             <Typography variant="subtitle1" noWrap>
               {outlet.name}
             </Typography>
+            </Tooltip>
+            <Tooltip title={outlet.type}>
             <Typography variant="caption" color="text.secondary" noWrap>
               {outlet.type}
             </Typography>
+            </Tooltip>
           </Grid>
            {/* Address */}
             <Grid size={{ xs: 12, md: 3 }}>
+              <Tooltip title={outlet.address}>
               <Typography variant="body2" noWrap>
                 {outlet.address}
               </Typography>
+              </Tooltip>
             </Grid>
                 {/* Stores */}
               <Grid size={{ xs: 8, md: 3, }}>
@@ -89,12 +95,15 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
                   flexWrap="wrap"
                   useFlexGap
                 >
+                  
                   {outlet.stores?.map((store) => (
+                    <Tooltip key={store.id} title={store.name}>
                     <StyledBadgeChip
                       key={store.id}
                       label={store.name}
                       size="small"
                     />
+                  </Tooltip>
                   ))}
                 </Stack>
               </Grid>

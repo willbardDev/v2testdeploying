@@ -36,7 +36,7 @@ import Users from '@/components/Organizations/profile/users/Users';
       name: string;
       address?: string;
       type: string;
-      users: { id: number; name: string }[]; // ✅ updated
+      users: { id: number; name: string }[]; 
       stores: { name: string; id: number }[];
       counters: {
         name: string;
@@ -184,7 +184,7 @@ import Users from '@/components/Organizations/profile/users/Users';
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }}>
-          Outlet Form
+        New Outlet Form
         </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={1}>
