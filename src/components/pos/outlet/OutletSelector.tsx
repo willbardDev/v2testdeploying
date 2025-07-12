@@ -16,7 +16,7 @@ interface OutletSelectorProps {
   } | null;
 }
 
-const OutletSelector = (props: OutletSelectorProps) => {
+  const OutletSelector = (props: OutletSelectorProps) => {
   const {
     onChange,
     multiple = false,
@@ -103,7 +103,7 @@ const OutletSelector = (props: OutletSelectorProps) => {
             );
           }
         })}
-      onChange={(e, newValue: Outlet | Outlet[] | null) => {
+        onChange={(e, newValue: Outlet | Outlet[] | null) => {
         onChange(newValue);
         setSelectedOutlet(newValue);
       }}

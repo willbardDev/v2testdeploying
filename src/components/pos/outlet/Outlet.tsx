@@ -3,24 +3,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Stack, Typography } from '@mui/material';
 import { useParams } from 'next/navigation';
-
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-
 import OutletListItem from './OutletListItem';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
-
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
 import outletServices from './OutletServices';
-
 
 const Outlet = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();

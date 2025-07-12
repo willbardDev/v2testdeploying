@@ -16,37 +16,32 @@ import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import Badge from '@mui/material/Badge';
 
 
-    interface OutletItemProps {
-      outlet: Outlet;
-    }
-
-      // ✅ Custom styled badge
-      const StyledCountBadge = styled(Badge)(({ theme }) => ({
-        '& .MuiBadge-badge': {
-          right: -6,
-          top: 0,
-          border: `2px solid ${theme.palette.background.paper}`,
-          padding: '0 4px',
-          fontSize: '0.75rem',
-          backgroundColor: theme.palette.primary.main,
-          color: '#fff',
-          fontWeight: 600,
-          borderRadius: '50%',
-          height: 18,
-          minWidth: 18,
-        },
-      }));
-
-      const StyledBadgeChip = styled(Chip)(({ theme }) => ({
-        borderRadius: 12,
-        fontSize: 12,
-        fontWeight: 500,
-        backgroundColor: theme.palette.grey[100],
-        border: `1px solid ${theme.palette.divider}`,
-        color: theme.palette.text.primary,
-      }));
-
-
+interface OutletItemProps {
+  outlet: Outlet;
+}
+const StyledCountBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    right: -6,
+    top: 0,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+    fontSize: '0.75rem',
+    backgroundColor: theme.palette.primary.main,
+    color: '#fff',
+    fontWeight: 600,
+    borderRadius: '50%',
+    height: 18,
+    minWidth: 18,
+  },
+}));
+const StyledBadgeChip = styled(Chip)(({ theme }) => ({
+  borderRadius: 12,
+  fontSize: 12,
+  fontWeight: 500,
+  backgroundColor: theme.palette.grey[100],
+  border: `1px solid ${theme.palette.divider}`,
+  color: theme.palette.text.primary,
+}));
 const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
   return (
     <>
@@ -67,16 +62,16 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
         >
         {/* Name + Type */}
           <Grid size={{ xs: 12, md: 3 }}>
-            <Tooltip title={outlet.name}>
-            <Typography variant="subtitle1" noWrap>
+          <Tooltip title={outlet.name}>
+          <Typography variant="subtitle1" noWrap>
               {outlet.name}
-            </Typography>
-            </Tooltip>
+          </Typography>
+          </Tooltip>
             <Tooltip title={outlet.type}>
             <Typography variant="caption" color="text.secondary" noWrap>
-              {outlet.type}
-            </Typography>
-            </Tooltip>
+               {outlet.type}
+           </Typography>
+           </Tooltip>
           </Grid>
            {/* Address */}
             <Grid size={{ xs: 12, md: 3 }}>
@@ -95,7 +90,6 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
                   flexWrap="wrap"
                   useFlexGap
                 >
-                  
                   {outlet.stores?.map((store) => (
                     <Tooltip key={store.id} title={store.name}>
                     <StyledBadgeChip
@@ -103,11 +97,10 @@ const OutletListItem: React.FC<OutletItemProps> = ({ outlet }) => {
                       label={store.name}
                       size="small"
                     />
-                  </Tooltip>
+                    </Tooltip>
                   ))}
                 </Stack>
               </Grid>
-
                   <Grid size={{ xs: 4, md: 2 }} container justifyContent="flex-end">
                     <Grid>
                       <Tooltip title={`Counters: ${outlet.counters?.length ?? 0}`}>

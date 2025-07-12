@@ -27,78 +27,72 @@ import outletServices from './OutletServices';
 import { User } from '@/types/auth-types';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 
-  interface OutletFormProps {
-  outlet?: Outlet;
-  setOpenDialog: (open: boolean) => void;
-  dialogTitle?: string;
-}
-
-
-  interface FormData {
-    id?: number;
-    name: string;
-    address?: string;
-    type: string;
-    users: User
-    stores: { name: string; id: number }[];
-    counters: {
-      name: string;
-      ledger_ids: number[];
-      ledgers?: Ledger[]
-    }[];
+    interface OutletFormProps {
+    outlet?: Outlet;
+    setOpenDialog: (open: boolean) => void;
   }
+    interface FormData {
+      id?: number;
+      name: string;
+      address?: string;
+      type: string;
+      users: User
+      stores: { name: string; id: number }[];
+      counters: {
+        name: string;
+        ledger_ids: number[];
+        ledgers?: Ledger[]
+      }[];
+    }
+    const OUTLET_TYPES = [
+      { value: 'work center', name: 'Work Center' },
+      { value: 'shop', name: 'Shop' },
+      { value: 'fuel Station', name: 'Fuel Station' },
+      { value: 'manufacturing', name: 'Manufacturing' },
+    ];
+    const validationSchema = yup.object({
+      name: yup.string().required('Outlet name is required'),
+      address: yup.string().optional(),
+      type: yup.string().required('Outlet type is required'),
+      users: yup
+        .array()
+        .of(
+          yup.object({
+            id: yup.number().required(),
+            name: yup.string().required(),
+          })
+        )
+        .min(1, 'At least one user is required')
+        .required('At least one user is required'),
+      stores: yup
+        .array()
+        .of(
+          yup.object({
+            name: yup.string().required(),
+            id: yup.number().required(),
+          })
+        )
+        .min(1, 'At least one store is required')
+        .required('At least one store is required'),
+      counters: yup
+        .array()
+        .of(
+          yup.object({
+            name: yup.string().required('Counter name is required'),
+            ledger_ids: yup
+              .array()
+              .of(yup.number().required())
+              .min(1, 'At least one ledger account is required')
+              .required(),
+          })
+        )
+        .min(1, 'At least one counter is required')
+        .required(),
+    });
 
-  const OUTLET_TYPES = [
-    { value: 'work center', name: 'Work Center' },
-    { value: 'shop', name: 'Shop' },
-    { value: 'fuel Station', name: 'Fuel Station' },
-    { value: 'manufacturing', name: 'Manufacturing' },
-  ];
-
-  const validationSchema = yup.object({
-    name: yup.string().required('Outlet name is required'),
-    address: yup.string().optional(),
-    type: yup.string().required('Outlet type is required'),
-    users: yup
-      .array()
-      .of(
-        yup.object({
-          id: yup.number().required(),
-          name: yup.string().required(),
-        })
-      )
-      .min(1, 'At least one user is required')
-      .required('At least one user is required'),
-    stores: yup
-      .array()
-      .of(
-        yup.object({
-          name: yup.string().required(),
-          id: yup.number().required(),
-        })
-      )
-      .min(1, 'At least one store is required')
-      .required('At least one store is required'),
-    counters: yup
-      .array()
-      .of(
-        yup.object({
-          name: yup.string().required('Counter name is required'),
-          ledger_ids: yup
-            .array()
-            .of(yup.number().required())
-            .min(1, 'At least one ledger account is required')
-            .required(),
-        })
-      )
-      .min(1, 'At least one counter is required')
-      .required(),
-  });
-
-      const OutletFormDialog: React.FC<OutletFormProps> = ({
-      outlet,
-      setOpenDialog,
-      dialogTitle, // 🟡 Destructure it from props
+    const OutletFormDialog: React.FC<OutletFormProps> = ({
+    outlet,
+    setOpenDialog,
     }) => {
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
@@ -115,14 +109,13 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
       address: outlet?.address || '',
       type: outlet?.type?.toLowerCase() || 'shop',
       counters: outlet?.id ? outlet.counters.map((counter: { name: string; ledger_ids: number[]; ledgers?: Ledger[]}) => ({
-        ...counter,
-        ledger_ids: counter.ledgers?.map((ledger: Ledger) => ledger.id)
+      ...counter,
+      ledger_ids: counter.ledgers?.map((ledger: Ledger) => ledger.id)
       })) : [{name:'', ledger_ids: []}],
       users: outlet?.users || [],
       stores: outlet?.stores || [],
     },
     resolver: yupResolver(validationSchema) as any,
-    
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -196,12 +189,9 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-     <DialogTitle sx={{ textAlign: 'center' }}>
-      {dialogTitle ? `Edit ${dialogTitle}` : (!outlet ? 'New Outlet Form' : 'Edit Outlet')}
+    <DialogTitle sx={{ textAlign: 'center' }}>
+      {!outlet ? 'New Outlet Form' : `Edit ${outlet.name}`}
     </DialogTitle>
-
-
-
       <DialogContent>
         <Grid container columnSpacing={1}>
           <Grid size={{xs: 12, md: 6}}>
@@ -347,17 +337,16 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
           </Grid>
         </Grid>
       </DialogContent>
-
       <DialogActions>
         <Button onClick={() => setOpenDialog(false)} size="small">
           Cancel
         </Button>
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          size="small"
-          loading={addLoading || updateLoading}
-        >
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            size="small"
+            loading={addLoading || updateLoading}
+          >
           Submit
         </LoadingButton>
       </DialogActions>

@@ -7,7 +7,6 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
-
 import OutletForm from './OutletFormDialog';
 import { Outlet } from './OutletType';
 import outletServices from './OutletServices';
@@ -21,7 +20,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-const { mutate: deleteOutlet } = useMutation({
+  const { mutate: deleteOutlet } = useMutation({
   mutationFn: (params: { id: number }) => outletServices.delete(params), 
   onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
@@ -73,9 +72,7 @@ const { mutate: deleteOutlet } = useMutation({
        <OutletForm
         outlet={outlet}
         setOpenDialog={setOpenEditDialog}
-        dialogTitle={outlet.name}
       />
-
       </Dialog>
       <JumboDdMenu
         icon={

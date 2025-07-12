@@ -1,21 +1,5 @@
 import OutletSelector from "./OutletSelector";
 
-/** Allowed outlet types */
-export type OutletType = 'shop' | 'work center';
-
-/** Option list for dropdowns/autocomplete (UI components) */
-export const outletTypeOptions: { value: OutletType; name: string }[] = [
-  { value: 'shop', name: 'Shop' },
-  { value: 'work center', name: 'Work Center' },
-];
-
-/** Label map for rendering labels in UI (e.g., Chip, Text) */
-export const outletTypeLabels: Record<OutletType, string> = {
-  shop: 'Shop',
-  'work center': 'Work Center',
-};
-
-/** Store structure used in outlet */
 
 export interface Counter {
   name: string;
@@ -33,7 +17,6 @@ export interface user {
   name: string;
 }
 
-
 export interface Outlet {
   id?: number;
   name: string;
@@ -46,14 +29,14 @@ export interface Outlet {
 
 export interface AddOutletResponse {
   message: string;
-  data?: any; // au structure ya data 
+  data?: any; 
 }
 export interface DeleteOutletResponse {
   message: string;
 }
 export interface UpdateOutletResponse {
   message: string;
-  data?: Outlet; // au structure ya data 
+  data?: Outlet;  
 }
 export interface PaginatedOutletResponse {
   data: Outlet[];

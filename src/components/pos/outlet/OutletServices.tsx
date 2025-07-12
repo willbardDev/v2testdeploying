@@ -7,9 +7,8 @@ import type {
   PaginatedOutletResponse,
 } from './OutletType';
 
-const outletServices: any = {}; // or define exact shape with types if needed
+const outletServices: any = {}; 
 
-// 🔹 Get paginated outlet list
 outletServices.getList = async (params: { keyword?: string; page?: number; limit?: number } = {}): Promise<PaginatedOutletResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
   const { data } = await axios.get('/api/pos/outlet', {
@@ -18,7 +17,6 @@ outletServices.getList = async (params: { keyword?: string; page?: number; limit
   return data;
 };
 
-// 🔹 Get all outlets (for dropdowns etc)
 outletServices.getAllOutlets = async (): Promise<Outlet[]> => {
   const { data } = await axios.get('/api/pos/outlet/all_outlets');
   return data;
@@ -37,9 +35,8 @@ outletServices.update = async(outlet:Outlet) => {
         const {data} = await axios.put(`/api/pos/outlet/${outlet.id}]/update`,outlet)
         return data;
     })
-}
+};
 
-// 🔹 Delete outlet
 outletServices.delete = async (params: { id: any; }): Promise<DeleteOutletResponse> => {
   await axios.get('/sanctum/csrf-cookie');
   const { data } = await axios.delete(`/api/pos/outlet/${params.id}/delete`);
