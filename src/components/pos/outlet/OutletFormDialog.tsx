@@ -93,7 +93,7 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
                   .required(),
               });
 
-             const OutletFormDialog: React.FC<OutletFormProps> = ({
+              const OutletFormDialog: React.FC<OutletFormProps> = ({
                 outlet,
                 setOpenDialog,
               }) => {
