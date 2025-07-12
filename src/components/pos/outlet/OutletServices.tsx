@@ -32,13 +32,12 @@ outletServices.add = async (outlet: Outlet): Promise<AddOutletResponse> => {
 };
 
 
-// 🔹 Update outlet
-outletServices.update = async (outlet: Outlet & { id: number }): Promise<UpdateOutletResponse> => {
-  return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-    const { data } = await axios.put(`/api/pos/outlet/${outlet.id}/update`, outlet);
-    return data;
-  });
-};
+outletServices.update = async(outlet:Outlet) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.put(`/api/pos/outlet/${outlet.id}]/update`,outlet)
+        return data;
+    })
+}
 
 // 🔹 Delete outlet
 outletServices.delete = async (params: { id: any; }): Promise<DeleteOutletResponse> => {

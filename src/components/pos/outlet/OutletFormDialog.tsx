@@ -27,12 +27,15 @@ import outletServices from './OutletServices';
 import { User } from '@/types/auth-types';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 
-  interface OutletFormDialogProps {
-    setOpenDialog: (open: boolean) => void;
-    outlet?: Outlet | null;
-  }
+  interface OutletFormProps {
+  outlet?: Outlet;
+  setOpenDialog: (open: boolean) => void;
+  dialogTitle?: string;
+}
+
 
   interface FormData {
+    id?: number;
     name: string;
     address?: string;
     type: string;
@@ -92,7 +95,11 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
       .required(),
   });
 
-  const OutletFormDialog: React.FC<OutletFormDialogProps> = ({ setOpenDialog, outlet = null }) => {
+      const OutletFormDialog: React.FC<OutletFormProps> = ({
+      outlet,
+      setOpenDialog,
+      dialogTitle, // 🟡 Destructure it from props
+    }) => {
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
 
@@ -103,9 +110,10 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
+      id: outlet?.id || undefined,
       name: outlet ? outlet.name : '',
       address: outlet?.address || '',
-      type: outlet?.type || 'shop',
+      type: outlet?.type?.toLowerCase() || 'shop',
       counters: outlet?.id ? outlet.counters.map((counter: { name: string; ledger_ids: number[]; ledgers?: Ledger[]}) => ({
         ...counter,
         ledger_ids: counter.ledgers?.map((ledger: Ledger) => ledger.id)
@@ -188,9 +196,12 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <DialogTitle sx={{ textAlign: 'center' }}>
-        Outlet Form
-      </DialogTitle>
+     <DialogTitle sx={{ textAlign: 'center' }}>
+      {dialogTitle ? `Edit ${dialogTitle}` : (!outlet ? 'New Outlet Form' : 'Edit Outlet')}
+    </DialogTitle>
+
+
+
       <DialogContent>
         <Grid container columnSpacing={1}>
           <Grid size={{xs: 12, md: 6}}>

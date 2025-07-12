@@ -70,7 +70,12 @@ const { mutate: deleteOutlet } = useMutation({
         maxWidth="md"
         fullScreen={belowLargeScreen}
       >
-        <OutletForm outlet={outlet} setOpenDialog={setOpenEditDialog} />
+       <OutletForm
+        outlet={outlet}
+        setOpenDialog={setOpenEditDialog}
+        dialogTitle={outlet.name}
+      />
+
       </Dialog>
       <JumboDdMenu
         icon={
