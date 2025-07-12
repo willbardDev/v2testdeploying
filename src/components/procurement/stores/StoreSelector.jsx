@@ -6,7 +6,7 @@ import match from "autosuggest-highlight/match";
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 
-function StoreSelector({onChange, frontError = null, multiple = false, label = 'Store', defaultValue = null, allowSubStores = false, excludeStores = null, includeStores = null, proposedOptions = null}) {
+function StoreSelector({onChange, frontError = null, multiple = false, label = 'Store', defaultValue, allowSubStores = false, excludeStores = null, includeStores = null, proposedOptions = null}) {
   //Fetch Stores
   const { data: stores, isLoading: isFetchingStores } = useQuery({
     queryKey: ['storeOptions'],
