@@ -144,7 +144,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
 
   React.useEffect(() => {
     orderTotalAmount();
-  }, [items]);
+  }, [rowAmount]);
 
   useEffect(() => {
     if (addedStakeholder?.id) {

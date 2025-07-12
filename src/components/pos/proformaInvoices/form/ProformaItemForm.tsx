@@ -118,15 +118,15 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
-        product: item && productOptions.find((product: Product) => product.id === (item.product_id ?? item.product?.id)),
-        quantity: item?.quantity ?? 0,
-        rate: item?.rate ?? 0,
-        measurement_unit_id: item
-            ? item.measurement_unit_id ?? item.measurement_unit?.id ?? null
-            : null,
-        unit_symbol: item
-            ? item.measurement_unit?.unit_symbol ?? item.unit_symbol ?? null
-            : null,
+      product: item && productOptions.find((product: Product) => product.id === (item.product_id ?? item.product?.id)),
+      quantity: item?.quantity ?? 0,
+      rate: item?.rate ?? 0,
+      measurement_unit_id: item
+        ? item.measurement_unit_id ?? item.measurement_unit?.id ?? null
+        : null,
+      unit_symbol: item
+        ? item.measurement_unit?.unit_symbol ?? item.unit_symbol ?? null
+        : null,
     },
   });
 
@@ -234,7 +234,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
           id: product.primary_unit.id,
           name: product.primary_unit.name ?? product.primary_unit.unit_symbol,
           unit_symbol: product.primary_unit.unit_symbol,
-          conversion_factor: undefined, // primary_unit lacks conversion_factor
+          conversion_factor: undefined,
         },
       ]
     : []),
@@ -308,7 +308,9 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
                 label="Quantity"
                 fullWidth
                 size="small"
+                defaultValue={item && item.quantity}
                 InputProps={{
+                  inputComponent: CommaSeparatedField,
                   endAdornment: product && selectedUnit && (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <FormControl fullWidth>

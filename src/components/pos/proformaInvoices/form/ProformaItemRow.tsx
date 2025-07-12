@@ -47,15 +47,6 @@ function ProformaItemRow({
   const [showForm, setShowForm] = useState(false);
   const vat_factor = vat_percentage * 0.01;
 
-  const getUnitSymbol = (): string => {
-    return (
-      item?.unit_symbol ??
-      item.measurement_unit?.unit_symbol ??
-      product?.unit_symbol ??
-      ''
-    );
-  };
-
   const calculateLineTotal = (): number => {
     return item.quantity * item.rate * (1 + (product?.vat_exempted ? 0 : vat_factor));
   };
@@ -100,7 +91,7 @@ function ProformaItemRow({
           <Grid size={{ xs: vat_factor ? 4 : 6, md: 2.5, lg: vat_factor ? 1 : 2 }}>
             <Tooltip title="Quantity">
               <Typography textAlign={{ md: 'end' }} variant="body2">
-                {item.quantity} {getUnitSymbol()}
+                {item.quantity.toLocaleString()} {item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item?.product?.unit_symbol)}
               </Typography>
             </Tooltip>
           </Grid>
