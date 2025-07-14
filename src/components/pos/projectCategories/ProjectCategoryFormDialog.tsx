@@ -15,7 +15,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import projectCategoryServices from './ProjectCategoryServices';
-import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
+import { AddCategoryResponse, Category, UpdateCategoryResponse } from './ProjectCategoriesType';
 
 
         interface ProjectCategoryFormProps {
@@ -48,13 +48,13 @@ import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
           } = useForm<FormData>({
             defaultValues: {
               id: category?.id || undefined,
-              name: category?.name || '',
+              name: category? category.name : '',
               description: category?.description || '',
             },
             resolver: yupResolver(validationSchema),
           });
 
-  const { mutate: addCategory, isPending: isAdding } = useMutation({
+  const { mutate: addCategory, isPending: isAdding } = useMutation<AddCategoryResponse, unknown, Category>({
     mutationFn: projectCategoryServices.add,
     onSuccess: (data) => {
       const message = (data as { message: string })?.message ?? 'Success';
@@ -80,12 +80,11 @@ import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
     },
   });
 
-  const { mutate: updateCategory, isPending: isupdateing } = useMutation<UpdateCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
+  const { mutate: updateCategory, isPending: updateLoading } = useMutation<UpdateCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
     mutationFn: projectCategoryServices.update,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
-      queryClient.invalidateQueries({ queryKey: ['projectCategoryOptions'] });
       setOpenDialog(false);
     },
     onError: (error: unknown) => {
@@ -121,9 +120,9 @@ import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
   };
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-      <DialogTitle  sx={{ textAlign: 'center' }} >
-    {!category? 'New Form Category' : 'Edit ${category.id}'}
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <DialogTitle sx={{ textAlign: 'center' }} >
+        {!category ? 'New Form Category' : `Edit ${category.name}`}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={1}>
@@ -159,7 +158,7 @@ import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
             size="small"
             loading={isAdding} 
             >
-            Save
+            CREATE
         </LoadingButton>
       </DialogActions>
     </form>

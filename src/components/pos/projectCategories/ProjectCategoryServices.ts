@@ -18,12 +18,11 @@ projectCategoryServices.getList = async (
   return data;
 };
 
-projectCategoryServices.add = async (
-    category: { name: string; description?: string }
-): Promise<AddCategoryResponse> => {
-  await axios.get('/sanctum/csrf-cookie');
+projectCategoryServices.add = async (category: { name: string; description?: string }) => {
+  await axios.get('/sanctum/csrf-cookie').then(async (response) => {
   const { data } = await axios.post('/api/pos/projectCategories', category);
   return data;
+  });
 };
 
 projectCategoryServices.update = async (
