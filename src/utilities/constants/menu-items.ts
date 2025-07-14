@@ -36,7 +36,6 @@ export async function getMenus(locale: string) {
         {
           path: `/${locale}/approval-chains`,
           label: sidebar.menuItem.approvalChains,
-          icon: 'approvals',
         }
       ],
     },
@@ -75,6 +74,16 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.projectManagement,
+      children: [
+        {
+          path: `/${locale}/projectManagement/projectCategories`,
+          label: sidebar.menuItem.projectCategories,
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.accounts_and_finance,
       children: [
         {
@@ -90,17 +99,14 @@ export async function getMenus(locale: string) {
         {
           path: `/${locale}/accounts/ledger_groups`,
           label: sidebar.menuItem.ledgerGroups,
-          icon: 'counter',
         },
         {
           path: `/${locale}/accounts/ledgers`,
           label: sidebar.menuItem.ledgers,
-          icon: 'proforma',
         },
         {
           path: `/${locale}/cost_centers`,
           label: sidebar.menuItem.costCenters,
-          icon: 'barcharts',
         },
       ],
     },
@@ -124,12 +130,12 @@ export async function getMenus(locale: string) {
           icon: 'barcharts',
         },
         {
-          path: `/${locale}/procurement/products`,
-          label: sidebar.menuItem.products,
-        },
-        {
           path: `/${locale}/procurement/product_categories`,
           label: sidebar.menuItem.product_categories,
+        },
+        {
+          path: `/${locale}/procurement/products`,
+          label: sidebar.menuItem.products,
         },
         {
           path: `/${locale}/procurement/stores`,
