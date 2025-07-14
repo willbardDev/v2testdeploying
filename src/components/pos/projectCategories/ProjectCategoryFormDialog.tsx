@@ -15,11 +15,11 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import projectCategoryServices from './ProjectCategoryServices';
-import { projectCategory, UpdateprojectCategoryResponse } from './ProjectCategoriesType';
+import { Category, UpdateCategoryResponse } from './ProjectCategoriesType';
 
 
         interface ProjectCategoryFormProps {
-          category?: projectCategory;
+          category?: Category;
           setOpenDialog: (open: boolean) => void;
         }
 
@@ -80,7 +80,7 @@ import { projectCategory, UpdateprojectCategoryResponse } from './ProjectCategor
     },
   });
 
-  const { mutate: updateCategory, isPending: isupdateing } = useMutation<UpdateprojectCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
+  const { mutate: updateCategory, isPending: isupdateing } = useMutation<UpdateCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
     mutationFn: projectCategoryServices.update,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
@@ -110,7 +110,7 @@ import { projectCategory, UpdateprojectCategoryResponse } from './ProjectCategor
     return category?.id ? updateCategory : addCategory;
   }, [category, updateCategory, addCategory]);
 
-  // ---------- Submit ----------
+
   const onSubmit = (formData: FormData) => {
     const dataToSend = {
       ...formData,
@@ -123,7 +123,7 @@ import { projectCategory, UpdateprojectCategoryResponse } from './ProjectCategor
   return (
     <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
       <DialogTitle  sx={{ textAlign: 'center' }} >
-    {!category? 'New Form Category' :'Edit ${Category.id}'}
+    {!category? 'New Form Category' : 'Edit ${category.id}'}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={1}>

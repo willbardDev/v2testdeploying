@@ -1,4 +1,4 @@
-import { Category, DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
+import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog, Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
@@ -9,9 +9,9 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import ProjectCategoryFormDialog from './ProjectCategoryFormDialog';
 import projectCategoryServices from './ProjectCategoryServices';
-import { projectCategory } from './ProjectCategoriesType';
+import { Category } from './ProjectCategoriesType';
 
-const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: projectCategory }) => {
+const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: Category }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();

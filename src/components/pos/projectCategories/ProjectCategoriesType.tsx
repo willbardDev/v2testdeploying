@@ -1,24 +1,24 @@
 import React from 'react';
 
 
-export type projectCategory = {
+export type Category = {
   id: number;
   name: string;
   description: string;
 }
-export type AddprojectCategoryResponse = {
+export type AddCategoryResponse = {
   message: string;
-  data?: projectCategory;
+  data?: Category;
 }
-export type UpdateprojectCategoryResponse = {
+export type UpdateCategoryResponse = {
   message: string;
-  data?: projectCategory;
+  data?: Category;
 }
-export type DeleteprojectCategoryResponse = {
+export type DeleteCategoryResponse = {
   message: string;
 }
-export type PaginatedprojectCategoryResponse = {
-  data: projectCategory[];
+export type PaginatedCategoryResponse = {
+  data: Category[];
   current_page: number;
   total: number;
   last_page: number;

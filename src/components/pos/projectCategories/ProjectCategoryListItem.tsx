@@ -1,8 +1,7 @@
-import { Category } from '@mui/icons-material';
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import ProjectCategoryListItemAction from './ProjectCategoryListItemActio';
-import { projectCategory } from './ProjectCategoriesType';
+import { Category } from './ProjectCategoriesType';
 
 
 type Props = {
