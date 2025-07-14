@@ -13,6 +13,6 @@ export async function POST(req: NextRequest) {
     headers,
     body: JSON.stringify(body),
   });
-  
+
   return handleJsonResponse(res);
 }

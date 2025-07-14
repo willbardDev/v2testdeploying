@@ -74,7 +74,6 @@ const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: C
         setOpenDialog={setOpenEditDialog}
       />
       </Dialog>
-
       <JumboDdMenu
         icon={
           <Tooltip title="Actions">

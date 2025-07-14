@@ -112,9 +112,9 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
 
   const onSubmit = (formData: FormData) => {
     const dataToSend = {
-      ...formData,
-      ...(category?.id ? { id: category.id } : {}),
-    };
+    ...formData,
+    ...(category?.id ? { id: category.id } : {})
+  };
 
     saveMutation(dataToSend as any);
   };
