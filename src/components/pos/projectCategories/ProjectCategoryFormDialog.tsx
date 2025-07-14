@@ -1,0 +1,169 @@
+import { LoadingButton } from '@mui/lab';
+import {
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  Grid,
+  TextField,
+  Button,
+} from '@mui/material';
+import { useSnackbar } from 'notistack';
+import React, { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import projectCategoryServices from './ProjectCategoryServices';
+import { projectCategory, UpdateprojectCategoryResponse } from './ProjectCategoriesType';
+
+
+        interface ProjectCategoryFormProps {
+          category?: projectCategory;
+          setOpenDialog: (open: boolean) => void;
+        }
+
+        interface FormData {
+          id?: number;
+          name: string;
+          description?: string;
+        }
+
+        const validationSchema = yup.object({
+          name: yup.string().required('Category name is required'),
+          description: yup.string().optional(),
+        });
+
+        const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
+          category,
+          setOpenDialog,
+        }) => {
+        const queryClient = useQueryClient();
+        const { enqueueSnackbar } = useSnackbar();
+
+        const {
+            register,
+            handleSubmit,
+            formState: { errors },
+          } = useForm<FormData>({
+            defaultValues: {
+              id: category?.id || undefined,
+              name: category?.name || '',
+              description: category?.description || '',
+            },
+            resolver: yupResolver(validationSchema),
+          });
+
+  const { mutate: addCategory, isPending: isAdding } = useMutation({
+    mutationFn: projectCategoryServices.add,
+    onSuccess: (data) => {
+      const message = (data as { message: string })?.message ?? 'Success';
+      enqueueSnackbar(message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
+      setOpenDialog(false);
+    },
+    onError: (error: unknown) => {
+      let message = 'Something went wrong';
+
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as any).response?.data?.message === 'string'
+      ) {
+        message = (error as any).response.data.message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+  });
+
+  const { mutate: updateCategory, isPending: isupdateing } = useMutation<UpdateprojectCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
+    mutationFn: projectCategoryServices.update,
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['projectCategoryOptions'] });
+      setOpenDialog(false);
+    },
+    onError: (error: unknown) => {
+      let message = 'Something went wrong';
+
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as any).response?.data?.message === 'string'
+      ) {
+        message = (error as any).response.data.message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+  });
+
+  const saveMutation = useMemo(() => {
+    return category?.id ? updateCategory : addCategory;
+  }, [category, updateCategory, addCategory]);
+
+  // ---------- Submit ----------
+  const onSubmit = (formData: FormData) => {
+    const dataToSend = {
+      ...formData,
+      ...(category?.id ? { id: category.id } : {}),
+    };
+
+    saveMutation(dataToSend as any);
+  };
+
+  return (
+    <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+      <DialogTitle  sx={{ textAlign: 'center' }} >
+    {!category? 'New Form Category' :'Edit ${Category.id}'}
+      </DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} p={1}>
+          <Grid size ={12}>
+            <TextField
+              fullWidth
+              label="Category Name"
+              size="small"
+              error={Boolean(errors.name)}
+              helperText={errors.name?.message}
+              {...register('name')}
+            />
+          </Grid>
+          <Grid size ={12}>
+            <TextField
+              multiline
+              label="Description"
+              fullWidth
+              size="small"
+              rows={3}
+              {...register('description')}
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenDialog(false)} size="small">
+          Cancel
+        </Button>
+        <LoadingButton
+            type="submit"
+            variant="contained"
+            size="small"
+            loading={isAdding} 
+            >
+            Save
+        </LoadingButton>
+      </DialogActions>
+    </form>
+  );
+};
+
+export default ProjectCategoryFormDialog;

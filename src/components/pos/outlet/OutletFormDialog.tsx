@@ -78,15 +78,15 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
                     .min(1, 'At least one store is required')
                     .required('At least one store is required'),
                 counters: yup
-                  .array()
-                  .of(
-                    yup.object({
+                    .array()
+                    .of(
+                     yup.object({
                       name: yup.string().required('Counter name is required'),
                       ledger_ids: yup
-                        .array()
-                        .of(yup.number().required())
-                        .min(1, 'At least one ledger account is required')
-                        .required(),
+                    .array()
+                    .of(yup.number().required())
+                    .min(1, 'At least one ledger account is required')
+                    .required(),
                     })
                   )
                   .min(1, 'At least one counter is required')
@@ -97,9 +97,9 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
                 outlet,
                 setOpenDialog,
               }) => {
-             const queryClient = useQueryClient();
-             const { enqueueSnackbar } = useSnackbar();
-             const {
+              const queryClient = useQueryClient();
+              const { enqueueSnackbar } = useSnackbar();
+              const {
                 register,
                 handleSubmit,
                 control,

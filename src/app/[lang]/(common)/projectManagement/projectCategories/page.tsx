@@ -1,8 +1,9 @@
+import ProjectCategories from '@/components/pos/projectCategories/ProjectCategories'
 import React from 'react'
 
 function page() {
   return (
-    <div>pass project categories here</div>
+  <ProjectCategories/>
   )
 }
 
