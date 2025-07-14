@@ -74,6 +74,16 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.projectManagement,
+      children: [
+        {
+          path: `/${locale}/projectManagement/projectCategories`,
+          label: sidebar.menuItem.projectCategories,
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.accounts_and_finance,
       children: [
         {
