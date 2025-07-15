@@ -24,7 +24,7 @@ import { Attachment } from './AttachmentsType';
 
 type AttachmentFormProps = {
   hideFeatures?: boolean;
-  setAttachDialog: (open: boolean) => void;
+  setAttachDialog?: (open: boolean) => void;
   attachmentable_id: number;
   attachmentable_type: string;
   attachment_name?: string;
@@ -193,7 +193,7 @@ function AttachmentForm({
       {!hideFeatures && (
         <DialogActions>
           <Grid container justifyContent="flex-end">
-            <Button variant="outlined" size="small" onClick={() => setAttachDialog(false)}>
+            <Button variant="outlined" size="small" onClick={() => setAttachDialog?.(false)}>
               Cancel
             </Button>
           </Grid>

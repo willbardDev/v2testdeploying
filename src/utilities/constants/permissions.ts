@@ -153,6 +153,7 @@ export const PERMISSIONS = {
     REQUISITIONS_EDIT: 'Requisitions:Edit',
     REQUISITIONS_POSTDATE: 'Requisitions:PostDate',
     REQUISITIONS_READ: 'Requisitions:Read',
+    REQUISITIONS_APPROVALS_DELETE_ANY: 'RequisitionApprovals:DeleteAny',
   
     ROLES_ADD: 'Roles:Add',
     ROLES_UPDATE: 'Roles:Update',
