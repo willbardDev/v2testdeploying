@@ -20,7 +20,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
 
 
         interface ProjectCategoryFormProps {
-        category?:Category;
+        category:Category;
           setOpenDialog: (open: boolean) => void;
         }
 

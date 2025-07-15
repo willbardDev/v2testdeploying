@@ -2,9 +2,9 @@ import React from 'react';
 
 
 export type Category = {
-  id: number;
+  id?: number;
   name: string;
-  description: string;
+  description?: string;
 }
 export type AddCategoryResponse = {
   message: string;

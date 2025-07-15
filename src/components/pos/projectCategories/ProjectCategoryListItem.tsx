@@ -43,11 +43,7 @@ const ProjectCategoryListItem = ({ projectCategory }: Props) => {
             </Typography>
           </Tooltip>
         </Grid>
-         <ProjectCategoryListItemAction projectCategory={{
-            id: 0,
-            name: '',
-            description: ''
-          }}/>
+         <ProjectCategoryListItemAction projectCategory={projectCategory}/>
       </Grid>
     </>
   );
