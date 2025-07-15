@@ -4,13 +4,13 @@ import ProjectCategoryListItemAction from './ProjectCategoryListItemActio';
 import { Category } from './ProjectCategoriesType';
 
 
-type Props = {
-  projectCategory: {
-    id: number;
-    name: string;
-    description?: string;
-  };
-};
+    type Props = {
+      projectCategory: {
+        id?: number;
+        name: string;
+        description?: string;
+      };
+    };
 
 const ProjectCategoryListItem = ({ projectCategory }: Props) => {
   return (

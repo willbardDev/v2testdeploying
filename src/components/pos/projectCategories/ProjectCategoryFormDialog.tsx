@@ -18,7 +18,6 @@ import projectCategoryServices from './ProjectCategoryServices';
 import { AddCategoryResponse, Category, UpdateCategoryResponse } from './ProjectCategoriesType';
 
 
-
         interface ProjectCategoryFormProps {
         category:Category;
           setOpenDialog: (open: boolean) => void;
@@ -55,70 +54,70 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
             resolver: yupResolver(validationSchema),
           });
 
-  const { mutate: addCategory, isPending: isAdding } = useMutation<AddCategoryResponse, unknown, Category>({
-    mutationFn: projectCategoryServices.add,
-    onSuccess: (data) => {
-      const message = (data as { message: string })?.message ?? 'Success';
-      enqueueSnackbar(message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
-      setOpenDialog(false);
-    },
-    onError: (error: unknown) => {
-      let message = 'Something went wrong';
+        const { mutate: addCategory, isPending: isAdding } = useMutation<AddCategoryResponse, unknown, Category>({
+          mutationFn: projectCategoryServices.add,
+          onSuccess: (data) => {
+            const message = (data as { message: string })?.message ?? 'Success';
+            enqueueSnackbar(message, { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
+            setOpenDialog(false);
+          },
+          onError: (error: unknown) => {
+            let message = 'Something went wrong';
 
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
+            if (
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof (error as any).response?.data?.message === 'string'
+            ) {
+              message = (error as any).response.data.message;
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
 
-      enqueueSnackbar(message, { variant: 'error' });
-    },
-  });
+            enqueueSnackbar(message, { variant: 'error' });
+          },
+        });
 
-  const { mutate: updateCategory, isPending: updateLoading } = useMutation<UpdateCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
-    mutationFn: projectCategoryServices.update,
-    onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
-      setOpenDialog(false);
-    },
-    onError: (error: unknown) => {
-      let message = 'Something went wrong';
+        const { mutate: updateCategory, isPending: updateLoading } = useMutation<UpdateCategoryResponse, unknown, ProjectCategoryFormProps & { id: number }>({
+          mutationFn: projectCategoryServices.update,
+          onSuccess: (data) => {
+            enqueueSnackbar(data.message, { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
+            setOpenDialog(false);
+          },
+          onError: (error: unknown) => {
+            let message = 'Something went wrong';
 
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
+            if (
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof (error as any).response?.data?.message === 'string'
+            ) {
+              message = (error as any).response.data.message;
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
 
-      enqueueSnackbar(message, { variant: 'error' });
-    },
-  });
+            enqueueSnackbar(message, { variant: 'error' });
+          },
+        });
 
-  const saveMutation = useMemo(() => {
-    return category?.id ? updateCategory : addCategory;
-  }, [category, updateCategory, addCategory]);
+        const saveMutation = useMemo(() => {
+          return category?.id ? updateCategory : addCategory;
+        }, [category, updateCategory, addCategory]);
 
 
-  const onSubmit = (formData: FormData) => {
-    const dataToSend = {
-    ...formData,
-    ...(category?.id ? { id: category.id } : {})
-  };
+        const onSubmit = (formData: FormData) => {
+          const dataToSend = {
+          ...formData,
+          ...(category?.id ? { id: category.id } : {})
+        };
 
-    saveMutation(dataToSend as any);
-  };
+          saveMutation(dataToSend as any);
+        };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>

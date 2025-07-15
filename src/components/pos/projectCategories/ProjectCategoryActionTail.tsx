@@ -21,7 +21,11 @@ const ProjectCategoryActionTail = () => {
   return (
     <>
       <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog}>
-        <ProjectCategoryFormDialog setOpenDialog={setOpenDialog}/>
+        <ProjectCategoryFormDialog setOpenDialog={setOpenDialog} category={{
+          id: undefined,
+          name: '',
+          description: undefined
+        }}/>
       </Dialog>
 
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
