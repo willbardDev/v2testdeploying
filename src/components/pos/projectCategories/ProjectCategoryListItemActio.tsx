@@ -21,22 +21,22 @@ const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: C
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const { mutate: deleteProjectCategory } = useMutation({
-    mutationFn: () => projectCategoryServices.delete({ id: projectCategory.id }),
-    onSuccess: (data: { message: string }) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to delete project category',
-        { variant: 'error' }
-      );
-    },
-  });
+  mutationFn: (params: { id: number }) => projectCategoryServices.delete(params),
+  onSuccess: (data: { message: string }) => {
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
+  },
+  onError: (error: any) => {
+    enqueueSnackbar(
+      error?.response?.data?.message || 'Failed to delete project category',
+      { variant: 'error' }
+    );
+  },
+});
 
   const menuItems: MenuItemProps[] = [
     { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-  //  { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
+    { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
@@ -50,7 +50,7 @@ const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: C
           content: 'Are you sure you want to delete this project category?',
           onYes: () => {
             hideDialog();
-            deleteProjectCategory();
+           deleteProjectCategory({ id: projectCategory.id ? projectCategory.id : 0 });
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

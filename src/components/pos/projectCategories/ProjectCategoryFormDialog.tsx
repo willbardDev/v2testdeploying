@@ -18,8 +18,9 @@ import projectCategoryServices from './ProjectCategoryServices';
 import { AddCategoryResponse, Category, UpdateCategoryResponse } from './ProjectCategoriesType';
 
 
+
         interface ProjectCategoryFormProps {
-          category?: Category;
+        category?:Category;
           setOpenDialog: (open: boolean) => void;
         }
 
@@ -156,7 +157,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
             type="submit"
             variant="contained"
             size="small"
-            loading={isAdding} 
+            loading={isAdding || updateLoading} 
             >
             CREATE
         </LoadingButton>
