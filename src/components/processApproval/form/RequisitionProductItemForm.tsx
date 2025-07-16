@@ -4,13 +4,13 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import ProductQuickAdd from '../../productAndServices/products/ProductQuickAdd';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 
 function RequisitionProductItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, product_item = null, index = -1, setRequisition_product_items, requisition_product_items = [], setShowForm = null }) {
     const { productOptions } = useProductsSelect();
@@ -271,7 +271,7 @@ function RequisitionProductItemForm({ setClearFormKey, submitMainForm, submitIte
                                   onChange={(e) => {
                                     const checked = e.target.checked;
                                     setVatChecked(checked);
-                                    setValue('vat_percentage', checked ? authOrganization.organization.settings.vat_percentage : 0, {
+                                    setValue('vat_percentage', checked ? authOrganization?.organization.settings.vat_percentage : 0, {
                                       shouldDirty: true,
                                       shouldValidate: true,
                                     });

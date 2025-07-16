@@ -1,16 +1,14 @@
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import ProjectCategoryListItemAction from './ProjectCategoryListItemAction';
-import { Category } from './ProjectCategoriesType';
 
-
-    type Props = {
-      projectCategory: {
-        id?: number;
-        name: string;
-        description?: string;
-      };
-    };
+type Props = {
+  projectCategory: {
+    id?: number;
+    name: string;
+    description?: string;
+  };
+};
 
 const ProjectCategoryListItem = ({ projectCategory }: Props) => {
   return (

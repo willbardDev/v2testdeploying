@@ -2,10 +2,10 @@ import { DisabledByDefault, EditOutlined, VisibilityOutlined } from '@mui/icons-
 import { Dialog, Divider, Grid, IconButton, LinearProgress, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import RequisitionLedgerItemForm from './RequisitionLedgerItemForm';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import RelatableOrderDetails from '../listItem/tabs/form/RelatableOrderDetails';
-import { useQuery } from 'react-query';
 import purchaseServices from '../../procurement/purchases/purchase-services';
+import { useQuery } from '@tanstack/react-query';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 const FetchRelatableDetails = ({ relatable, toggleOpen }) => {
     const { data: orderDetails, isFetching } = useQuery(['purchaseOrder', { id: relatable?.id }], async () => purchaseServices.orderDetails(relatable?.id));

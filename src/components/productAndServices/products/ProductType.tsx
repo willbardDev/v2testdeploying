@@ -3,6 +3,7 @@ import { MeasurementUnit } from '@/components/masters/measurementUnits/Measureme
 export interface Product {
   id: number;
   name: string;
+  item_name?: string;
   code: string;
   description?: string;
   type?: string;

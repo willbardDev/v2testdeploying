@@ -161,7 +161,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
                     </TableRow>
 
                     {/* Vendors */}
-                    {Array.isArray(item?.vendors) && item.vendors.length > 0 &&(
+                    {Array.isArray(item?.vendors) && item.vendors.length > 0 && (
                       <>
                         <TableRow>
                           <TableCell colSpan={6} sx={{ textAlign: 'center', backgroundColor: mainColor, color: contrastText }}>

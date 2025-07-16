@@ -4,6 +4,7 @@ import { MeasurementUnit } from "../masters/measurementUnits/MeasurementUnitType
 import { CostCenter } from "../masters/costCenters/CostCenterType";
 import { Currency } from "../masters/Currencies/CurrencyType";
 import { Ledger } from "../accounts/ledgers/LedgerType";
+import { Stakeholder } from "../masters/stakeholders/StakeholderType";
 
 interface Role {
   id: number;
@@ -32,6 +33,7 @@ export interface Approval {
   id: number;
   approval_chain_level_id: number;
   items: RequisitionItem[];
+  requisition?: Requisition;
   approval_date: string;
   amount: number;
   has_orders?: boolean;
@@ -52,10 +54,40 @@ export interface ApprovalChain {
   cost_center_id: number;
 }
 
+export interface RelatableTransaction {
+  id: number;
+  relatableNo: string;
+  order_date: string;
+  total_amount: number;
+  currency?: {
+    code: string;
+  };
+  unapproved_amount: number;
+  [key: string]: any;
+}
+
+export interface RequisitionLedgerItem {
+  ledger_id?: number;
+  ledger?: Ledger;
+  quantity?: number;
+  rate?: number;
+  amount?: number;
+  relatable_type?: string;
+  relatable?: RelatableTransaction | null;
+  relatable_id?: number | null;
+  measurement_unit_id?: number;
+  measurement_unit?: MeasurementUnit;
+  unit_symbol?: string;
+  remarks?: string;
+  [key: string]: any;
+}
+
 export interface Vendor {
   id: number;
+  stakeholder_id?: number;
+  stakeholder?: Stakeholder;
+  remarks?: string;
   name: string;
-  remarks: string;
 }
 
 export interface PurchaseItem {

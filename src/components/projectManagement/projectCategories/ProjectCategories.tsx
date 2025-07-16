@@ -5,74 +5,68 @@ import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { Card, Stack, Typography } from '@mui/material';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-
-
 import LedgerSelectProvider from '../../accounts/ledgers/forms/LedgerSelectProvider';
 import { useParams } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-
 import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-import { useQuery } from '@tanstack/react-query';
 import ProjectCategoryListItem from './ProjectCategoryListItem';
 import ProjectCategoryActionTail from './ProjectCategoryActionTail';
 import projectCategoryServices from './project-category-services';
 
+const ProjectCategories = () => {
+    const params = useParams();
+    const listRef = useRef<any>(null);
+    const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
 
-        const ProjectCategories = () => {
-            const params = useParams();
-            const listRef = useRef<any>(null);
-            const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
-            const [mounted, setMounted] = useState(false);
+    const [queryOptions, setQueryOptions] = useState({
+        queryKey: 'projectCategories',
+        queryParams: { id: params.id, keyword: '' },
+        countKey: 'total',
+        dataKey: 'data',
+    });
 
-        const [queryOptions, setQueryOptions] = useState({
-            queryKey: 'projectCategories',
-            queryParams: { id: params.id, keyword: '' },
-            countKey: 'total',
-            dataKey: 'data',
-        });
+    React.useEffect(() => {
+        setQueryOptions((state) => ({
+            ...state,
+            queryParams: { ...state.queryParams, id: params.id },
+        }));
+    }, [params]);
 
-        React.useEffect(() => {
-                setQueryOptions((state) => ({
-                    ...state,
-                    queryParams: { ...state.queryParams, id: params.id },
-                }));
-            }, [params]);
+    const renderProjectCategory = useCallback((projectCategory: { id: number; name: string; description?: string; }) => (
+        <ProjectCategoryListItem projectCategory={projectCategory} />
+    ), []);
 
-        const renderProjectCategory = useCallback((projectCategory: { id: number; name: string; description?: string; }) => (
-            <ProjectCategoryListItem projectCategory={projectCategory} />
-        ), []);
+    const handleOnChange = useCallback((keyword: any) => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: {
+                ...state.queryParams,
+                keyword: keyword,
+            },
+        }));
+    }, []);
 
-        const handleOnChange = useCallback((keyword: any) => {
-            setQueryOptions(state => ({
-                ...state,
-                queryParams: {
-                    ...state.queryParams,
-                    keyword: keyword,
-                },
-            }));
-        }, []);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-        useEffect(() => {
-            setMounted(true);
-        }, []);
+    if (!mounted) return null;
 
-        if (!mounted) return null;
+    if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
+        return <UnsubscribedAccess modules={'Project Management'} />;
+    }
 
-        if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
-            return <UnsubscribedAccess modules={'Project Management'} />;
-        }
-
-        if (!checkOrganizationPermission([
-            PERMISSIONS.PROJECT_CATEGORIES_CREATE,
-            PERMISSIONS.PROJECT_CATEGORIES_READ,
-            PERMISSIONS.PROJECT_CATEGORIES_EDIT,
-        ])) {
-            return <UnauthorizedAccess />;
-        }
-
+    if (!checkOrganizationPermission([
+        PERMISSIONS.PROJECT_CATEGORIES_CREATE,
+        PERMISSIONS.PROJECT_CATEGORIES_READ,
+        PERMISSIONS.PROJECT_CATEGORIES_EDIT,
+    ])) {
+        return <UnauthorizedAccess />;
+    }
 
     return (
         <React.Fragment>
@@ -109,7 +103,7 @@ import projectCategoryServices from './project-category-services';
                     }
                 />
             </LedgerSelectProvider>
-            </React.Fragment>
+        </React.Fragment>
     );
 };
 

@@ -1,19 +1,14 @@
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, TextField, Tooltip } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
-import Div from '@jumbo/shared/Div/Div';
 import { LoadingButton } from '@mui/lab';
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
-import { PROCESS_TYPES } from 'app/utils/constants/processTypes';
 import RequisitionLedgerItemForm from './RequisitionLedgerItemForm';
 import RequisitionLedgerItemRow from './RequisitionLedgerItemRow';
 import RequisitionProductItemForm from './RequisitionProductItemForm';
 import RequisitionProductItemRow from './RequisitionProductItemRow';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import requisitionsServices from '../requisitionsServices';
 import { useCurrencySelect } from '../../masters/Currencies/CurrencySelectProvider';
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
@@ -23,8 +18,13 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { requisitionContext } from '../Requisitions';
 import { HighlightOff } from '@mui/icons-material';
 import RequisitionSummary from './RequisitionSummary';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import Currencies from '@/components/masters/Currencies/Currencies';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { PROCESS_TYPES } from '@/utilities/constants/processTypes';
+import { Div } from '@jumbo/shared';
 
 function RequisitionsForm({ toggleOpen, requisition }) {
   const [requisition_date] = useState(requisition ? dayjs(requisition.requisition_date) : dayjs());
@@ -73,7 +73,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
       remarks: requisition?.remarks,
       product_items: requisition?.approval_chain.process_type?.toUpperCase() === 'PURCHASE' ? requisition?.items : null,
       ledger_items: requisition?.approval_chain.process_type?.toUpperCase() === 'PAYMENT' ? requisition?.items : null,
-      currencyDetails: requisition ? requisition.currency : currencies.find(c => c.is_base === 1),
+      currencyDetails: requisition ? requisition.currency : Currencies.find(c => c.is_base === 1),
     }
   });
 
@@ -363,7 +363,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
           Cancel
         </Button>
         <LoadingButton
-          loading={addRequisition.isLoading || updateRequisition.isLoading}
+          loading={addRequisition.isPending || updateRequisition.isPending}
           size='small'
           variant='contained'
           type='submit'
@@ -375,7 +375,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
           Suspend
         </LoadingButton>
         <LoadingButton
-          loading={addRequisition.isLoading || updateRequisition.isLoading}
+          loading={addRequisition.isPending || updateRequisition.isPending}
           variant='contained' 
           color='success'
           type='submit'

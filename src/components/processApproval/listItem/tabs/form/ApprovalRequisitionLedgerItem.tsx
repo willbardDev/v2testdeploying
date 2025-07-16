@@ -31,9 +31,9 @@ interface FetchRelatableDetailsProps {
 interface ApprovalRequisitionLedgerItemProps {
     approval?: Approval;
     requisition: Requisition;
-    errors: Record<number, { quantity?: { message: string }; rate?: { message: string } }>;
+    errors: any
     requisitionLedgerItem: RequisitionItem[];
-    handleItemChange: (index: number, field: string, value: any) => void;
+    handleItemChange: any
     setRequisitionLedgerItem: (items: RequisitionItem[]) => void;
 }
 

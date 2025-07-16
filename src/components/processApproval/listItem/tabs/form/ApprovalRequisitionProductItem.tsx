@@ -12,11 +12,8 @@ import { Approval, Requisition, RequisitionItem } from '@/components/processAppr
 interface ApprovalRequisitionProductItemProps {
     approval?: Approval;
     requisition: Requisition;
-    errors: Record<number, { 
-        quantity?: { message: string }; 
-        rate?: { message: string } 
-    }>;
-    handleItemChange: (index: number, field: string, value: any) => void;
+    errors: any
+    handleItemChange: any
     requisitionProductItem: RequisitionItem[];
     setRequisitionProductItem: (items: RequisitionItem[]) => void;
 }
