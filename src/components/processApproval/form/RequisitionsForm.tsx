@@ -1,8 +1,8 @@
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, TextField, Tooltip } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import { LoadingButton } from '@mui/lab';
-import * as yup  from "yup";
-import {yupResolver} from '@hookform/resolvers/yup'
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import RequisitionLedgerItemForm from './RequisitionLedgerItemForm';
@@ -10,7 +10,6 @@ import RequisitionLedgerItemRow from './RequisitionLedgerItemRow';
 import RequisitionProductItemForm from './RequisitionProductItemForm';
 import RequisitionProductItemRow from './RequisitionProductItemRow';
 import requisitionsServices from '../requisitionsServices';
-import { useCurrencySelect } from '../../masters/Currencies/CurrencySelectProvider';
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
 import CurrencySelector from '../../masters/Currencies/CurrencySelector';
 import dayjs from 'dayjs';
@@ -20,40 +19,76 @@ import { HighlightOff } from '@mui/icons-material';
 import RequisitionSummary from './RequisitionSummary';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import Currencies from '@/components/masters/Currencies/Currencies';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { PROCESS_TYPES } from '@/utilities/constants/processTypes';
 import { Div } from '@jumbo/shared';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 
-function RequisitionsForm({ toggleOpen, requisition }) {
+interface RequisitionItem {
+  id?: number;
+  ledger_id?: number;
+  measurement_unit_id?: number;
+  product_id?: number;
+  rate?: number;
+  quantity?: number;
+  vat_percentage?: number;
+  ledger?: any;
+  measurement_unit?: any;
+  product?: any;
+}
+
+interface Requisition {
+  id?: number;
+  requisition_date?: string;
+  approval_chain?: {
+    process_type?: string;
+  };
+  currency?: any;
+  cost_center?: any;
+  exchange_rate?: number;
+  remarks?: string;
+  items?: RequisitionItem[];
+}
+
+interface RequisitionsFormProps {
+  toggleOpen: (open: boolean) => void;
+  requisition?: Requisition;
+}
+
+function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
   const [requisition_date] = useState(requisition ? dayjs(requisition.requisition_date) : dayjs());
   const { setIsEditAction } = useContext(requisitionContext);
-  const { currencies } = useCurrencySelect();
-  const {enqueueSnackbar} =  useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { currencies } = useCurrencySelect();
   const [totalAmount, setTotalAmount] = useState(0);
   const [vatableAmount, setVatableAmount] = useState(0);
-  const {authOrganization,checkOrganizationPermission} = useJumboAuth();
+  const { authOrganization, checkOrganizationPermission } = useJumboAuth();
 
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
 
-  const [requisition_ledger_items, setRequisition_ledger_items] = useState(requisition?.approval_chain.process_type?.toUpperCase() === 'PAYMENT' ? 
-    requisition?.items.map(item => ({
-      ...item,
-      ledger_id: item.ledger.id,
-      measurement_unit_id: item.measurement_unit.id
-    })) : []);
+  const [requisition_ledger_items, setRequisition_ledger_items] = useState<RequisitionItem[]>(
+    requisition?.approval_chain?.process_type?.toUpperCase() === 'PAYMENT' ?
+      requisition?.items?.map(item => ({
+        ...item,
+        ledger_id: item.ledger?.id,
+        measurement_unit_id: item.measurement_unit?.id
+      })) || [] : []
+  );
 
-  const [requisition_product_items, setRequisition_product_items] = useState(requisition?.approval_chain.process_type?.toUpperCase() === 'PURCHASE' ? 
-    requisition?.items.map(item => ({
-      ...item,
-      product_id: item.product.id,
-      measurement_unit_id: item.measurement_unit.id,
-  })) : []);
+  const [requisition_product_items, setRequisition_product_items] = useState<RequisitionItem[]>(
+    requisition?.approval_chain?.process_type?.toUpperCase() === 'PURCHASE' ?
+      requisition?.items?.map(item => ({
+        ...item,
+        product_id: item.product?.id,
+        measurement_unit_id: item.measurement_unit?.id,
+      })) || [] : []
+  );
 
   const validationSchema = yup.object({
     requisition_date: yup.string().required('Requisition Date is required').typeError('Requisition Date is required'),
@@ -61,84 +96,93 @@ function RequisitionsForm({ toggleOpen, requisition }) {
     cost_center_id: yup.number().min(-1, 'Cost center is required').required('Cost center is required').typeError('Cost center is required'),
   });
 
-  const { handleSubmit, setValue, watch, register, clearErrors, formState : {errors}} = useForm({
-    resolver: yupResolver(validationSchema),
+  const { 
+    handleSubmit, 
+    setValue, 
+    watch, 
+    register, 
+    clearErrors, 
+    formState: { errors } 
+  } = useForm({
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       id: requisition?.id,
-      requisition_date : requisition_date.toISOString(),
-      process_type: requisition?.approval_chain.process_type,
-      currency_id: requisition ? requisition?.currency.id : 1,
+      requisition_date: requisition_date.toISOString(),
+      process_type: requisition?.approval_chain?.process_type,
+      currency_id: requisition ? requisition?.currency?.id : 1,
       cost_center_id: requisition?.cost_center?.id,
       exchange_rate: requisition ? requisition?.exchange_rate : 1,
       remarks: requisition?.remarks,
-      product_items: requisition?.approval_chain.process_type?.toUpperCase() === 'PURCHASE' ? requisition?.items : null,
-      ledger_items: requisition?.approval_chain.process_type?.toUpperCase() === 'PAYMENT' ? requisition?.items : null,
-      currencyDetails: requisition ? requisition.currency : Currencies.find(c => c.is_base === 1),
+      product_items: requisition?.approval_chain?.process_type?.toUpperCase() === 'PURCHASE' ? requisition?.items : null,
+      ledger_items: requisition?.approval_chain?.process_type?.toUpperCase() === 'PAYMENT' ? requisition?.items : null,
+      currencyDetails: requisition ? requisition.currency : currencies?.find(c => c.is_base === 1),
     }
   });
 
-  const addRequisition = useMutation(requisitionsServices.addRequisitions,{
-    onSuccess: (data) => {
+  const addRequisition = useMutation({
+    mutationFn: requisitionsServices.addRequisitions,
+    onSuccess: (data: { message: string }) => {
       toggleOpen(false);
       setIsEditAction(false);
-      enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['requisitions']);
-      queryClient.invalidateQueries(['requisitionDetails']);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      queryClient.invalidateQueries({ queryKey: ['requisitionDetails'] });
     },
-    onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
+    onError: (error: any) => {
+      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
     }
-  })
+  });
 
-  const updateRequisition = useMutation(requisitionsServices.updateRequisition,{
-    onSuccess: (data) => {
+  const updateRequisition = useMutation({
+    mutationFn: requisitionsServices.updateRequisition,
+    onSuccess: (data: { message: string }) => {
       toggleOpen(false);
       setIsEditAction(false);
-      enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['requisitions']);
-      queryClient.invalidateQueries(['requisitionDetails']);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      queryClient.invalidateQueries({ queryKey: ['requisitionDetails'] });
     },
-    onError: (error) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
+    onError: (error: any) => {
+      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
     }
-  })
+  });
 
-  const selectedProcessType = watch(`process_type`);
-  const currencyDetails = watch(`currencyDetails`);
+  const selectedProcessType = watch('process_type');
+  const currencyDetails = watch('currencyDetails');
 
   const saveMutation = React.useMemo(() => {
-    return requisition ? updateRequisition : addRequisition
-  },[requisition, addRequisition, updateRequisition]);
+    return requisition ? updateRequisition : addRequisition;
+  }, [requisition, addRequisition, updateRequisition]);
 
   useEffect(() => {
     let total = 0;
     let vatableAmount = 0;
 
     (selectedProcessType === 'PURCHASE' ? requisition_product_items : requisition_ledger_items).forEach((item) => {
-      total += sanitizedNumber(item.rate)*sanitizedNumber(item.quantity)
+      total += sanitizedNumber(item.rate) * sanitizedNumber(item.quantity);
     });
 
     if (selectedProcessType === 'PURCHASE') {
-      setValue(`product_items`, requisition_product_items);
+      setValue('product_items', requisition_product_items);
       requisition_product_items.forEach((item) => {
-        vatableAmount += (item.quantity*item.rate*item.vat_percentage*0.01)
+        vatableAmount += (item.quantity * item.rate * (item.vat_percentage || 0) * 0.01);
       });
       setVatableAmount(vatableAmount);
       setTotalAmount(total || 0);
     } else if (selectedProcessType === 'PAYMENT') {
-      setValue(`ledger_items`, requisition_ledger_items);
+      setValue('ledger_items', requisition_ledger_items);
       setTotalAmount(total || 0);
     } else {
       setTotalAmount(0);
       setVatableAmount(0);
     }
-  }, [selectedProcessType, requisition, requisition_ledger_items, requisition_product_items])
+  }, [selectedProcessType, requisition, requisition_ledger_items, requisition_product_items, setValue]);
 
   const onSubmit = () => {
     if (isDirty) {
       setShowWarning(true);
     } else {
-      handleSubmit((data) => {   
+      handleSubmit((data) => {
         const updatedData = {
           ...data,
         };
@@ -146,7 +190,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
       })();
     }
   };
-  
+
   const handleConfirmSubmitWithoutAdd = async () => {
     handleSubmit((data) => {
       const updatedData = {
@@ -157,28 +201,28 @@ function RequisitionsForm({ toggleOpen, requisition }) {
     setIsDirty(false);
     setShowWarning(false);
     setClearFormKey((prev) => prev + 1);
-  };  
+  };
 
   return (
     <React.Fragment>
       <DialogTitle>
         <Grid container columnSpacing={2}>
-          <Grid item xs={12} textAlign={"center"} mb={2}>
+          <Grid size={{xs: 12}} textAlign={"center"} mb={2}>
             {requisition ? 'Edit Requisition' : 'New Requisition'}
           </Grid>
-          <Grid item xs={12} md={8} lg={9} mb={2}>
+          <Grid size={{xs: 12, md: 8, lg: 9}} mb={2}>
             <form autoComplete='off'>
               <Grid container columnSpacing={1} rowSpacing={1}>
-                <Grid item  md={4} lg={4} xs={12}>
-                  <Div sx={{mt: 0.3}}>
+                <Grid size={{xs: 12, md: 4, lg: 4}}>
+                  <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
                       label='Requisition Date'
                       fullWidth
                       defaultValue={requisition_date}
-                      minDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_BACKDATE) ? dayjs(authOrganization.organization.recording_start_date) : dayjs().startOf('day')}
-                      maxDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
+                      minDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_BACKDATE) ? dayjs(authOrganization?.organization.recording_start_date) : dayjs().startOf('day')}
+                      maxDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_POSTDATE) ? dayjs().add(10, 'year').endOf('year') : dayjs().endOf('day')}
                       slotProps={{
-                        textField : {
+                        textField: {
                           size: 'small',
                           fullWidth: true,
                           readOnly: true,
@@ -187,7 +231,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                         }
                       }}
                       onChange={(newValue) => {
-                        setValue('requisition_date', newValue ? newValue.toISOString() : null,{
+                        setValue('requisition_date', newValue ? newValue.toISOString() : null, {
                           shouldValidate: true,
                           shouldDirty: true
                         });
@@ -195,12 +239,12 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <Div sx={{  mt: 0.3  }}>
+                <Grid size={{xs: 12, md: 4}}>
+                  <Div sx={{ mt: 0.3 }}>
                     <Autocomplete
                       id="checkboxes-process_type"
                       options={PROCESS_TYPES}
-                      defaultValue={requisition?.approval_chain.process_type}
+                      defaultValue={requisition?.approval_chain?.process_type}
                       isOptionEqualToValue={(option, value) => option === value}
                       getOptionLabel={(option) => option}
                       renderInput={(params) => (
@@ -222,7 +266,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{xs: 12, md: 4}}>
                   <Div sx={{ mt: 0.3 }}>
                     <CostCenterSelector
                       multiple={false}
@@ -230,23 +274,23 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                       withNotSpecified={true}
                       defaultValue={requisition?.cost_center}
                       label="Cost Center"
-                      onChange={(newValue) => {
-                          setValue('cost_center_id', newValue ? newValue?.id : null,{
-                            shouldValidate: true,
-                            shouldDirty: true
-                          });
+                      onChange={(newValue: any) => {
+                        setValue('cost_center_id', newValue ? newValue?.id : null, {
+                          shouldValidate: true,
+                          shouldDirty: true
+                        });
                       }}
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <Div sx={{mt: 0.3}}>
+                <Grid size={{xs: 12, md: 4}}>
+                  <Div sx={{ mt: 0.3 }}>
                     <CurrencySelector
                       frontError={errors?.currency_id}
                       defaultValue={1}
                       onChange={(newValue) => {
-                        setValue(`currencyDetails`, newValue);
-                        setValue('currency_id', newValue ? newValue.id : null,{
+                        setValue('currencyDetails', newValue);
+                        setValue('currency_id', newValue ? newValue.id : null, {
                           shouldDirty: true,
                           shouldValidate: true
                         });
@@ -254,15 +298,14 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                         clearErrors('exchange_rate');
 
                         setValue('exchange_rate', newValue?.exchangeRate ? newValue.exchangeRate : 1);
-
                       }}
                     />
                   </Div>
                 </Grid>
                 {
                   watch('currency_id') > 1 &&
-                  <Grid item xs={12} md={4}>
-                    <Div sx={{mt: 0.3}}>
+                  <Grid size={{xs: 12, md: 4}}>
+                    <Div sx={{ mt: 0.3 }}>
                       <TextField
                         label="Exchange Rate"
                         fullWidth
@@ -274,7 +317,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
                         }}
                         value={watch('exchange_rate')}
                         onChange={(e) => {
-                          setValue(`exchange_rate`,e.target.value ? sanitizedNumber(e.target.value ): null,{
+                          setValue('exchange_rate', e.target.value ? sanitizedNumber(e.target.value) : null, {
                             shouldValidate: true,
                             shouldDirty: true
                           });
@@ -286,32 +329,75 @@ function RequisitionsForm({ toggleOpen, requisition }) {
               </Grid>
             </form>
           </Grid>
-          <Grid item xs={12} md={4} lg={3}>
-            <RequisitionSummary isPurchase={selectedProcessType === 'PURCHASE' ? true : false} vatableAmount={vatableAmount} totalAmount={totalAmount}/>
+          <Grid size={{xs: 12, md: 4, lg: 3}}>
+            <RequisitionSummary 
+              isPurchase={selectedProcessType === 'PURCHASE'} 
+              vatableAmount={vatableAmount} 
+              totalAmount={totalAmount} 
+            />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{xs: 12}}>
             {
-                selectedProcessType === 'PAYMENT' ?
-              <RequisitionLedgerItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setRequisition_ledger_items={setRequisition_ledger_items} requisition_ledger_items={requisition_ledger_items}/>
-              : selectedProcessType === 'PURCHASE' ?
-              <RequisitionProductItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setRequisition_product_items={setRequisition_product_items} requisition_product_items={requisition_product_items}/> 
-              : null
+              selectedProcessType === 'PAYMENT' ?
+                <RequisitionLedgerItemForm 
+                  setClearFormKey={setClearFormKey} 
+                  submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} 
+                  submitItemForm={submitItemForm} 
+                  setSubmitItemForm={setSubmitItemForm} 
+                  key={clearFormKey} 
+                  setIsDirty={setIsDirty} 
+                  setRequisition_ledger_items={setRequisition_ledger_items} 
+                  requisition_ledger_items={requisition_ledger_items} 
+                />
+                : selectedProcessType === 'PURCHASE' ?
+                  <RequisitionProductItemForm 
+                    setClearFormKey={setClearFormKey} 
+                    submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} 
+                    submitItemForm={submitItemForm} 
+                    setSubmitItemForm={setSubmitItemForm} 
+                    key={clearFormKey} 
+                    setIsDirty={setIsDirty} 
+                    setRequisition_product_items={setRequisition_product_items} 
+                    requisition_product_items={requisition_product_items} 
+                  />
+                  : null
             }
           </Grid>
         </Grid>
       </DialogTitle>
       <DialogContent>
         {selectedProcessType === 'PAYMENT' &&
-          requisition_ledger_items.map((ledger_item,index) => (
-            <RequisitionLedgerItemRow setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} setIsDirty={setIsDirty} key={index} index={index} currencyDetails={currencyDetails} setRequisition_ledger_items={setRequisition_ledger_items} requisition_ledger_items={requisition_ledger_items} ledger_item={ledger_item} />
+          requisition_ledger_items.map((ledger_item, index) => (
+            <RequisitionLedgerItemRow 
+              setClearFormKey={setClearFormKey} 
+              submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} 
+              submitItemForm={submitItemForm} 
+              setSubmitItemForm={setSubmitItemForm} 
+              setIsDirty={setIsDirty} 
+              key={index} 
+              index={index} 
+              currencyDetails={currencyDetails} 
+              setRequisition_ledger_items={setRequisition_ledger_items} 
+              requisition_ledger_items={requisition_ledger_items} 
+              ledger_item={ledger_item} 
+            />
           ))
         }
         {selectedProcessType === 'PURCHASE' &&
-          requisition_product_items.map((product_item,index) => (
-            <RequisitionProductItemRow setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} setIsDirty={setIsDirty} key={index} index={index} currencyDetails={currencyDetails} setRequisition_product_items={setRequisition_product_items} requisition_product_items={requisition_product_items} product_item={product_item} />
+          requisition_product_items.map((product_item, index) => (
+            <RequisitionProductItemRow 
+              setClearFormKey={setClearFormKey} 
+              setIsDirty={setIsDirty} 
+              key={index} 
+              index={index} 
+              currencyDetails={currencyDetails} 
+              setRequisition_product_items={setRequisition_product_items} 
+              requisition_product_items={requisition_product_items} 
+              product_item={product_item} 
+            />
           ))
         }
-        <Grid item xs={12} paddingTop={2}>
+        <Grid size={{xs: 12}} paddingTop={2}>
           <Div sx={{ mt: 0.3 }}>
             <TextField
               label="Remarks"
@@ -325,15 +411,15 @@ function RequisitionsForm({ toggleOpen, requisition }) {
         </Grid>
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>            
+          <DialogTitle>
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={11}>
+              <Grid size={{xs: 11}}>
                 Unsaved Changes
               </Grid>
-              <Grid item xs={1} textAlign="right">
+              <Grid size={{xs: 1}} textAlign="right">
                 <Tooltip title="Close">
                   <IconButton
-                    size="small" 
+                    size="small"
                     onClick={() => setShowWarning(false)}
                   >
                     <HighlightOff color="primary" />
@@ -346,7 +432,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
             Last item was not added to the list
           </DialogContent>
           <DialogActions>
-            <Button size="small" onClick={() => {setSubmitItemForm(true); setShowWarning(false);}}>
+            <Button size="small" onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
               Add and Submit
             </Button>
             <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
@@ -376,7 +462,7 @@ function RequisitionsForm({ toggleOpen, requisition }) {
         </LoadingButton>
         <LoadingButton
           loading={addRequisition.isPending || updateRequisition.isPending}
-          variant='contained' 
+          variant='contained'
           color='success'
           type='submit'
           onClick={(e) => {
@@ -392,4 +478,4 @@ function RequisitionsForm({ toggleOpen, requisition }) {
   )
 }
 
-export default RequisitionsForm
+export default RequisitionsForm;

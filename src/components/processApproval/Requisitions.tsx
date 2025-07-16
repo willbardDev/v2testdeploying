@@ -229,10 +229,10 @@ const Requisitions = () => {
                                                         />
                                                     </Grid>
                                                     <Grid size={{xs: multiCostCenters ? 12 : 11, md: multiCostCenters ? 3.5 : 5, lg: multiCostCenters ? 4 : 5.5}} textAlign={'center'}>
-                                                        <RequisitionsWaitingForSelector
+                                                        {/* <RequisitionsWaitingForSelector
                                                             value={queryOptions.queryParams.next_approval_role_id}
                                                             onChange={handleOnWaitingForChange}
-                                                        />
+                                                        /> */}
                                                     </Grid>
                                                     {multiCostCenters && (
                                                         <Grid size={{xs: 11, md: 4, lg: 3.5}}>

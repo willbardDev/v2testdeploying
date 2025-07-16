@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AddOutlined } from '@mui/icons-material';
 import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery} from '@mui/material';
-// import RequisitionsForm from './form/RequisitionsForm';
+import RequisitionsForm from './form/RequisitionsForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -16,7 +16,7 @@ const RequisitionsActionTail = () => {
   return (
     <React.Fragment>
       <Dialog maxWidth="lg" scroll={belowLargeScreen ? 'body' : 'paper'} fullWidth fullScreen={belowLargeScreen} open={openDialog}>
-        {/* <RequisitionsForm toggleOpen={setOpenDialog} /> */}
+        <RequisitionsForm toggleOpen={setOpenDialog} />
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission(PERMISSIONS.REQUISITIONS_CREATE) && (

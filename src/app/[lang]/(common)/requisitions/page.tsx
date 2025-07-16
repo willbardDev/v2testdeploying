@@ -1,8 +1,9 @@
+import Requisitions from '@/components/processApproval/Requisitions'
 import React from 'react'
 
 function page() {
   return (
-    <div>Requisitions will go here</div>
+    <Requisitions/>
   )
 }
 

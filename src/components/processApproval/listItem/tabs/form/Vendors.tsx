@@ -31,7 +31,6 @@ function Vendors({ setRequisition_product_items, product_item, index }: VendorsP
         isFromApproval={true} 
         vendorIndex={index} 
         setRequisition_product_items={setRequisition_product_items} 
-        product_item={product_item} 
         vendors={vendors} 
         setVendors={setVendors}
       />
