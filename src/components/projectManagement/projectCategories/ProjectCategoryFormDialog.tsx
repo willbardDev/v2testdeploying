@@ -122,7 +122,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }} >
-        {!category ? 'New Form Category' : `Edit ${category.name}`}
+       {!category?.id ? 'New Category Form' : `Edit ${category.name}`}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={1}>

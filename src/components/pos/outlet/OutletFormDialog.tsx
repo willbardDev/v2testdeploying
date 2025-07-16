@@ -186,7 +186,7 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
                   ...(outlet?.id ? { id: outlet.id } : {}),
                 };
 
-                saveMutation(dataToSend as any); // cast since Outlet type still uses user_ids
+                saveMutation(dataToSend as any); 
               };
 
   return (
