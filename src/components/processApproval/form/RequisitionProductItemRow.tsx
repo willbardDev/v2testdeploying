@@ -113,6 +113,7 @@ function RequisitionProductItemRow({
         <Divider />
         {!showForm ? (
           <Grid container 
+            width={'100%'}
             sx={{
               cursor: 'pointer',
               '&:hover': {
