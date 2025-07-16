@@ -18,7 +18,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useQuery } from '@tanstack/react-query';
 import ProjectCategoryListItem from './ProjectCategoryListItem';
 import ProjectCategoryActionTail from './ProjectCategoryActionTail';
-import projectCategoryServices from './ProjectCategoryServices';
+import projectCategoryServices from './project-category-services';
 
 
         const ProjectCategories = () => {

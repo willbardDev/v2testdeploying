@@ -9,7 +9,7 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import OutletForm from './OutletFormDialog';
 import { Outlet } from './OutletType';
-import outletServices from './OutletServices';
+import outletServices from './outlet-services';
 
 const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);

@@ -1,6 +1,6 @@
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import React from 'react';
-import ProjectCategoryListItemAction from './ProjectCategoryListItemActio';
+import ProjectCategoryListItemAction from './ProjectCategoryListItemAction';
 import { Category } from './ProjectCategoriesType';
 
 
@@ -43,7 +43,9 @@ const ProjectCategoryListItem = ({ projectCategory }: Props) => {
             </Typography>
           </Tooltip>
         </Grid>
+         <Grid size={{ xs: 11, md:1}} textAlign="end">
          <ProjectCategoryListItemAction projectCategory={projectCategory}/>
+       </Grid>
       </Grid>
     </>
   );

@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import projectCategoryServices from './ProjectCategoryServices';
+import projectCategoryServices from './project-category-services';
 import { AddCategoryResponse, Category, UpdateCategoryResponse } from './ProjectCategoriesType';
 
 
@@ -142,7 +142,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
               label="Description"
               fullWidth
               size="small"
-              rows={3}
+              rows={2}
               {...register('description')}
             />
           </Grid>
@@ -158,7 +158,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
             size="small"
             loading={isAdding || updateLoading} 
             >
-            CREATE
+            SUBMIT
         </LoadingButton>
       </DialogActions>
     </form>

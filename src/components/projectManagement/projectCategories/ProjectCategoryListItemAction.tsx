@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import ProjectCategoryFormDialog from './ProjectCategoryFormDialog';
-import projectCategoryServices from './ProjectCategoryServices';
+import projectCategoryServices from './project-category-services';
 import { Category } from './ProjectCategoriesType';
 
    const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: Category }) => {

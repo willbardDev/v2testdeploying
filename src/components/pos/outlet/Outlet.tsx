@@ -15,7 +15,7 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
-import outletServices from './OutletServices';
+import outletServices from './outlet-services';
 
 const Outlet = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();

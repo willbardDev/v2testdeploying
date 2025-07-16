@@ -23,7 +23,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector'
 import type { AddOutletResponse, Outlet, UpdateOutletResponse } from './OutletType';
 import { Div } from '@jumbo/shared';
 import { DisabledByDefault } from '@mui/icons-material';
-import outletServices from './OutletServices';
+import outletServices from './outlet-services';
 import { User } from '@/types/auth-types';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 
