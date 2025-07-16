@@ -16,23 +16,22 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const { mutate: deleteOutlet } = useMutation({
-  mutationFn: (params: { id: number }) => outletServices.delete(params), 
-  onSuccess: (data: { message: string }) => {
+    mutationFn: (params: { id: number }) => outletServices.delete(params), 
+    onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['Outlet'] });
-  },
-  onError: (error: any) => {
-    enqueueSnackbar(
-      error?.response?.data?.message || 'Failed to delete outlet',
-      { variant: 'error' }
-    );
-  },
-});
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to delete outlet',
+        { variant: 'error' }
+      );
+    },
+    });
 
   const menuItems: MenuItemProps[] = [
     { icon: <EditOutlined />, title: 'Edit', action: 'edit' },

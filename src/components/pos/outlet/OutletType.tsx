@@ -1,5 +1,3 @@
-import OutletSelector from "./OutletSelector";
-
 
 export interface Counter {
   name: string;

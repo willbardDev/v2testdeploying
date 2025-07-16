@@ -17,54 +17,53 @@ import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
 import outletServices from './outlet-services';
 
-const Outlet = () => {
-  const params = useParams<{ category?: string; id?: string; keyword?: string }>();
-  const listRef = useRef<any>(null);
-  const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
-  const [mounted, setMounted] = useState(false);
+  const Outlet = () => {
+    const params = useParams<{ category?: string; id?: string; keyword?: string }>();
+    const listRef = useRef<any>(null);
+    const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
 
-  const [queryOptions, setQueryOptions] = useState({
-    queryKey: 'outlet',
-    queryParams: { id: params.id, keyword: '' },
-    countKey: 'total',
-    dataKey: 'data',
-  });
+    const [queryOptions, setQueryOptions] = useState({
+      queryKey: 'outlet',
+      queryParams: { id: params.id, keyword: '' },
+      countKey: 'total',
+      dataKey: 'data',
+    });
 
-  React.useEffect(() => {
-      setQueryOptions((state) => ({
-        ...state,
-        queryParams: { ...state.queryParams, id: params.id },
-      }));
+    React.useEffect(() => {
+        setQueryOptions((state) => ({
+          ...state,
+          queryParams: { ...state.queryParams, id: params.id },
+        }));
     }, [params]);
 
-  const renderOutlet = React.useCallback((outlet: Outlet) => {
-    return <OutletListItem outlet={outlet} />;
-  }, []);
+    const renderOutlet = React.useCallback((outlet: Outlet) => {
+      return <OutletListItem outlet={outlet} />;
+    }, []);
 
+    const handleOnChange = React.useCallback((keyword: string) => {
+      setQueryOptions((state) => ({
+        ...state,
+        queryParams: {
+          ...state.queryParams,
+          keyword: keyword,
+        },
+      }));
+    }, []);
 
- const handleOnChange = React.useCallback((keyword: string) => {
-     setQueryOptions((state) => ({
-       ...state,
-       queryParams: {
-         ...state.queryParams,
-         keyword: keyword,
-       },
-     }));
-   }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!mounted) return null;
 
-  if (!mounted) return null;
+    if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
+      return <UnsubscribedAccess modules="Point of Sale (POS)" />;
+    }
 
-  if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
-    return <UnsubscribedAccess modules="Point of Sale (POS)" />;
-  }
-
-  if (!checkOrganizationPermission([PERMISSIONS.OUTLETS_READ])) {
-    return <UnauthorizedAccess />;
-  }
+    if (!checkOrganizationPermission([PERMISSIONS.OUTLETS_READ])) {
+      return <UnauthorizedAccess />;
+    }
 
   return (
       <React.Fragment>
