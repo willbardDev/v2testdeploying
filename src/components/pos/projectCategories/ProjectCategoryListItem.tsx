@@ -4,13 +4,13 @@ import ProjectCategoryListItemAction from './ProjectCategoryListItemActio';
 import { Category } from './ProjectCategoriesType';
 
 
-type Props = {
-  projectCategory: {
-    id: number;
-    name: string;
-    description?: string;
-  };
-};
+    type Props = {
+      projectCategory: {
+        id?: number;
+        name: string;
+        description?: string;
+      };
+    };
 
 const ProjectCategoryListItem = ({ projectCategory }: Props) => {
   return (
@@ -43,11 +43,7 @@ const ProjectCategoryListItem = ({ projectCategory }: Props) => {
             </Typography>
           </Tooltip>
         </Grid>
-         <ProjectCategoryListItemAction projectCategory={{
-            id: 0,
-            name: '',
-            description: ''
-          }}/>
+         <ProjectCategoryListItemAction projectCategory={projectCategory}/>
       </Grid>
     </>
   );

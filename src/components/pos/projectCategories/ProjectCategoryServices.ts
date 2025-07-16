@@ -12,7 +12,7 @@ projectCategoryServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedCategoryResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
-  const { data } = await axios.get('/api/pos/projectCategories', {
+  const { data } = await axios.get('/api/projectManagement/projectCategories', {
     params: { page, limit, ...queryParams },
   });
   return data;
@@ -20,7 +20,7 @@ projectCategoryServices.getList = async (
 
 projectCategoryServices.add = async (category: { name: string; description?: string }) => {
   await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-  const { data } = await axios.post('/api/pos/projectCategories', category);
+  const { data } = await axios.post('/api/projectManagement/projectCategories/add', category);
   return data;
   });
 };
@@ -29,7 +29,7 @@ projectCategoryServices.update = async (
     category: { id: number; name: string; description?: string }
 ): Promise<UpdateCategoryResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(`/api/pos/projectCategories/${category.id}`, category);
+  const { data } = await axios.put(`/api/projectManagement/projectCategories/${category.id}/update`, category);
   return data;
 };
 
@@ -37,7 +37,7 @@ projectCategoryServices.delete = async (
   params: { id: number }
 ): Promise<DeleteCategoryResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(`/api/pos/projectCategories/${params.id}`);
+  const { data } = await axios.delete(`/api/projectManagement/projectCategories/${params.id}/delete`);
   return data;
 };
 
