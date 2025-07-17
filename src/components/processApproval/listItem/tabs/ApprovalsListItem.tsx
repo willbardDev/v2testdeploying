@@ -28,6 +28,7 @@ function ApprovalsListItem({ requisition, approvals }: ApprovalsListItemProps) {
             }}
             container
             spacing={2}
+            width={'100%'}
             alignItems={'center'}
           >
             <Grid size={{xs: 12, md: 4, lg: 4}}>

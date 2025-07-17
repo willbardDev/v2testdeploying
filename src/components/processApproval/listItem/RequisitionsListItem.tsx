@@ -87,6 +87,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
           container
           spacing={1}
           alignItems={'center'}
+          width={'100%'}
           paddingLeft={1}
           paddingRight={1}
         >
@@ -212,7 +213,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
 
         <Grid container>
           {activeTab === 0 && (
-            <Grid container spacing={1} justifyContent="center" marginTop={1}>
+            <Grid container spacing={1} justifyContent="center" width={'100%'} marginTop={1}>
               <Grid size={{xs: 12}}>
                 <ApprovalsTab isExpanded={expanded[requisition.id]} requisition={requisition}/>
               </Grid>
