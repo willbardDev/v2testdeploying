@@ -15,5 +15,5 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     credentials: 'include',
   });
 
-   return handleJsonResponse(res);
+  return handleJsonResponse(res);
 }

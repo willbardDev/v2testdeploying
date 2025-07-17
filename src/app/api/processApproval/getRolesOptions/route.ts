@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
@@ -15,5 +15,5 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     credentials: 'include',
   });
 
-   return handleJsonResponse(res);
+  return handleJsonResponse(res);
 }
