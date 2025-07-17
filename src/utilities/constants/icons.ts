@@ -14,7 +14,8 @@ import {
   ReceiptOutlined,
   ShoppingCartOutlined,
   OutdoorGrillOutlined,
-  FolderOutlined // MUI equivalent for faFolderOpen
+  FolderOutlined, // MUI equivalent for faFolderOpen
+  ManageAccountsOutlined
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
@@ -106,6 +107,11 @@ const APP_ICONS: Icon[] = [
   {
     name: 'filesShelf',
     Component: FolderOutlined,
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'usersManagement',
+    Component: ManageAccountsOutlined,
     props: { sx: { fontSize: 20 } }
   }
 ];

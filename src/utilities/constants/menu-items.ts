@@ -177,6 +177,17 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.prosControl,
+      children: [
+        {
+          path: `/${locale}/prosControl/usersManagement`,
+          label: sidebar.menuItem.usersManagement,
+          icon: 'usersManagement',
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.organizations,
       children: [
         {
