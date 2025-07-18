@@ -66,10 +66,10 @@ function RequisitionLedgerItemForm({
           ? schema
               .required("Amount is required")
               .test('max-amount', `Amount should not exceed unapproved amount (${relatable?.unapproved_amount?.toLocaleString()}) of selected relatable`, function (value) {
-                return value ? value <= (relatable?.unapproved_amount ?? 0) : true;
+                return value <= (relatable?.unapproved_amount);
               })
           : schema.nullable()
-      ),
+      ).typeError('Amount is Required'),
     measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
   });
 
@@ -181,7 +181,7 @@ function RequisitionLedgerItemForm({
         <Grid size={12}>
           <Divider />
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <LedgerSelect
               multiple={false}
@@ -262,7 +262,7 @@ function RequisitionLedgerItemForm({
             />
           </Div>
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <TextField
               label="Amount"
@@ -281,7 +281,7 @@ function RequisitionLedgerItemForm({
             />
           </Div>
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <Autocomplete
               id="checkboxes-linked_to_types"
