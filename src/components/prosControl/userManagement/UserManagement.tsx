@@ -39,10 +39,6 @@ const UserManagement = () => {
   const canManageUsers = true
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     setQueryOptions((state) => ({
       ...state,
       queryParams: { ...state.queryParams, id: params.id },
@@ -130,11 +126,16 @@ const UserManagement = () => {
     </Card>
   ), [canManageUsers, verifyUser, deactivateUser, reactivateUser]);
 
+    useEffect(() => {
+          setMounted(true);
+      }, []);
+
   if (!mounted) return null;
 
-  if (!organizationHasSubscribed(true as unknown as string)) {
+ if (!organizationHasSubscribed("user_management")) {
   return <UnsubscribedAccess modules="User Management" />;
 }
+
 
   if (!canReadUsers) {
     return <UnauthorizedAccess />;
