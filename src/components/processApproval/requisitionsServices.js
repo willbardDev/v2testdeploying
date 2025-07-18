@@ -101,7 +101,7 @@ requisitionsServices.deleteApprovedPaymentOrder = async (id) => {
 
 requisitionsServices.deleteApproval = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`api/processApproval/${id}/deleteApproval`);
+        const {data} = await axios.delete(`/api/processApproval/${id}/deleteApproval`);
         return data;
     })
 };
