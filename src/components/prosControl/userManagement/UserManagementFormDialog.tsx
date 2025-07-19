@@ -1,4 +1,3 @@
-// UserManagementFormDialog.tsx
 import React, { useEffect } from 'react';
 import {
   Dialog,
@@ -44,15 +43,16 @@ const UserManagementFormDialog: React.FC<Props> = ({ open, onClose, email }) => 
   useEffect(() => {
     if (email) {
       reset({ email });
+    } else {
+      reset({ email: '' });
     }
-  }, [email, reset]);
+  }, [email, reset, open]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormValues) => verifyUser(data.email),
     onSuccess: (res) => {
       enqueueSnackbar(res?.message || 'User verified successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      reset();
       onClose();
     },
     onError: (error: any) => {

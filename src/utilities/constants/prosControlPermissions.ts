@@ -10,5 +10,7 @@ export const PROS_CONTROL_PERMISSIONS = {
     DATABASE_MIGRATE:'Database:Migrate',
     DATABASE_RUN_SCRIPTS:'Database:RunScripts',
     DATABASE_REFRESH: 'Database:Refresh',
-    PERMISSIONS_MANAGE:'Permissions:Manage'
+    PERMISSIONS_MANAGE:'Permissions:Manage',
+    USERS_READ: 'SystemUsers:Read',
+    USERS_MANAGE: 'SystemUsers:Manage'
 };

@@ -25,7 +25,6 @@ export type PaginatedUserResponse = {
   data: userManager[];
 };
 
-// UserManagementType.ts
 export type UserManager = {
   id: number;
   email: string;
