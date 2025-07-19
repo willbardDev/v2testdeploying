@@ -87,24 +87,24 @@ function RequisitionProductItemForm({
     });
 
     const { setValue, handleSubmit, register, watch, reset, formState: { errors, dirtyFields } } = useForm({
-        resolver: yupResolver(validationSchema) as any,
-        defaultValues: {
-            product: product_item ? productOptions.find(product => product.id === (product_item.product_id || product_item.product?.id)) : null,
-            product_id: product_item?.product_id,
-            quantity: product_item?.quantity,
-            rate: product_item?.rate,
-            vat_percentage: product_item?.vat_percentage ?? preservedValues?.vat_percentage ?? 0,
-            product_item_vat: product_item?.product_item_vat ?? 0,
-            amount: product_item?.amount ?? 0,
-            remarks: product_item?.remarks,
-            measurement_unit_id: product_item?.measurement_unit_id ?? product_item?.measurement_unit?.id,
-            conversion_factor: product_item?.conversion_factor ?? 1,
-            unit_symbol: product_item?.measurement_unit?.symbol ?? product_item?.unit_symbol,
-        },
+      resolver: yupResolver(validationSchema) as any,
+      defaultValues: {
+        product: product_item ? productOptions.find(product => product.id === (product_item.product_id || product_item.product?.id)) : null,
+        product_id: product_item?.product_id,
+        quantity: product_item?.quantity,
+        rate: product_item?.rate,
+        vat_percentage: product_item?.vat_percentage ?? preservedValues?.vat_percentage ?? 0,
+        product_item_vat: product_item?.product_item_vat ?? 0,
+        amount: product_item?.amount ?? undefined,
+        remarks: product_item?.remarks,
+        measurement_unit_id: product_item?.measurement_unit_id ?? product_item?.measurement_unit?.id,
+        conversion_factor: product_item?.conversion_factor ?? 1,
+        unit_symbol: product_item?.measurement_unit?.symbol ?? product_item?.unit_symbol,
+      },
     });
 
     useEffect(() => {
-        setIsDirty(Object.keys(dirtyFields).length > 0);
+      setIsDirty(Object.keys(dirtyFields).length > 0);
     }, [dirtyFields, setIsDirty, watch]);
 
     const product: Product | undefined | null = watch('product');
@@ -112,21 +112,21 @@ function RequisitionProductItemForm({
     const vat_factor = vat_percentage * 0.01;
 
     useEffect(() => {
-        setValue('vat_percentage', vat_percentage);
-        setVatChecked(vatChecked);
+      setValue('vat_percentage', vat_percentage);
+      setVatChecked(vatChecked);
     }, [product, vat_percentage]);
 
     const calculateAmount = (): number => {
-        const quantity = parseFloat(watch('quantity')?.toString() ?? '0') || product_item?.quantity || 0;
-        const rate = parseFloat(watch('rate')?.toString() ?? '0') || product_item?.rate || 0;
-        return quantity * rate * (1 + vat_factor);
+      const quantity = parseFloat(watch('quantity')?.toString() ?? '0') || product_item?.quantity || 0;
+      const rate = parseFloat(watch('rate')?.toString() ?? '0') || product_item?.rate || 0;
+      return quantity * rate * (1 + vat_factor);
     };
 
     useEffect(() => {
-        const amount = calculateAmount();
-        setCalculatedAmount(amount);
-        setValue('amount', amount);
-        setValue('product_item_vat', (watch('rate') ?? 0) * vat_factor);
+      const amount = calculateAmount();
+      setCalculatedAmount(amount);
+      setValue('amount', amount);
+      setValue('product_item_vat', (watch('rate') ?? 0) * vat_factor);
     }, [watch('quantity'), watch('rate'), vat_factor, product_item]);
 
   useEffect(() => {
@@ -216,7 +216,7 @@ function RequisitionProductItemForm({
                 frontError={errors.product}
                 addedProduct={addedProduct}
                 defaultValue={product_item?.product}
-                excludeIds={nonInventoryIds}
+                // excludeIds={nonInventoryIds}
                 onChange={async (newValue: Product | null) => {
                   if (newValue) {
                     await setSelectedUnit(null);
@@ -341,7 +341,7 @@ function RequisitionProductItemForm({
                 InputProps={{
                   inputComponent: CommaSeparatedField,
                 }}
-                defaultValue={Math.round((watch('rate') ?? 0 * 100000) / 100000)}
+                defaultValue={Math.round((watch('rate') ?? 0) * 100000) / 100000}
                 onChange={(e) => {
                   setIsVatfieldChange(false);
                   setPriceInclusiveVAT(0);
@@ -365,15 +365,16 @@ function RequisitionProductItemForm({
                   InputProps={{
                     inputComponent: CommaSeparatedField,
                   }}
-                  defaultValue={
+                  value={
                     isVatfieldChange
                       ? Math.round(priceInclusiveVAT * 100000) / 100000
-                      : Math.round((watch('rate') ?? 0 * (1 + vat_factor) * 100000) / 100000)
+                      : Math.round((watch('rate') || 0) * (1 + vat_factor) * 100000) / 100000
                   }
                   onChange={(e) => {
+                    const numericValue = e.target.value ? sanitizedNumber(e.target.value) : 0;
                     setIsVatfieldChange(!!e.target.value);
-                    setPriceInclusiveVAT(e.target.value ? sanitizedNumber(e.target.value) : 0);
-                    setValue('rate', e.target.value ? sanitizedNumber(e.target.value) / (1 + vat_factor) : undefined, {
+                    setPriceInclusiveVAT(numericValue);
+                    setValue('rate', numericValue / (1 + vat_factor), {
                       shouldValidate: true,
                       shouldDirty: true,
                     });

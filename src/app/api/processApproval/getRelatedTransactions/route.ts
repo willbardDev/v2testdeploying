@@ -1,17 +1,20 @@
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest } from 'next/server';
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL!;
 
-export async function POST(req: NextRequest) {
-  const { headers, response } = await getAuthHeaders(req);
+export async function GET(request: NextRequest) {
+  const { headers, response } = await getAuthHeaders(request);
   if (response) return response;
 
-  const body = await req.json();
-  const res = await fetch(`${API_BASE}/ledgers/related-transactions`, {
-    method: 'POST',
+  const { searchParams } = new URL(request.url);
+
+  // Just forward all incoming query parameters exactly as they are
+  const queryString = searchParams.toString();
+
+  const res = await fetch(`${API_BASE}/ledgers/related-transactions?${queryString}`, {
     headers,
-    body: JSON.stringify(body),
+    credentials: 'include',
   });
 
   return handleJsonResponse(res);

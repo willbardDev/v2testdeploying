@@ -93,19 +93,22 @@ function RequisitionLedgerItemForm({
     setIsDirty(Object.keys(dirtyFields).length > 0);
   }, [dirtyFields, setIsDirty]);
 
-  const calculateAmount = (): number => {
+  const calculateAmount = () => {
     const quantity = parseFloat(Number(watch('quantity'))?.toString() ?? ledger_item?.quantity ?? 0);
     const rate = parseFloat(Number(watch('rate'))?.toString() ?? ledger_item?.rate ?? 0);
-    return quantity * rate;
+
+    if (quantity && rate) {
+      setValue(`amount`, quantity*rate,{
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      return quantity * rate;
+    }
   };
 
   useEffect(() => {
     const amount = calculateAmount();
-    setCalculatedAmount(amount);
-    setValue('amount', amount, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setCalculatedAmount(Number(amount));
   }, [watch('quantity'), watch('rate')]);
 
   const updateItems = async (data: RequisitionLedgerItem) => {
