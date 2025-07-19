@@ -11,6 +11,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import userManagementServices from './user-management-services';
 import { UserManager } from './UserManagementType';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
+import UserManagementActionTail from './UserManagementActionTail';
 
 
 const UserManagement = () => {
@@ -98,6 +99,7 @@ const UserManagement = () => {
                   onChange={handleSearchChange}
                   value={queryOptions.queryParams.keyword}
                 />
+                <UserManagementActionTail/>
               </Stack>
             }
           />

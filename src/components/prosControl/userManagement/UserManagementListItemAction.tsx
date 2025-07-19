@@ -10,8 +10,7 @@ import {
   MoreVert, 
   Verified, 
   PersonOff, 
-  PersonAdd,
-  MailOutline 
+  PersonAdd
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
