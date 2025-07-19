@@ -22,6 +22,7 @@ import { UserManager } from './UserManagementType';
 import UserManagementActionTail from './UserManagementActionTail';
 import UserManagementListItemActions from './UserManagementListItemAction';
 
+
 const UserManagement = () => {
   const params = useParams();
   const listRef = useRef<any>(null);
@@ -148,7 +149,6 @@ const UserManagement = () => {
                   onChange={handleSearchChange}
                   value={queryOptions.queryParams.keyword}
                 />
-                <UserManagementActionTail/>
               </Stack>
             }
           />

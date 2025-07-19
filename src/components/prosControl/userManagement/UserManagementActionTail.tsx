@@ -1,9 +1,15 @@
+// UserManagementActionTail.tsx
 import React, { useState } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import VerifiedIcon from '@mui/icons-material/Verified'; // You can change this if you want to use a custom icon
+import VerifiedIcon from '@mui/icons-material/Verified';
 import VerifyUserDialog from './UserManagementFormDialog';
+import { UserManager } from './UserManagementType';
 
-const UserManagementActionTail = () => {
+type Props = {
+  user: UserManager;
+};
+
+const UserManagementActionTail = ({ user }: Props) => {
   const [openDialog, setOpenDialog] = useState(false);
 
   return (
@@ -14,7 +20,11 @@ const UserManagementActionTail = () => {
         </IconButton>
       </Tooltip>
 
-      <VerifyUserDialog open={openDialog} onClose={() => setOpenDialog(false)} />
+      <VerifyUserDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        email={user.email}
+      />
     </>
   );
 };

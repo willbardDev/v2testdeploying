@@ -1,4 +1,5 @@
-import React from 'react';
+// UserManagementFormDialog.tsx
+import React, { useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -17,9 +18,10 @@ type FormValues = {
   email: string;
 };
 
-type UserManagerFormDialogProps = {
+type Props = {
   open: boolean;
   onClose: () => void;
+  email?: string;
 };
 
 const verifyUser = async (email: string) => {
@@ -27,27 +29,34 @@ const verifyUser = async (email: string) => {
   return res.data;
 };
 
-const UserManagementFormDialog: React.FC<UserManagerFormDialogProps> = ({ open, onClose }) => {
+const UserManagementFormDialog: React.FC<Props> = ({ open, onClose, email }) => {
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, formState, reset } = useForm<FormValues>({
-    defaultValues: {
-      email: '',
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
+    defaultValues: { email: '' },
   });
 
-  const { errors } = formState;
+  useEffect(() => {
+    if (email) {
+      reset({ email });
+    }
+  }, [email, reset]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormValues) => verifyUser(data.email),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       enqueueSnackbar(res?.message || 'User verified successfully', { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['userManagement'] });
-      reset(); // clear the form
-      onClose(); // close dialog
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      reset();
+      onClose();
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to verify user', {
+      enqueueSnackbar(error?.response?.data?.message || 'Verification failed', {
         variant: 'error',
       });
     },

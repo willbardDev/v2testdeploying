@@ -24,19 +24,24 @@ export type PaginatedUserResponse = {
   total: number;
   data: userManager[];
 };
+
+// UserManagementType.ts
 export type UserManager = {
   id: number;
-  name: string;
   email: string;
+  name: string;
   is_verified: boolean;
   is_active: boolean;
 };
+
 export type VerifyUserResponse = {
   message: string;
 };
+
 export type DeactivateUserResponse = {
   message: string;
 };
+
 export type ReactivateUserResponse = {
   message: string;
 };
