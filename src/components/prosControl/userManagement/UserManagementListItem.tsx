@@ -17,6 +17,7 @@ import { UserManager } from './UserManagementType';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import userManagementServices from './user-management-services';
+import UserManagementListItemActions from './UserManagementListItemAction';
 
 type Props = {
   user: UserManager;
@@ -27,38 +28,6 @@ const UserManagementListItem: React.FC<Props> = ({ user }) => {
   const { checkOrganizationPermission } = useJumboAuth();
   const canManage = checkOrganizationPermission([PERMISSIONS.USERS_MANAGE]);
 
-  const { mutate: verifyUser } = useMutation({
-    mutationFn: () => userManagementServices.verify(user.email),
-    onSuccess: () => {
-      enqueueSnackbar('User verified successfully', { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['userManagement'] });
-    },
-    onError: () => {
-      enqueueSnackbar('Verification failed', { variant: 'error' });
-    },
-  });
-
-  const { mutate: deactivateUser } = useMutation({
-    mutationFn: () => userManagementServices.deactivate(user.id),
-    onSuccess: () => {
-      enqueueSnackbar('User deactivated', { variant: 'warning' });
-      queryClient.invalidateQueries({ queryKey: ['userManagement'] });
-    },
-    onError: () => {
-      enqueueSnackbar('Failed to deactivate user', { variant: 'error' });
-    },
-  });
-
-  const { mutate: reactivateUser } = useMutation({
-    mutationFn: () => userManagementServices.reactivate(user.id),
-    onSuccess: () => {
-      enqueueSnackbar('User reactivated', { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['userManagement'] });
-    },
-    onError: () => {
-      enqueueSnackbar('Failed to reactivate user', { variant: 'error' });
-    },
-  });
 
   return (
     <Card sx={{ p: 2, mb: 2 }}>
@@ -84,33 +53,10 @@ const UserManagementListItem: React.FC<Props> = ({ user }) => {
           </Stack>
         </Stack>
 
-        {canManage && (
-          <Stack direction="row" spacing={1}>
-            {!user.is_verified && (
-              <Tooltip title="Verify User">
-                <IconButton color="primary" onClick={() => verifyUser()}>
-                  <CheckCircleIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-
-            {user.is_active ? (
-              <Tooltip title="Deactivate User">
-                <IconButton color="warning" onClick={() => deactivateUser()}>
-                  <BlockIcon />
-                </IconButton>
-              </Tooltip>
-            ) : (
-              <Tooltip title="Reactivate User">
-                <IconButton color="success" onClick={() => reactivateUser()}>
-                  <RestartAltIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-          </Stack>
-        )}
+        {canManage && <UserManagementListItemActions user={user} />}
       </Stack>
     </Card>
+
   );
 };
 

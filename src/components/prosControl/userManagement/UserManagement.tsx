@@ -20,6 +20,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import userManagementServices from './user-management-services';
 import { UserManager } from './UserManagementType';
 import UserManagementActionTail from './UserManagementActionTail';
+import UserManagementListItemActions from './UserManagementListItemAction';
 
 const UserManagement = () => {
   const params = useParams();
@@ -88,43 +89,19 @@ const UserManagement = () => {
     },
   });
 
-  const renderUserItem = useCallback((user: UserManager) => (
+    const renderUserItem = useCallback((user: UserManager) => (
     <Card sx={{ p: 2, mb: 2 }} key={user.id}>
-      <Typography variant="h6">{user.name}</Typography>
-      <Typography variant="body2">{user.email}</Typography>
-
-      {canManageUsers && (
-        <Stack direction="row" spacing={1} mt={1}>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => verifyUser(user.email)}
-            disabled={user.is_verified}
-          >
-            {user.is_verified ? 'Verified' : 'Verify'}
-          </Button>
-
-          {user.is_active ? (
-            <Button
-              variant="outlined"
-              color="warning"
-              onClick={() => deactivateUser(user.id)}
-            >
-              Deactivate
-            </Button>
-          ) : (
-            <Button
-              variant="outlined"
-              color="success"
-              onClick={() => reactivateUser(user.id)}
-            >
-              Reactivate
-            </Button>
-          )}
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+        <Stack spacing={0.5}>
+          <Typography variant="h6">{user.name}</Typography>
+          <Typography variant="body2">{user.email}</Typography>
         </Stack>
-      )}
+
+        {canManageUsers && <UserManagementListItemActions user={user} />}
+      </Stack>
     </Card>
-  ), [canManageUsers, verifyUser, deactivateUser, reactivateUser]);
+  ), [canManageUsers]);
+
 
     useEffect(() => {
           setMounted(true);
