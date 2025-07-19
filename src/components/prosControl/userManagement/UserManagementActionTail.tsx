@@ -1,4 +1,4 @@
-import { MailOutlined } from '@mui/icons-material';
+import React, { useState } from 'react';
 import {
   ButtonGroup,
   Dialog,
@@ -6,36 +6,32 @@ import {
   Tooltip,
   useMediaQuery,
 } from '@mui/material';
+import VerifiedIcon from '@mui/icons-material/Verified'; // ✅ Matching the uploaded image
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions'; 
-import UserManagementFormDialog from './UserManagementFormDialog';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const UserManagementActionTail = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
-  const { checkPermission } = useJumboAuth();
+  const { checkOrganizationPermission } = useJumboAuth();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   return (
     <>
-      <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog}>
-        <UserManagementFormDialog 
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      />
+      <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog} onClose={() => setOpenDialog(false)}>
+        <UserManagementFormDialog setOpenDialog={setOpenDialog} />
       </Dialog>
 
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-        {checkPermission(PROS_CONTROL_PERMISSIONS.USERS_MANAGE) && (
-          <Tooltip title="Verify User Email">
+        {checkOrganizationPermission(PERMISSIONS.USERS_MANAGE) && (
+          <Tooltip title="Verify User">
             <IconButton onClick={() => setOpenDialog(true)}>
-              <MailOutlined />
+              <VerifiedIcon /> {/* ✅ Icon from your image */}
             </IconButton>
           </Tooltip>
         )}
-      </ButtonGroup> 
+      </ButtonGroup>
     </>
   );
 };

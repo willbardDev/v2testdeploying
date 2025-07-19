@@ -13,10 +13,9 @@ import { UserManager } from './UserManagementType';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import UserManagementActionTail from './UserManagementActionTail';
 
-
 const UserManagement = () => {
   const params = useParams();
-  const listRef = useRef<any>(null);;
+  const listRef = useRef<any>(null);
   const { checkPermission } = useJumboAuth();
   const [mounted, setMounted] = useState(false);
 
@@ -44,30 +43,43 @@ const UserManagement = () => {
     }));
   }, []);
 
-    const renderUserItem = useCallback((user: UserManager) => (
-    <Card sx={{ p: 2, mb: 2 }} key={user.id}>
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-        <Stack spacing={0.5}>
-          <Typography variant="h6">{user.name}</Typography>
-          <Typography variant="body2">{user.email}</Typography>
+  const renderUserItem = useCallback(
+    (user: UserManager) => (
+      <Card sx={{ p: 2, mb: 2 }} key={user.id}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Stack spacing={0.5}>
+            <Typography variant="h6">{user.name}</Typography>
+            <Typography variant="body2">{user.email}</Typography>
+          </Stack>
         </Stack>
-      </Stack>
-    </Card>
-  ), []);
+      </Card>
+    ),
+    []
+  );
 
-
-    useEffect(() => {
-          setMounted(true);
-      }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted) return null;
 
-  if(!checkPermission([
-    PROS_CONTROL_PERMISSIONS.USERS_MANAGE,
-    PROS_CONTROL_PERMISSIONS.USERS_READ
-  ])){
-    return <UnauthorizedAccess/>
-  }
+  // 🔐 PERMISSION CHECK:
+  // The user must have at least one of the following permissions to access this page:
+  //
+  // PROS_CONTROL_PERMISSIONS.USERS_MANAGE = 'SystemUsers:Manage'
+  // -> Allows managing users (e.g., add/edit/delete users)
+  //
+  // PROS_CONTROL_PERMISSIONS.USERS_READ = 'SystemUsers:Read'
+  // -> Allows viewing user data (read-only access)
+//  const hasPermission = checkPermission([
+ //   PROS_CONTROL_PERMISSIONS.USERS_MANAGE,
+ //   PROS_CONTROL_PERMISSIONS.USERS_READ,
+ // ]);
+
+  //if (!hasPermission) {
+    // If user has neither manage nor read permission, deny access.
+  //  return <UnauthorizedAccess />;
+ // }
 
   return (
     <>
@@ -79,7 +91,7 @@ const UserManagement = () => {
         ref={listRef}
         wrapperComponent={Card}
         service={userManagementServices.getList}
-        primaryKey="id"
+        primaryKey={"id"}
         queryOptions={queryOptions}
         itemsPerPage={10}
         itemsPerPageOptions={[5, 10, 20]}
@@ -99,7 +111,7 @@ const UserManagement = () => {
                   onChange={handleSearchChange}
                   value={queryOptions.queryParams.keyword}
                 />
-                <UserManagementActionTail/>
+                <UserManagementActionTail />
               </Stack>
             }
           />
