@@ -3,11 +3,11 @@ import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const url = new URL(`${API_BASE}/pos/delivery-notes/invoice-items`);
+  const url = new URL(`${API_BASE}/approved-requisitions/${params.id}`);
   req.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value));
 
   const res = await fetch(url.toString(), {

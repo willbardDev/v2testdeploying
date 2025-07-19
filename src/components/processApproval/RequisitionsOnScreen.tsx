@@ -84,7 +84,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
           </Grid>
 
           {/* Meta Info */}
-          <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
+          <Grid container spacing={2} sx={{ mt: 1, mb: 2 }} width={'100%'}>
             <Grid size={6}>
               <Typography variant="body2" sx={{ color: mainColor }}>Requisition Date:</Typography>
               <Typography variant="body2">{readableDate(requisition.requisition_date)}</Typography>
@@ -183,7 +183,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
           </TableContainer>
 
           {/* Totals */}
-          <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid container spacing={2} sx={{ mt: 2 }} width={'100%'}>
             <Grid size={7}>
               <Typography variant="body2" sx={{ color: mainColor }}>Total</Typography>
             </Grid>
@@ -225,7 +225,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
           </Grid>
 
           {/* Remarks & Creator */}
-          <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid container spacing={2} sx={{ mt: 2 }} width={'100%'}>
             {requisition.remarks && (
               <Grid size={6}>
                 <Typography variant="body2" sx={{ color: mainColor }}>Remarks</Typography>

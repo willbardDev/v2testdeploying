@@ -1,6 +1,5 @@
 'use client'
 
-import axios from '@/lib/services/config';
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getToken } from 'firebase/messaging';
@@ -14,9 +13,9 @@ interface AuthUser {
     id: string;
     name: string;
     email: string;
+    organization_roles?: Array<{ name: string }>;
   }
   permissions?: string[];
-  organization_roles?: Array<{ name: string }>;
   [key: string]: any;
 }
 
@@ -242,7 +241,8 @@ export const JumboAuthProvider = ({
           user: {
             id: response.authUser.user.id,
             name: response.authUser.user.name,
-            email: response.authUser.user.email
+            email: response.authUser.user.email,
+            organization_roles: response.authUser.user.organization_roles
           },
           permissions: response.authUser.permissions || [],
         };
@@ -369,7 +369,7 @@ export const JumboAuthProvider = ({
   }, [authData.authUser]);
 
   const hasOrganizationRole = useCallback((roles: string | string[], mustHaveAll = false) => {
-    const authRoles = authData.authUser?.organization_roles;
+    const authRoles = authData.authUser?.user.organization_roles;
 
     if (!authRoles) return false;
 

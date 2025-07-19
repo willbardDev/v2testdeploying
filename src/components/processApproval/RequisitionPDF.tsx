@@ -4,18 +4,12 @@ import pdfStyles from '../pdf/pdf-styles';
 import PdfLogo from '../pdf/PdfLogo';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import PageFooter from '../pdf/PageFooter';
-import { PaymentItem, PurchaseItem, Requisition, RequisitionItem } from './RequisitionType';
+import { PaymentItem, PurchaseItem, Requisition, RequisitionItem, Vendor } from './RequisitionType';
 import { Organization } from '@/types/auth-types';
 
 interface RequisitionPDFProps {
   requisition: Requisition;
   organization: Organization;
-}
-
-interface Vendor {
-  id: number;
-  name: string;
-  remarks: string;
 }
 
 function RequisitionPDF({ requisition, organization }: RequisitionPDFProps) {

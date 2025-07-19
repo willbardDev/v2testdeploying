@@ -13,11 +13,11 @@ function ApprovalsTab({ requisition, isExpanded }: ApprovalsTabProps) {
   return (
     <Grid container spacing={2}>
       {requisition.approvals.length === 0 && (
-        <Grid size={{xs: 12}} textAlign={'end'}>
+        <Grid size={12} textAlign={'end'}>
           <ApprovalsActionTail requisition={requisition} isExpanded={isExpanded}/>
         </Grid>
       )}
-      <Grid size={{xs: 12}}>
+      <Grid size={12}>
         <ApprovalsListItem approvals={requisition.approvals} requisition={requisition}/>
       </Grid>
     </Grid>

@@ -8,16 +8,14 @@ export async function GET(request: NextRequest) {
   if (response) return response;
 
   const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get('keyword') || '';
-  const page = searchParams.get('page') || '1';
-  const limit = searchParams.get('limit') || '10';
-  const query = new URLSearchParams({ keyword, page, limit }).toString();
 
-  const res = await fetch(`${API_BASE}/users${query}`, {
+  // Just forward all incoming query parameters exactly as they are
+  const queryString = searchParams.toString();
+
+  const res = await fetch(`${API_BASE}/ledgers/related-transactions?${queryString}`, {
     headers,
     credentials: 'include',
   });
-
 
   return handleJsonResponse(res);
 }

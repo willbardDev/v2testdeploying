@@ -66,6 +66,16 @@ function RequisitionProductItemRow({
     });
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowForm(true);
+  };
+
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleRemoveItem();
+  };
+
   return (
     <Accordion
       key={index}
@@ -173,14 +183,44 @@ function RequisitionProductItemRow({
             </Grid>
             <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
               <Tooltip title='Edit Item'>
-                <IconButton size='small' onClick={() => setShowForm(true)}>
+                <Box 
+                  component="span" 
+                  onClick={handleEditClick}
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    ml: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      color: 'primary.main'
+                    }
+                  }}
+                >
                   <EditOutlined fontSize='small'/>
-                </IconButton>
+                </Box>
               </Tooltip>
               <Tooltip title='Remove Item'>
-                <IconButton size='small' onClick={handleRemoveItem}>
-                  <DisabledByDefault fontSize='small' color='error'/>
-                </IconButton>
+                <Box 
+                  component="span" 
+                  onClick={handleRemoveClick}
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    ml: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      color: 'error.main'
+                    }
+                  }}
+                >
+                  <DisabledByDefault fontSize='small'/>
+                </Box>
               </Tooltip>
             </Grid>
           </Grid>

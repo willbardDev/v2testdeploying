@@ -66,10 +66,10 @@ function RequisitionLedgerItemForm({
           ? schema
               .required("Amount is required")
               .test('max-amount', `Amount should not exceed unapproved amount (${relatable?.unapproved_amount?.toLocaleString()}) of selected relatable`, function (value) {
-                return value ? value <= (relatable?.unapproved_amount ?? 0) : true;
+                return value <= (relatable?.unapproved_amount);
               })
           : schema.nullable()
-      ),
+      ).typeError('Amount is Required'),
     measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
   });
 
@@ -93,19 +93,22 @@ function RequisitionLedgerItemForm({
     setIsDirty(Object.keys(dirtyFields).length > 0);
   }, [dirtyFields, setIsDirty]);
 
-  const calculateAmount = (): number => {
+  const calculateAmount = () => {
     const quantity = parseFloat(Number(watch('quantity'))?.toString() ?? ledger_item?.quantity ?? 0);
     const rate = parseFloat(Number(watch('rate'))?.toString() ?? ledger_item?.rate ?? 0);
-    return quantity * rate;
+
+    if (quantity && rate) {
+      setValue(`amount`, quantity*rate,{
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      return quantity * rate;
+    }
   };
 
   useEffect(() => {
     const amount = calculateAmount();
-    setCalculatedAmount(amount);
-    setValue('amount', amount, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setCalculatedAmount(Number(amount));
   }, [watch('quantity'), watch('rate')]);
 
   const updateItems = async (data: RequisitionLedgerItem) => {
@@ -181,7 +184,7 @@ function RequisitionLedgerItemForm({
         <Grid size={12}>
           <Divider />
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <LedgerSelect
               multiple={false}
@@ -262,7 +265,7 @@ function RequisitionLedgerItemForm({
             />
           </Div>
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <TextField
               label="Amount"
@@ -281,7 +284,7 @@ function RequisitionLedgerItemForm({
             />
           </Div>
         </Grid>
-        <Grid size={{xs: 12, md: 2}}>
+        <Grid size={{xs: 12, md: 3}}>
           <Div sx={{ mt: 0.3 }}>
             <Autocomplete
               id="checkboxes-linked_to_types"

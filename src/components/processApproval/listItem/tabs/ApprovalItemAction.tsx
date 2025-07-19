@@ -124,7 +124,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
       <DialogContent>
         <Box>
           {showTabs && (
-            <Grid container alignItems="center" justifyContent="space-between">
+            <Grid container alignItems="center" justifyContent="space-between" width={'100%'}>
               <Grid size={{xs: belowLargeScreen ? 11 : 12}}>
                 <Tabs value={selectedTab} onChange={handleTabChange}>
                   <Tab label="On Screen" />

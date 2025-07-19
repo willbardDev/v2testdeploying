@@ -165,7 +165,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
     if (selectedProcessType === 'PURCHASE') {
       setValue('product_items', requisition_product_items);
       requisition_product_items.forEach((item) => {
-        vatableAmount += (item.quantity * item.rate * (item.vat_percentage || 0) * 0.01);
+        vatableAmount += (Number(item.quantity) * Number(item.rate) * (item.vat_percentage || 0) * 0.01);
       });
       setVatableAmount(vatableAmount);
       setTotalAmount(total || 0);
@@ -206,7 +206,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
   return (
     <React.Fragment>
       <DialogTitle>
-        <Grid container columnSpacing={2}>
+        <Grid container columnSpacing={2} width={'100%'}>
           <Grid size={{xs: 12}} textAlign={"center"} mb={2}>
             {requisition ? 'Edit Requisition' : 'New Requisition'}
           </Grid>
@@ -230,7 +230,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
                           helperText: errors?.requisition_date?.message
                         }
                       }}
-                      onChange={(newValue) => {
+                      onChange={(newValue: any) => {
                         setValue('requisition_date', newValue ? newValue.toISOString() : null, {
                           shouldValidate: true,
                           shouldDirty: true
@@ -257,7 +257,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
                           helperText={errors.process_type?.message}
                         />
                       )}
-                      onChange={(e, newValue) => {
+                      onChange={(e, newValue: any) => {
                         setValue('process_type', newValue ? newValue : null, {
                           shouldValidate: true,
                           shouldDirty: true,
