@@ -220,7 +220,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
             </Grid>
           )}
           {activeTab === 1 && (
-            <Grid container spacing={1} justifyContent="center" marginTop={1}>
+            <Grid container spacing={1} justifyContent="center" marginTop={1} width={'100%'}>
               <Grid size={{xs: 12}}>
                 <AttachmentForm
                   hideFeatures={true}

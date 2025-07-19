@@ -57,8 +57,8 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
     return (
         <>
             <Box sx={{ padding: 5 }}>
-                <Grid container spacing={1}>
-                    <Grid container spacing={2} sx={{ mt: 20 }}>
+                <Grid container spacing={1} width={'100%'}>
+                    <Grid container spacing={2} width={'100%'}>
                         <Grid size={12} sx={{ textAlign: 'center' }}>
                             <Typography variant="h4" color={mainColor}>
                                 {approval.requisition?.process_type?.toLowerCase() === 'purchase' 
@@ -69,7 +69,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                         </Grid>
                     </Grid>
 
-                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }}>
+                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }} width={'100%'}>
                         <Grid size={6}>
                             <Typography variant="body2" sx={{ color: mainColor }}>Approval Date:</Typography>
                             <Typography variant="body2">{readableDate(approval.approval_date)}</Typography>
@@ -158,7 +158,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                         </Table>
                     </TableContainer>
 
-                    <Grid container spacing={2} sx={{ mt: 10 }}>
+                    <Grid container spacing={2} sx={{ mt: 10 }} width={'100%'}>
                         <Grid size={7}>
                             <Typography variant="body2" sx={{ color: mainColor }}>Total</Typography>
                         </Grid>
@@ -198,7 +198,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                         )}
                     </Grid>
 
-                    <Grid size={12} container spacing={2} sx={{ mt: 2 }}>
+                    <Grid size={12} container spacing={2} sx={{ mt: 2 }} width={'100%'}>
                         {approval.remarks && (
                             <Grid size={6}>
                                 <Typography variant="body2" sx={{ color: mainColor }}>Remarks</Typography>
@@ -206,7 +206,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                             </Grid>
                         )}
                     </Grid>
-                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }}>
+                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }} width={'100%'}>
                         <Grid size={6}>
                             <Typography variant="body2" color={mainColor}>Requested By:</Typography>
                             <Typography variant="body2">{approval.requisition?.creator.name}</Typography>

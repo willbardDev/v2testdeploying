@@ -206,7 +206,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
   return (
     <React.Fragment>
       <DialogTitle>
-        <Grid container columnSpacing={2}>
+        <Grid container columnSpacing={2} width={'100%'}>
           <Grid size={{xs: 12}} textAlign={"center"} mb={2}>
             {requisition ? 'Edit Requisition' : 'New Requisition'}
           </Grid>

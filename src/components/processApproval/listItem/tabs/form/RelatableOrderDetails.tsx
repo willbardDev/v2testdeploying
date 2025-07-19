@@ -89,7 +89,7 @@ function RelatableOrderDetails({ order, toggleOpen }: RelatableOrderDetailsProps
     return (
         <>
             <DialogContent>
-                <Grid container spacing={2} sx={{ mt: 20 }}>
+                <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }} sx={{ textAlign: 'center' }}>
                         <Typography variant="h4" color={mainColor}>PURCHASE ORDER</Typography>
                         <Typography variant="subtitle1" fontWeight="bold">{order.orderNo}</Typography>
