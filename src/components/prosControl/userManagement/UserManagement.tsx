@@ -63,18 +63,6 @@ const UserManagement = () => {
 
   if (!mounted) return null;
 
-  // 🔐 PERMISSION CHECK:
-  // The user must have at least one of the following permissions to access this page:
-  //
-  // PROS_CONTROL_PERMISSIONS.USERS_MANAGE = 'SystemUsers:Manage'
-  // -> Allows managing users (e.g., add/edit/delete users)
-  //
-  // PROS_CONTROL_PERMISSIONS.USERS_READ = 'SystemUsers:Read'
-  // -> Allows viewing user data (read-only access)
-//  const hasPermission = checkPermission([
- //   PROS_CONTROL_PERMISSIONS.USERS_MANAGE,
- //   PROS_CONTROL_PERMISSIONS.USERS_READ,
- // ]);
 
   //if (!hasPermission) {
     // If user has neither manage nor read permission, deny access.

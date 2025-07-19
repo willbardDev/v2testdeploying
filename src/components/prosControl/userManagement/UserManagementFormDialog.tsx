@@ -13,13 +13,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
-type Props = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  onSubmit: (data: FormData) => void;
-  userName?: string;
-};
-
 type FormData = {
   reason: string;
 };
@@ -28,10 +21,17 @@ const schema = yup.object({
   reason: yup.string().required('Verification reason is required'),
 });
 
-const UserVerifyFormDialog: React.FC<Props> = ({
-  open,
-  setOpen,
-  onSubmit,
+type Props = {
+  open?: boolean;
+  onClose?: () => void;
+  onSubmit?: (data: FormData) => void;
+  userName?: string;
+};
+
+const UserManagementFormDialog: React.FC<Props> = ({
+  open = false,
+  onClose = () => {},
+  onSubmit = () => {},
   userName,
 }) => {
   const {
@@ -45,7 +45,7 @@ const UserVerifyFormDialog: React.FC<Props> = ({
 
   const handleClose = () => {
     reset();
-    setOpen(false);
+    onClose();
   };
 
   const handleFormSubmit = (data: FormData) => {
@@ -58,8 +58,7 @@ const UserVerifyFormDialog: React.FC<Props> = ({
       <DialogTitle>Verify User</DialogTitle>
       <DialogContent>
         <Typography mb={2}>
-          Are you sure you want to verify{' '}
-          <strong>{userName || 'this user'}</strong>?
+          Are you sure you want to verify <strong>{userName || 'this user'}</strong>?
         </Typography>
 
         <textarea
@@ -84,4 +83,4 @@ const UserVerifyFormDialog: React.FC<Props> = ({
   );
 };
 
-export default UserVerifyFormDialog;
+export default UserManagementFormDialog;

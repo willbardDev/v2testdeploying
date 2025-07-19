@@ -33,9 +33,6 @@ export type UserManager = {
   is_active: boolean;
 };
 
-export type VerifyUserResponse = {
-  message: string;
-};
 
 export type DeactivateUserResponse = {
   message: string;
@@ -44,3 +41,13 @@ export type DeactivateUserResponse = {
 export type ReactivateUserResponse = {
   message: string;
 };
+export interface VerifyUserResponse {
+  message: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    // ...other fields
+  };
+}
+
