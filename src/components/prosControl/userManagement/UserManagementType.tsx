@@ -51,3 +51,7 @@ export interface VerifyUserResponse {
   };
 }
 
+ export interface ErrorResponse {
+  message: string;
+}
+ 

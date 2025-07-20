@@ -14,6 +14,22 @@ import VerifyUserFormDialog from './VerifyUserFormDialog';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import userManagementServices from './user-management-services';
+import { AxiosError } from 'axios';
+
+// Define proper TypeScript interfaces
+interface VerifyUserPayload {
+  email: string;
+}
+
+interface VerifyUserResponse {
+  message: string;
+  // Add other response properties if needed
+}
+
+interface ApiErrorResponse {
+  message?: string;
+  // Add other error response properties if needed
+}
 
 const UserManagementActionTail = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -23,20 +39,20 @@ const UserManagementActionTail = () => {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const queryClient = useQueryClient();
 
-  const { mutate: verifyUser } = useMutation({
+  const { mutate: verifyUser } = useMutation<VerifyUserResponse, AxiosError<ApiErrorResponse>, VerifyUserPayload>({
     mutationFn: userManagementServices.verify,
     onSuccess: (data) => {
       enqueueSnackbar(data?.message || 'User verified successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setOpenDialog(false);
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || 'Verification failed';
+    onError: (error) => {
+      const message = error.response?.data?.message || error.message || 'Verification failed';
       enqueueSnackbar(message, { variant: 'error' });
     }
   });
 
-  const handleSubmitVerification = (data: { email: string }) => {
+  const handleSubmitVerification = (data: VerifyUserPayload) => {
     verifyUser(data);
   };
 
@@ -52,9 +68,8 @@ const UserManagementActionTail = () => {
         )}
       </ButtonGroup>
 
-      {/* ✅ FIXED: proper usage of Dialog */}
       <Dialog
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
         fullScreen={belowLargeScreen}
         open={openDialog}

@@ -10,32 +10,44 @@ export interface VerifyUserPayload {
   email: string;
 }
 
-const verify = async (payload: VerifyUserPayload): Promise<VerifyUserResponse> => {
-  const response = await axios.post('/users/verify', payload);
-  return response.data;
+const userManagementServices: any = {};
+
+// ✅ Get user list (paginated)
+userManagementServices.getList = async (
+  params: { keyword?: string; page?: number; limit?: number } = {}
+): Promise<PaginatedUserResponse> => {
+  const { page = 1, limit = 10, ...queryParams } = params;
+  const { data } = await axios.get('/api/prosControl/userManagement', {
+    params: { page, limit, ...queryParams },
+  });
+  return data;
 };
 
-const deactivate = async (id: number): Promise<DeactivateUserResponse> => {
-  const response = await axios.post(`/deactivate-user/${id}`);
-  return response.data;
+// ✅ Verify user
+userManagementServices.verify = async (
+  payload: VerifyUserPayload
+): Promise<VerifyUserResponse> => {
+  await axios.get('/sanctum/csrf-cookie');
+  const { data } = await axios.post('/users/verify', payload);
+  return data;
 };
 
-const reactivate = async (id: number): Promise<ReactivateUserResponse> => {
-  const response = await axios.post(`/reactivate-user/${id}`);
-  return response.data;
+// ✅ Deactivate user
+userManagementServices.deactivate = async (
+ params: { id: number }
+): Promise<DeactivateUserResponse> => {
+  await axios.get('/sanctum/csrf-cookie');
+  const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/deactivate`);
+  return data;
 };
 
-// ✅ Renamed from getUsers to getList
-const getList = async (): Promise<PaginatedUserResponse> => {
-  const response = await axios.get('/api/prosControl/userManagement');
-  return response.data;
-};
-
-const userManagementServices = {
-  verify,
-  deactivate,
-  reactivate,
-  getList, // 👈 unified naming
+// ✅ Reactivate user
+userManagementServices.reactivate = async (
+   params: { id: number }
+): Promise<ReactivateUserResponse> => {
+  await axios.get('/sanctum/csrf-cookie');
+  const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/reactivate`);
+  return data;
 };
 
 export default userManagementServices;
