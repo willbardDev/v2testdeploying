@@ -1,176 +1,181 @@
 import { 
-  IconButton, 
-  Menu, 
-  MenuItem, 
-  ListItemIcon, 
-  ListItemText,
-  CircularProgress
-} from '@mui/material';
-import { 
-  MoreVert, 
   Verified, 
   PersonOff, 
-  PersonAdd
+  PersonAdd,
+  MoreHorizOutlined,
+  DeleteOutlined,
+  EditOutlined
 } from '@mui/icons-material';
-import { useState } from 'react';
+import { Dialog, Tooltip, useMediaQuery } from '@mui/material';
+import { useSnackbar } from 'notistack';
+import React, { useState } from 'react';
+import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { enqueueSnackbar } from 'notistack';
-import { 
-  DeactivateUserResponse, 
-  ReactivateUserResponse, 
-  UserManager, 
-  VerifyUserResponse 
-} from './UserManagementType';
+import { MenuItemProps } from '@jumbo/types';
+import { JumboDdMenu } from '@jumbo/components';
 import userManagementServices from './user-management-services';
+import { UserManager } from './UserManagementType';
+import VerifyUserFormDialog from './VerifyUserFormDialog';
 
-type Props = {
-  user: UserManager;
-};
+interface ApiResponse {
+  message?: string;
+  data?: any;
+}
 
-export default function UserManagementListItemActions({ user }: Props) {
+const UserManagementListItemAction = ({ user, onUserUpdated }: { user: UserManager, onUserUpdated?: () => void }) => {
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const { showDialog, hideDialog } = useJumboDialog();
+  const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
 
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const { theme } = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
+  const handleApiError = (error: any, defaultMessage: string) => {
+    const errorMessage = error?.response?.data?.message || 
+                        error?.message || 
+                        defaultMessage;
+    enqueueSnackbar(errorMessage, { variant: 'error' });
   };
 
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
-
-  const { mutate: verifyUser, isPending: isVerifying } = useMutation<VerifyUserResponse>({
-  mutationFn: () => userManagementServices.verify({ email: user.email }),
-    onSuccess: (res) => {
-      enqueueSnackbar(res.message || 'User verified successfully', { 
-        variant: 'success' 
-      });
+  // User status mutations
+  const { mutate: verifyUser } = useMutation<ApiResponse, unknown, void>({
+    mutationFn: () => userManagementServices.verify({ email: user.email }),
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User verified successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      onUserUpdated?.();
     },
-    onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Verification failed', 
-        { variant: 'error' }
-      );
+    onError: (error) => {
+      handleApiError(error, 'Verification failed');
     },
   });
 
-  const { mutate: deactivateUser, isPending: isDeactivating } = useMutation<DeactivateUserResponse>({
+  const { mutate: deactivateUser } = useMutation<ApiResponse, unknown, void>({
     mutationFn: () => userManagementServices.deactivate(user.id),
-    onSuccess: (res) => {
-      enqueueSnackbar(res.message || 'User deactivated successfully', { 
-        variant: 'success' 
-      });
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User deactivated successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      onUserUpdated?.();
     },
-    onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Deactivation failed', 
-        { variant: 'error' }
-      );
+    onError: (error) => {
+      handleApiError(error, 'Deactivation failed');
     },
   });
 
-  const { mutate: reactivateUser, isPending: isReactivating } = useMutation<ReactivateUserResponse>({
+  const { mutate: reactivateUser } = useMutation<ApiResponse, unknown, void>({
     mutationFn: () => userManagementServices.reactivate(user.id),
-    onSuccess: (res) => {
-      enqueueSnackbar(res.message || 'User reactivated successfully', { 
-        variant: 'success' 
-      });
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User reactivated successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      onUserUpdated?.();
     },
-    onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Reactivation failed', 
-        { variant: 'error' }
-      );
+    onError: (error) => {
+      handleApiError(error, 'Reactivation failed');
     },
   });
 
-  const handleAction = (action: () => void) => {
-    handleCloseMenu();
-    action();
+  const { mutate: deleteUser } = useMutation<ApiResponse, unknown, void>({
+    mutationFn: () => userManagementServices.delete(user.id),
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User deleted successfully', { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      onUserUpdated?.();
+    },
+    onError: (error) => {
+      handleApiError(error, 'Deletion failed');
+    },
+  });
+
+  const menuItems: MenuItemProps[] = [
+    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
+    ...(!user.is_verified ? [{ 
+      icon: <Verified />, 
+      title: 'Verify', 
+      action: 'verify' 
+    }] : []),
+    ...(user.is_active ? [{
+      icon: <PersonOff color="warning" />,
+      title: 'Deactivate',
+      action: 'deactivate'
+    }] : [{
+      icon: <PersonAdd color="success" />,
+      title: 'Reactivate',
+      action: 'reactivate'
+    }]),
+    { 
+      icon: <DeleteOutlined color="error" />, 
+      title: 'Delete', 
+      action: 'delete' 
+    },
+  ];
+
+  const handleItemAction = (menuItem: MenuItemProps) => {
+    switch (menuItem.action) {
+      case 'edit':
+        setOpenEditDialog(true);
+        break;
+      case 'verify':
+        verifyUser();
+        break;
+      case 'deactivate':
+        showDialog({
+          title: 'Confirm User Deactivation',
+          content: 'Are you sure you want to deactivate this user?',
+          onYes: () => {
+            hideDialog();
+            deactivateUser();
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
+        break;
+      case 'reactivate':
+        reactivateUser();
+        break;
+      case 'delete':
+        showDialog({
+          title: 'Confirm User Deletion',
+          content: 'Are you sure you want to permanently delete this user?',
+          onYes: () => {
+            hideDialog();
+            deleteUser();
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   return (
     <>
-      <IconButton 
-        onClick={handleOpenMenu}
-        aria-label="user actions"
-        aria-controls={open ? 'user-actions-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
+      <Dialog
+        open={openEditDialog}
+        fullWidth
+        maxWidth="sm"
+        fullScreen={belowLargeScreen}
       >
-        <MoreVert />
-      </IconButton>
-      
-      <Menu 
-        id="user-actions-menu"
-        anchorEl={anchorEl} 
-        open={open} 
-        onClose={handleCloseMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        {!user.is_verified && (
-          <MenuItem
-            onClick={() => handleAction(() => verifyUser())}
-            disabled={isVerifying}
-          >
-            <ListItemIcon>
-              {isVerifying ? (
-                <CircularProgress size={20} />
-              ) : (
-                <Verified fontSize="small" />
-              )}
-            </ListItemIcon>
-            <ListItemText 
-              primary={isVerifying ? 'Verifying...' : 'Verify Email'} 
-            />
-          </MenuItem>
-        )}
-
-        {user.is_active ? (
-          <MenuItem
-            onClick={() => handleAction(() => deactivateUser())}
-            disabled={isDeactivating}
-          >
-            <ListItemIcon>
-              {isDeactivating ? (
-                <CircularProgress size={20} />
-              ) : (
-                <PersonOff fontSize="small" />
-              )}
-            </ListItemIcon>
-            <ListItemText 
-              primary={isDeactivating ? 'Deactivating...' : 'Deactivate User'} 
-            />
-          </MenuItem>
-        ) : (
-          <MenuItem
-            onClick={() => handleAction(() => reactivateUser())}
-            disabled={isReactivating}
-          >
-            <ListItemIcon>
-              {isReactivating ? (
-                <CircularProgress size={20} />
-              ) : (
-                <PersonAdd fontSize="small" />
-              )}
-            </ListItemIcon>
-            <ListItemText 
-              primary={isReactivating ? 'Reactivating...' : 'Reactivate User'} 
-            />
-          </MenuItem>
-        )}
-      </Menu>
+        <VerifyUserFormDialog
+          user={user}
+          setOpenDialog={setOpenEditDialog}
+          onUserUpdated={onUserUpdated}
+        />
+      </Dialog>
+      <JumboDdMenu
+        icon={
+          <Tooltip title="User Actions">
+            <MoreHorizOutlined fontSize="small" />
+          </Tooltip>
+        }
+        menuItems={menuItems}
+        onClickCallback={handleItemAction}
+      />
     </>
   );
-}
+};
+
+export default UserManagementListItemAction;

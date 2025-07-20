@@ -8,31 +8,32 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import { useSnackbar } from 'notistack';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import userManagementServices from './user-management-services';
+import { UserManager } from './UserManagementType';
 
-interface VerifyUserFormDialogProps {
+type VerifyUserFormDialogProps = {
+  user: UserManager;
   open: boolean;
-  onClose: () => void;
-  onSubmit: (data: { email: string }) => void;
-}
+  setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  onUserUpdated?: () => void;
+  onClose?: () => void;
+  onSubmit?: (data: { email: string }) => void;
+};
 
 const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required('Email is required')
-    .email('Enter a valid email'),
+  email: yup.string().required('Email is required').email('Enter a valid email'),
 });
 
-const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({ 
-  open, 
-  onClose, 
-  onSubmit 
+const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
+  user,
+  open,
+  setOpenDialog,
+  onUserUpdated,
+  onClose = () => setOpenDialog(false),
+  onSubmit = () => {},
 }) => {
   const {
     register,
@@ -41,6 +42,9 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
     reset,
   } = useForm<{ email: string }>({
     resolver: yupResolver(validationSchema),
+    defaultValues: {
+      email: user?.email || '',
+    },
   });
 
   const handleClose = () => {
@@ -73,19 +77,10 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button 
-            onClick={handleClose} 
-            size="small"
-            disabled={isSubmitting}
-          >
+          <Button onClick={handleClose} size="small" disabled={isSubmitting}>
             Cancel
           </Button>
-          <LoadingButton
-            type="submit"
-            variant="contained"
-            size="small"
-            loading={isSubmitting}
-          >
+          <LoadingButton type="submit" variant="contained" size="small" loading={isSubmitting}>
             Verify
           </LoadingButton>
         </DialogActions>

@@ -11,6 +11,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import userManagementServices from './user-management-services';
 import { UserManager } from './UserManagementType';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
+import UserManagementListItem from './UserManagementListItem';
 import UserManagementActionTail from './UserManagementActionTail';
 
 const UserManagement = () => {
@@ -43,19 +44,9 @@ const UserManagement = () => {
     }));
   }, []);
 
-  const renderUserItem = useCallback(
-    (user: UserManager) => (
-      <Card sx={{ p: 2, mb: 2 }} key={user.id}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-          <Stack spacing={0.5}>
-            <Typography variant="h6">{user.name}</Typography>
-            <Typography variant="body2">{user.email}</Typography>
-          </Stack>
-        </Stack>
-      </Card>
-    ),
-    []
-  );
+  const renderUserManager = useCallback((user: UserManager) => (
+  <UserManagementListItem user={user} />
+), []);
 
   useEffect(() => {
     setMounted(true);
@@ -83,7 +74,7 @@ const UserManagement = () => {
         queryOptions={queryOptions}
         itemsPerPage={10}
         itemsPerPageOptions={[5, 10, 20]}
-        renderItem={renderUserItem}
+        renderItem={renderUserManager}
         componentElement="div"
         wrapperSx={{
           flex: 1,

@@ -4,7 +4,6 @@ import {
   IconButton,
   Tooltip,
   useMediaQuery,
-  Dialog
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -15,23 +14,21 @@ import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import userManagementServices from './user-management-services';
 import { AxiosError } from 'axios';
+import { UserManager } from './UserManagementType';
 
-// Define proper TypeScript interfaces
 interface VerifyUserPayload {
   email: string;
 }
 
 interface VerifyUserResponse {
   message: string;
-  // Add other response properties if needed
 }
 
 interface ApiErrorResponse {
   message?: string;
-  // Add other error response properties if needed
 }
 
-const UserManagementActionTail = () => {
+const UserManagementActionTail = ({ user }: { user: UserManager }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const { enqueueSnackbar } = useSnackbar();
@@ -68,19 +65,12 @@ const UserManagementActionTail = () => {
         )}
       </ButtonGroup>
 
-      <Dialog
-        maxWidth="md"
-        fullWidth
-        fullScreen={belowLargeScreen}
+      <VerifyUserFormDialog
+        user={user}
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      >
-        <VerifyUserFormDialog
-          open={openDialog}
-          onClose={() => setOpenDialog(false)}
-          onSubmit={handleSubmitVerification}
-        />
-      </Dialog>
+        setOpenDialog={setOpenDialog}
+        onSubmit={handleSubmitVerification}
+      />
     </>
   );
 };
