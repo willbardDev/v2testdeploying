@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ButtonGroup,
-  Dialog,
   IconButton,
   Tooltip,
   useMediaQuery,
@@ -10,18 +9,39 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import UserManagementFormDialog from './UserManagementFormDialog';
+import VerifyUserFormDialog from './VerifyUserFormDialog';
+import { useSnackbar } from 'notistack';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import userManagementServices from './user-management-services';
 
 const UserManagementActionTail = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
+  const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const queryClient = useQueryClient();
 
-  const handleSubmitVerification = (data: { reason: string }) => {
-    // Handle the verification logic here
-    console.log('Verification data:', data);
-    // You would typically make an API call here to verify the user
+ const { mutate: verifyUser } = useMutation<
+  { message: string },     // ✅ expected response from API
+  unknown,                 // ✅ error type
+  { email: string }        // ✅ request payload matches your form
+>({
+  mutationFn: userManagementServices.verifyUser, // assumes this accepts { email }
+  onSuccess: (data) => {
+    enqueueSnackbar(data.message || 'User verified successfully', { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['users'] });
+    setOpenDialog(false);
+  },
+  onError: (error: any) => {
+    const message = error?.response?.data?.message || error.message || 'Verification failed';
+    enqueueSnackbar(message, { variant: 'error' });
+  }
+});
+
+
+  const handleSubmitVerification = (data: { email: string }) => {
+    verifyUser(data);
   };
 
   return (
@@ -36,12 +56,10 @@ const UserManagementActionTail = () => {
         )}
       </ButtonGroup>
 
-      <UserManagementFormDialog
+      <VerifyUserFormDialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         onSubmit={handleSubmitVerification}
-        // You can optionally pass userName if available
-        // userName="John Doe"
       />
     </>
   );
