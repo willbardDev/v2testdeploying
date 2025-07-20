@@ -18,11 +18,9 @@ import userManagementServices from './user-management-services';
 
 interface VerifyUserFormDialogProps {
   open: boolean;
-  onClose: () => void; // ✅ this is preferred
+  onClose: () => void; 
   onSubmit: (data: FormData) => void;
 }
-
-
 
 interface FormData {
   email: string;
@@ -35,7 +33,7 @@ const validationSchema = yup.object({
     .email('Enter a valid email'),
 });
 
-const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({ setOpenDialog }) => {
+const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({ onClose }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -55,11 +53,11 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({ setOpenDial
     unknown,
     { email: string }
   >({
-    mutationFn: userManagementServices.verifyUser, // 🔁 function ya service ya verify user
+    mutationFn: userManagementServices.verify, 
     onSuccess: (data) => {
       enqueueSnackbar(data.message || 'User verified', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setOpenDialog(false);
+      (onClose);
     },
     onError: (error: any) => {
       const message =
@@ -90,7 +88,7 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({ setOpenDial
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpenDialog(false)} size="small">
+        <Button onClick={() => (onClose)} size="small">
           Cancel
         </Button>
         <LoadingButton

@@ -41,7 +41,7 @@ export default function UserManagementListItemActions({ user }: Props) {
   };
 
   const { mutate: verifyUser, isPending: isVerifying } = useMutation<VerifyUserResponse>({
-    mutationFn: () => userManagementServices.verify(user.email),
+  mutationFn: () => userManagementServices.verify({ email: user.email }),
     onSuccess: (res) => {
       enqueueSnackbar(res.message || 'User verified successfully', { 
         variant: 'success' 

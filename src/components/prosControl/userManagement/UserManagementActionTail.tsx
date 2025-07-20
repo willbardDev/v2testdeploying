@@ -4,6 +4,7 @@ import {
   IconButton,
   Tooltip,
   useMediaQuery,
+  Dialog
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -22,23 +23,18 @@ const UserManagementActionTail = () => {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const queryClient = useQueryClient();
 
- const { mutate: verifyUser } = useMutation<
-  { message: string },     // ✅ expected response from API
-  unknown,                 // ✅ error type
-  { email: string }        // ✅ request payload matches your form
->({
-  mutationFn: userManagementServices.verifyUser, // assumes this accepts { email }
-  onSuccess: (data) => {
-    enqueueSnackbar(data.message || 'User verified successfully', { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['users'] });
-    setOpenDialog(false);
-  },
-  onError: (error: any) => {
-    const message = error?.response?.data?.message || error.message || 'Verification failed';
-    enqueueSnackbar(message, { variant: 'error' });
-  }
-});
-
+  const { mutate: verifyUser } = useMutation({
+    mutationFn: userManagementServices.verify,
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User verified successfully', { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setOpenDialog(false);
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error.message || 'Verification failed';
+      enqueueSnackbar(message, { variant: 'error' });
+    }
+  });
 
   const handleSubmitVerification = (data: { email: string }) => {
     verifyUser(data);
@@ -56,11 +52,20 @@ const UserManagementActionTail = () => {
         )}
       </ButtonGroup>
 
-      <VerifyUserFormDialog
+      {/* ✅ FIXED: proper usage of Dialog */}
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        fullScreen={belowLargeScreen}
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        onSubmit={handleSubmitVerification}
-      />
+      >
+        <VerifyUserFormDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          onSubmit={handleSubmitVerification}
+        />
+      </Dialog>
     </>
   );
 };
