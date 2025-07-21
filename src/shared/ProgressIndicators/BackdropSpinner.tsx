@@ -5,12 +5,10 @@ import Image from "next/image";
 
 interface BackdropSpinnerProps {
   message?: string;
-  isRouterTransfer?: boolean;
 }
 
 export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
-  message,
-  isRouterTransfer,
+  message
 }) => {
   return (
     <Backdrop
