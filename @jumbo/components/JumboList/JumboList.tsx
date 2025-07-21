@@ -19,6 +19,8 @@ import {
 import { getUpdatedSelectedItems } from "./utils/listHelpers";
 import JumboListPagination from './components/JumboListPagination';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import Image from 'next/image';
+import { keyframes } from "@emotion/react";
 
 interface MultiSelectOption {
     label: React.ReactNode;
@@ -212,6 +214,11 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
         },
     }), [setSelectedItems]);
 
+    const rotate = keyframes`
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    `;
+
     if (isLoading) {
         return (
             <JumboListContext.Provider value={jumboListContextValue}>
@@ -219,17 +226,27 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                     <Div
                         sx={{
                             display: 'flex',
+                            width: 100,
+                            height: 100,
+                            overflow: "hidden",
+                            backgroundColor: "#fff",
+                            borderRadius: "50%",
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             p: (theme: Theme) => theme.spacing(3),
                             m: 'auto',
+                            animation: `${rotate} 1.5s linear infinite`,
                         }}
                     >
-                        <CircularProgress />
-                        <Typography variant={'h6'} color={'text.secondary'} mt={2}>
-                            {dictionary.rqList.dataRetrieving}
-                        </Typography>
+                        <Image
+                            src="/assets/images/logos/proserp-logo.jpeg"
+                            alt="ProsERP"
+                            width={95}
+                            height={95}
+                            style={{ objectFit: "contain" }}
+                            unoptimized
+                        />
                     </Div>
                 </JumboListWrapper>
             </JumboListContext.Provider>
