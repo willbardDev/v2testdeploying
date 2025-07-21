@@ -21,30 +21,28 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
       }}
       open={true}
     >
-      {isRouterTransfer && (
-        <Div
-          sx={{
-            width: 80,
-            height: 80,
-            borderRadius: "50%",
-            overflow: "hidden",
-            backgroundColor: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: 3,
-            mb: 2,
-            position: "relative"
-          }}
-        >
-          <Image
-            src={`/assets/images/logos/proserp-logo.jpeg`}
-            alt="ProsERP"
-            width={48}
-            height={48}
-          />
-        </Div>
-      )}
+      <Div
+        sx={{
+          width: 80,
+          height: 80,
+          borderRadius: "50%",
+          overflow: "hidden",
+          backgroundColor: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: 3,
+          mb: 2,
+          position: "relative"
+        }}
+      >
+        <Image
+          src={`/assets/images/logos/proserp-logo.jpeg`}
+          alt="ProsERP"
+          width={48}
+          height={48}
+        />
+      </Div>
       {message && (
         <Div sx={{ p: 2 }}>
           <h2>{message}</h2>
