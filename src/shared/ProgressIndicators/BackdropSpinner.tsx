@@ -1,14 +1,24 @@
+'use client';
+
 import { Backdrop } from "@mui/material";
 import React from "react";
 import { Div } from "@jumbo/shared";
 import Image from "next/image";
+import { keyframes } from "@emotion/react";
 
 interface BackdropSpinnerProps {
   message?: string;
+  isRouterTransfer?: boolean;
 }
 
+const rotate = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
 export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
-  message
+  message,
+  isRouterTransfer
 }) => {
   return (
     <Backdrop
@@ -21,8 +31,8 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
     >
       <Div
         sx={{
-          width: 80,
-          height: 80,
+          width: 100,
+          height: 100,
           borderRadius: "50%",
           overflow: "hidden",
           backgroundColor: "#fff",
@@ -31,17 +41,20 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
           justifyContent: "center",
           boxShadow: 3,
           mb: 2,
-          position: "relative"
+          animation: `${rotate} 1.5s linear infinite`,
         }}
       >
         <Image
-          src={`/assets/images/logos/proserp-logo.jpeg`}
+          src="/assets/images/logos/proserp-logo.jpeg"
           alt="ProsERP"
-          width={48}
-          height={48}
+          width={80}
+          height={80}
+          style={{ objectFit: "contain" }}
+          unoptimized
         />
       </Div>
-      {message && (
+
+      {!isRouterTransfer && message && (
         <Div sx={{ p: 2 }}>
           <h2>{message}</h2>
         </Div>
