@@ -1,27 +1,53 @@
-import { Div } from "@jumbo/shared";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { Backdrop } from "@mui/material";
 import React from "react";
+import { Div } from "@jumbo/shared";
+import Image from "next/image";
 
 interface BackdropSpinnerProps {
   message?: string;
   isRouterTransfer?: boolean;
 }
 
-export const BackdropSpinner: React.FC<BackdropSpinnerProps> = (props) => {
+export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
+  message,
+  isRouterTransfer,
+}) => {
   return (
     <Backdrop
-      sx={{ 
-        color: '#ffffff', 
-        zIndex: (theme) => theme.zIndex.drawer + 1 
+      sx={{
+        color: "#ffffff",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        flexDirection: "column",
       }}
       open={true}
     >
-      {!props.isRouterTransfer &&
-        <CircularProgress color="primary" />
-      }
-      {props?.message && (
+      {isRouterTransfer && (
+        <Div
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
+            overflow: "hidden",
+            backgroundColor: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: 3,
+            mb: 2,
+            position: "relative"
+          }}
+        >
+          <Image
+            src={`/assets/images/logos/proserp-logo.jpeg`}
+            alt="ProsERP"
+            width={48}
+            height={48}
+          />
+        </Div>
+      )}
+      {message && (
         <Div sx={{ p: 2 }}>
-          <h2>{props.message}</h2>
+          <h2>{message}</h2>
         </Div>
       )}
     </Backdrop>

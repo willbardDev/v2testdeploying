@@ -4,7 +4,6 @@ import { Sidebar } from '@/components/Sidebar';
 import { defaultLayoutConfig } from '@/config/layouts';
 import { getMenus } from '@/services';
 import { JumboLayout, JumboLayoutProvider } from '@jumbo/components';
-import { MenuItems } from '@jumbo/types';
 import { getDictionary } from '@/app/[lang]/dictionaries';
 import React from 'react';
 
@@ -17,7 +16,7 @@ interface CommonLayoutProps {
 
 export default async function CommonLayout({ children, params }: CommonLayoutProps) {
   const { lang }: any = await params;
-  const menus: MenuItems = await getMenus(lang);
+  const menus: any = await getMenus(lang);
   const dictionary = await getDictionary(lang);
 
   return (

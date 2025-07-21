@@ -1,10 +1,10 @@
-import { NavbarGroup, NavbarItem } from '@jumbo/types';
+import { NavbarGroup, NavbarItem, NavbarSection } from '@jumbo/types';
 import { isNavGroup, isNavItem, isNavSection } from '@jumbo/utilities/helpers';
 import { JumboNavGroup, JumboNavItem } from '..';
 import { JumboNavSection } from '../JumboNavSection';
 
 type JumboNavIdentifierProps = {
-  item: NavbarGroup | NavbarItem;
+  item: NavbarGroup | NavbarItem | NavbarSection;
   isNested?: boolean;
   isFirstSection?: boolean;
 };

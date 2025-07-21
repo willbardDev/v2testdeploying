@@ -264,9 +264,7 @@ interface CounterSalesListItemActionProps {
 }
 
 const CounterSalesListItemAction: React.FC<CounterSalesListItemActionProps> = ({ 
-  sale,
-  openDispatchDialog,
-  setOpenDispatchDialog
+  sale
 }) => {
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -317,7 +315,7 @@ const CounterSalesListItemAction: React.FC<CounterSalesListItemActionProps> = ({
         open={openEditDialog || openDocumentDialog || openReceiptDialog || attachDialog}
         fullWidth
         fullScreen={belowLargeScreen}
-        maxWidth={openDocumentDialog || attachDialog ? 'md' : openReceiptDialog ? 'sm' : 'lg'}
+        maxWidth={openDocumentDialog || attachDialog ? 'md' : openReceiptDialog ? 'sm' : 'xl'}
         scroll={belowLargeScreen ? 'body' : 'paper'}
         onClose={() => {
           setOpenReceiptDialog(false);
