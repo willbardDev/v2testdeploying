@@ -47,8 +47,8 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
         <Image
           src="/assets/images/logos/proserp-logo.jpeg"
           alt="ProsERP"
-          width={80}
-          height={80}
+          width={95}
+          height={95}
           style={{ objectFit: "contain" }}
           unoptimized
         />
