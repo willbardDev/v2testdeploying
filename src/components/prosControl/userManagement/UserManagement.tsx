@@ -14,45 +14,45 @@ import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermi
 import UserManagementListItem from './UserManagementListItem';
 import UserManagementActionTail from './UserManagementActionTail';
 
-const UserManagement = () => {
-  const params = useParams();
-  const listRef = useRef<any>(null);
-  const { checkPermission } = useJumboAuth();
-  const [mounted, setMounted] = useState(false);
+  const UserManagement = () => {
+      const params = useParams();
+      const listRef = useRef<any>(null);
+      const { checkPermission } = useJumboAuth();
+      const [mounted, setMounted] = useState(false);
 
-  const [queryOptions, setQueryOptions] = useState({
-    queryKey: 'userManagement',
-    queryParams: { id: params.id, keyword: '' },
-    countKey: 'total',
-    dataKey: 'data',
-  });
+      const [queryOptions, setQueryOptions] = useState({
+        queryKey: 'userManagement',
+        queryParams: { id: params.id, keyword: '' },
+        countKey: 'total',
+        dataKey: 'data',
+      });
 
-  useEffect(() => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: { ...state.queryParams, id: params.id },
-    }));
-  }, [params]);
+      useEffect(() => {
+        setQueryOptions((state) => ({
+          ...state,
+          queryParams: { ...state.queryParams, id: params.id },
+        }));
+      }, [params]);
 
-  const handleSearchChange = useCallback((keyword: string) => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: {
-        ...state.queryParams,
-        keyword,
-      },
-    }));
-  }, []);
+      const handleSearchChange = useCallback((keyword: string) => {
+        setQueryOptions((state) => ({
+          ...state,
+          queryParams: {
+            ...state.queryParams,
+            keyword,
+          },
+        }));
+      }, []);
 
-  const renderUserManager = useCallback((user: UserManager) => (
-  <UserManagementListItem user={user} />
-), []);
+      const renderUserManager = useCallback((user: UserManager) => (
+      <UserManagementListItem user={user} />
+      ), []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+      useEffect(() => {
+        setMounted(true);
+      }, []);
 
-  if (!mounted) return null;
+      if (!mounted) return null;
 
 
   //if (!hasPermission) {
@@ -60,44 +60,44 @@ const UserManagement = () => {
   //  return <UnauthorizedAccess />;
  // }
 
-  return (
-    <>
-      <Typography variant="h4" mb={2}>
-        User Management
-      </Typography>
+    return (
+      <>
+        <Typography variant="h4" mb={2}>
+          User Management
+        </Typography>
 
-      <JumboRqList
-        ref={listRef}
-        wrapperComponent={Card}
-        service={userManagementServices.getList}
-        primaryKey={"id"}
-        queryOptions={queryOptions}
-        itemsPerPage={10}
-        itemsPerPageOptions={[5, 10, 20]}
-        renderItem={renderUserManager}
-        componentElement="div"
-        wrapperSx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        toolbar={
-          <JumboListToolbar
-            hideItemsPerPage
-            actionTail={
-              <Stack direction="row" spacing={2}>
-                <JumboSearch
-                  onChange={handleSearchChange}
-                  value={queryOptions.queryParams.keyword}
-                />
-                <UserManagementActionTail />
-              </Stack>
-            }
-          />
-        }
-      />
-    </>
-  );
-};
+        <JumboRqList
+          ref={listRef}
+          wrapperComponent={Card}
+          service={userManagementServices.getList}
+          primaryKey={"id"}
+          queryOptions={queryOptions}
+          itemsPerPage={10}
+          itemsPerPageOptions={[5, 10, 20]}
+          renderItem={renderUserManager}
+          componentElement="div"
+          wrapperSx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+          toolbar={
+            <JumboListToolbar
+              hideItemsPerPage
+              actionTail={
+                <Stack direction="row" spacing={2}>
+                  <JumboSearch
+                    onChange={handleSearchChange}
+                    value={queryOptions.queryParams.keyword}
+                  />
+                 <UserManagementActionTail/>
+                </Stack>
+              }
+            />
+          }
+        />
+      </>
+    );
+  };
 
 export default UserManagement;

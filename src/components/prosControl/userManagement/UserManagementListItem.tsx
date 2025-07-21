@@ -18,7 +18,7 @@ type Props = {
   onUserUpdated?: () => void;
 };
 
-const UserManagementListItem = ({ user, onUserUpdated }: Props) => {
+const UserManagementListItem = ({ user }: Props) => {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -80,7 +80,12 @@ const UserManagementListItem = ({ user, onUserUpdated }: Props) => {
         </Grid>
 
         {/* Status Chips */}
-        <Grid size={{xs: 12, md: 5}}>
+        <Grid size={{xs: 12, md: 4}}sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <Box display="flex" gap={1}>
             <Tooltip title="Verification Status">
               <Chip
@@ -104,13 +109,13 @@ const UserManagementListItem = ({ user, onUserUpdated }: Props) => {
         </Grid>
 
         {/* Actions */}
-        <Grid size={{xs: 12, md: 4}}textAlign="end">
+        <Grid size={{xs: 12, md: 5}}textAlign="end">
           <UserManagementListItemActions 
             user={user} 
           />
         </Grid>
       </Grid>
-    </>
+    </>  
   );
 };
 

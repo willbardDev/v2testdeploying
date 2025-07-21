@@ -12,7 +12,6 @@ export interface VerifyUserPayload {
 
 const userManagementServices: any = {};
 
-// ✅ Get user list (paginated)
 userManagementServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedUserResponse> => {
@@ -23,7 +22,6 @@ userManagementServices.getList = async (
   return data;
 };
 
-// ✅ Verify user
 userManagementServices.verify = async (
   payload: VerifyUserPayload
 ): Promise<VerifyUserResponse> => {
@@ -32,7 +30,6 @@ userManagementServices.verify = async (
   return data;
 };
 
-// ✅ Deactivate user
 userManagementServices.deactivate = async (
  params: { id: number }
 ): Promise<DeactivateUserResponse> => {
@@ -41,7 +38,6 @@ userManagementServices.deactivate = async (
   return data;
 };
 
-// ✅ Reactivate user
 userManagementServices.reactivate = async (
    params: { id: number }
 ): Promise<ReactivateUserResponse> => {

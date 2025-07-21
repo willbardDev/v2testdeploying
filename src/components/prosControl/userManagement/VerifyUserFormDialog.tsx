@@ -13,6 +13,23 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { UserManager } from './UserManagementType';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
+import userManagementServices from './user-management-services';
+import { AxiosError } from 'axios';
+
+interface VerifyUserPayload {
+  email: string;
+}
+
+interface VerifyUserResponse {
+  message: string;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
 
 type VerifyUserFormDialogProps = {
   user: UserManager;
@@ -31,10 +48,11 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
   user,
   open,
   setOpenDialog,
-  onUserUpdated,
   onClose = () => setOpenDialog(false),
   onSubmit = () => {},
 }) => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     handleSubmit,
@@ -46,7 +64,23 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
       email: user?.email || '',
     },
   });
+ 
+  const { mutate: verifyUser } = useMutation<VerifyUserResponse, AxiosError<ApiErrorResponse>, VerifyUserPayload>({
+    mutationFn: userManagementServices.verify,
+    onSuccess: (data) => {
+      enqueueSnackbar(data?.message || 'User verified successfully', { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setOpenDialog(false);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || error.message || 'Verification failed';
+      enqueueSnackbar(message, { variant: 'error' });
+    }
+  });
 
+  const handleSubmitVerification = (data: VerifyUserPayload) => {
+    verifyUser(data);
+  };
   const handleClose = () => {
     reset();
     onClose();
