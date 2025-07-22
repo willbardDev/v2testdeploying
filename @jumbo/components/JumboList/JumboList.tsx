@@ -5,7 +5,6 @@ import List, { ListProps } from "@mui/material/List";
 import Grid, { GridProps } from "@mui/material/Grid";
 import {  SxProps, Theme } from "@mui/material";
 import { Div } from '@jumbo/shared';
-
 import JumboListContext from "./JumboListContext";
 import JumboListWrapper from "./components/JumboListWrapper";
 import JumboListNoDataPlaceholder from "./components/JumboListNoDataPlaceHolder";
