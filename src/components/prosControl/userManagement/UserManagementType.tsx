@@ -2,6 +2,7 @@ export type user = {
   id: number;
   name: string;
   email: string;
+   phone: string; 
   is_verified: boolean;
   is_active: boolean;
 };
