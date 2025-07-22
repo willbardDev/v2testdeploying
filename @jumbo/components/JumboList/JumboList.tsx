@@ -3,7 +3,7 @@ import TransitionGroup from "react-transition-group/TransitionGroup";
 import Collapse from "@mui/material/Collapse";
 import List, { ListProps } from "@mui/material/List";
 import Grid, { GridProps } from "@mui/material/Grid";
-import { CircularProgress, Typography, SxProps, Theme } from "@mui/material";
+import {  SxProps, Theme } from "@mui/material";
 import { Div } from '@jumbo/shared';
 
 import JumboListContext from "./JumboListContext";
