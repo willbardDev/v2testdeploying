@@ -14,15 +14,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import userManagementServices from './user-management-services';
-import { UserManager } from './UserManagementType';
 import VerifyUserFormDialog from './VerifyUserFormDialog';
+import { User } from './UserManagementType';
+import BlockIcon from '@mui/icons-material/Block';
+import ReplayIcon from '@mui/icons-material/Replay';
+
 
     interface ApiResponse {
       message?: string;
       data?: any;
     }
 
-    const UserManagementListItemAction = ({ user, onUserUpdated }: { user: UserManager, onUserUpdated?: () => void }) => {
+    const UserManagementListItemAction = ({ user, onUserUpdated }: { user: User, onUserUpdated?: () => void }) => {
         const [openEditDialog, setOpenEditDialog] = useState(false);
         const { showDialog, hideDialog } = useJumboDialog();
         const { enqueueSnackbar } = useSnackbar();
@@ -63,22 +66,22 @@ import VerifyUserFormDialog from './VerifyUserFormDialog';
 
         
       const menuItems: MenuItemProps[] = [
-        ...(user.is_active
-          ? [
-              {
-                icon: <PersonOff color="warning" />,
-                title: 'Deactivate',
-                action: 'deactivate',
-              },
-            ]
-          : [
-              {
-                icon: <PersonAdd color="success" />,
-                title: 'Reactivate',
-                action: 'reactivate',
-              },
-            ]),
-      ];
+  ...(user.is_active
+    ? [
+        {
+          icon: <BlockIcon sx={{ color: '#EF5350' }} />, // red
+          title: 'DeActivate',
+          action: 'deactivate',
+        },
+      ]
+    : [
+        {
+          icon: <ReplayIcon sx={{ color: '#5E35B1' }} />, // purple
+          title: 'Activate',
+          action: 'reactivate',
+        },
+      ]),
+];
         const handleItemAction = (menuItem: MenuItemProps) => {
         switch (menuItem.action) {
           case 'deactivate':
@@ -126,7 +129,6 @@ import VerifyUserFormDialog from './VerifyUserFormDialog';
               open={openEditDialog} // ✅ Only if the inner dialog needs it
               user={user}
               setOpenDialog={setOpenEditDialog}
-              onUserUpdated={onUserUpdated} // optional
             />
           </Dialog>
               <JumboDdMenu

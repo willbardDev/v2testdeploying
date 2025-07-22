@@ -10,19 +10,23 @@ import {
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import EmailIcon from '@mui/icons-material/Email';
-import { UserManager } from './UserManagementType';
 import UserManagementListItemActions from './UserManagementListItemAction';
+import { User } from './UserManagementType';
 
 type Props = {
-  user: UserManager;
+  user: User;
   onUserUpdated?: () => void;
+  actionTail?: React.ReactNode; // ✅ Added support for actionTail
 };
 
-const UserManagementListItem = ({ user }: Props) => {
+const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   };
-
   return (
     <>
       <Divider />

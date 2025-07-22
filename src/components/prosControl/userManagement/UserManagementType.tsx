@@ -1,4 +1,4 @@
-export type userManager = {
+export type user = {
   id: number;
   name: string;
   email: string;
@@ -9,13 +9,13 @@ export type userManager = {
 export type AddUserResponse = {
   success: boolean;
   message: string;
-  user: userManager;
+  user: user;
 };
 
 export type UpdateUserResponse = {
   success: boolean;
   message: string;
-  user: userManager;
+  user: user;
 };
 
 export type DeleteUserResponse = {
@@ -25,10 +25,10 @@ export type DeleteUserResponse = {
 
 export type PaginatedUserResponse = {
   total: number;
-  data: userManager[];
+  data: user[];
 };
 
-export type UserManager = {
+export type User = {
   id: number;
   email: string;
   name: string;
