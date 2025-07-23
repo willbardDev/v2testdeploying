@@ -106,7 +106,7 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <DialogTitle sx={{ textAlign: 'center' }}>
-          Verify User: {user?.name}
+          Verify User {user?.name}
         </DialogTitle>
         
         <DialogContent>

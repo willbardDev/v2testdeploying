@@ -1,41 +1,20 @@
-export type user = {
-  id: number;
-  name: string;
-  email: string;
-   phone: string; 
-  is_verified: boolean;
-  is_active: boolean;
-};
-
-export type AddUserResponse = {
-  success: boolean;
-  message: string;
-  user: user;
-};
-
-export type UpdateUserResponse = {
-  success: boolean;
-  message: string;
-  user: user;
-};
-
-export type DeleteUserResponse = {
-  success: boolean;
-  message: string;
-};
-
-export type PaginatedUserResponse = {
-  total: number;
-  data: user[];
-};
-
 export type User = {
   id: number;
-  email: string;
   name: string;
-  is_verified: boolean;
-  is_active: boolean;
+  email: string;
+  phone?: string;
+  organizations?: {
+    id: number;
+    name: string;
+    logo_path?: string;
+  }[];
+  status: 'active' | 'inactive'; // ✅ add this line
+  created_at?: string;
 };
+
+export type PaginatedUserResponse ={
+  message:string;
+}
 
 export type DeactivateUserResponse = {
   message: string;
