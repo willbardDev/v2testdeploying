@@ -8,19 +8,32 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { UserManager } from './UserManagementType';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
+import userManagementServices from './user-management-services';
+import { AxiosError } from 'axios';
+import { User } from './UserManagementType';
+
+interface VerifyUserFormValues {
+  email: string;
+}
+
+interface VerifyUserResponse {
+  message: string;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
 
 type VerifyUserFormDialogProps = {
-  user: UserManager;
   open: boolean;
   setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  onUserUpdated?: () => void;
-  onClose?: () => void;
-  onSubmit?: (data: { email: string }) => void;
+  user?: User;
 };
 
 const validationSchema = yup.object({
@@ -28,39 +41,74 @@ const validationSchema = yup.object({
 });
 
 const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
-  user,
   open,
+  user,
   setOpenDialog,
-  onUserUpdated,
-  onClose = () => setOpenDialog(false),
-  onSubmit = () => {},
 }) => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
-  } = useForm<{ email: string }>({
+    setValue,
+  } = useForm<VerifyUserFormValues>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      email: user?.email || '',
+      email: '',
+    },
+  });
+
+  // Prefill email if user is passed
+  useEffect(() => {
+    if (user?.email) {
+      setValue('email', user.email);
+    }
+  }, [user, setValue]);
+
+  const { mutate: verifyUser, isPending: isVerifying } = useMutation<
+    VerifyUserResponse,
+    AxiosError<ApiErrorResponse>,
+    VerifyUserFormValues
+  >({
+    mutationFn: (data) => userManagementServices.verify(data),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'User verified successfully', {
+        variant: 'success',
+      });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      handleClose();
+    },
+    onError: (error) => {
+      const message =
+        error.response?.data?.message || error.message || 'Verification failed';
+      enqueueSnackbar(message, { variant: 'error' });
     },
   });
 
   const handleClose = () => {
     reset();
-    onClose();
+    setOpenDialog(false);
   };
 
-  const handleFormSubmit = (data: { email: string }) => {
-    onSubmit(data);
-    reset();
+  const onSubmit = (data: VerifyUserFormValues) => {
+    verifyUser(data);
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-        <DialogTitle sx={{ textAlign: 'center' }}>Verify User</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      fullWidth 
+      maxWidth="sm"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <DialogTitle sx={{ textAlign: 'center' }}>
+          Verify User: {user?.name}
+        </DialogTitle>
+        
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={12}>
@@ -69,18 +117,28 @@ const VerifyUserFormDialog: React.FC<VerifyUserFormDialogProps> = ({
                 label="Email"
                 size="small"
                 {...register('email')}
-                error={Boolean(errors.email)}
+                error={!!errors.email}
                 helperText={errors.email?.message}
                 autoFocus
               />
             </Grid>
           </Grid>
         </DialogContent>
+        
         <DialogActions>
-          <Button onClick={handleClose} size="small" disabled={isSubmitting}>
+          <Button 
+            onClick={handleClose} 
+            size="small" 
+            disabled={isVerifying}
+          >
             Cancel
           </Button>
-          <LoadingButton type="submit" variant="contained" size="small" loading={isSubmitting}>
+          <LoadingButton 
+            type="submit" 
+            variant="contained" 
+            size="small" 
+            loading={isVerifying}
+          >
             Verify
           </LoadingButton>
         </DialogActions>

@@ -1,14 +1,14 @@
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import Div from '@jumbo/shared/Div';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
+import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { Div } from '@jumbo/shared';
 import { AddOutlined } from '@mui/icons-material';
 import { Grid, TextField, Tooltip } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import CostCenterSelector from 'app/prosServices/prosERP/masters/costCenters/CostCenterSelector';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import StakeholderQuickAdd from 'app/prosServices/prosERP/masters/stakeholders/StakeholderQuickAdd';
-import StakeholderSelector from 'app/prosServices/prosERP/masters/stakeholders/StakeholderSelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form';
@@ -37,7 +37,7 @@ function ApprovedPurchaseTopInformation() {
                 <DateTimePicker
                     fullWidth={true}
                     label="Order Date"
-                    minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization.organization.recording_start_date) : dayjs().startOf('day')}
+                    minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization?.organization.recording_start_date) : dayjs().startOf('day')}
                     maxDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
                     defaultValue={order_date}
                     slotProps={{

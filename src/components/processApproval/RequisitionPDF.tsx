@@ -79,22 +79,22 @@ function RequisitionPDF({ requisition, organization }: RequisitionPDFProps) {
                                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.05 }}>
                                     {index + 1}
                                 </Text>
-                            <View
-                                style={{
-                                    ...pdfStyles.tableCell,
-                                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                                    flex: 0.35,
-                                    flexDirection: 'column',
-                                }}
-                            >
-                                <Text>
-                                    {requisition.approval_chain.process_type.toLowerCase() === 'purchase'
-                                        ? (item as PurchaseItem).product?.name
-                                        : (item as PaymentItem).ledger?.name}
-                                </Text>
-                                {item.relatableNo && <Text>{`${item.relatableNo}`}</Text>}
-                                {item.remarks && <Text>{`(${item.remarks})`}</Text>}
-                            </View>
+                                <View
+                                    style={{
+                                        ...pdfStyles.tableCell,
+                                        backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                                        flex: 0.35,
+                                        flexDirection: 'column',
+                                    }}
+                                >
+                                    <Text>
+                                        {requisition.approval_chain.process_type.toLowerCase() === 'purchase'
+                                            ? (item as PurchaseItem).product?.name
+                                            : (item as PaymentItem).ledger?.name}
+                                    </Text>
+                                    {item.relatableNo && <Text>{`${item.relatableNo}`}</Text>}
+                                    {item.remarks && <Text>{`(${item.remarks})`}</Text>}
+                                </View>
                                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.2, textAlign: 'right' }}>
                                     {item.quantity?.toLocaleString()} {item.measurement_unit?.symbol}
                                 </Text>

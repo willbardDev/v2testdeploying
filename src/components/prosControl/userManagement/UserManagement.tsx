@@ -9,13 +9,13 @@ import JumboSearch from '@jumbo/components/JumboSearch';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import userManagementServices from './user-management-services';
-import { UserManager } from './UserManagementType';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import UserManagementListItem from './UserManagementListItem';
 import UserManagementActionTail from './UserManagementActionTail';
+import { User } from './UserManagementType';
 
 const UserManagement = () => {
-  const params = useParams();
+  const params = useParams<{ id?: string }>();
   const listRef = useRef<any>(null);
   const { checkPermission } = useJumboAuth();
   const [mounted, setMounted] = useState(false);
@@ -28,49 +28,47 @@ const UserManagement = () => {
   });
 
   useEffect(() => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: { ...state.queryParams, id: params.id },
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: { ...prev.queryParams, id: params.id },
     }));
   }, [params]);
 
+  const renderUserManager = useCallback((user: User) => {
+    return <UserManagementListItem user={user} />;
+  }, []);
+
   const handleSearchChange = useCallback((keyword: string) => {
-    setQueryOptions((state) => ({
-      ...state,
+    setQueryOptions((prev) => ({
+      ...prev,
       queryParams: {
-        ...state.queryParams,
-        keyword,
+        ...prev.queryParams,
+        keyword: keyword,
       },
     }));
   }, []);
 
-  const renderUserManager = useCallback((user: UserManager) => (
-  <UserManagementListItem user={user} />
-), []);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!mounted) return null;
 
-
-  //if (!hasPermission) {
-    // If user has neither manage nor read permission, deny access.
+//  if (!checkPermission([PROS_CONTROL_PERMISSIONS.USER_MANAGEMENT_READ])) {
   //  return <UnauthorizedAccess />;
  // }
 
   return (
     <>
       <Typography variant="h4" mb={2}>
-        User Management
+        Users
       </Typography>
 
       <JumboRqList
         ref={listRef}
         wrapperComponent={Card}
         service={userManagementServices.getList}
-        primaryKey={"id"}
+        primaryKey="id"
         queryOptions={queryOptions}
         itemsPerPage={10}
         itemsPerPageOptions={[5, 10, 20]}
@@ -82,18 +80,19 @@ const UserManagement = () => {
           flexDirection: 'column',
         }}
         toolbar={
-          <JumboListToolbar
-            hideItemsPerPage
-            actionTail={
-              <Stack direction="row" spacing={2}>
-                <JumboSearch
-                  onChange={handleSearchChange}
-                  value={queryOptions.queryParams.keyword}
-                />
-                <UserManagementActionTail />
-              </Stack>
-            }
-          />
+         <JumboListToolbar
+  hideItemsPerPage
+  actionTail={
+    <Stack direction="row" spacing={2}>
+      <JumboSearch
+        onChange={handleSearchChange}
+        value={queryOptions.queryParams.keyword}
+      />
+      <UserManagementActionTail />
+    </Stack>
+  }
+/>
+
         }
       />
     </>

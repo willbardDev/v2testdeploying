@@ -1,21 +1,21 @@
 import { DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { useJumboTheme } from '@jumbo/hooks';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { useSnackbar } from 'notistack';
-import paymentServices from 'app/prosServices/prosERP/accounts/transactions/payments/payment-services';
-import PaymentOnScreenPreview from 'app/prosServices/prosERP/accounts/transactions/payments/PaymentOnScreenPreview';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
-import PaymentPDF from 'app/prosServices/prosERP/accounts/transactions/payments/PaymentPDF';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import requisitionsServices from '../../requisitionsServices';
 import ApprovedPaymentForm from './form/ApprovedPaymentForm';
 import dayjs from 'dayjs';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import paymentServices from '@/components/accounts/transactions/payments/payment-services';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PaymentOnScreenPreview from '@/components/accounts/transactions/payments/PaymentOnScreenPreview';
+import PDFContent from '@/components/pdf/PDFContent';
+import PaymentPDF from '@/components/accounts/transactions/payments/PaymentPDF';
+import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
+import { useSnackbar } from 'notistack';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { JumboDdMenu } from '@jumbo/components';
 
 const DocumentDialog = ({ payment, authObject, setOpenDocumentDialog }) => {
     const { data, isFetching } = useQuery(['payment', { id: payment.id }], () => paymentServices.show(payment.id));

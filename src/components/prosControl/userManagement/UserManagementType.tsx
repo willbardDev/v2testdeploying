@@ -1,7 +1,8 @@
-export type userManager = {
+export type user = {
   id: number;
   name: string;
   email: string;
+   phone: string; 
   is_verified: boolean;
   is_active: boolean;
 };
@@ -9,30 +10,32 @@ export type userManager = {
 export type AddUserResponse = {
   success: boolean;
   message: string;
-  user: userManager;
+  user: user;
 };
+
 export type UpdateUserResponse = {
   success: boolean;
   message: string;
-  user: userManager;
+  user: user;
 };
+
 export type DeleteUserResponse = {
   success: boolean;
   message: string;
 };
+
 export type PaginatedUserResponse = {
   total: number;
-  data: userManager[];
+  data: user[];
 };
 
-export type UserManager = {
+export type User = {
   id: number;
   email: string;
   name: string;
   is_verified: boolean;
   is_active: boolean;
 };
-
 
 export type DeactivateUserResponse = {
   message: string;
@@ -41,13 +44,13 @@ export type DeactivateUserResponse = {
 export type ReactivateUserResponse = {
   message: string;
 };
+
 export interface VerifyUserResponse {
   message: string;
   user: {
     id: number;
     name: string;
     email: string;
-    // ...other fields
   };
 }
 
