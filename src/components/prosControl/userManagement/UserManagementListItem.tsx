@@ -63,7 +63,7 @@ const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
         </Grid>
 
    {/* Organizations with logo only */}
-<Grid size={{ xs: 12, md: 3 }}>
+<Grid size={{ xs: 12, md: 3 }}container justifyContent="flex-end">
   <Stack direction="row" spacing={1} rowGap={0.5} flexWrap="wrap">
     {(user.organizations || []).map((org) => (
       org.logo_path && (
@@ -80,41 +80,30 @@ const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
 </Grid>
 
 
-        {/* Status Badge */}
-        <Grid size={{ xs: 4, md: 2 }}container justifyContent="flex-end">
-          <Tooltip title="Account Status">
-            <Badge
-              badgeContent={
-                <Typography
-                  variant="caption"
-                  sx={{
-                    px: 2,
-                    py: 0.25,
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    backgroundColor: isActive ? 'success.main' : 'error.main',
-                    color: 'white',
-                    borderRadius: 1.5,
-                    textTransform: 'capitalize',
-                    minWidth: 60,
-                    textAlign: 'center',
-                    display: 'inline-block',
-                  }}
-                >
-                  {isActive ? 'Active' : 'Inactive'}
-                </Typography>
-              }
-              overlap="circular"
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              sx={{ '& .MuiBadge-badge': { position: 'static' } }}
-            >
-              <span />
-            </Badge>
-          </Tooltip>
-        </Grid>
+       {/* Status Badge */}
+<Grid size={{ xs: 6, md: 2}} container justifyContent="flex-end">
+  <Tooltip title="Account Status">
+    <Box
+      sx={{
+        px: 1.5,
+        py: 0.5,
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        backgroundColor: isActive ? '#00C853' : 'error.main', // Custom vibrant green
+        color: '#fff',
+        borderRadius: '999px',
+        textTransform: 'lowercase',
+        minWidth: 60,
+        textAlign: 'center',
+        display: 'inline-block',
+        lineHeight: 1.4,
+      }}
+    >
+      {isActive ? 'active' : 'inactive'}
+    </Box>
+  </Tooltip>
+</Grid>
+
 
         {/* Actions */}
         <Grid size={{ xs: 12, md: 2}}textAlign="end">
