@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = process.env.API_BASE_URL
 
-export async function POST(req: NextRequest,
-  { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest,{ params }: { params: { id: string } }) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 

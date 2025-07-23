@@ -4,12 +4,11 @@ import {
   Grid,
   Tooltip,
   Typography,
-  Chip,
   Box,
   Stack,
+  Avatar,
+  Badge,
 } from '@mui/material';
-import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
 import UserManagementListItemActions from './UserManagementListItemAction';
 import { User } from './UserManagementType';
 
@@ -20,14 +19,15 @@ type Props = {
 };
 
 const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
+  const isActive = user.status === 'active';
+
   return (
     <>
       <Divider />
       <Grid
         container
-        spacing={1}
+        spacing={2}
         alignItems="center"
-        columnSpacing={2}
         px={2}
         py={1}
         paddingRight={3}
@@ -36,8 +36,8 @@ const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
           '&:hover': { bgcolor: 'action.hover' },
         }}
       >
-        {/* User Name Only */}
-        <Grid size={{ xs: 12, md: 2 }}>
+        {/* User Name */}
+        <Grid size={{ xs: 12, md: 2}} sx={{ mb: 1.5 }} >
           <Tooltip title="User Name">
             <Typography variant="subtitle1" noWrap>
               {user.name}
@@ -45,76 +45,79 @@ const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
           </Tooltip>
         </Grid>
 
-      {/* Email & Phone stacked vertically, left-aligned */}
-      <Grid size={{ xs: 12, md: 3 }}>
-        <Box display="flex" flexDirection="column" alignItems="flex-start">
-          {/* Email */}
-          <Tooltip title="Email">
-            <Box display="flex" alignItems="center" gap={0.5}>
-              <EmailIcon color="action" fontSize="small" />
+        {/* Email & Phone */}
+        <Grid size={{ xs: 12, md: 3 }} sx={{ mt: 1 }}>
+          <Box display="flex" flexDirection="column" alignItems="flex-start">
+            <Tooltip title="Email">
               <Typography variant="body2" color="text.secondary" noWrap>
                 {user.email}
               </Typography>
-            </Box>
-          </Tooltip>
+            </Tooltip>
 
-          {/* Phone */}
-          <Tooltip title="Phone Number">
-            <Box display="flex" alignItems="center" gap={0.5} mt={0.5}>
-              <PhoneIcon color="action" fontSize="small" />
-              <Typography variant="body2" color="text.secondary" noWrap>
+            <Tooltip title="Phone Number">
+              <Typography variant="body2" color="text.secondary" noWrap mt={0.5}>
                 {(user as any).phone || 'N/A'}
               </Typography>
-            </Box>
-          </Tooltip>
-        </Box>
-      </Grid>
-
-
-
-        {/* Organization Badges */}
-        <Grid size={{ xs: 12, md: 3 }}>
-          <Stack direction="row" spacing={0.5} rowGap={0.5} flexWrap="wrap">
-            {(user.organizations || []).map((org) => (
-              <Tooltip key={org.id} title={org.name}>
-                <Chip
-                  label={org.name}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 1.5,
-                    fontSize: 12,
-                    fontWeight: 500,
-                  }}
-                />
-              </Tooltip>
-            ))}
-          </Stack>
+            </Tooltip>
+          </Box>
         </Grid>
 
-        {/* Account Status */}
-         <Grid size={{ xs: 4, md: 2 }} container justifyContent="flex-end">
+   {/* Organizations with logo only */}
+<Grid size={{ xs: 12, md: 3 }}>
+  <Stack direction="row" spacing={1} rowGap={0.5} flexWrap="wrap">
+    {(user.organizations || []).map((org) => (
+      org.logo_path && (
+        <Tooltip key={org.id} title={org.name}>
+          <Avatar
+            src={org.logo_path}
+            alt={org.name}
+            sx={{ width: 28, height: 28 }}
+          />
+        </Tooltip>
+      )
+    ))}
+  </Stack>
+</Grid>
+
+
+        {/* Status Badge */}
+        <Grid size={{ xs: 4, md: 2 }}container justifyContent="flex-end">
           <Tooltip title="Account Status">
-            <Chip
-              size="small"
-              label={user.is_active ? 'Active' : 'Inactive'}
-              sx={{
-                fontWeight: 500,
-                backgroundColor: user.is_active ? 'success.main' : 'error.main',
-                color: 'white',
-                fontSize: '0.8125rem',
-                borderColor: 'transparent',
-                textTransform: 'lowercase',
-                '&:hover': {
-                  backgroundColor: user.is_active ? 'success.dark' : 'error.dark',
-                },
+            <Badge
+              badgeContent={
+                <Typography
+                  variant="caption"
+                  sx={{
+                    px: 2,
+                    py: 0.25,
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    backgroundColor: isActive ? 'success.main' : 'error.main',
+                    color: 'white',
+                    borderRadius: 1.5,
+                    textTransform: 'capitalize',
+                    minWidth: 60,
+                    textAlign: 'center',
+                    display: 'inline-block',
+                  }}
+                >
+                  {isActive ? 'Active' : 'Inactive'}
+                </Typography>
+              }
+              overlap="circular"
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
               }}
-            />
+              sx={{ '& .MuiBadge-badge': { position: 'static' } }}
+            >
+              <span />
+            </Badge>
           </Tooltip>
         </Grid>
 
         {/* Actions */}
-        <Grid size={{ xs: 12, md: 2 }} textAlign="end">
+        <Grid size={{ xs: 12, md: 2}}textAlign="end">
           <UserManagementListItemActions
             user={user}
             onUserUpdated={onUserUpdated}

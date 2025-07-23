@@ -34,7 +34,7 @@ userManagementServices.deactivate = async (
  params: { id: number }
 ): Promise<DeactivateUserResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/deactivate`);
+  const { data } = await axios.post(`/api/prosControl/userManagement/[${params.id}]/deactivate`);
   return data;
 };
 
@@ -42,7 +42,7 @@ userManagementServices.reactivate = async (
    params: { id: number }
 ): Promise<ReactivateUserResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/reactivate`);
+  const { data } = await axios.post(`/api/prosControl/userManagement/reactivate`);
   return data;
 };
 
