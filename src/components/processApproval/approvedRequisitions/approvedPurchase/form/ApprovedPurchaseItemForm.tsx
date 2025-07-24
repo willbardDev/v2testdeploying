@@ -1,10 +1,10 @@
 import React from 'react';
 import { Grid, Divider, Typography, TextField, Tooltip, IconButton, Checkbox } from '@mui/material';
-import Div from '@jumbo/shared/Div';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import { DisabledByDefault } from '@mui/icons-material';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
+import { Div } from '@jumbo/shared';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails }) {
     const {authOrganization} = useJumboAuth();

@@ -1,12 +1,12 @@
-import { useJumboTheme } from "@jumbo/hooks";
-import { ShoppingCartOutlined } from "@mui/icons-material";
+import { CreditScoreOutlined } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, LinearProgress, Tooltip, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
-import { useQuery } from "react-query";
 import requisitionsServices from "../../requisitionsServices";
-import ApprovedPurchaseForm from "./form/ApprovedPurchaseForm";
+import ApprovedPaymentForm from "./form/ApprovedPaymentForm";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { useQuery } from "@tanstack/react-query";
 
-const ApprovedPurchaseActionTail = ({approvedRequisition, isExpanded}) => {
+const ApprovedPaymentActionTail = ({approvedRequisition, isExpanded}) => {
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false)
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -26,13 +26,13 @@ const ApprovedPurchaseActionTail = ({approvedRequisition, isExpanded}) => {
   return (
     <React.Fragment>
       <Dialog maxWidth="lg" scroll={belowLargeScreen ? 'body' : 'paper'} fullWidth fullScreen={belowLargeScreen} open={openDialog}>
-        <ApprovedPurchaseForm toggleOpen={setOpenDialog} approvedDetails={approvedRequisitionDetails} approvedRequisition={approvedRequisition}/>
+        <ApprovedPaymentForm toggleOpen={setOpenDialog} approvedDetails={approvedRequisitionDetails} approvedRequisition={approvedRequisition}/>
       </Dialog>
 
         <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-            <Tooltip title={"Order"}>
+            <Tooltip title={"Pay"}>
                 <IconButton onClick={() => setOpenDialog(true)}>
-                    <ShoppingCartOutlined/>
+                    <CreditScoreOutlined/>
                 </IconButton>
             </Tooltip>
         </ButtonGroup>
@@ -40,4 +40,4 @@ const ApprovedPurchaseActionTail = ({approvedRequisition, isExpanded}) => {
   );
 };
 
-export default ApprovedPurchaseActionTail;
+export default ApprovedPaymentActionTail;

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
 import { Grid, LinearProgress, Tooltip, Typography, Alert, IconButton, Dialog, useMediaQuery, Tabs, Tab, DialogContent, Button, Box, ListItemText } from '@mui/material';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
 import { HighlightOff } from '@mui/icons-material';
-import { useJumboTheme } from '@jumbo/hooks';
 import requisitionsServices from '../../requisitionsServices';
-import PaymentOnScreenPreview from 'app/prosServices/prosERP/accounts/transactions/payments/PaymentOnScreenPreview';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
-import PaymentPDF from 'app/prosServices/prosERP/accounts/transactions/payments/PaymentPDF';
-import paymentServices from 'app/prosServices/prosERP/accounts/transactions/payments/payment-services';
-import UnauthorizedAccess from 'app/shared/Information/UnauthorizedAccess';
 import ApprovedPaymentItemAction from './ApprovedPaymentItemAction';
+import paymentServices from '@/components/accounts/transactions/payments/payment-services';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PaymentOnScreenPreview from '@/components/accounts/transactions/payments/PaymentOnScreenPreview';
+import PDFContent from '@/components/pdf/PDFContent';
+import PaymentPDF from '@/components/accounts/transactions/payments/PaymentPDF';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useQuery } from '@tanstack/react-query';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 const DocumentDialog = ({ payment, authObject, setOpenDocumentDialog }) => {
   const { data, isFetching } = useQuery(['payment', { id: payment.id }], () => paymentServices.show(payment.id));

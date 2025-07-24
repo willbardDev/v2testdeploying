@@ -9,7 +9,7 @@ import ApprovalPDF from './ApprovalPDF';
 import ApprovalOnScreen from './ApprovalOnScreen';
 import requisitionsServices from '../../requisitionsServices';
 import dayjs from 'dayjs';
-import { Organization, User } from '@/types/auth-types';
+import { Organization } from '@/types/auth-types';
 import { Approval, Requisition } from '../../RequisitionType';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -38,9 +38,9 @@ interface DocumentDialogProps {
 
 interface ApprovalItemActionProps {
   hideOtherActions?: boolean;
-  requisition: Requisition;
+  requisition?: Requisition;
   approval: Approval;
-  approvals: Approval[];
+  approvals?: Approval[];
 }
 
 const EditApproval: React.FC<EditApprovalProps> = ({requisition, approval, toggleOpen}) => {
@@ -58,7 +58,7 @@ const EditApproval: React.FC<EditApprovalProps> = ({requisition, approval, toggl
     <ApprovalForm 
       toggleOpen={toggleOpen} 
       isEdit={true} 
-      requisition={requisition} 
+      requisition={requisition as Requisition} 
       approval={approvalDetails} 
     />
   );
@@ -78,7 +78,7 @@ const NextApproval: React.FC<NextApprovalProps> = ({requisition, approval, toggl
   return (
     <ApprovalForm
       toggleOpen={toggleOpen} 
-      requisition={requisition} 
+      requisition={requisition as Requisition} 
       approval={approvalDetails} 
     />
   );
@@ -252,21 +252,21 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
       >
         {openApproveDialog && (
           <NextApproval 
-            requisition={requisition} 
+            requisition={requisition as Requisition} 
             approval={approval} 
             toggleOpen={setOpenApproveDialog} 
           />
         )}
         {openEditDialog && (
           <EditApproval 
-            requisition={requisition} 
+            requisition={requisition as Requisition} 
             approval={approval} 
             toggleOpen={setOpenEditDialog} 
           />
         )}
         {openDocumentDialog && (
           <DocumentDialog 
-            requisition={requisition} 
+            requisition={requisition as Requisition} 
             approval={approval} 
             organization={organization as Organization} 
             setOpenDocumentDialog={setOpenDocumentDialog} 
@@ -284,7 +284,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
       {(checkOrganizationPermission(PERMISSIONS.APPROVAL_BACKDATE) || 
         dayjs(approval.approval_date).isSameOrAfter(dayjs().startOf('date'))) && 
         !hideOtherActions &&
-        approvals[approvals.length - 1]?.id === approval?.id && 
+        (approvals && approvals[approvals.length - 1]?.id) === approval?.id && 
         (approval?.creator?.id === authUser?.user?.id) &&
         !(approval.has_orders || approval.has_payments) && (
           <Tooltip title="Edit">
@@ -298,7 +298,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
         hasOrganizationRole(requisition?.next_approval_level?.role?.name ?? '') && 
         !(approval?.status?.toLowerCase() === 'on hold' || approval?.status?.toLowerCase() === 'rejected') && 
         approval.is_final === 0 &&
-        approvals[approvals.length - 1]?.id === approval?.id && (
+        (approvals && approvals[approvals.length - 1]?.id) === approval?.id && (
           <Tooltip title="Approve">
             <IconButton onClick={() => setOpenApproveDialog(true)}>
               <FactCheckOutlined />
@@ -309,7 +309,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
       {(checkOrganizationPermission(PERMISSIONS.APPROVAL_BACKDATE) || 
         dayjs(approval.approval_date).isSameOrAfter(dayjs().startOf('date'))) && 
         !hideOtherActions &&
-        approvals[approvals.length - 1]?.id === approval?.id && 
+        (approvals && approvals[approvals.length - 1]?.id) === approval?.id && 
         ((approval?.creator?.id === authUser?.user?.id) || 
          checkOrganizationPermission(PERMISSIONS.REQUISITIONS_APPROVALS_DELETE_ANY)) &&
         !(approval.has_orders || approval.has_payments) && (

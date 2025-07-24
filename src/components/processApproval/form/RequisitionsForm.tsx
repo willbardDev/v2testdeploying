@@ -217,7 +217,6 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
                       label='Requisition Date'
-                      fullWidth
                       defaultValue={requisition_date}
                       minDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_BACKDATE) ? dayjs(authOrganization?.organization.recording_start_date) : dayjs().startOf('day')}
                       maxDate={checkOrganizationPermission(PERMISSIONS.REQUISITIONS_POSTDATE) ? dayjs().add(10, 'year').endOf('year') : dayjs().endOf('day')}
@@ -225,9 +224,11 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
                         textField: {
                           size: 'small',
                           fullWidth: true,
-                          readOnly: true,
                           error: !!errors?.requisition_date,
-                          helperText: errors?.requisition_date?.message
+                          helperText: errors?.requisition_date?.message,
+                          inputProps: {
+                            readOnly: true,
+                          },
                         }
                       }}
                       onChange={(newValue: any) => {
@@ -286,7 +287,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
                 <Grid size={{xs: 12, md: 4}}>
                   <Div sx={{ mt: 0.3 }}>
                     <CurrencySelector
-                      frontError={errors?.currency_id}
+                      frontError={errors?.currency_id as any}
                       defaultValue={1}
                       onChange={(newValue) => {
                         setValue('currencyDetails', newValue);
@@ -454,7 +455,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
           variant='contained'
           type='submit'
           onClick={(e) => {
-            setValue('submit_type', 'suspended');
+            setValue('submit_type' as any, 'suspended');
             handleSubmit(onSubmit)(e);
           }}
         >
@@ -466,7 +467,7 @@ function RequisitionsForm({ toggleOpen, requisition }: RequisitionsFormProps) {
           color='success'
           type='submit'
           onClick={(e) => {
-            setValue('submit_type', 'submitted');
+            setValue('submit_type' as any, 'submitted');
             handleSubmit(onSubmit)(e);
           }}
           size='small'
