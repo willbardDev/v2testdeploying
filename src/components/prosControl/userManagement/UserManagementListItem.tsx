@@ -62,7 +62,7 @@ import { User } from './UserManagementType';
       </Grid>
 
          {/* 3. Organizations (Logo only) */}
-          <Grid size={{ xs: 12, md: 2 }} container justifyContent="flex-end">
+          <Grid size={{ xs: 12, md: 2 }} >
       <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end">
         {(user.organizations || []).map((org) =>
           org.logo_path && (
