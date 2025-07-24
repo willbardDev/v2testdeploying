@@ -63,7 +63,7 @@ import { User } from './UserManagementType';
 
          {/* 3. Organizations (Logo only) */}
           <Grid size={{ xs: 12, md: 2 }} >
-      <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end">
+      <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-start">
         {(user.organizations || []).map((org) =>
           org.logo_path && (
             <Tooltip key={org.id} title={org.name}>
