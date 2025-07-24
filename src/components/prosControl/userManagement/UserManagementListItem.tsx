@@ -54,7 +54,7 @@ import { User } from './UserManagementType';
           </Typography>
           </Tooltip>
             <Tooltip title="Phone Number">
-              <Typography variant="body2" fontWeight={500} color="text.primary" noWrap>
+              <Typography variant="body2" fontWeight={450} color="text.secondary" noWrap>
                 {(user as any).phone || 'N/A'}
               </Typography>
             </Tooltip>
@@ -81,7 +81,7 @@ import { User } from './UserManagementType';
       {/* 4. Status Badge */}
     <Grid size={{ xs: 4, md: 3 }}>
       <Box display="flex" justifyContent="flex-end">
-        <Tooltip title="Account Status">
+        <Tooltip title="Status">
           <Box
             sx={{
               px: 1.5,

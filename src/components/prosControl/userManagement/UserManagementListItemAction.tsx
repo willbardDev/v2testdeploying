@@ -45,7 +45,7 @@ import { MenuItemProps } from '@jumbo/types';
           };
 
         const { mutate: deactivateUser } = useMutation<ApiResponse, unknown, void>({
-          mutationFn: () => userManagementServices.deactivate(user.id),
+          mutationFn: () => userManagementServices.deactivate(user),
           onSuccess: (data) => {
           enqueueSnackbar(data?.message || 'User deactivated successfully', { variant: 'success' });
           queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -55,7 +55,7 @@ import { MenuItemProps } from '@jumbo/types';
         });
 
   const { mutate: reactivateUser } = useMutation<ApiResponse, unknown, void>({
-    mutationFn: () => userManagementServices.reactivate(user.id),
+    mutationFn: () => userManagementServices.reactivate(user),
     onSuccess: (data) => {
     enqueueSnackbar(data?.message || 'User reactivated successfully', { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['users'] });
