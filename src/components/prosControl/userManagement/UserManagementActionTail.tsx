@@ -11,15 +11,15 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import VerifyUserFormDialog from './VerifyUserFormDialog';
 import { User } from './UserManagementType';
 
-interface UserManagementActionTailProps {
-  user?: User; // Optional user for pre-filling
-}
+  interface UserManagementActionTailProps {
+    user?: User; 
+  }
 
-const UserManagementActionTail: React.FC<UserManagementActionTailProps> = ({ user }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const { theme } = useJumboTheme();
-  const { checkOrganizationPermission } = useJumboAuth();
-  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const UserManagementActionTail: React.FC<UserManagementActionTailProps> = ({ user }) => {
+      const [openDialog, setOpenDialog] = useState(false);
+      const { theme } = useJumboTheme();
+      const { checkOrganizationPermission } = useJumboAuth();
+      const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   return (
     <>
@@ -34,7 +34,7 @@ const UserManagementActionTail: React.FC<UserManagementActionTailProps> = ({ use
       <VerifyUserFormDialog
         open={openDialog}
         setOpenDialog={setOpenDialog}
-        user={user} // Can be undefined
+        user={user} 
       />
     </>
   );

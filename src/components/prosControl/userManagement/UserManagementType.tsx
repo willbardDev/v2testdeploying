@@ -8,7 +8,7 @@ export type User = {
     name: string;
     logo_path?: string;
   }[];
-  status: 'active' | 'inactive'; // ✅ add this line
+  status: 'active' | 'inactive';
   created_at?: string;
 };
 

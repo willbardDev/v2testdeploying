@@ -15,84 +15,83 @@ import UserManagementActionTail from './UserManagementActionTail';
 import { User } from './UserManagementType';
 
 const UserManagement = () => {
-  const params = useParams<{ id?: string }>();
-  const listRef = useRef<any>(null);
-  const { checkPermission } = useJumboAuth();
-  const [mounted, setMounted] = useState(false);
+    const params = useParams<{ id?: string }>();
+    const listRef = useRef<any>(null);
+    const { checkPermission } = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
 
-  const [queryOptions, setQueryOptions] = useState({
-    queryKey: 'userManagement',
-    queryParams: { id: params.id, keyword: '' },
-    countKey: 'total',
-    dataKey: 'data',
-  });
+    const [queryOptions, setQueryOptions] = useState({
+      queryKey: 'userManagement',
+      queryParams: { id: params.id, keyword: '' },
+      countKey: 'total',
+      dataKey: 'data',
+    });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  useEffect(() => {
-    setQueryOptions((prev) => ({
-      ...prev,
-      queryParams: { ...prev.queryParams, id: params.id },
-    }));
-  }, [params]);
+    useEffect(() => {
+      setQueryOptions((prev) => ({
+        ...prev,
+        queryParams: { ...prev.queryParams, id: params.id },
+      }));
+    }, [params]);
 
-  const renderUserManager = useCallback((user: User) => {
-    return <UserManagementListItem user={user} />;
-  }, []);
+    const renderUserManager = useCallback((user: User) => {
+      return <UserManagementListItem user={user} />;
+    }, []);
 
-  const handleSearchChange = useCallback((keyword: string) => {
-    setQueryOptions((prev) => ({
-      ...prev,
-      queryParams: {
-        ...prev.queryParams,
-        keyword: keyword,
-      },
-    }));
-  }, []);
+    const handleSearchChange = useCallback((keyword: string) => {
+      setQueryOptions((prev) => ({
+        ...prev,
+        queryParams: {
+          ...prev.queryParams,
+          keyword: keyword,
+        },
+      }));
+    }, []);
 
-  if (!mounted) return null;
+    if (!mounted) return null;
 
 //  if (!checkPermission([PROS_CONTROL_PERMISSIONS.USER_MANAGEMENT_READ])) {
   //  return <UnauthorizedAccess />;
  // }
 
   return (
-    <>
-      <Typography variant="h4" mb={2}>
-        Users
-      </Typography>
+          <>
+              <Typography variant="h4" mb={2}>
+                Users
+              </Typography>
 
-      <JumboRqList
-        ref={listRef}
-        wrapperComponent={Card}
-        service={userManagementServices.getList}
-        primaryKey="id"
-        queryOptions={queryOptions}
-        itemsPerPage={10}
-        itemsPerPageOptions={[5, 10, 20]}
-        renderItem={renderUserManager}
-        componentElement="div"
-        wrapperSx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        toolbar={
-         <JumboListToolbar
-  hideItemsPerPage
-  actionTail={
-    <Stack direction="row" spacing={2}>
-      <JumboSearch
-        onChange={handleSearchChange}
-        value={queryOptions.queryParams.keyword}
-      />
-      <UserManagementActionTail />
-    </Stack>
-  }
-/>
-
+              <JumboRqList
+                ref={listRef}
+                wrapperComponent={Card}
+                service={userManagementServices.getList}
+                primaryKey="id"
+                queryOptions={queryOptions}
+                itemsPerPage={10}
+                itemsPerPageOptions={[5, 10, 20]}
+                renderItem={renderUserManager}
+                componentElement="div"
+                wrapperSx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+                toolbar={
+                <JumboListToolbar
+          hideItemsPerPage
+          actionTail={
+            <Stack direction="row" spacing={2}>
+              <JumboSearch
+                onChange={handleSearchChange}
+                value={queryOptions.queryParams.keyword}
+              />
+              <UserManagementActionTail />
+            </Stack>
+          }
+        />
         }
       />
     </>
