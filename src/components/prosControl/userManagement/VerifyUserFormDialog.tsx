@@ -77,7 +77,7 @@ import { User } from './UserManagementType';
         enqueueSnackbar(data.message || 'User verified successfully', {
           variant: 'success',
         });
-        queryClient.invalidateQueries({ queryKey: ['users'] });
+       queryClient.invalidateQueries({ queryKey: ['userManagement'] });
         handleClose();
       },
       onError: (error) => {

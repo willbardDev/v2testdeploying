@@ -48,7 +48,7 @@ import { MenuItemProps } from '@jumbo/types';
           mutationFn: () => userManagementServices.deactivate(user),
           onSuccess: (data) => {
           enqueueSnackbar(data?.message || 'User deactivated successfully', { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['users'] });
+          queryClient.invalidateQueries({ queryKey: ['userManagement'] });
           onUserUpdated?.();
           },
           onError: (error) => handleApiError(error, 'Deactivation failed'),
@@ -58,7 +58,7 @@ import { MenuItemProps } from '@jumbo/types';
     mutationFn: () => userManagementServices.reactivate(user),
     onSuccess: (data) => {
     enqueueSnackbar(data?.message || 'User reactivated successfully', { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['users'] });
+    queryClient.invalidateQueries({ queryKey: ['userManagement'] });
     onUserUpdated?.();
     },
     onError: (error) => handleApiError(error, 'Reactivation failed'),
