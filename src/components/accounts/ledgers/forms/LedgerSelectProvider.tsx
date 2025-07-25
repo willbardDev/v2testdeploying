@@ -1,3 +1,5 @@
+'use client'
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import ledgerServices from '../ledger-services';
 import { useQuery } from '@tanstack/react-query';

@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 
 type StakeholderType = 'all' | 'customers' | 'suppliers' | string;
 
@@ -9,7 +11,7 @@ interface StakeholdersTypeSelectorProps {
 }
 
 const StakeholdersTypeSelector: React.FC<StakeholdersTypeSelectorProps> = ({ onChange, value }) => {
-  const [type, setType] = React.useState<StakeholderType>(value);
+  const [type, setType] = useState<StakeholderType>(value);
 
   const handleChange = (event: SelectChangeEvent<StakeholderType>) => {
     const newValue = event.target.value as StakeholderType;
