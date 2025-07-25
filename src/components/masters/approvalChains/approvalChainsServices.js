@@ -10,17 +10,13 @@ approvalChainsServices.getList = async (params = {}) => {
     return data;
 },
 
-approvalChainsServices.getApprovalRequisitionsList = async ({queryKey}) => {
-    const {page, limit, queryParams} = queryKey[queryKey.length - 1];
-    const {data} = await axios.get("/api/masters/approvalChains/getApprovalRequisitionsList", {
-        params: {
-            page: page,
-            limit: limit,
-            ...queryParams
-        }
+approvalChainsServices.getApprovalRequisitionsList = async (params = {}) => {
+    const { page = 1, limit = 10, ...queryParams } = params;
+    const { data } = await axios.get("/api/masters/approvalChains/getApprovalRequisitionsList", {
+        params: { page, limit, ...queryParams }
     });
     return data;
-};
+},
 
 approvalChainsServices.getApprovalChainLevels = async (id, status) => {
     const { data } = await axios.get(`/api/masters/approvalChains/${id}/getApprovalChainLevels`, {

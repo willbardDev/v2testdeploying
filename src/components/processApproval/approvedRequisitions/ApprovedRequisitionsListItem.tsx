@@ -41,7 +41,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
     }));
   };
 
-  const isPayment = approvedRequisition.process_type === 'payment';
+  const isPayment = approvedRequisition.process_type === 'PAYMENT';
   const paymentsCount = isPayment ? (approvedRequisition as PaymentApprovalRequisition).payments_count : 0;
   const purchasesCount = !isPayment ? (approvedRequisition as PurchaseApprovalRequisition).purchase_orders_count : 0;
   const paymentsOrPurchasesCount = isPayment ? paymentsCount : purchasesCount;
@@ -98,6 +98,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
           container
           spacing={1}
           alignItems="center"
+          width={'100%'}
           sx={{ paddingLeft: 1, paddingRight: 1 }}
         >
           <Grid size={{ xs: 12, md: 2 }}>
@@ -140,7 +141,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
           <Grid size={{ xs: 8, md: 2.5, lg: 1.7 }}>
             <Tooltip title="Amount">
               <Typography>
-                {(approvedRequisition.amount + approvedRequisition.requisition.vat_amount)?.toLocaleString('en-US', {
+                {(approvedRequisition.amount + approvedRequisition.vat_amount)?.toLocaleString('en-US', {
                   style: 'currency',
                   currency: approvedRequisition.currency?.code,
                 })}
