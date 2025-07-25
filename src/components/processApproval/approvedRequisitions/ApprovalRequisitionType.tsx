@@ -41,7 +41,7 @@ export interface BaseApprovalRequisition {
   approval_date: string;
   creator: User;
   currency: Currency;
-  process_type: "PURCHASE" | "PAYMENT";
+  process_type: "purchase" | "payment";
   remarks: string | null;
   status_label?: string;
   requisition: RequisitionSummary;
@@ -49,13 +49,13 @@ export interface BaseApprovalRequisition {
 }
 
 export interface PaymentApprovalRequisition extends BaseApprovalRequisition {
-  process_type: "PAYMENT";
+  process_type: "payment";
   is_fully_paid: boolean;
   payments_count: number;
 }
 
 export interface PurchaseApprovalRequisition extends BaseApprovalRequisition {
-  process_type: "PURCHASE";
+  process_type: "purchase";
   is_fully_ordered: boolean;
   purchase_orders_count: number;
 }

@@ -41,7 +41,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
     }));
   };
 
-  const isPayment = approvedRequisition.process_type === 'PAYMENT';
+  const isPayment = approvedRequisition.process_type === 'payment';
   const paymentsCount = isPayment ? (approvedRequisition as PaymentApprovalRequisition).payments_count : 0;
   const purchasesCount = !isPayment ? (approvedRequisition as PurchaseApprovalRequisition).purchase_orders_count : 0;
   const paymentsOrPurchasesCount = isPayment ? paymentsCount : purchasesCount;

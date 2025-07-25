@@ -16,6 +16,11 @@ import purchaseServices from '@/components/procurement/purchases/purchase-servic
 import PurchaseOrderSummary from '@/components/procurement/purchases/purchaseOrderForm/PurchaseOrderSummary';
 import PurchaseOrderPaymentAndReceive from '@/components/procurement/purchases/purchaseOrderForm/PurchaseOrderPaymentAndReceive';
 import { PurchaseApprovalRequisition } from '../../ApprovalRequisitionType';
+import { Vendor } from '@/components/processApproval/RequisitionType';
+import { Product } from '@/components/productAndServices/products/ProductType';
+import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 
 interface Order {
   id?: number;
@@ -23,22 +28,33 @@ interface Order {
   currency_id?: number;
   exchange_rate?: number;
   reference?: string;
-  stakeholder?: { id: number };
+  stakeholder?: Stakeholder;
   store?: { id: number };
   date_required?: string;
   instant_pay?: boolean;
   instant_receive?: boolean;
   credit_ledger?: { id: number };
-  cost_centers?: any[];
+  cost_centers?: CostCenter[];
   purchase_order_items?: Array<{
     requisition_approval_product_item_id: number;
     quantity: number;
     rate: number;
-    measurement_unit: { id: number };
+    measurement_unit: MeasurementUnit;
     vat_percentage: number;
-    product: { id: number };
-    vendors?: Array<{ id: number }>;
+    product: Product;
+    vendors?: Vendor;
   }>;
+}
+
+interface OrderItem {
+  requisition_approval_product_item_id?: number;
+  product?: Product;
+  product_id?: number;
+  quantity: number;
+  rate: number;
+  measurement_unit: MeasurementUnit;
+  vat_percentage: number;
+  unordered_quantity: number;
 }
 
 interface FormValues {
@@ -129,28 +145,28 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
     stakeholder_id: yup.number().positive().nullable(),
     instant_pay: yup.boolean(),
     instant_receive: yup.boolean(),
-    credit_ledger_id: yup.mixed().when(['instant_pay'], {
-      is: (instant_pay: boolean) => !!instant_pay,
-      then: yup.number().positive('Credit Account(From) is required').required('Credit Account(From) is required').typeError('Credit Account(From) is required'),
-      otherwise: yup.mixed().nullable()
+    credit_ledger_id: yup.number().nullable().when('instant_pay', {
+      is: true,
+      then: (schema) => schema.positive('Credit Account(From) is required').required('Credit Account(From) is required'),
+      otherwise: (schema) => schema.nullable()
     }),
-    store_id: yup.number().when('instant_receive', {
-      is: (instant_receive: boolean) => !!instant_receive && !!displayStoreSelector,
-      then: yup.number().positive('Receiving store is required').required('Receiving store is required').typeError('Receiving store is required'),
-      otherwise: yup.number().positive().nullable()
+    store_id: yup.number().nullable().when(['instant_receive', 'displayStoreSelector'], {
+      is: (instant_receive: boolean, displayStoreSelector: boolean) => instant_receive && displayStoreSelector,
+      then: (schema) => schema.positive('Receiving store is required').required('Receiving store is required'),
+      otherwise: (schema) => schema.nullable()
     }),
-    stakeholder_ledger_id: yup.number().when(['instant_pay', 'stakeholder_id', 'instant_receive'], {
-      is: (instant_pay: boolean, stakeholder_id: number, instant_receive: boolean) => !!instant_pay && !!stakeholder_id && !instant_receive,
-      then: yup.number().positive(`Selected supplier doesn't have any account`).required(`Selected supplier doesn't have any account`).typeError(`Selected supplier doesn't have any account`),
-      otherwise: yup.number().positive().nullable()
+    stakeholder_ledger_id: yup.number().nullable().when(['instant_pay', 'stakeholder_id', 'instant_receive'], {
+      is: (instant_pay: boolean, stakeholder_id: number, instant_receive: boolean) => instant_pay && !!stakeholder_id && !instant_receive,
+      then: (schema) => schema.positive(`Selected supplier doesn't have any account`).required(`Selected supplier doesn't have any account`),
+      otherwise: (schema) => schema.nullable()
     }),
-    items: yup.array().min(1, "You must add at least one item").typeError('You must add at least one item').of(
+    items: yup.array().min(1, "You must add at least one item").of(
       yup.object().shape({
-        product_id: yup.number().required("Product is required").positive('Product is required').typeError('Product is required'),
-        quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
-        rate: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
+        product_id: yup.number().required("Product is required").positive('Product is required'),
+        quantity: yup.number().required("Quantity is required").positive("Quantity is required"),
+        rate: yup.number().required("Price is required").positive("Price is required"),
       })
-    ),
+    ).required('You must add at least one item'),
   });
 
   const formMethods = useForm<FormValues>({
@@ -174,37 +190,35 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
     }
   });
 
-  const { register, setValue, handleSubmit, clearErrors, watch, formState: { errors } } = formMethods;
-
-  const rowAmount = (index: number) => {
-    const quantity = parseFloat(watch(`items.${index}.quantity`)) || 0;
-    const rate = parseFloat(watch(`items.${index}.rate`)) || 0;
-    return quantity * rate;
-  };
+  const { setValue, handleSubmit, watch, formState: { errors } } = formMethods;
 
   const orderTotalAmount = () => {
     let total = 0;
     let vatableAmount = 0;
 
-    const calculateTotals = async () => {
-      await setValue(`items`, []);
-      items.filter(item => item.unordered_quantity > 0).forEach((item, index) => {
-        total += item.rate * item.quantity;
-        setValue(`items.${index}.requisition_approval_product_item_id`, item?.requisition_approval_product_item_id);
-        setValue(`items.${index}.product_id`, item?.product?.id ? item.product.id : item.product_id);
-        setValue(`items.${index}.quantity`, sanitizedNumber(item.quantity));
-        setValue(`items.${index}.measurement_unit_id`, item.measurement_unit.id);
-        setValue(`items.${index}.rate`, item.rate);
-        setValue(`items.${index}.vat_percentage`, item.vat_percentage);
-      });
+    const calculateTotals = () => {
+      setValue(`items`, []);
+      items
+        .filter((item: OrderItem) => item.unordered_quantity > 0)
+        .forEach((item: OrderItem, index: number) => {
+          total += item.rate * item.quantity;
+          setValue(`items.${index}.requisition_approval_product_item_id`, Number(item.requisition_approval_product_item_id));
+          setValue(`items.${index}.product_id`, item.product?.id ?? item.product_id as number);
+          setValue(`items.${index}.quantity`, sanitizedNumber(item.quantity));
+          setValue(`items.${index}.measurement_unit_id`, item.measurement_unit.id);
+          setValue(`items.${index}.rate`, item.rate);
+          setValue(`items.${index}.vat_percentage`, item.vat_percentage);
+        });
       setTotalAmount(total);
     };
 
-    const calculateVAT = async () => {
-      await setValue(`items`, []);
-      items.filter(item => item.unordered_quantity > 0).forEach((item) => {
-        vatableAmount += (item.quantity * item.rate * (item.vat_percentage * 0.01 || 0));
-      });
+    const calculateVAT = () => {
+      setValue(`items`, []);
+      items
+        .filter((item: OrderItem) => item.unordered_quantity > 0)
+        .forEach((item: OrderItem) => {
+          vatableAmount += item.quantity * item.rate * ((item.vat_percentage ?? 0) * 0.01);
+        });
       setVatableAmount(vatableAmount);
     };
 
@@ -212,14 +226,11 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
     calculateVAT();
   };
 
-  const instant_pay = watch('instant_pay');
-  const instant_receive = watch('instant_receive');
-  const stakeholder_id = watch('stakeholder_id');
-
-  useEffect(() => {
+  React.useEffect(() => {
     orderTotalAmount();
-  }, [items]);
-
+  },[items]);
+  
+  const stakeholder_id = watch('stakeholder_id');
   const { data: stakeholderPayableLedgers } = useQuery({
     queryKey: ['stakeholderPayableLedgers', { stakeholderId: stakeholder_id }],
     queryFn: async () => {
@@ -325,23 +336,8 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                 stakeholderQuickAddDisplay={stakeholderQuickAddDisplay}
                 order={order}
                 approvedRequisition={approvedRequisition}
-                items={items}
-                instant_receive={instant_receive}
-                instant_pay={instant_pay}
-                displayStoreSelector={displayStoreSelector}
-                setDisplayStoreSelector={setDisplayStoreSelector}
                 order_date={order_date}
-                costCenters={costCenters}
-                totalAmount={totalAmount}
-                vatableAmount={vatableAmount}
-                checked={checked}
-                setChecked={setChecked}
-                setValue={setValue}
-                errors={errors}
                 approvedDetails={approvedDetails}
-                clearErrors={clearErrors}
-                watch={watch}
-                register={register}
               />
             </form>
           </Grid>

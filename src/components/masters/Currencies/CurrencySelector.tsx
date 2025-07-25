@@ -6,7 +6,7 @@ import { useCurrencySelect } from './CurrencySelectProvider';
 import { Currency } from './CurrencyType';
 
 interface CurrencySelectorProps {
-    onChange: (newValue: Currency | null) => void;
+    onChange?: (newValue: Currency | null) => void;
     frontError?: { message: string } | null;
     label?: string;
     defaultValue?: number;
@@ -49,7 +49,7 @@ function CurrencySelector({
                 />
             )}
             onChange={(event, newValue) => {
-                onChange(newValue);
+                onChange?.(newValue);
                 setSelectedCurrency(newValue || null);
             }}
         />

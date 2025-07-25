@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, Grid, IconButton, Tooltip } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
@@ -21,7 +19,7 @@ import { useParams } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-import { ApprovalRequisition, ApprovalRequisitionList } from './ApprovalRequisitionType';
+import { ApprovalRequisition } from './ApprovalRequisitionType';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 
 interface FilterDate {
@@ -46,7 +44,7 @@ interface QueryOptions {
 }
 
 interface ApprovedRequisitionsRqListProps {
-  processType: 'PURCHASE' | 'PAYMENT' | 'all';
+  processType: 'purchase' | 'payment' | 'all';
 }
 
 const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({ processType }) => {

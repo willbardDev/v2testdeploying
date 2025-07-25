@@ -19,7 +19,7 @@ interface CostCenterSelectorProps {
   multiple?: boolean;
   withNotSpecified?: boolean;
   defaultValue?: CostCenter | CostCenter[] | null;
-  onChange: (value: CostCenter | CostCenter[] | null) => void;
+  onChange?: (value: CostCenter | CostCenter[] | null) => void;
 }
 
 function CostCenterSelector(props: CostCenterSelectorProps) {
@@ -98,7 +98,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     }
 
     setSelectedItems(newValue);
-    onChange(newValue);
+    onChange?.(newValue);
   };
 
   if (isLoading) {

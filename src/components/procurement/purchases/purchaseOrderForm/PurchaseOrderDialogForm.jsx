@@ -97,12 +97,6 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
     date: watch(`order_date`),
   }
 
-  const rowAmount = (index) => {
-    const quantity = parseFloat(watch(`items.${index}.quantity`)) || 0;
-    const rate = parseFloat(watch(`items.${index}.rate`)) || 0;
-    return quantity * rate;
-  }
-
   //Set Item values and calculate total amount
   const orderTotalAmount = () => {
     let total = 0;
@@ -139,7 +133,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
 
   React.useEffect(() => {
     orderTotalAmount();
-  },[rowAmount]);
+  },[items]);
 
   //Load Stakeholder credit ledgers
   const stakeholder_id = watch('stakeholder_id');
