@@ -19,7 +19,7 @@ import { User } from './UserManagementType';
     };
 
     const UserManagementListItem = ({ user, onUserUpdated, actionTail }: Props) => {
-      const isActive = user.status === 'active';
+    const isActive = user.status === 'active';
 
  return (
   <>
