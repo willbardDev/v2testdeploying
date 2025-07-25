@@ -7,12 +7,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const body = await req.json();
   const res = await fetch(`${API_BASE}/deactivate-user/${params.id}`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-  });
+  method: 'POST',
+  headers,
+});
+
  
   return handleJsonResponse(res);
 }
