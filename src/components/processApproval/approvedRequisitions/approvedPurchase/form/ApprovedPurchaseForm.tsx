@@ -342,10 +342,18 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
             </form>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
-            <PurchaseOrderSummary isApprovedPurchase={true} />
+            <PurchaseOrderSummary isApprovedPurchase={true} totalAmount={totalAmount} vatableAmount={vatableAmount} checked={checked} setChecked={setChecked}/>
           </Grid>
 
-          <PurchaseOrderPaymentAndReceive />
+          <PurchaseOrderPaymentAndReceive
+            instant_receive={watch('instant_receive')}
+            instant_pay={watch('instant_pay')}
+            displayStoreSelector={displayStoreSelector}
+            setDisplayStoreSelector={setDisplayStoreSelector}
+            order={order}
+            items={items}
+          />
+
         </Grid>
       </DialogTitle>
       <DialogContent>

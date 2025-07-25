@@ -38,7 +38,7 @@ const ApprovedPurchaseActionTail: React.FC<ApprovedPurchaseActionTailProps> = ({
   return (
     <>
       <Dialog 
-        maxWidth="lg" 
+        maxWidth="xl" 
         scroll={belowLargeScreen ? 'body' : 'paper'} 
         fullWidth 
         fullScreen={belowLargeScreen} 

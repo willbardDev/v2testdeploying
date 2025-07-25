@@ -6,8 +6,15 @@ import storeServices from '../../stores/store-services';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
-function PurchaseOrderPaymentAndReceive() {
-    const {items, setDisplayStoreSelector, instant_receive, instant_pay, displayStoreSelector, setValue, errors, order, watch, register} = useFormContext();
+function PurchaseOrderPaymentAndReceive({ 
+  instant_receive, 
+  instant_pay, 
+  displayStoreSelector, 
+  setDisplayStoreSelector,
+  order,
+  items
+}) {
+    const { setValue, errors = {}, watch, register} = useFormContext();
     const [storeOptions, setStoreOptions] = useState([]);
     const {productOptions} = useProductsSelect();
 
@@ -24,7 +31,7 @@ function PurchaseOrderPaymentAndReceive() {
 
     React.useEffect(() => {
         setDisplayStoreSelector(false);
-        items.map(item => {
+        items?.map(item => {
             const product = productOptions.find(option => option.id === item.product.id);
             if(product?.type === 'Inventory'){
             setDisplayStoreSelector(true);
@@ -41,7 +48,7 @@ function PurchaseOrderPaymentAndReceive() {
     },[items, displayStoreSelector, watch(`stakeholder_id`)]);
     
   return (
-    <Grid container spacing={1} paddingTop={1}>
+    <Grid container spacing={1} paddingTop={1} width={'100%'}>
         <Grid size={{xs: 12, md: 6}}>
             <Grid container columnSpacing={1} rowSpacing={1}>
                 <Grid size={{xs: 12, md: 6}}>
@@ -88,10 +95,9 @@ function PurchaseOrderPaymentAndReceive() {
                     />
                     {instant_pay && (
                         <LedgerSelect
-
                             label='Pay from'
                             defaultValue={order?.credit_ledger}
-                            frontError={errors.credit_ledger_id}
+                            frontError={errors?.credit_ledger_id}  // Added optional chaining
                             allowedGroups={['Cash and cash equivalents']}
                             onChange={(newValue) => {
                                 setValue('credit_ledger_id', newValue?.id || null, {
@@ -123,7 +129,7 @@ function PurchaseOrderPaymentAndReceive() {
                         {displayStoreSelector && instant_receive && (
                             <StoreSelector
                                 allowSubStores
-                                frontError={errors.store_id}
+                                frontError={errors?.store_id}  // Added optional chaining
                                 defaultValue={order?.store}
                                 proposedOptions={storeOptions}
                                 onChange={(newValue) => {

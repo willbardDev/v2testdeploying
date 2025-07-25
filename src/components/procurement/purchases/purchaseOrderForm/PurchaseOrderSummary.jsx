@@ -1,9 +1,7 @@
 import { Divider, Grid, Switch, Typography } from '@mui/material';
 import React from 'react'
-import { useFormContext } from 'react-hook-form';
 
-function PurchaseOrderSummary({isApprovedPurchase}) {
-  const { totalAmount, vatableAmount, checked, setChecked } = useFormContext();
+function PurchaseOrderSummary({isApprovedPurchase, totalAmount, vatableAmount, checked, setChecked}) {
 
   return (
     <Grid container columnSpacing={1}>

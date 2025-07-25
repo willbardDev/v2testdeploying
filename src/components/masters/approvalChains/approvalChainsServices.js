@@ -11,11 +11,10 @@ approvalChainsServices.getList = async (params = {}) => {
 },
 
 approvalChainsServices.getApprovalRequisitionsList = async (params = {}) => {
-    const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get("/api/masters/approvalChains/getApprovalRequisitionsList", {
-        params: { page, limit, ...queryParams }
-    });
-    return data;
+  const response = await axios.get('/api/masters/approvalChains/getApprovalRequisitionsList', {
+    params,  // pass all query params here directly
+  });
+  return response.data;
 },
 
 approvalChainsServices.getApprovalChainLevels = async (id, status) => {

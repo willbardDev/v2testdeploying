@@ -219,7 +219,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
             </form>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
-            <PurchaseOrderSummary/>
+            <PurchaseOrderSummary totalAmount={totalAmount} vatableAmount={vatableAmount} checked={checked} setChecked={setChecked}/>
           </Grid>
           <Grid size={12}>
             <PurchaseOrderItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setItems={setItems} checked={checked} getLastPriceItems={getLastPriceItems}/>
@@ -227,7 +227,14 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
           </Grid>
 
           {/* Payment And Receive */}
-          <PurchaseOrderPaymentAndReceive/>
+          <PurchaseOrderPaymentAndReceive
+            instant_receive={watch('instant_receive')}
+            instant_pay={watch('instant_pay')}
+            displayStoreSelector={displayStoreSelector}
+            setDisplayStoreSelector={setDisplayStoreSelector}
+            order={order}
+            items={items}
+          />
         </Grid>
       </DialogTitle>
       <DialogContent>
