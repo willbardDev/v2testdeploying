@@ -16,6 +16,12 @@ import {
   Typography,
   Chip,
   Stack,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from '@mui/material';
 import { signOut } from 'next-auth/react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -33,6 +39,8 @@ export const AuthUserPopover = ({ dictionary }) => {
   const lang = useLanguage();
   const { theme } = useJumboTheme();
   const authContext = useJumboAuth();
+
+  const [openLogoutDialog, setOpenLogoutDialog] = React.useState(false);
 
   if (!authContext) {
     console.error('Auth context not available');
@@ -73,23 +81,27 @@ export const AuthUserPopover = ({ dictionary }) => {
         }
         sx={{ ml: 3 }}
       >
-        <Div sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          p: theme => theme.spacing(2.5),
-        }}>
+        <Div
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            p: (theme) => theme.spacing(2.5),
+          }}
+        >
           <Avatar src={user.avatar} sx={{ width: 60, height: 60, mb: 2 }} />
-          <Typography noWrap variant={'h5'}>{user?.name}</Typography>
-          <Typography noWrap variant={'body1'} color='text.secondary'>
+          <Typography noWrap variant={'h5'}>
+            {user?.name}
+          </Typography>
+          <Typography noWrap variant={'body1'} color="text.secondary">
             {user.email}
           </Typography>
-          
+
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-            <Chip 
-              label={organization?.name} 
-              size="small" 
-              color="primary" 
+            <Chip
+              label={organization?.name}
+              size="small"
+              color="primary"
               variant="outlined"
             />
           </Stack>
@@ -106,15 +118,46 @@ export const AuthUserPopover = ({ dictionary }) => {
                 sx={{ my: 0 }}
               />
             </ListItemButton>
-            <ListItemButton onClick={logout}>
+            <ListItemButton onClick={() => setOpenLogoutDialog(true)}>
               <ListItemIcon sx={{ minWidth: 36 }}>
                 <LogoutIcon />
               </ListItemIcon>
-              <ListItemText primary={dictionary.commons.logout} sx={{ my: 0 }} />
+              <ListItemText
+                primary={dictionary.commons.logout}
+                sx={{ my: 0 }}
+              />
             </ListItemButton>
           </List>
         </nav>
       </JumboDdPopover>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog
+        open={openLogoutDialog}
+        onClose={() => setOpenLogoutDialog(false)}
+      >
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenLogoutDialog(false)} color="primary">
+            No
+          </Button>
+          <Button
+            onClick={() => {
+              setOpenLogoutDialog(false);
+              logout();
+            }}
+            color="error"
+            variant="contained"
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 };
