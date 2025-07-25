@@ -95,15 +95,6 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
     }
   });
 
-  const rowAmount = (index: number) => {
-    const currentItems = watch('items');
-    if (!currentItems || index >= currentItems.length) return 0;
-    
-    const quantity = currentItems[index]?.quantity || 0;
-    const rate = currentItems[index]?.rate || 0;
-    return quantity * rate;
-  }
-
   const orderTotalAmount = () => {
     let total = 0;
     let vatableTotal = 0;
@@ -144,7 +135,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
 
   React.useEffect(() => {
     orderTotalAmount();
-  }, [rowAmount]);
+  }, [items]);
 
   useEffect(() => {
     if (addedStakeholder?.id) {
