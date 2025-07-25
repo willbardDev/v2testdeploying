@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, Grid, IconButton, Tooltip } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
