@@ -45,67 +45,67 @@ import { MenuItemProps } from '@jumbo/types';
           };
 
         const { mutate: deactivateUser } = useMutation<ApiResponse, unknown, void>({
-          mutationFn: () => userManagementServices.deactivate(user.id),
+          mutationFn: () => userManagementServices.deactivate(user),
           onSuccess: (data) => {
           enqueueSnackbar(data?.message || 'User deactivated successfully', { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['users'] });
+          queryClient.invalidateQueries({ queryKey: ['userManagement'] });
           onUserUpdated?.();
           },
           onError: (error) => handleApiError(error, 'Deactivation failed'),
         });
 
-  const { mutate: reactivateUser } = useMutation<ApiResponse, unknown, void>({
-    mutationFn: () => userManagementServices.reactivate(user.id),
-    onSuccess: (data) => {
-    enqueueSnackbar(data?.message || 'User reactivated successfully', { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['users'] });
-    onUserUpdated?.();
-    },
-    onError: (error) => handleApiError(error, 'Reactivation failed'),
-    });
-
-    const isActive = user.status === 'active';
-
-    const menuItems: MenuItemProps[] = [
-      {
-        icon: isActive ? <BlockIcon sx={{ color: 'error.main' }} /> : <ReplayIcon sx={{ color: 'primary.main' }} />,
-        title: isActive ? 'Deactivate' : 'Reactivate',
-        action: isActive ? 'deactivate' : 'reactivate',
-      },
-    ];
-
-    const handleItemAction = (menuItem: MenuItemProps) => {
-      switch (menuItem.action) {
-        case 'deactivate':
-          showDialog({
-            title: 'Confirm User Deactivation',
-            content: 'Are you sure you want to deactivate this user?',
-            variant: 'confirm',
-            onYes: () => {
-              hideDialog();
-              deactivateUser();
-            },
-            onNo: () => hideDialog(),
+        const { mutate: reactivateUser } = useMutation<ApiResponse, unknown, void>({
+          mutationFn: () => userManagementServices.reactivate(user),
+          onSuccess: (data) => {
+          enqueueSnackbar(data?.message || 'User reactivated successfully', { variant: 'success' });
+          queryClient.invalidateQueries({ queryKey: ['userManagement'] });
+          onUserUpdated?.();
+          },
+          onError: (error) => handleApiError(error, 'Reactivation failed'),
           });
-          break;
 
-        case 'reactivate':
-          showDialog({
-            title: 'Confirm User Reactivation',
-            content: 'Are you sure you want to reactivate this user?',
-            variant: 'confirm',
-            onYes: () => {
-              hideDialog();
-              reactivateUser();
+          const isActive = user.status === 'active';
+
+          const menuItems: MenuItemProps[] = [
+            {
+              icon: isActive ? <BlockIcon sx={{ color: 'error.main' }} /> : <ReplayIcon sx={{ color: 'primary.main' }} />,
+              title: isActive ? 'Deactivate' : 'Reactivate',
+              action: isActive ? 'deactivate' : 'reactivate',
             },
-            onNo: () => hideDialog(),
-          });
-          break;
+          ];
 
-        default:
-          console.warn(`Unhandled action: ${menuItem.action}`);
-      }
-    };
+          const handleItemAction = (menuItem: MenuItemProps) => {
+            switch (menuItem.action) {
+              case 'deactivate':
+                showDialog({
+                  title: 'Confirm User Deactivation',
+                  content: 'Are you sure you want to deactivate this user?',
+                  variant: 'confirm',
+                  onYes: () => {
+                    hideDialog();
+                    deactivateUser();
+                  },
+                  onNo: () => hideDialog(),
+                });
+                break;
+
+              case 'reactivate':
+                showDialog({
+                  title: 'Confirm User Reactivation',
+                  content: 'Are you sure you want to reactivate this user?',
+                  variant: 'confirm',
+                  onYes: () => {
+                    hideDialog();
+                    reactivateUser();
+                  },
+                  onNo: () => hideDialog(),
+                });
+                break;
+
+              default:
+                console.warn(`Unhandled action: ${menuItem.action}`);
+            }
+          };
 
     return (
       <>

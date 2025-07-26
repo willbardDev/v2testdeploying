@@ -26,24 +26,27 @@ userManagementServices.verify = async (
   payload: VerifyUserPayload
 ): Promise<VerifyUserResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post('/users/verify', payload);
+  const { data } = await axios.post('/api/prosControl/userManagement/verify', payload);
   return data;
 };
 
 userManagementServices.deactivate = async (
- params: { id: number }
+  params: { id: number }
 ): Promise<DeactivateUserResponse> => {
-  await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post(`/api/prosControl/userManagement/[${params.id}]/deactivate`);
-  return data;
+  return await axios.get('/sanctum/csrf-cookie').then(async () => {
+    const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/deactivate`);
+    return data;
+  });
 };
 
 userManagementServices.reactivate = async (
-   params: { id: number }
+  params: { id: number }
 ): Promise<ReactivateUserResponse> => {
-  await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post(`/api/prosControl/userManagement/reactivate`);
-  return data;
+  return await axios.get('/sanctum/csrf-cookie').then(async () => {
+    const { data } = await axios.post(`/api/prosControl/userManagement/${params.id}/reactivate`);
+    return data;
+  });
 };
+
 
 export default userManagementServices;
