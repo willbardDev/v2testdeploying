@@ -43,30 +43,41 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
     cost_centers: yup.array().min(1, 'At least one cost center must be selected').required('Cost Center is required').typeError('At least one cost center must be selected'),
     exchange_rate: yup.number().positive('Exchange rate is required').required('Exchange rate is required').typeError('Exchange rate is required'),
     stakeholder_id: yup.number().positive().nullable(),
-    instant_pay : yup.boolean(),
-    instant_receive : yup.boolean(),
-    credit_ledger_id: yup.mixed().when(['instant_pay'],{
-      is: (instant_pay) => !!instant_pay,
-      then: yup.number().positive('Credit Account(From) is required').required('Credit Account(From) is required').typeError('Credit Account(From) is required'),
-      otherwise: yup.mixed().nullable()
-    }),
-    store_id: yup.number().when('instant_receive',{
-      is: (instant_receive) => !!instant_receive && !!displayStoreSelector,
-      then: yup.number().positive('Receiving store is required').required('Receiving store is required').typeError('Receiving store is required'),
-      otherwise: yup.number().positive().nullable()
-    }),
-    stakeholder_ledger_id: yup.number().when(['instant_pay','stakeholder_id','instant_receive'],{
-      is: (instant_pay,stakeholder_id,instant_receive) => !!instant_pay && !!stakeholder_id && !instant_receive,
-      then: yup.number().positive(`Selected supplier doesn't have any account`).required(`Selected supplier doesn't have any account`).typeError(`Selected supplier doesn't have any account`),
-      otherwise: yup.number().positive().nullable()
-    }),
-    items: yup.array().min(1, "You must add at least one item").typeError('You must add at least one item').of(
-      yup.object().shape({
-        product_id: yup.number().required("Product is required").positive('Product is required').typeError('Product is required'),
-        quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
-        rate: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
-      })
-    ),
+    instant_pay: yup.boolean(),
+    instant_receive: yup.boolean(),
+    credit_ledger_id: yup.number()
+      .when('instant_pay', {
+        is: true,
+        then: (schema) => schema.positive('Credit Account(From) is required')
+          .required('Credit Account(From) is required')
+          .typeError('Credit Account(From) is required'),
+        otherwise: (schema) => schema.nullable()
+      }),
+    store_id: yup.number()
+      .when(['instant_receive', 'displayStoreSelector'], {
+        is: (instant_receive, displayStoreSelector) => instant_receive && displayStoreSelector,
+        then: (schema) => schema.positive('Receiving store is required')
+          .required('Receiving store is required')
+          .typeError('Receiving store is required'),
+        otherwise: (schema) => schema.nullable()
+      }),
+    stakeholder_ledger_id: yup.number()
+      .when(['instant_pay', 'stakeholder_id', 'instant_receive'], {
+        is: (instant_pay, stakeholder_id, instant_receive) => instant_pay && stakeholder_id && !instant_receive,
+        then: (schema) => schema.positive(`Selected supplier doesn't have any account`)
+          .required(`Selected supplier doesn't have any account`)
+          .typeError(`Selected supplier doesn't have any account`),
+        otherwise: (schema) => schema.nullable()
+      }),
+    items: yup.array().min(1, "You must add at least one item")
+      .typeError('You must add at least one item')
+      .of(
+        yup.object().shape({
+          product_id: yup.number().required("Product is required").positive('Product is required').typeError('Product is required'),
+          quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
+          rate: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
+        })
+      ),
   });
 
   const {register,setValue, setError, handleSubmit, clearErrors, watch, formState : {errors}} = useForm({
@@ -185,19 +196,22 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   const instant_pay = watch('instant_pay');
   const instant_receive = watch('instant_receive');
 
-  const onSubmit = (data) => {
+  const onSubmit = handleSubmit((formData) => {
     if (items.length === 0) {
       setError(`items`, {
         type: "manual",
         message: "You must add at least one item",
       });
       return;
-    } else if (isDirty) {
-      setShowWarning(true);
-    } else {
-      handleSubmit((data) => saveMutation.mutate(data))();
     }
-  };  
+    
+    if (isDirty) {
+      setShowWarning(true);
+      return;
+    }
+
+    saveMutation.mutate(formData);
+  });
 
   const handleConfirmSubmitWithoutAdd = () => {
     handleSubmit((data) => saveMutation.mutate(data))();
@@ -234,6 +248,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
             setDisplayStoreSelector={setDisplayStoreSelector}
             order={order}
             items={items}
+            errors={errors}
           />
         </Grid>
       </DialogTitle>

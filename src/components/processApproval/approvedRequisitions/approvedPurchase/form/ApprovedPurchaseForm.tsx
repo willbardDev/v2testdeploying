@@ -150,8 +150,8 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
       then: (schema) => schema.positive('Credit Account(From) is required').required('Credit Account(From) is required'),
       otherwise: (schema) => schema.nullable()
     }),
-    store_id: yup.number().nullable().when(['instant_receive', 'displayStoreSelector'], {
-      is: (instant_receive: boolean, displayStoreSelector: boolean) => instant_receive && displayStoreSelector,
+    store_id: yup.number().when(['instant_receive', 'displayStoreSelector'], {
+      is: (instant_receive: boolean) => instant_receive && displayStoreSelector,
       then: (schema) => schema.positive('Receiving store is required').required('Receiving store is required'),
       otherwise: (schema) => schema.nullable()
     }),
@@ -160,13 +160,6 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
       then: (schema) => schema.positive(`Selected supplier doesn't have any account`).required(`Selected supplier doesn't have any account`),
       otherwise: (schema) => schema.nullable()
     }),
-    items: yup.array().min(1, "You must add at least one item").of(
-      yup.object().shape({
-        product_id: yup.number().required("Product is required").positive('Product is required'),
-        quantity: yup.number().required("Quantity is required").positive("Quantity is required"),
-        rate: yup.number().required("Price is required").positive("Price is required"),
-      })
-    ).required('You must add at least one item'),
   });
 
   const formMethods = useForm<FormValues>({
@@ -213,7 +206,6 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
     };
 
     const calculateVAT = () => {
-      setValue(`items`, []);
       items
         .filter((item: OrderItem) => item.unordered_quantity > 0)
         .forEach((item: OrderItem) => {
@@ -352,6 +344,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
             setDisplayStoreSelector={setDisplayStoreSelector}
             order={order}
             items={items}
+            errors={errors}
           />
 
         </Grid>

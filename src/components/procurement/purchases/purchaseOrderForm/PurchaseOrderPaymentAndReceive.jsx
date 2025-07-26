@@ -12,9 +12,10 @@ function PurchaseOrderPaymentAndReceive({
   displayStoreSelector, 
   setDisplayStoreSelector,
   order,
-  items
+  items,
+  errors
 }) {
-    const { setValue, errors = {}, watch, register} = useFormContext();
+    const { setValue, watch, register} = useFormContext();
     const [storeOptions, setStoreOptions] = useState([]);
     const {productOptions} = useProductsSelect();
 

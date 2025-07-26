@@ -15,7 +15,7 @@ function PurchaseOrderItemRow({ setClearFormKey, submitMainForm, setSubmitItemFo
     <React.Fragment>
         <Divider/>
         { !showForm ? (
-                    <Grid container 
+                <Grid container 
                     sx={{
                         cursor: 'pointer',
                         '&:hover': {

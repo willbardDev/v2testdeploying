@@ -144,8 +144,9 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                 currency_id: getLastPriceItems.currency_id,
                 measurement_unit_id: measurement_unit_id,
             });
-            setValue(`rate`, lastPrice);
+            setValue(`rate`, lastPrice?.message);
             setIsRetrieving(false);
+            setVatPriceFieldKey((key) => key + 1);
         }
     };
 

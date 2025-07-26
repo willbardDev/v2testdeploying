@@ -160,7 +160,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails }: 
                                 </Tooltip>
                             </Div>
                         </Grid>
-                        {items.length > 1 && (
+                        {items.filter(item => item.unordered_quantity > 0).length > 1 && (
                             <Grid 
                                 size={{
                                     xs: vat_factor ? 12 : 1,
