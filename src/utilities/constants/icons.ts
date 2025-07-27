@@ -17,7 +17,8 @@ import {
   FolderOutlined, // MUI equivalent for faFolderOpen
   ManageAccountsOutlined,
   VerifiedOutlined,
-  ShoppingCartCheckout
+  ShoppingCartCheckout,
+  QrCode
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
@@ -94,6 +95,11 @@ const APP_ICONS: Icon[] = [
   {
     name: 'organizations',
     Component: CorporateFareOutlined,
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'batches',
+    Component: QrCode,
     props: { sx: { fontSize: 20 } }
   },
   {

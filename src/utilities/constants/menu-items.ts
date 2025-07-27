@@ -74,6 +74,21 @@ export async function getMenus(locale: string) {
     },
 
     {
+      label: sidebar.menu.manufacturing,
+      children: [
+        {
+          path: `/${locale}/manufacturing/batches`,
+          label: sidebar.menuItem.batches,
+          icon: 'batches',
+        },
+        {
+          path: `/${locale}/manufacturing/boms`,
+          label: sidebar.menuItem.boms,
+        },
+      ],
+    },
+
+    {
       label: sidebar.menu.projectManagement,
       children: [
         {
