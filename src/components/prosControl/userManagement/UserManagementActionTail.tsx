@@ -5,7 +5,6 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
-import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import VerifyUserFormDialog from './VerifyUserFormDialog';
@@ -16,10 +15,8 @@ import { User } from './UserManagementType';
   }
 
   const UserManagementActionTail: React.FC<UserManagementActionTailProps> = ({ user }) => {
-      const [openDialog, setOpenDialog] = useState(false);
-      const { theme } = useJumboTheme();
-      const { checkOrganizationPermission } = useJumboAuth();
-      const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const [openDialog, setOpenDialog] = useState(false);
+    const { checkOrganizationPermission } = useJumboAuth();
 
   return (
     <>
