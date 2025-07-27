@@ -15,7 +15,9 @@ import {
   ShoppingCartOutlined,
   OutdoorGrillOutlined,
   FolderOutlined, // MUI equivalent for faFolderOpen
-  ManageAccountsOutlined
+  ManageAccountsOutlined,
+  VerifiedOutlined,
+  ShoppingCartCheckout
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
@@ -47,6 +49,16 @@ const APP_ICONS: Icon[] = [
   {
     name: 'approvals',
     Component: ChecklistRtlOutlined,
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'approvedPayments',
+    Component: VerifiedOutlined,
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'approvedPurchases',
+    Component: ShoppingCartCheckout,
     props: { sx: { fontSize: 20 } }
   },
   {

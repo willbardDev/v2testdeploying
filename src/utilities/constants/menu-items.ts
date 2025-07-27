@@ -87,6 +87,11 @@ export async function getMenus(locale: string) {
       label: sidebar.menu.accounts_and_finance,
       children: [
         {
+          path: `/${locale}/accounts/approvedPayments`,
+          label: sidebar.menuItem.approvedPayments,
+          icon: 'approvedPayments',
+        },
+        {
           path: `/${locale}/accounts/transactions`,
           label: sidebar.menuItem.transactions,
           icon: 'transactions',
@@ -114,6 +119,11 @@ export async function getMenus(locale: string) {
     {
       label: sidebar.menu.procurementAndSupply,
       children: [
+        {
+          path: `/${locale}/procurement/approvedPurchases`,
+          label: sidebar.menuItem.approvedPurchases,
+          icon: 'approvedPurchases',
+        },
         {
           path: `/${locale}/procurement/purchases`,
           label: sidebar.menuItem.purchases,
