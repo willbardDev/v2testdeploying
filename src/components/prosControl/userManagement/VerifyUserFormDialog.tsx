@@ -101,13 +101,12 @@ import { User } from './UserManagementType';
         open={open} 
         onClose={handleClose} 
         fullWidth 
-        maxWidth="sm"
+        maxWidth="xs"
       >
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <DialogTitle sx={{ textAlign: 'center' }}>
-            Verify User {user?.name}
+            Verify User
           </DialogTitle>
-          
           <DialogContent>
             <Grid container spacing={2} sx={{ mt: 1 }}>
               <Grid size={12}>
@@ -123,7 +122,6 @@ import { User } from './UserManagementType';
               </Grid>
             </Grid>
           </DialogContent>
-          
           <DialogActions>
             <Button 
               onClick={handleClose} 
