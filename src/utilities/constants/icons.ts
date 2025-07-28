@@ -17,7 +17,8 @@ import {
   FolderOutlined, // MUI equivalent for faFolderOpen
   ManageAccountsOutlined,
   VerifiedOutlined,
-  ShoppingCartCheckout
+  ShoppingCartCheckout,
+  ViewAgendaOutlined
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
@@ -69,6 +70,11 @@ const APP_ICONS: Icon[] = [
   {
     name: 'proforma',
     Component: RequestQuoteOutlined,
+    props: { sx: { fontSize: 20 } }
+  },
+  {
+    name: 'projects',
+    Component: ViewAgendaOutlined,
     props: { sx: { fontSize: 20 } }
   },
   {

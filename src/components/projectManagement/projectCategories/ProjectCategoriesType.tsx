@@ -20,3 +20,8 @@ export type PaginatedCategoryResponse = {
   total: number;
   last_page: number;
 } 
+export interface ProjectCategory {
+  id: number;
+  name: string;
+  description?: string;
+}

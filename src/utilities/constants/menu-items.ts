@@ -1,4 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 
 export async function getMenus(locale: string) {
   const dictionary = await getDictionary(locale);
@@ -76,6 +77,11 @@ export async function getMenus(locale: string) {
     {
       label: sidebar.menu.projectManagement,
       children: [
+        {
+          path: `/${locale}/projectManagement/projects`,
+          label: sidebar.menuItem.projects,
+          icon:'projects'
+        },
         {
           path: `/${locale}/projectManagement/projectCategories`,
           label: sidebar.menuItem.projectCategories,
