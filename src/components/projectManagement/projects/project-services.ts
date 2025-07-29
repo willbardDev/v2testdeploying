@@ -19,12 +19,6 @@ projectServices.getList = async (
   return data;
 };
 
-// Get all projects (for selector, dropdowns, etc.)
-projectServices.getAll = async (): Promise<{ id: number; name: string }[]> => {
-  const { data } = await axios.get('/api/projectManagement/projects/all_projects');
-  return data;
-};
-
 // Add a new project
 projectServices.add = async (project: {
   name: string;
@@ -42,8 +36,7 @@ projectServices.update = async (
   project: { id: number; name: string; description?: string; category_id?: number; client_id?: number }
 ): Promise<UpdateProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(
-    `/api/projectManagement/projects/${project.id}/update`,
+  const { data } = await axios.put(`/api/projectManagement/projects/${project.id}/update`,
     project
   );
   return data;
@@ -54,8 +47,7 @@ projectServices.delete = async (
   params: { id: number }
 ): Promise<DeleteProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(
-    `/api/projectManagement/projects/${params.id}/delete`
+  const { data } = await axios.delete(`/api/projectManagement/projects/${params.id}/delete`
   );
   return data;
 };

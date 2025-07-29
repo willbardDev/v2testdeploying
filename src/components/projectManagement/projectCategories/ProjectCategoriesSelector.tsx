@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
 import {
   Autocomplete,
   Checkbox,
@@ -7,15 +7,15 @@ import {
   TextField,
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import { ProjectCategory } from "../projectCategories/ProjectCategoriesType";
+import { useQuery } from "@tanstack/react-query";
 import projectCategoryServices from "../projectCategories/project-category-services";
+import { ProjectCategory } from "../projectCategories/ProjectCategoriesType";
 
 interface ProjectCategoriesSelectorProps {
   onChange: (value: ProjectCategory | ProjectCategory[] | null) => void;
   multiple?: boolean;
   label?: string;
-  defaultValue?: number | null;
+  defaultValue?: ProjectCategory | ProjectCategory[] | null;
   frontError?: { message: string } | null;
 }
 
@@ -26,58 +26,58 @@ const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
   defaultValue = null,
   frontError = null,
 }) => {
-  const { data, isLoading } = useQuery<ProjectCategory[], Error>({
+  const { data: categories, isLoading } = useQuery<ProjectCategory[], Error>({
     queryKey: ["projectCategories"],
     queryFn: () => projectCategoryServices.getAll(),
   });
 
   const [selectedCategories, setSelectedCategories] = useState<
     ProjectCategory | ProjectCategory[] | null
-  >(() => {
-    if (defaultValue !== null && Array.isArray(data)) {
-      return data.find((cat) => cat.id === defaultValue) || null;
-    }
-    return multiple ? [] : null;
-  });
+  >(defaultValue ?? (multiple ? [] : null));
 
   useEffect(() => {
-    if (defaultValue !== null && Array.isArray(data)) {
-      const found = data.find((cat) => cat.id === defaultValue) || null;
-      setSelectedCategories(multiple ? (found ? [found] : []) : found);
+    if (defaultValue) {
+      setSelectedCategories(defaultValue);
     }
-  }, [defaultValue, data, multiple]);
+  }, [defaultValue]);
 
   if (isLoading) return <LinearProgress />;
 
   return (
     <Autocomplete
       multiple={multiple}
-      size="small"
-      options={data ?? []} // ✅ Fix: ensure it's always an array
+      options={categories ?? []}
       disableCloseOnSelect={multiple}
       isOptionEqualToValue={(option, value) => option.id === value.id}
+      getOptionLabel={(option) => {
+  if (typeof option === 'string') return option;
+  if (!option || typeof option !== 'object') return '';
+  return option.name ?? '';
+}}
       value={selectedCategories ?? (multiple ? [] : null)}
       onChange={(e, newValue) => {
         onChange(newValue);
         setSelectedCategories(newValue);
       }}
-      getOptionLabel={(option) => option.name}
       renderInput={(params) => (
         <TextField
           {...params}
-          error={!!frontError}
-          helperText={frontError?.message}
-          fullWidth
           label={label}
           size="small"
-          placeholder={label}
+          fullWidth
+          error={!!frontError}
+          helperText={frontError?.message}
         />
       )}
       renderTags={(tagValue, getTagProps) =>
         tagValue.map((option, index) => {
           const { key, ...restProps } = getTagProps({ index });
           return (
-            <Chip key={`${option.id}-${key}`} label={option.name} {...restProps} />
+            <Chip
+              {...restProps}
+              key={`${option.id}-${key}`}
+              label={option.name}
+            />
           );
         })
       }
@@ -89,8 +89,8 @@ const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
               <Checkbox
                 icon={<CheckBoxOutlineBlank fontSize="small" />}
                 checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
                 checked={selected}
+                style={{ marginRight: 8 }}
               />
             )}
             {option.name}

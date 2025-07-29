@@ -19,38 +19,28 @@ const ProjectsActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  return (
-    <>
-      <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog}>
-        <ProjectFormDialog
-          setOpenDialog={setOpenDialog}
-          project={{
-            id: undefined,
-            name: '',
-            description: '',
-            category: null,
-            client: null,
-            // Add more fields as required by your form
-          }}
-        />
-      </Dialog>
+ return (
+  <React.Fragment>
+    <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog}>
+      <ProjectFormDialog setOpenDialog={setOpenDialog} />
+    </Dialog>
 
-      <ButtonGroup
-        variant="outlined"
-        size="small"
-        disableElevation
-        sx={{ '& .MuiButton-root': { px: 1 } }}
-      >
-        {checkOrganizationPermission(PERMISSIONS.PROJECTS_CREATE) && (
-          <Tooltip title="New Project">
-            <IconButton onClick={() => setOpenDialog(true)}>
-              <AddOutlined />
-            </IconButton>
-          </Tooltip>
-        )}
-      </ButtonGroup>
-    </>
-  );
-};
+    <ButtonGroup
+      variant="outlined"
+      size="small"
+      disableElevation
+      sx={{ '& .MuiButton-root': { px: 1 } }}
+    >
+      {checkOrganizationPermission(PERMISSIONS.PROJECTS_CREATE) && (
+        <Tooltip title="New Project">
+          <IconButton onClick={() => setOpenDialog(true)}>
+            <AddOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+    </ButtonGroup>
+  </React.Fragment>
+);
+}
 
 export default ProjectsActionTail;

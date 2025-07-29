@@ -18,8 +18,8 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import projectServices, { AddProjectResponse, UpdateProjectResponse } from './project-services';
 import { Project } from './ProjectTypes';
-import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
 import ProjectCategoriesSelector from '../projectCategories/ProjectCategoriesSelector';
+import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
 
 interface ProjectFormDialogProps {
   project?: any;
@@ -29,33 +29,58 @@ interface ProjectFormDialogProps {
 interface ProjectFormData {
   id?: number;
   name: string;
-  project_category_id?: number;
-  client_id?: number;
+  project_category:{name:string; id:number}[];
+  stakeholder:{
+    name:string; 
+    client_ids: number[];}[]
   reference?: string;
   description?: string;
   commencement_date: Date | null;
   completion_date: Date | null;
-  store_ids: { id: number; name: string }[];
+  stores: { name: string; id: number }[];
 }
 
 const validationSchema = yup.object({
   name: yup.string().required('The name field is required.'),
-  project_category_id: yup.number().required('Project category is required'),
-  client_id: yup.number().required('Client is required'),
+  project_category: yup
+              .array()
+              .of(
+                yup.object({
+                  name: yup.string().required(),
+                  id: yup.number().required(),
+                })
+              )
+              .min(1, 'At least one Project Category is required')
+              .required('At least one Project Category is required'),
+  stakeholder: yup
+              .array()
+              .of(
+                yup.object({
+                name: yup.string().required('Stakeholder name is required'),
+                client_ids: yup
+              .array()
+              .of(yup.number().required())
+              .min(1, 'At least one  account is required')
+              .required(),
+              })
+            )
+            .min(1, 'At least one counter is required')
+            .required(),
   reference: yup.string().optional(),
   description: yup.string().optional(),
   commencement_date: yup.date().required('Commencement date is required'),
   completion_date: yup.date().required('Completion date is required'),
-  store_ids: yup
-    .array()
-    .of(
-      yup.object({
-        id: yup.number().required(),
-        name: yup.string().required(),
+  stores: yup
+        .array()
+        .of(
+          yup.object({
+            name: yup.string().required(),
+            id: yup.number().required(),
+          })
+        )
+        .min(1, 'At least one store is required')
+        .required('At least one store is required'),
       })
-    )
-    .min(1, 'At least one store is required'),
-});
 
 const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
   project,
@@ -71,10 +96,13 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
     formState: { errors },
   } = useForm<ProjectFormData>({
     defaultValues: {
-      id: project?.id,
-      name: project?.name || '',
-      project_category_id: project?.project_category_id || undefined,
-      client_id: project?.client_id || undefined,
+      id: project?.id || undefined,
+      name: project ? project.name : '',
+      project_category: project?.project_category || [],
+      stakeholder: project?.id ? project.stakeholder?.map((s:{name:string;clients?: { id: number }[] }) => ({
+        name: s.name,
+        client_ids: s.clients?.map(c => c.id) || []}))
+        : [{ name: '', client_ids: [] }],
       reference: project?.reference || '',
       description: project?.description || '',
       commencement_date: project?.commencement_date
@@ -83,9 +111,9 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
       completion_date: project?.completion_date
         ? new Date(project.completion_date)
         : null,
-      store_ids: project?.stores || [],
+      stores: project?.stores || [],
     },
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema)as any,
   });
 
   const { mutate: addProject, isPending: addLoading } = useMutation<
@@ -159,7 +187,7 @@ const saveMutation = useMemo(() => {
   const onSubmit = (formData: ProjectFormData) => {
   const payload = {
     ...formData,
-    store_ids: formData.store_ids.map((store) => store.id),
+    store_ids: formData.stores.map((store) => store.id),
     ...(project?.id ? { id: project.id } : {}),
   };
 
@@ -172,47 +200,55 @@ const saveMutation = useMemo(() => {
         {!project ? 'New Project' : `Edit ${project.name}`}
       </DialogTitle>
       <DialogContent>
-        <Grid container spacing={2}>
+        <Grid container spacing={1}>
           <Grid size={{xs: 12, md: 6}}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Project Name"
-              {...register('name')}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-            />
+            <Div sx={{ mt: 1, mb: 1 }}>
+            
+              <TextField
+                fullWidth
+                size="small"
+                label="Project Name"
+                {...register('name')}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+              />
+            </Div>
           </Grid>
 
           <Grid size={{xs: 12, md: 6}}>
+            <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
-              name="project_category_id"
+              name="project_category"
               control={control}
               render={({ field }) => (
                 <ProjectCategoriesSelector
-                  value={field.value}
+                  defaultValue={field.value}
                   onChange={field.onChange}
-                  frontError={errors.project_category_id}
+                  frontError={errors.project_category as any}
                 />
               )}
             />
+            </Div>
           </Grid>
 
           <Grid size={{xs: 12, md: 6}}>
+             <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
-              name="client_id"
+              name="client"
               control={control}
               render={({ field }) => (
                 <StakeholderSelector
-                  value={field.value}
+                  defaultValue={field.value}
                   onChange={field.onChange}
-                  frontError={errors.client_id}
+                  frontError={errors.client_ids}
                 />
               )}
             />
+            </Div>
           </Grid>
 
           <Grid size={{xs: 12, md: 6}}>
+            <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
               fullWidth
               size="small"
@@ -221,9 +257,11 @@ const saveMutation = useMemo(() => {
               error={!!errors.reference}
               helperText={errors.reference?.message}
             />
+            </Div>
           </Grid>
 
           <Grid size={12}>
+            <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
               fullWidth
               size="small"
@@ -232,9 +270,11 @@ const saveMutation = useMemo(() => {
               error={!!errors.description}
               helperText={errors.description?.message}
             />
+            </Div>
           </Grid>
 
           <Grid size={{xs: 12, md: 6}}>
+            <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
               name="commencement_date"
               control={control}
@@ -254,9 +294,11 @@ const saveMutation = useMemo(() => {
                 />
               )}
             />
+            </Div>
           </Grid>
 
           <Grid size={{xs: 12, md: 6}}>
+             <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
               name="completion_date"
               control={control}
@@ -276,21 +318,24 @@ const saveMutation = useMemo(() => {
                 />
               )}
             />
+            </Div>
           </Grid>
 
           <Grid size={12}>
+            <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
-              name="store_ids"
+              name="stores"
               control={control}
               render={({ field }) => (
                 <StoreSelector
                   multiple
-                  defaultValue={project ? project.store_ids : []}
+                  defaultValue={project ? project.stores : []}
                   onChange={field.onChange}
-                  frontError={errors.store_ids}
+                  frontError={errors.stores as any}
                 />
               )}
             />
+            </Div>
           </Grid>
         </Grid>
       </DialogContent>

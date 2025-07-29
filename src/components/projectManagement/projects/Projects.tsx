@@ -13,8 +13,9 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import ProjectsActionTail from './ProjectActionTail';
-import projectServices from './ProjectListItemAction';
 import ProjectListItem from './ProjectListItem';
+import { Project } from './ProjectTypes';
+import projectServices from './project-services';
 
 const Projects = () => {
   const params = useParams<{ project?: string; id?: string; keyword?: string }>();
@@ -36,8 +37,7 @@ const Projects = () => {
     }));
   }, [params]);
 
-  const renderProject = useCallback(
-    (project: { id: number; name: string; description?: string }) => (
+  const renderProject = useCallback((project:Project) => (
       <ProjectListItem project={project} />
     ),
     []
