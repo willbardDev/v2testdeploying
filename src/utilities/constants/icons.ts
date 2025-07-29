@@ -18,11 +18,9 @@ import {
   ManageAccountsOutlined,
   VerifiedOutlined,
   ShoppingCartCheckout,
-<<<<<<< HEAD
-  QrCode
-=======
-  ViewAgendaOutlined
->>>>>>> e658e911dfa67d4a58dcb259fa21bb6a5aa9cdba
+  ViewAgendaOutlined,
+  QrCode,
+
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
