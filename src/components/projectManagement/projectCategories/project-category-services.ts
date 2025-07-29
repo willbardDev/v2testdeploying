@@ -19,10 +19,9 @@ projectCategoryServices.getList = async (
 };
 
 projectCategoryServices.getAll = async (): Promise<{ id: number; name: string }[]> => {
-  const { data } = await axios.get('/api/projectManagement/projectCategories/all_category');
-  return data;
+  const response = await axios.get('/api/projectManagement/projectCategories/all_category');
+  return response.data.data; // <- important
 };
-
 
 projectCategoryServices.add = async (category: { name: string; description?: string }) => {
   await axios.get('/sanctum/csrf-cookie').then(async (response) => {
