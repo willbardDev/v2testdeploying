@@ -25,6 +25,7 @@ export const metadata: Metadata = {
     shortcut: "/assets/images/logos/favicon.ico",
   },
   manifest: "/manifest.json",
+  themeColor: "#2113AD",
   other: {
     "msapplication-TileColor": "#6200EE",
     "theme-color": "#2113AD",
