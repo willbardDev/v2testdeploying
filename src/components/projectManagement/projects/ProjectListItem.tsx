@@ -9,12 +9,7 @@ import ProjectListItemAction from './ProjectListItemAction';
 import { Project } from './ProjectTypes';
 
 interface ProjectItemProps {
-  project: Project & {
-    category?: {
-      id: number;
-      name: string;
-    };
-  };
+  project: Project;
 }
 
 const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
@@ -34,22 +29,17 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
           },
         }}
       >
-        {/* Name + Category */}
-        <Grid size={{ xs: 12, md:3}}>
+        {/* Project Name */}
+        <Grid size={{xs: 12, md: 4}}>
           <Tooltip title="Project Name">
             <Typography variant="subtitle1" fontSize={14} noWrap>
               {project.name}
             </Typography>
           </Tooltip>
-          <Tooltip title="Category">
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {project.category?.name || '—'}
-            </Typography>
-          </Tooltip>
         </Grid>
 
-        {/* Description */}
-        <Grid size={{ xs: 12, md:4}}>
+        {/* Project Description */}
+        <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Description">
             <Typography variant="body2" color="text.secondary" noWrap>
               {project.description || '—'}
@@ -58,7 +48,7 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
         </Grid>
 
         {/* Actions */}
-        <Grid size={{ xs: 6, md:1}} textAlign="end">
+        <Grid size={{xs: 12, md: 2}}textAlign="end">
           <ProjectListItemAction project={project} />
         </Grid>
       </Grid>

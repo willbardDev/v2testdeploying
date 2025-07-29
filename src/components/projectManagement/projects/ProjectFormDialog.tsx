@@ -234,7 +234,7 @@ const saveMutation = useMemo(() => {
           <Grid size={{xs: 12, md: 6}}>
              <Div sx={{ mt: 1, mb: 1 }}>
             <Controller
-              name="client"
+              name="client_ids"
               control={control}
               render={({ field }) => (
                 <StakeholderSelector

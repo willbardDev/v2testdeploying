@@ -13,7 +13,7 @@ projectServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedProjectResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
-  const { data } = await axios.get('/api/projectManagement/projects', {
+  const { data } = await axios.get('/api/projectManagement/project/', {
     params: { page, limit, ...queryParams },
   });
   return data;
@@ -27,7 +27,7 @@ projectServices.add = async (project: {
   client_id?: number;
 }) => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post('/api/projectManagement/projects/add', project);
+  const { data } = await axios.post('/api/projectManagement/project/add', project);
   return data;
 };
 
@@ -36,7 +36,7 @@ projectServices.update = async (
   project: { id: number; name: string; description?: string; category_id?: number; client_id?: number }
 ): Promise<UpdateProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(`/api/projectManagement/projects/${project.id}/update`,
+  const { data } = await axios.put(`/api/projectManagement/project/${project.id}/update`,
     project
   );
   return data;
@@ -47,7 +47,7 @@ projectServices.delete = async (
   params: { id: number }
 ): Promise<DeleteProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(`/api/projectManagement/projects/${params.id}/delete`
+  const { data } = await axios.delete(`/api/projectManagement/project/${params.id}/delete`
   );
   return data;
 };

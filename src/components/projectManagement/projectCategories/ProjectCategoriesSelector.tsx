@@ -46,7 +46,7 @@ const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
   return (
     <Autocomplete
       multiple={multiple}
-      options={categories ?? []}
+      options={categories.data ?? []}
       disableCloseOnSelect={multiple}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       getOptionLabel={(option) => {
