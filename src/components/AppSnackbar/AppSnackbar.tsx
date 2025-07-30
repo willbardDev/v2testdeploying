@@ -15,7 +15,7 @@ function SnackbarCloseButton({ snackbarKey }: SnackbarCloseButtonProps) {
 
   return (
     <IconButton onClick={() => closeSnackbar(snackbarKey)} size="small" aria-label="close">
-      <CloseOutlined fontSize="small" sx={{ color: 'red' }} />
+      <CloseOutlined fontSize="small" sx={{ color: 'primary' }} />
     </IconButton>
   );
 }
