@@ -6,12 +6,10 @@ const API_BASE = process.env.API_BASE_URL;
 
 export async function PUT(req: NextRequest) {
   if (!process.env.NEXTAUTH_SECRET) {
-    console.error('NEXTAUTH_SECRET is not defined');
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
 
   if (!API_BASE) {
-    console.error('API_BASE_URL is not defined');
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
 
