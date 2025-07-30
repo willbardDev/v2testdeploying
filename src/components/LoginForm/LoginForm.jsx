@@ -17,6 +17,7 @@ import { Link } from '../NextLink';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import organizationServices from '../Organizations/organizationServices';
 
 const LoginForm = () => {
   const lang = useLanguage();
@@ -24,7 +25,7 @@ const LoginForm = () => {
 
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { setAuthValues, configAuth, refreshAuth } = useJumboAuth();
+  const { setAuthValues, configAuth } = useJumboAuth();
   const router = useRouter();
   const [values, setValues] = React.useState({
     password: '',
@@ -41,57 +42,68 @@ const LoginForm = () => {
   const handleLogin = async (data) => {
     setLoading(true);
     try {
-      const response = await signIn('credentials', {
+      const signInResponse = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
         callbackUrl: `/${lang}/dashboard`,
       });
-  
-      if (response?.error) {
-        throw new Error(response.error);
+
+      if (signInResponse?.error) {
+        throw new Error(signInResponse.error);
       }
-  
+
       const session = await getSession();
 
-      configAuth({
-        currentUser: { 
-          user: session.user,
-          organization_roles: session.organization_roles,
-          permissions: session.permissions,
-        },
-        currentOrganization: { 
-          organization: {
-            id: session.organization_id,
-            name: session.organization_name,
-            active_subscriptions: session.active_subscriptions
+      if (!session?.organization_id) {
+        // No organization_id: set auth user but skip organization loading
+        configAuth({
+          currentUser: {
+            user: session.user,
+            permissions: session.permissions,
           },
-          permissions: session.auth_permissions,
-        },
-      });
-      
-      setAuthValues({
-        authUser: { 
-          user: session.user,
-          organization_roles: session.organization_roles,
-          permissions: session.permissions,
-        },
-        authOrganization: { 
-          organization: {
-            id: session.organization_id,
-            name: session.organization_name,
-            active_subscriptions: session.active_subscriptions
+          currentOrganization: {
+            permissions: session.auth_permissions,
           },
-          permissions: session.auth_permissions,
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      }, { persist: true });
-  
-      router.push(`/${lang}/organizations`);
+        });
+
+        setAuthValues({
+          authUser: {
+            user: session.user,
+            permissions: session.permissions,
+          },
+          authOrganization: {
+            permissions: session.auth_permissions,
+          },
+          isAuthenticated: true,
+          isLoading: false,
+        }, { persist: true });
+
+        router.push(`/${lang}/organizations`);
+      } else {
+        // organization_id exists: load full organization context
+        const orgResponse = await organizationServices.loadOrganization({
+          organization_id: session.organization_id,
+        });
+
+        configAuth({
+          currentUser: orgResponse?.data?.authUser,
+          currentOrganization: orgResponse?.data?.authOrganization,
+        });
+
+        setAuthValues({
+          authUser: orgResponse?.data?.authUser,
+          authOrganization: orgResponse?.data?.authOrganization,
+          isAuthenticated: true,
+          isLoading: false,
+        }, { persist: true });
+
+        router.push(`/${lang}/dashboard`);
+      }
+
     } catch (error) {
       enqueueSnackbar(
-        dictionary.signin.form.messages.loginError, 
+        dictionary.signin.form.messages.loginError,
         { variant: 'error' }
       );
     } finally {

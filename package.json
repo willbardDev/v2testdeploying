@@ -57,6 +57,7 @@
     "firebase": "^11.6.1",
     "font-awesome": "^4.7.0",
     "html-to-draftjs": "^1.5.0",
+    "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
     "mongodb": "^6.15.0",
     "negotiator": "^1.0.0",
@@ -91,6 +92,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/negotiator": "^0.6.3",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
