@@ -54,26 +54,18 @@ const LoginForm = () => {
       }
 
       const session = await getSession();
+      if (!session) {
+        throw new Error('Failed to retrieve session');
+      }
 
-      if (!session?.organization_id) {
-        // No organization_id: set auth user but skip organization loading
-        configAuth({
-          currentUser: {
-            user: session.user,
-            permissions: session.permissions,
-          },
-          currentOrganization: {
-            permissions: session.auth_permissions,
-          },
-        });
-
+      if (!session.organization_id) {
         setAuthValues({
           authUser: {
             user: session.user,
-            permissions: session.permissions,
+            permissions: [],
           },
           authOrganization: {
-            permissions: session.auth_permissions,
+            permissions: [],
           },
           isAuthenticated: true,
           isLoading: false,
@@ -81,31 +73,46 @@ const LoginForm = () => {
 
         router.push(`/${lang}/organizations`);
       } else {
-        // organization_id exists: load full organization context
         const orgResponse = await organizationServices.loadOrganization({
           organization_id: session.organization_id,
         });
 
+        if (!orgResponse?.data?.authUser || !orgResponse?.data?.authOrganization) {
+          throw new Error('Failed to load organization');
+        }
+
         configAuth({
-          currentUser: orgResponse?.data?.authUser,
-          currentOrganization: orgResponse?.data?.authOrganization,
+          currentUser: {
+            user: orgResponse.data.authUser.user,
+            permissions: orgResponse.data.authUser.permissions,
+          },
+          currentOrganization: {
+            organization: orgResponse.data.authOrganization.organization,
+            permissions: orgResponse.data.authOrganization.permissions,
+          },
         });
 
         setAuthValues({
-          authUser: orgResponse?.data?.authUser,
-          authOrganization: orgResponse?.data?.authOrganization,
+          authUser: {
+            user: orgResponse.data.authUser.user,
+            permissions: orgResponse.data.authUser.permissions,
+          },
+          authOrganization: {
+            organization: orgResponse.data.authOrganization.organization,
+            permissions: orgResponse.data.authOrganization.permissions,
+          },
           isAuthenticated: true,
           isLoading: false,
         }, { persist: true });
 
         router.push(`/${lang}/dashboard`);
       }
-
     } catch (error) {
       enqueueSnackbar(
         dictionary.signin.form.messages.loginError,
         { variant: 'error' }
       );
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
@@ -153,7 +160,6 @@ const LoginForm = () => {
           }
           sx={{ bgcolor: (theme) => theme.palette.background.paper }}
         />
-
         <Stack
           direction={'row'}
           justifyContent={'space-between'}
@@ -177,7 +183,7 @@ const LoginForm = () => {
           size='large'
           disabled={loading}
         >
-          {loading ? <CircularProgress size={24}/> : dictionary.signin.form.submit}
+          {loading ? <CircularProgress size={24} /> : dictionary.signin.form.submit}
         </Button>
       </Stack>
     </JumboForm>

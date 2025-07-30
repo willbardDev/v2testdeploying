@@ -20,10 +20,7 @@ export const authOptions = {
             },
           });
 
-          // Step 1: Get CSRF cookie
           await axiosInstance.get('/sanctum/csrf-cookie');
-
-          // Step 2: Attempt login
           const { data } = await axiosInstance.post('/login', credentials, {
             validateStatus: (status) => status < 500,
           });
@@ -32,7 +29,6 @@ export const authOptions = {
             throw new Error('Invalid login credentials');
           }
 
-          // Return user object with token
           return {
             id: data.authUser.user.id,
             name: data.authUser.user.name,
@@ -40,8 +36,6 @@ export const authOptions = {
             token: data.token,
             organization_id: data.authOrganization?.organization?.id,
             organization_name: data.authOrganization?.organization?.name,
-            permissions: data.authUser.permissions,
-            auth_permissions: data.authOrganization?.permissions
           };
         } catch (error) {
           console.error('Login failed:', error.response?.data || error.message);
@@ -59,10 +53,8 @@ export const authOptions = {
           name: user.name,
           email: user.email,
         };
-        token.organization_id = user.organization_id,
-        token.organization_name = user.organization_name,
-        token.permissions = user.permissions,
-        token.auth_permissions = user.auth_permissions
+        token.organization_id = user.organization_id;
+        token.organization_name = user.organization_name;
         token.accessToken = user.token;
       }
       return token;
@@ -70,14 +62,8 @@ export const authOptions = {
 
     async session({ session, token }) {
       session.user = token.user;
-      session.permissions = token.permissions;
       session.organization_id = token.organization_id;
       session.organization_name = token.organization_name;
-      session.auth_permissions = token.auth_permissions;
-      
-      // Important: Don't expose the token to the client
-      // It will be available in HTTP-only cookies
-
       return session;
     },
   },
@@ -93,16 +79,15 @@ export const authOptions = {
 
   cookies: {
     sessionToken: {
-      name: 
-        process.env.NODE_ENV === 'production' 
-          ? '__Secure-next-auth.session-token' 
-          : 'next-auth.session-token',
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'strict',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' 
+        domain: process.env.NODE_ENV === 'production'
           ? '.proserp.co.tz'
           : undefined,
         maxAge: 24 * 60 * 60,
@@ -110,7 +95,7 @@ export const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NEXTAUTH_DEBUG === 'true',
+  debug: process.env.NODE_ENV !== 'production',
 };
 
 const handler = NextAuth(authOptions);
