@@ -1,9 +1,9 @@
-import FilesShelf from '@/components/filesShelf/FilesShelf'
+import Dashboard from '@/components/Dashboard/Dashboard'
 import React from 'react'
 
 function page() {
   return (
-    <div>Dashboard will be here</div>
+    <Dashboard/>
   )
 }
 
