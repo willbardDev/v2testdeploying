@@ -10,6 +10,11 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
 
+  if (!API_BASE) {
+    console.error('API_BASE_URL is not defined');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
   const body = await req.json();
   const { organization_id } = body;
 
@@ -39,7 +44,7 @@ export async function PUT(req: NextRequest) {
       accessToken: data.token,
       organization_id: data.authOrganization.organization.id,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
     };
 
     const sessionToken = await encode({
@@ -55,34 +60,20 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    // Clear existing session cookies (including chunked ones)
+    // Clear existing session cookies (including chunked cookies)
     const cookieName = process.env.NODE_ENV === 'production'
       ? '__Secure-next-auth.session-token'
       : 'next-auth.session-token';
     
-    // Clear main session cookie
-    response.cookies.set(cookieName, '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      sameSite: 'strict',
-      domain: process.env.NODE_ENV === 'production' ? '.proserp.co.tz' : undefined,
-      maxAge: 0, // Expire immediately
-    });
-
-    // Clear any chunked cookies (e.g., next-auth.session-token.0, next-auth.session-token.1)
+    // Delete the primary session cookie
+    response.cookies.delete(cookieName);
+    
+    // Delete any chunked cookies
     for (let i = 0; i < 10; i++) {
-      response.cookies.set(`${cookieName}.${i}`, '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        sameSite: 'strict',
-        domain: process.env.NODE_ENV === 'production' ? '.proserp.co.tz' : undefined,
-        maxAge: 0, // Expire immediately
-      });
+      response.cookies.delete(`${cookieName}.${i}`);
     }
 
-    // Set new session cookie
+    // Set the new session cookie
     response.cookies.set(cookieName, sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
