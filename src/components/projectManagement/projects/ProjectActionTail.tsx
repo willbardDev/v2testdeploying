@@ -21,7 +21,7 @@ const ProjectsActionTail = () => {
 
  return (
   <React.Fragment>
-    <Dialog maxWidth="sm" fullScreen={belowLargeScreen} open={openDialog}>
+    <Dialog maxWidth="md" fullScreen={belowLargeScreen} open={openDialog}>
       <ProjectFormDialog setOpenDialog={setOpenDialog} />
     </Dialog>
 

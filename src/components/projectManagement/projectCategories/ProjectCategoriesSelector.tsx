@@ -45,59 +45,60 @@ const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
 
   return (
     <Autocomplete
-      multiple={multiple}
-      options={categories ?? []}
-      disableCloseOnSelect={multiple}
-      isOptionEqualToValue={(option, value) => option.id === value.id}
-      getOptionLabel={(option) => {
-  if (typeof option === 'string') return option;
-  if (!option || typeof option !== 'object') return '';
-  return option.name ?? '';
-}}
-      value={selectedCategories ?? (multiple ? [] : null)}
-      onChange={(e, newValue) => {
-        onChange(newValue);
-        setSelectedCategories(newValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          size="small"
-          fullWidth
-          error={!!frontError}
-          helperText={frontError?.message}
-        />
-      )}
-      renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => {
-          const { key, ...restProps } = getTagProps({ index });
-          return (
-            <Chip
-              {...restProps}
-              key={`${option.id}-${key}`}
-              label={option.name}
-            />
-          );
-        })
-      }
-      renderOption={(props, option, { selected }) => {
-        const { key, ...restProps } = props;
-        return (
-          <li {...restProps} key={`${option.id}-${key}`}>
-            {multiple && (
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                checked={selected}
-                style={{ marginRight: 8 }}
-              />
-            )}
-            {option.name}
-          </li>
-        );
-      }}
+  multiple={multiple}
+  options={categories ?? []}
+  disableCloseOnSelect={multiple}
+  isOptionEqualToValue={(option, value) => option.id === value.id}
+  getOptionLabel={(option) => {
+    if (typeof option === 'string') return option;
+    if (!option || typeof option !== 'object') return '';
+    return option.name ?? '';
+  }}
+  value={selectedCategories ?? (multiple ? [] : null)}
+  onChange={(e, newValue) => {
+    onChange(newValue);
+    setSelectedCategories(newValue);
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label={label}
+      size="small"
+      fullWidth
+      error={!!frontError}
+      helperText={frontError?.message}
     />
+  )}
+  renderTags={(tagValue, getTagProps) =>
+    tagValue.map((option, index) => {
+      const { key, ...restProps } = getTagProps({ index });
+      return (
+        <Chip
+          {...restProps}
+          key={`${option.id}-${key}`}
+          label={option.name}
+        />
+      );
+    })
+  }
+  renderOption={(props, option, { selected }) => {
+    const { key, ...restProps } = props;
+    return (
+      <li {...restProps} key={`${option.id}-${key}`}>
+        {multiple && (
+          <Checkbox
+            icon={<CheckBoxOutlineBlank fontSize="small" />}
+            checkedIcon={<CheckBox fontSize="small" />}
+            checked={selected}
+            style={{ marginRight: 8 }}
+          />
+        )}
+        {option.name}
+      </li>
+    );
+  }}
+/>
+
   );
 };
 

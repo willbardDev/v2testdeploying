@@ -6,7 +6,6 @@ import { useParams } from 'next/navigation';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -16,6 +15,7 @@ import ProjectsActionTail from './ProjectActionTail';
 import ProjectListItem from './ProjectListItem';
 import { Project } from './ProjectTypes';
 import projectServices from './project-services';
+import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 
 const Projects = () => {
   const params = useParams<{ project?: string; id?: string; keyword?: string }>();
@@ -75,7 +75,7 @@ const Projects = () => {
 
   return (
     <React.Fragment>
-      <LedgerSelectProvider>
+      <StakeholderSelectProvider>
         <Typography variant="h4" mb={2}>
           Projects
         </Typography>
@@ -109,7 +109,7 @@ const Projects = () => {
             />
           }
         />
-      </LedgerSelectProvider>
+      </StakeholderSelectProvider>
     </React.Fragment>
   );
 };
