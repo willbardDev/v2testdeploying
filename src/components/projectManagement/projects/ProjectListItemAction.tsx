@@ -15,7 +15,7 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
     const queryClient = useQueryClient();
 
     const { mutate: deleteProject } = useMutation({
-    mutationFn: (params: { id: number }) => projectServices.delete(params.id),
+   mutationFn: (params: { id: number }) => projectServices.delete(params),
     onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['projects'] });

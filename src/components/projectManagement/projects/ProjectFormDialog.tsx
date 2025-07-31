@@ -8,7 +8,7 @@ import {
   TextField,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -49,8 +49,19 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
         store_ids: yup.array().of(yup.number()).optional(),
         reference: yup.string().optional(),
         description: yup.string().optional(),
-        commencement_date: yup.date().nullable().optional(),
-        completion_date: yup.date().nullable().optional(),
+        commencement_date: yup
+          .date()
+          .nullable()
+          .optional(),
+
+        completion_date: yup
+          .date()
+          .nullable()
+          .optional()
+          .min(
+            yup.ref('commencement_date'),
+            'Completion date cannot be earlier than commencement date'
+          ),
       });
 
       const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
@@ -74,8 +85,8 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
             store_ids: project?.store_ids ?? [],
             reference: project?.reference ?? '',
             description: project?.description ?? '',
-            commencement_date: project?.commencement_date ? new Date(project.commencement_date) : null,
-            completion_date: project?.completion_date ? new Date(project.completion_date) : null,
+            commencement_date: null,
+            completion_date: null,
           },
           resolver: yupResolver(validationSchema as any),
         });
@@ -233,14 +244,18 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
           </Grid>
           <Grid size={{xs: 12, md: 4}}>
             <Div sx={{ mt: 1, mb: 1 }}>
-              <Controller
-                name="completion_date"
-                control={control}
-                render={({ field }) => (
+             <Controller
+              name="completion_date"
+              control={control}
+              render={({ field }) => {
+                // Watch commencement_date to restrict completion_date
+              const commencementDate = useWatch({ control, name: 'commencement_date' });
+                return (
                   <DateTimePicker
                     label="Completion Date"
                     value={field.value}
                     onChange={field.onChange}
+                    minDateTime={commencementDate || undefined} // 👈 Restrict earlier dates
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -250,8 +265,9 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
                       },
                     }}
                   />
-                )}
-              />
+                );
+              }}
+            />
             </Div>
           </Grid>
           <Grid size={4}>
@@ -264,6 +280,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
                     multiple
                     defaultValue={field.value}
                     onChange={field.onChange}
+                    label='inventory store(s)'
                     frontError={errors.store_ids as any}
                   />
                 )}
