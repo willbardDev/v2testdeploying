@@ -20,106 +20,74 @@ import projectServices, { AddProjectResponse, UpdateProjectResponse } from './pr
 import { Project } from './ProjectTypes';
 import ProjectCategoriesSelector from '../projectCategories/ProjectCategoriesSelector';
 import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
+import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 
-interface ProjectFormDialogProps {
-  project?: any;
-  setOpenDialog: (open: boolean) => void;
-}
+      interface ProjectFormDialogProps {
+        project?: any;
+        setOpenDialog: (open: boolean) => void;
+      }
 
-interface ProjectFormData {
-  id?: number;
-  name: string;
-  project_category: { name: string; id: number }[];
-  stakeholder: { name: string; client_ids: number[] }[];
-  reference?: string;
-  description?: string;
-  commencement_date: Date | null;
-  completion_date: Date | null;
-  stores: { name: string; id: number }[];
-}
+      export interface ProjectFormData {
+        id?: number;
+        name: string;
+        project_category_id: number;
+        client_id: number;
+        store_ids: number[];
+        reference?: string;
+        description?: string;
+        commencement_date: Date | string | null;
+        completion_date: Date | string | null;
+      }
 
-const validationSchema = yup.object({
-  name: yup.string().required('The name field is required.'),
-  project_category: yup
-    .array()
-    .of(
-      yup.object({
-        name: yup.string().required(),
-        id: yup.number().required(),
-      })
-    )
-    .min(1, 'At least one Project Category is required')
-    .required('At least one Project Category is required'),
-  stakeholder: yup
-    .array()
-    .of(
-      yup.object({
-        name: yup.string().required('Stakeholder name is required'),
-        client_ids: yup
-          .array()
-          .of(yup.number().required())
-          .min(1, 'At least one account is required')
-          .required(),
-      })
-    )
-    .min(1, 'At least one counter is required')
-    .required(),
-  reference: yup.string().optional(),
-  description: yup.string().optional(),
-  commencement_date: yup.date().required('Commencement date is required'),
-  completion_date: yup.date().required('Completion date is required'),
-  stores: yup
-    .array()
-    .of(
-      yup.object({
-        name: yup.string().required(),
-        id: yup.number().required(),
-      })
-    )
-    .min(1, 'At least one store is required')
-    .required('At least one store is required'),
-});
+      const validationSchema = yup.object({
+        name: yup.string().required('The name field is required.'),
+        project_category_id: yup
+          .number()
+          .typeError('Project Category is required')
+          .required('Project Category is required'),
+        client_id: yup.number().optional(),
+        store_ids: yup.array().of(yup.number()).optional(),
+        reference: yup.string().optional(),
+        description: yup.string().optional(),
+        commencement_date: yup.date().nullable().optional(),
+        completion_date: yup.date().nullable().optional(),
+      });
 
-const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
-  project,
-  setOpenDialog,
-}) => {
-  const queryClient = useQueryClient();
-  const { enqueueSnackbar } = useSnackbar();
+      const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
+        project,
+        setOpenDialog,
+      }) => {
+        const queryClient = useQueryClient();
+        const { enqueueSnackbar } = useSnackbar();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<ProjectFormData>({
-    defaultValues: {
-      id: project?.id || undefined,
-      name: project?.name || '',
-      project_category: project?.project_category || [],
-      stakeholder: project?.id
-        ? project.stakeholder?.map((s: { name: string; clients?: { id: number }[] }) => ({
-            name: s.name,
-            client_ids: s.clients?.map((c) => c.id) || [],
-          }))
-        : [{ name: '', client_ids: [] }],
-      reference: project?.reference || '',
-      description: project?.description || '',
-      commencement_date: project?.commencement_date ? new Date(project.commencement_date) : null,
-      completion_date: project?.completion_date ? new Date(project.completion_date) : null,
-      stores: project?.stores || [],
-    },
-    resolver: yupResolver(validationSchema) as any,
-  });
+        const {
+          register,
+          handleSubmit,
+          control,
+          formState: { errors },
+        } = useForm<ProjectFormData>({
+              defaultValues: {
+            id: project?.id ?? undefined,
+            name: project?.name ?? '',
+            project_category_id: project?.project_category_id ?? 0,
+            client_id: project?.client_id ?? undefined,
+            store_ids: project?.store_ids ?? [],
+            reference: project?.reference ?? '',
+            description: project?.description ?? '',
+            commencement_date: project?.commencement_date ? new Date(project.commencement_date) : null,
+            completion_date: project?.completion_date ? new Date(project.completion_date) : null,
+          },
+          resolver: yupResolver(validationSchema as any),
+        });
 
   const { mutate: addProject, isPending: addLoading } = useMutation<AddProjectResponse, unknown, Project>({
-    mutationFn: (data: Project) => projectServices.create(data),
-    onSuccess: (res) => {
+      mutationFn: (data: Project) => projectServices.create(data),
+      onSuccess: (res) => {
       enqueueSnackbar(res.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Project'] });
       setOpenDialog(false);
-    },
-    onError: (error: unknown) => {
+      },
+      onError: (error: unknown) => {
       let message = 'Something went wrong';
       if (
         typeof error === 'object' &&
@@ -133,41 +101,39 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
       }
       enqueueSnackbar(message, { variant: 'error' });
     },
-  });
+    });
 
-  const { mutate: updateProject, isPending: updateLoading } = useMutation<UpdateProjectResponse, unknown, Project>({
-    mutationFn: (data: Project) => projectServices.update({ id: data.id!, ...data }),
-    onSuccess: (res) => {
-      enqueueSnackbar(res.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Project'] });
-      setOpenDialog(false);
-    },
-    onError: (error: unknown) => {
-      let message = 'Something went wrong';
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-      enqueueSnackbar(message, { variant: 'error' });
-    },
-  });
+    const { mutate: updateProject, isPending: updateLoading } = useMutation<UpdateProjectResponse, unknown, Project>({
+        mutationFn: (data: Project) => projectServices.update({ id: data.id!, ...data }),
+        onSuccess: (res) => {
+        enqueueSnackbar(res.message, { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['Project'] });
+        setOpenDialog(false);
+        },
+        onError: (error: unknown) => {
+          let message = 'Something went wrong';
+          if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error &&
+            typeof (error as any).response?.data?.message === 'string'
+          ) {
+            message = (error as any).response.data.message;
+          } else if (error instanceof Error) {
+            message = error.message;
+          }
+          enqueueSnackbar(message, { variant: 'error' });
+        },
+       });
 
-  const saveMutation = useMemo(() => (project?.id ? updateProject : addProject), [project, updateProject, addProject]);
-
-  const onSubmit = (formData: ProjectFormData) => {
+    const saveMutation = useMemo(() => (project?.id ? updateProject : addProject), [project, updateProject, addProject]);
+    const onSubmit = (formData: ProjectFormData) => {
     const payload = {
-      ...formData,
-      store_ids: formData.stores.map((store) => store.id),
-      ...(project?.id ? { id: project.id } : {}),
+        ...formData,
+        ...(project?.id ? { id: project.id } : {}),
+      };
+      saveMutation(payload as any );
     };
-    saveMutation(payload as any);
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -186,42 +152,40 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
               />
             </Div>
           </Grid>
-
           <Grid size={{xs: 12, md: 4}}>
             <Div sx={{ mt: 1, mb: 1 }}>
-              <Controller
-                name="project_category"
-                control={control}
-                render={({ field }) => (
-                  <ProjectCategoriesSelector
-                    multiple
-                    defaultValue={field.value}
-                    onChange={field.onChange}
-                    frontError={errors.project_category as any}
-                  />
-                )}
+            <Controller
+            name="project_category_id"
+            control={control}
+            render={({ field }) => (
+              <ProjectCategoriesSelector
+                defaultValue={field.value} // this is a number (ID)
+                onChange={(selected) => field.onChange(selected?.id ?? null)}
+                frontError={errors.project_category_id as any}
               />
+            )}
+          />
             </Div>
           </Grid>
-
           <Grid size={{xs: 12, md: 8}}>
-            <Div sx={{ mt: 1, mb: 1 }}>
-              <Controller
-                name="stakeholder"
-                control={control}
-                render={({ field }) => (
-                  <StakeholderSelector
-                    defaultValue={field.value}
-                    onChange={field.onChange}
-                    frontError={errors.stakeholder as any}
-                  />
-                )}
+           <Div sx={{ mt: 1, mb: 1 }}>
+          <Controller
+            name="client_id"
+            control={control}
+            render={({ field }) => (
+              <StakeholderSelector
+                defaultValue={field.value}
+                onChange={(selected) =>
+                field.onChange((selected as Stakeholder)?.id ?? null) }
+                label="Client"
+                frontError={errors.client_id as any}
               />
+            )}
+          />
             </Div>
           </Grid>
-
           <Grid size={{xs: 12, md: 4}}>
-            <Div sx={{ mt: 1, mb: 1 }}>
+           <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -232,7 +196,6 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
               />
             </Div>
           </Grid>
-
           <Grid size={12}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
@@ -245,7 +208,6 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
               />
             </Div>
           </Grid>
-
           <Grid size={{xs: 12, md: 4}}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <Controller
@@ -269,7 +231,6 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
               />
             </Div>
           </Grid>
-
           <Grid size={{xs: 12, md: 4}}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <Controller
@@ -293,18 +254,17 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({
               />
             </Div>
           </Grid>
-
           <Grid size={4}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <Controller
-                name="stores"
+                name="store_ids"
                 control={control}
                 render={({ field }) => (
                   <StoreSelector
                     multiple
-                    defaultValue={project ? project.stores : []}
+                    defaultValue={field.value}
                     onChange={field.onChange}
-                    frontError={errors.stores as any}
+                    frontError={errors.store_ids as any}
                   />
                 )}
               />

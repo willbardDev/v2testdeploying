@@ -8,9 +8,9 @@ import {
 import ProjectListItemAction from './ProjectListItemAction';
 import { Project } from './ProjectTypes';
 
-interface ProjectItemProps {
-  project: Project;
-}
+  interface ProjectItemProps {
+    project: Project;
+  }
 
 const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
   return (
@@ -37,7 +37,6 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
             </Typography>
           </Tooltip>
         </Grid>
-
         {/* Project Description */}
         <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Description">
@@ -46,7 +45,6 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
             </Typography>
           </Tooltip>
         </Grid>
-
         {/* Actions */}
         <Grid size={{xs: 12, md: 2}}textAlign="end">
           <ProjectListItemAction project={project} />

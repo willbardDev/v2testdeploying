@@ -19,8 +19,8 @@ projectServices.getList = async (
   return data;
 };
 
-// Add a new project
-projectServices.add = async (project: {
+// ✅ Rename to `create`
+projectServices.create = async (project: {
   name: string;
   description?: string;
   category_id?: number;
@@ -30,6 +30,7 @@ projectServices.add = async (project: {
   const { data } = await axios.post('/api/projectManagement/project/add', project);
   return data;
 };
+
 
 // Update an existing project
 projectServices.update = async (

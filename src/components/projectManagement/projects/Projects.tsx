@@ -18,60 +18,60 @@ import projectServices from './project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 
 const Projects = () => {
-  const params = useParams<{ project?: string; id?: string; keyword?: string }>();
-  const listRef = useRef<any>(null);
-  const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
-  const [mounted, setMounted] = useState(false);
+    const params = useParams<{ project?: string; id?: string; keyword?: string }>();
+    const listRef = useRef<any>(null);
+    const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
 
-  const [queryOptions, setQueryOptions] = useState({
-    queryKey: 'projects',
-    queryParams: { id: params.id, keyword: '' },
-    countKey: 'total',
-    dataKey: 'data',
-  });
+    const [queryOptions, setQueryOptions] = useState({
+      queryKey: 'projects',
+      queryParams: { id: params.id, keyword: '' },
+      countKey: 'total',
+      dataKey: 'data',
+    });
 
-  useEffect(() => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: { ...state.queryParams, id: params.id },
-    }));
-  }, [params]);
+    useEffect(() => {
+      setQueryOptions((state) => ({
+        ...state,
+        queryParams: { ...state.queryParams, id: params.id },
+      }));
+    }, [params]);
 
-  const renderProject = useCallback((project:Project) => (
-      <ProjectListItem project={project} />
-    ),
-    []
-  );
+    const renderProject = useCallback((project:Project) => (
+        <ProjectListItem project={project} />
+      ),
+      []
+    );
 
-  const handleOnChange = useCallback((keyword: string) => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: {
-        ...state.queryParams,
-        keyword,
-      },
-    }));
-  }, []);
+    const handleOnChange = useCallback((keyword: string) => {
+      setQueryOptions((state) => ({
+        ...state,
+        queryParams: {
+          ...state.queryParams,
+          keyword,
+        },
+      }));
+    }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  if (!mounted) return null;
+    if (!mounted) return null;
 
-  if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
-    return <UnsubscribedAccess modules="Project Management" />;
-  }
+    if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
+      return <UnsubscribedAccess modules="Project Management" />;
+    }
 
-  if (
-    !checkOrganizationPermission([
-      PERMISSIONS.PROJECTS_CREATE,
-      PERMISSIONS.PROJECTS_READ,
-      PERMISSIONS.PROJECTS_EDIT,
-    ])
-  ) {
-    return <UnauthorizedAccess />;
-  }
+    if (
+      !checkOrganizationPermission([
+        PERMISSIONS.PROJECTS_CREATE,
+        PERMISSIONS.PROJECTS_READ,
+        PERMISSIONS.PROJECTS_EDIT,
+      ])
+    ) {
+      return <UnauthorizedAccess />;
+    }
 
   return (
     <React.Fragment>
