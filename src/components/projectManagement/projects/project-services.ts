@@ -13,7 +13,7 @@ projectServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedProjectResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
-  const { data } = await axios.get('/api/projectManagement/project/', {
+  const { data } = await axios.get('/api/projectManagement/project', {
     params: { page, limit, ...queryParams },
   });
   return data;
