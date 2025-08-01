@@ -2,7 +2,7 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import BomsFormItem from './BomsFormItem';
-import { BOMItem } from './bomsType';
+import { BOMItem } from '../BomsType';
 
 interface BomsFormRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -29,10 +29,6 @@ function BomsFormRow({
 }: BomsFormRowProps) {
   const [showForm, setShowForm] = useState(false);
 
-  const calculateLineTotal = (): number => {
-    return item.quantity * item.unit_cost;
-  };
-
   const handleRemoveItem = () => {
     setItems((prevItems) => {
       const newItems = [...prevItems];
@@ -58,13 +54,13 @@ function BomsFormRow({
             <Typography variant="body2">{index + 1}.</Typography>
           </Grid>
 
-          <Grid size={{xs: 5, md: 4}}>
+          <Grid size={{6, md:7}}>
             <Tooltip title="Material">
               <Typography noWrap>{item.material?.name}</Typography>
             </Tooltip>
           </Grid>
 
-          <Grid size={{xs: 3, md: 2}}>
+          <Grid size={{3, md:2}}>
             <Tooltip title="Quantity">
               <Typography textAlign="right" variant="body2">
                 {item.quantity.toLocaleString()} {item.material?.measurement_unit?.symbol || ''}
@@ -72,23 +68,7 @@ function BomsFormRow({
             </Tooltip>
           </Grid>
 
-          <Grid size={{xs: 3, md: 2}}>
-            <Tooltip title="Unit Cost">
-              <Typography textAlign="right" variant="body2">
-                {item.unit_cost.toLocaleString()}
-              </Typography>
-            </Tooltip>
-          </Grid>
-
-          <Grid size={{xs: 3, md: 2}}>
-            <Tooltip title="Line Total">
-              <Typography textAlign="right" variant="body2">
-                {calculateLineTotal().toLocaleString()}
-              </Typography>
-            </Tooltip>
-          </Grid>
-
-          <Grid size={2} md={1} textAlign="end">
+          <Grid size={{2, md:2}} textAlign="end">
             <Tooltip title="Edit Item">
               <IconButton size="small" onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize="small" />

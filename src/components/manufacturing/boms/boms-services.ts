@@ -4,7 +4,7 @@ import {
   UpdateBOMResponse,
   DeleteBOMResponse,
   PaginatedBOMResponse,
-} from './BomsTypes';
+} from './BomsType';
 
 const bomsServices: any = {};
 

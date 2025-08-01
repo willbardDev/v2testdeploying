@@ -1,29 +1,29 @@
 import React from 'react';
 import {
   Controller,
-  useFieldArray,
-  useFormContext
+  useFormContext,
 } from 'react-hook-form';
 import {
   Grid,
   IconButton,
   Box,
-  Typography,
-  Divider
+  TextField,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
-import MeasurementUnitSelector from '@/components/selectors/MeasurementUnitSelector';
-import TextField from '@mui/material/TextField';
+import type { BomFormValues } from './BomsForm';
 
 type BomsFormItemProps = {
   index: number;
-  control: any;
   remove: (index: number) => void;
 };
 
-const BomsFormItem: React.FC<BomsFormItemProps> = ({ index, control, remove }) => {
-  const { register, formState: { errors } } = useFormContext();
+const BomsFormItem: React.FC<BomsFormItemProps> = ({ index, remove }) => {
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useFormContext<BomFormValues>();
 
   return (
     <Box mb={2} p={2} border={1} borderColor="divider" borderRadius={2}>
@@ -34,7 +34,6 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ index, control, remove }) =
             control={control}
             render={({ field }) => (
               <ProductsSelectProvider
-                label="Input Product"
                 value={field.value}
                 onChange={field.onChange}
                 error={!!errors?.items?.[index]?.product_id}
@@ -44,7 +43,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ index, control, remove }) =
           />
         </Grid>
 
-        <Grid size={{xs: 6, md: 2}}>
+       <Grid size={{xs: 6, md: 2}}>
           <TextField
             label="Quantity"
             type="number"
@@ -55,30 +54,12 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ index, control, remove }) =
           />
         </Grid>
 
-        <Grid size={{xs: 6, md: 3}}>
-          <Controller
-            name={`items.${index}.measurement_unit_id`}
-            control={control}
-            render={({ field }) => (
-              <MeasurementUnitSelector
-                label="Unit"
-                value={field.value}
-                onChange={field.onChange}
-                error={!!errors?.items?.[index]?.measurement_unit_id}
-              />
-            )}
-          />
-        </Grid>
-
        <Grid size={{xs: 12, md: 2}}>
           <IconButton onClick={() => remove(index)} color="error">
             <DeleteIcon />
           </IconButton>
         </Grid>
       </Grid>
-
-      {/* Optional divider or space for alternatives */}
-      {/* You can add alternative logic here later */}
     </Box>
   );
 };

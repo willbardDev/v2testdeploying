@@ -14,7 +14,8 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import bomsServices from './boms-services';
 import BomsActionTail from './BomsActionTail';
 import BomsListItem from './BomsListItem';
-import { BOM } from './BomsTypes';
+import { BOM } from './BomsType';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
 
 const Boms = () => {
@@ -70,7 +71,8 @@ const Boms = () => {
   }
 
   return (
-      <ProductsProvider>
+    <ProductsProvider>
+      <ProductsSelectProvider>
     <React.Fragment>
       <Typography variant="h4" mb={2}>
         BOMs
@@ -106,6 +108,7 @@ const Boms = () => {
         }
       />
     </React.Fragment>
+    </ProductsSelectProvider>
     </ProductsProvider>
   );
 };
