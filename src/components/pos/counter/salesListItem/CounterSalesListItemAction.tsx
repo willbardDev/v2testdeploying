@@ -38,6 +38,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import PDFContent from '@/components/pdf/PDFContent';
+import { useCounter } from '../CounterProvider';
 
 const SaleReceipt = React.lazy(() => import('../saleReceipt/SaleReceipt'));
 const SaleDialogForm = React.lazy(() => import('../saleForm/SaleDialogForm'));
@@ -284,6 +285,7 @@ const CounterSalesListItemAction: React.FC<CounterSalesListItemActionProps> = ({
 
   const organization = authOrganization?.organization;
   const user = authUser?.user;
+  const {activeCounter} = useCounter();
 
   const deleteSale = useMutation({
     mutationFn: posServices.deleteSale,
@@ -371,7 +373,7 @@ const CounterSalesListItemAction: React.FC<CounterSalesListItemActionProps> = ({
         </IconButton>
       </Tooltip>
 
-      {checkOrganizationPermission(PERMISSIONS.SALES_EDIT) && !sale.vfd_receipt && !sale.is_invoiced && (
+      {activeCounter?.id !== 'all' && checkOrganizationPermission(PERMISSIONS.SALES_EDIT) && !sale.vfd_receipt && !sale.is_invoiced && (
         <Tooltip title={`Edit ${sale.saleNo}`}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />

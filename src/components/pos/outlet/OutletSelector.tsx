@@ -1,7 +1,13 @@
 import posServices from "../pos-services";
-import { Autocomplete, Checkbox, Chip, LinearProgress, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Checkbox,
+  Chip,
+  LinearProgress,
+  TextField
+} from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { Outlet } from "./OutletType";
@@ -16,34 +22,50 @@ interface OutletSelectorProps {
   } | null;
 }
 
-  const OutletSelector = (props: OutletSelectorProps) => {
+const OutletSelector = (props: OutletSelectorProps) => {
   const {
     onChange,
     multiple = false,
-    label = 'Outlet',
+    label = "Outlet",
     defaultValue = null,
     frontError = null
   } = props;
 
   const { authUser } = useJumboAuth();
-  
-  const { data: outlets = [], isPending } = useQuery({
-    queryKey: ['userSalesOutlets', authUser?.user?.id],
-    queryFn: ({ queryKey }) => posServices.getUserOutlets({ userId: queryKey[1] }),
-    select: (data) => data.map((outlet: any) => ({
-      id: outlet.id,
-      name: outlet.name,
-      address: outlet.address,
-      status: outlet.status,
-      cost_center: outlet.cost_center,
-      counters: outlet.counters,
-      stores: outlet.stores
-    })),
+
+  const { data: rawOutlets = [], isPending } = useQuery({
+    queryKey: ["userSalesOutlets", authUser?.user?.id],
+    queryFn: ({ queryKey }) =>
+      posServices.getUserOutlets({ userId: queryKey[1] }),
+    select: (data) =>
+      data.map((outlet: any) => ({
+        id: outlet.id,
+        name: outlet.name,
+        address: outlet.address,
+        status: outlet.status,
+        cost_center: outlet.cost_center,
+        counters: outlet.counters,
+        stores: outlet.stores
+      })),
     enabled: !!authUser?.user?.id
   });
 
+  // Append "All Outlets"
+  const outlets: Outlet[] = useMemo(() => {
+    const allOutlet: any = {
+      id: "all",
+      name: "All Outlets",
+      address: "",
+      status: "active",
+      cost_center: null,
+      counters: [],
+      stores: []
+    };
+    return [allOutlet, ...rawOutlets];
+  }, [rawOutlets]);
+
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(
-    defaultValue !== null ? defaultValue : (multiple ? [] : null)
+    defaultValue !== null ? defaultValue : multiple ? [] : null
   );
 
   useEffect(() => {
@@ -60,11 +82,13 @@ interface OutletSelectorProps {
     <Autocomplete
       multiple={multiple}
       size="small"
-      isOptionEqualToValue={(option: Outlet, value: Outlet) => option?.id === value?.id}
-      options={outlets || []}
+      isOptionEqualToValue={(option: Outlet, value: Outlet) =>
+        option?.id === value?.id
+      }
+      options={outlets}
       disableCloseOnSelect={multiple}
       value={selectedOutlet}
-      getOptionLabel={(option: Outlet) => option?.name || ''}
+      getOptionLabel={(option: Outlet) => option?.name || ""}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -76,36 +100,41 @@ interface OutletSelectorProps {
           placeholder={label}
         />
       )}
-      renderTags={(tagValue: Outlet[], getTagProps) => {
-          return tagValue.map((option: Outlet, index: number) => {
-            const { key, ...restProps } = getTagProps({ index });
-            return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
-          });
-      }}
-       {...(multiple && { 
-          renderOption: (
-            props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, // extend type to include key optionally
-            option: Outlet,
-            { selected }
-          ) => {
-            const { key, ...otherProps } = props;
-
-            return (
-              <li key={option.id} {...otherProps}>
-                <Checkbox
-                  icon={<CheckBoxOutlineBlank fontSize="small" />}
-                  checkedIcon={<CheckBox fontSize="small" />}
-                  style={{ marginRight: 8 }}
-                  checked={selected}
-                />
-                {option.name}
-              </li>
-            );
-          }
-        })}
-        onChange={(e, newValue: Outlet | Outlet[] | null) => {
-        onChange(newValue);
+      renderTags={(tagValue: Outlet[], getTagProps) =>
+        tagValue.map((option: Outlet, index: number) => {
+          const { key, ...restProps } = getTagProps({ index });
+          return (
+            <Chip
+              {...restProps}
+              key={`${option.id}-${key}`}
+              label={option.name}
+            />
+          );
+        })
+      }
+      {...(multiple && {
+        renderOption: (
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
+          option: Outlet,
+          { selected }
+        ) => {
+          const { key, ...otherProps } = props;
+          return (
+            <li key={option.id} {...otherProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          );
+        }
+      })}
+      onChange={(e, newValue: Outlet | Outlet[] | null) => {
         setSelectedOutlet(newValue);
+        onChange(newValue);
       }}
     />
   );

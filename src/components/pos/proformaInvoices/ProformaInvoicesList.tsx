@@ -180,7 +180,9 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
                     onChange={handleOnChange}
                     value={queryOptions.queryParams.keyword}
                   />
-                  <ProformaActionTail />
+                  {String(activeOutlet?.id) !== 'all' &&
+                    <ProformaActionTail />
+                  }
                 </Stack>
               </Grid>
             </Grid>
