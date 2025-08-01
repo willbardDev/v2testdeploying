@@ -1,17 +1,16 @@
-/** @type {import('next').NextConfig} */
+import withPWAInit from '@ducanh2912/next-pwa'
 
-const withPWA = require("next-pwa")({
-  dest: "public",
+const withPWA = withPWAInit({
+  dest: 'public',
   register: true,
   skipWaiting: true,
-  //disable: process.env.NODE_ENV === "development", // Disable PWA in dev mode
-});
+})
 
-module.exports = withPWA({
+const nextConfig = {
   reactStrictMode: true,
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
-    NEXTAUTH_SECRET: 'Wxh7ucB6n1ZpL2uSInvk/5Hl5WzgFFuPBhVfy0x6DG0U=',
+    NEXTAUTH_SECRET: 'YjByKC1BpoOaRVEgu4kdL98YErK7oA+2tRMaw+x0ino=',
     NEXT_PUBLIC_GOOGLE_MAP_API: 'AIzaSyCJM0a8oSaRMwxthozENQg1euRI51aNXJQ',
   },
   async redirects() {
@@ -33,4 +32,6 @@ module.exports = withPWA({
       },
     ],
   },
-});
+};
+
+export default withPWA(nextConfig);
