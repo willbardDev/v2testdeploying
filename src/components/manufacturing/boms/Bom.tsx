@@ -15,6 +15,7 @@ import bomsServices from './boms-services';
 import BomsActionTail from './BomsActionTail';
 import BomsListItem from './BomsListItem';
 import { BOM } from './BomsTypes';
+import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
 
 const Boms = () => {
   const params = useParams<{ id?: string; keyword?: string }>();
@@ -61,14 +62,15 @@ const Boms = () => {
   if (
     !checkOrganizationPermission([
       PERMISSIONS.BOM_CREATE
-      PERMISSIONS.BOM_READ
-      PERMISSIONS.BOM_EDIT
+   //   PERMISSIONS.BOM_READ
+   //   PERMISSIONS.BOM_EDIT
     ])
   ) {
     return <UnauthorizedAccess />;
   }
 
   return (
+      <ProductsProvider>
     <React.Fragment>
       <Typography variant="h4" mb={2}>
         BOMs
@@ -104,6 +106,7 @@ const Boms = () => {
         }
       />
     </React.Fragment>
+    </ProductsProvider>
   );
 };
 

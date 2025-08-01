@@ -13,7 +13,7 @@ bomsServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedBOMResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
-  const { data } = await axios.get('/api/projectManagement/boms', {
+  const { data } = await axios.get('/api/manufacturing/boms', {
     params: { page, limit, ...queryParams },
   });
   return data;
