@@ -82,25 +82,13 @@ const LoginForm = () => {
         }
 
         configAuth({
-          currentUser: {
-            user: orgResponse.data.authUser.user,
-            permissions: orgResponse.data.authUser.permissions,
-          },
-          currentOrganization: {
-            organization: orgResponse.data.authOrganization.organization,
-            permissions: orgResponse.data.authOrganization.permissions,
-          },
+          currentUser: orgResponse.data.authUser,
+          currentOrganization: orgResponse.data.authOrganization,
         });
 
         setAuthValues({
-          authUser: {
-            user: orgResponse.data.authUser.user,
-            permissions: orgResponse.data.authUser.permissions,
-          },
-          authOrganization: {
-            organization: orgResponse.data.authOrganization.organization,
-            permissions: orgResponse.data.authOrganization.permissions,
-          },
+          authUser: orgResponse.data.authUser,
+          authOrganization: orgResponse.data.authOrganization,
           isAuthenticated: true,
           isLoading: false,
         }, { persist: true });

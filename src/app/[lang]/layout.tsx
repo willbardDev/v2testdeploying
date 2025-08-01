@@ -7,6 +7,11 @@ import { getDictionary } from './dictionaries';
 import { DictionaryProvider } from './contexts/DictionaryContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
+const APP_NAME = 'ProsERP';
+const APP_DEFAULT_TITLE = 'ProsERP';
+const APP_TITLE_TEMPLATE = '%s | ProsERP';
+const APP_DESCRIPTION = 'Robust ERP for accounting, project management, payroll, inventory, and requisitions.';
+
 interface RootLayoutProps {
   children: ReactNode;
   params: {
@@ -19,13 +24,43 @@ export async function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
-  title: "ProsERP",
+  applicationName: APP_NAME,
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
+  description: APP_DESCRIPTION,
+  manifest: "/manifest.json",
+  themeColor: "#2113AD",
   icons: {
     icon: "/assets/images/logos/favicon.ico",
     shortcut: "/assets/images/logos/favicon.ico",
   },
-  manifest: "/manifest.json",
-  themeColor: "#2113AD",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_DEFAULT_TITLE,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
   other: {
     "msapplication-TileColor": "#6200EE",
     "theme-color": "#2113AD",
