@@ -50,29 +50,35 @@ const OutletSelector = (props: OutletSelectorProps) => {
     enabled: !!authUser?.user?.id
   });
 
-  // Append "All Outlets"
-  const outlets: Outlet[] = useMemo(() => {
-    const allOutlet: any = {
-      id: "all",
-      name: "All Outlets",
-      address: "",
-      status: "active",
-      cost_center: null,
-      counters: [],
-      stores: []
-    };
-    return [allOutlet, ...rawOutlets];
-  }, [rawOutlets]);
+  const allOutlet: any = useMemo(() => ({
+    id: "all",
+    name: "All Outlets",
+    address: "",
+    status: "active",
+    cost_center: null,
+    counters: [],
+    stores: []
+  }), []);
+
+  const outlets: Outlet[] = useMemo(() => [allOutlet, ...rawOutlets], [rawOutlets, allOutlet]);
 
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(
     defaultValue !== null ? defaultValue : multiple ? [] : null
   );
 
   useEffect(() => {
-    if (defaultValue !== null || (multiple && defaultValue === null)) {
-      setSelectedOutlet(defaultValue !== null ? defaultValue : []);
+    if (defaultValue !== null) {
+      setSelectedOutlet(defaultValue);
+    } else {
+      if (multiple) {
+        setSelectedOutlet([]);
+      } else {
+        const allOutlet = outlets.find((outlet) => outlet.id === 'all') || null;
+        setSelectedOutlet(allOutlet);
+        onChange(allOutlet);
+      }
     }
-  }, [defaultValue, multiple]);
+  }, [defaultValue, multiple, outlets]);
 
   if (isPending) {
     return <LinearProgress />;

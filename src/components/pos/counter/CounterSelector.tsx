@@ -49,6 +49,15 @@ const CounterSelector = () => {
             if (singleOutlet.counters.length > 0) {
                 setActiveCounter(singleOutlet.counters[0]);
             }
+        } else if (rawOutlets.length > 1) {
+            const allOutlet: any = {
+                id: 'all',
+                name: 'All Outlets',
+                counters: [{ id: 'all', name: 'All' }],
+            };
+            setOutlet(allOutlet);
+            setCounters(allOutlet.counters);
+            setActiveCounter(allOutlet.counters[0]);
         }
     }, [rawOutlets, setOutlet, setActiveCounter]);
 
@@ -64,6 +73,7 @@ const CounterSelector = () => {
                     isOptionEqualToValue={(option, value) => option?.id === value?.id}
                     options={outlets}
                     getOptionLabel={(option) => option.name}
+                    value={outlets.find(o => o.id === activeCounter?.id || o.counters?.some(c => c.id === activeCounter?.id)) || null}
                     renderInput={(params) => (
                         <TextField {...params} label="Outlet" />
                     )}
