@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 import { BOM } from './BomsType';
 import BomsListItemAction from './BomsListItemAction';
-import Boms from './Bom';
 
 interface BomsListItemProps {
   bom: BOM;
@@ -33,7 +32,7 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         px={2}
       >
         {/* Product Name */}
-        <Grid size={{xs: 6, md: 6}}>
+        <Grid size={{xs: 12, md: 4}}>
           <Tooltip title="Main Product">
             <Typography fontWeight="bold">
               {bom.product?.name ?? '—'}
@@ -42,7 +41,7 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         </Grid>
 
         {/* Quantity  */}
-        <Grid size={{xs: 6, md: 6}}>
+        <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Quantity & Unit">
             <Typography>
               {bom.quantity} 
@@ -51,7 +50,7 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         </Grid>
          {/* Actions */}
         <Grid size={{xs: 12, md: 2}}textAlign="end">
-          <BomsListItemAction BOM={Boms} />
+          <BomsListItemAction bom={bom} />
         </Grid>
       </Grid>
     </React.Fragment>

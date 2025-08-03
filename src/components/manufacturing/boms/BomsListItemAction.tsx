@@ -9,7 +9,7 @@ import { JumboDdMenu } from '@jumbo/components';
 import bomsServices from './boms-services';
 import { BOM } from './BomsType';
 
-const BomsListItemAction = ({ BOM }: { BOM: BOM }) => {
+const BomsListItemAction = ({ bom}: { bom: BOM }) => {
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
