@@ -1,10 +1,7 @@
 'use client';
-import { JumboNavbar } from '@jumbo/components';
-import { useJumboLayout } from '@jumbo/components/JumboLayout/hooks';
+
 import { JumboScrollbar } from '@jumbo/components/JumboScrollbar';
-import { useJumboSidebarTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
-import { MenuItems } from '@jumbo/types';
 import React, { Suspense } from 'react';
 import { SidebarHeader } from './SidebarHeader';
 import { SidebarSkeleton } from './SidebarSkeleton';
@@ -686,11 +683,16 @@ const Sidebar = ({ menus }) => {
             }
         }
 
+       //Organizations should always included
+        const orgMenu = menus.find(menu => menu.label === "Organizations");
+        if (orgMenu) {
+            updatedMenus.push(orgMenu);
+        }
+
         setMenuItems([
             ...updatedMenus,
-            ...menus,
         ]);
-      }, [authOrganization, checkOrganizationPermission,authUser?.permissions,checkPermission,organizationHasSubscribed]);
+    }, [authOrganization, checkOrganizationPermission,authUser?.permissions,checkPermission,organizationHasSubscribed]);
 
     return (
         <React.Fragment>
