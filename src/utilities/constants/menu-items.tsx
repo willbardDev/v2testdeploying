@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   DashboardOutlined,
   PointOfSaleOutlined,
@@ -17,10 +16,69 @@ import {
   ShareOutlined,
   VerifiedOutlined,
   AccountTreeOutlined,
+  EditAttributes,
 } from '@mui/icons-material';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolderOpen, faUsersGear, faBarsProgress, faFillDrip } from '@fortawesome/free-solid-svg-icons';
-import { getDictionary } from '@/app/[lang]/dictionaries';
+import {
+  faFolderOpen,
+  faUsersGear,
+  faBarsProgress,
+  faFillDrip,
+} from '@fortawesome/free-solid-svg-icons';
+
+import { Box } from '@mui/material';
+import React from 'react';
+
+const iconSize = 20;
+
+const muiIcon = (IconComponent: React.ElementType) => (
+  <IconComponent sx={{ fontSize: iconSize }} />
+);
+
+const faIcon = (icon: any) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', width: iconSize, height: iconSize }}>
+    <FontAwesomeIcon
+      icon={icon}
+      style={{
+        width: iconSize - 2,
+        height: iconSize - 2,
+        position: 'relative',
+        top: 1,
+      }}
+    />
+  </Box>
+);
+
+export const iconMap: Record<string, React.ReactNode> = {
+  quickLaunch: muiIcon(DashboardOutlined),
+  dashboard: muiIcon(DashboardOutlined),
+  requisitions: muiIcon(FormatListNumberedRtlOutlined),
+  approvals: muiIcon(ChecklistOutlined),
+  barcharts: muiIcon(AssessmentOutlined),
+  counter: muiIcon(PointOfSaleOutlined),
+  proforma: muiIcon(PointOfSaleOutlined),
+  approvedPayments: muiIcon(VerifiedOutlined),
+  transactions: muiIcon(ReceiptOutlined),
+  reports: muiIcon(AssessmentOutlined),
+  product_categories: muiIcon(Inventory2Outlined),
+  products: muiIcon(Inventory2Outlined),
+  outlets: muiIcon(StoreOutlined),
+  settings: muiIcon(StoreOutlined),
+  stakeholders: muiIcon(HandshakeOutlined),
+  currencies: muiIcon(AccountBalanceOutlined),
+  measurement_units: muiIcon(StraightenOutlined),
+  organizations: muiIcon(CorporateFareOutlined),
+  invitations: muiIcon(ShareOutlined),
+  filesShelf: faIcon(faFolderOpen),
+  prosControl: faIcon(faUsersGear),
+  projects: faIcon(faBarsProgress),
+  consumptions: faIcon(faFillDrip),
+  approvedPurchases: muiIcon(ShoppingCartCheckoutOutlined),
+  purchases: muiIcon(ShoppingCartOutlined),
+  editAttributes: muiIcon(EditAttributes),
+  accountTree: muiIcon(AccountTreeOutlined),
+};
 
 type MenuEntry = {
   label: string;
@@ -28,34 +86,6 @@ type MenuEntry = {
   uri?: string;
   icon?: React.ReactNode;
   children?: MenuEntry[];
-};
-
-const iconMap: Record<string, React.ReactNode> = {
-  quickLaunch: <DashboardOutlined sx={{ fontSize: 20 }} />,
-  dashboard: <DashboardOutlined sx={{ fontSize: 20 }} />,
-  requisitions: <FormatListNumberedRtlOutlined sx={{ fontSize: 20 }} />,
-  approvals: <ChecklistOutlined sx={{ fontSize: 20 }} />,
-  barcharts: <AssessmentOutlined sx={{ fontSize: 20 }} />,
-  counter: <PointOfSaleOutlined sx={{ fontSize: 20 }} />,
-  proforma: <PointOfSaleOutlined sx={{ fontSize: 20 }} />,
-  approvedPayments: <VerifiedOutlined sx={{ fontSize: 20 }} />,
-  transactions: <ReceiptOutlined sx={{ fontSize: 20 }} />,
-  reports: <AssessmentOutlined sx={{ fontSize: 20 }} />,
-  product_categories: <Inventory2Outlined sx={{ fontSize: 20 }} />,
-  products: <Inventory2Outlined sx={{ fontSize: 20 }} />,
-  outlets: <StoreOutlined sx={{ fontSize: 20 }} />,
-  settings: <StoreOutlined sx={{ fontSize: 20 }} />,
-  stakeholders: <HandshakeOutlined sx={{ fontSize: 20 }} />,
-  currencies: <AccountBalanceOutlined sx={{ fontSize: 20 }} />,
-  measurement_units: <StraightenOutlined sx={{ fontSize: 20 }} />,
-  organizations: <CorporateFareOutlined sx={{ fontSize: 20 }} />,
-  invitations: <ShareOutlined sx={{ fontSize: 20 }} />,
-  filesShelf: <FontAwesomeIcon icon={faFolderOpen} style={{ fontSize: 20 }}/>,
-  prosControl: <FontAwesomeIcon icon={faUsersGear} style={{ fontSize: 20 }}/>,
-  projects: <FontAwesomeIcon icon={faBarsProgress} style={{ fontSize: 20 }}/>,
-  consumptions: <FontAwesomeIcon icon={faFillDrip} style={{ fontSize: 20 }}/>,
-  approvedPurchases: <ShoppingCartCheckoutOutlined sx={{ fontSize: 20 }} />,
-  purchases: <ShoppingCartOutlined sx={{ fontSize: 20 }} />,
 };
 
 export async function getMenus(locale: string): Promise<MenuEntry[]> {
@@ -71,7 +101,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/dashboard`,
           label: sidebar.menuItem.dashboard,
           type: 'nav-item',
-          icon: iconMap['dashboard'],
+          icon: iconMap.dashboard,
         },
       ],
     },
@@ -83,24 +113,23 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/requisitions`,
           label: sidebar.menuItem.requisitions,
           type: 'nav-item',
-          icon: iconMap['requisitions'],
+          icon: iconMap.requisitions,
         },
         {
           uri: `/${locale}/requisition-approvals`,
           label: sidebar.menuItem.approvals,
           type: 'nav-item',
-          icon: iconMap['approvals'],
+          icon: iconMap.approvals,
         },
         {
-          label: sidebar.menuItem.approvalChains,
+          label: 'Masters',
           type: 'collapsible',
-          icon: <ChecklistOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.editAttributes,
           children: [
             {
               uri: `/${locale}/approval-chains`,
               label: sidebar.menuItem.approvalChains,
               type: 'nav-item',
-              icon: <ChecklistOutlined sx={{ fontSize: 20 }} />,
             },
           ],
         },
@@ -113,19 +142,17 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
         {
           label: 'Sales',
           type: 'collapsible',
-          icon: iconMap['counter'],
+          icon: iconMap.counter,
           children: [
             {
               uri: `/${locale}/pos/sales-counters`,
               label: sidebar.menuItem.salesCounter,
               type: 'nav-item',
-              icon: iconMap['counter'],
             },
             {
               uri: `/${locale}/pos/proformas`,
               label: sidebar.menuItem.proformas,
               type: 'nav-item',
-              icon: iconMap['proforma'],
             },
           ],
         },
@@ -133,12 +160,12 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/pos/reports`,
           label: sidebar.menuItem.reports,
           type: 'nav-item',
-          icon: iconMap['barcharts'],
+          icon: iconMap.barcharts,
         },
         {
           label: 'Masters',
           type: 'collapsible',
-          icon: <StoreOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.settings,
           children: [
             {
               uri: `/${locale}/pos/outlets`,
@@ -167,12 +194,12 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/manufacturing/batches`,
           label: sidebar.menuItem.batches,
           type: 'nav-item',
-          icon: <FormatListNumberedRtlOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.requisitions,
         },
         {
           label: 'Masters',
           type: 'collapsible',
-          icon: <Inventory2Outlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.products,
           children: [
             {
               uri: `/${locale}/manufacturing/boms`,
@@ -191,12 +218,12 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/projectManagement/projects`,
           label: sidebar.menuItem.projects,
           type: 'nav-item',
-          icon: iconMap['projects'],
+          icon: iconMap.projects,
         },
         {
           label: 'Masters',
           type: 'collapsible',
-          icon: <AccountTreeOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.accountTree,
           children: [
             {
               uri: `/${locale}/projectManagement/projectCategories`,
@@ -215,24 +242,24 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/accounts/approvedPayments`,
           label: sidebar.menuItem.approvedPayments,
           type: 'nav-item',
-          icon: iconMap['approvedPayments'],
+          icon: iconMap.approvedPayments,
         },
         {
           uri: `/${locale}/accounts/transactions`,
           label: sidebar.menuItem.transactions,
           type: 'nav-item',
-          icon: iconMap['transactions'],
+          icon: iconMap.transactions,
         },
         {
           uri: `/${locale}/accounts/reports`,
           label: sidebar.menuItem.reports,
           type: 'nav-item',
-          icon: iconMap['reports'],
+          icon: iconMap.reports,
         },
         {
           label: 'Masters',
           type: 'collapsible',
-          icon: <AccountBalanceOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.currencies,
           children: [
             {
               uri: `/${locale}/accounts/ledger_groups`,
@@ -261,30 +288,30 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/procurement/approvedPurchases`,
           label: sidebar.menuItem.approvedPurchases,
           type: 'nav-item',
-          icon: iconMap['approvedPurchases'],
+          icon: iconMap.approvedPurchases,
         },
         {
           uri: `/${locale}/procurement/purchases`,
           label: sidebar.menuItem.purchases,
           type: 'nav-item',
-          icon: iconMap['purchases'],
+          icon: iconMap.purchases,
         },
         {
           uri: `/${locale}/procurement/consumptions`,
           label: sidebar.menuItem.consumptions,
           type: 'nav-item',
-          icon: <FontAwesomeIcon icon={faFillDrip} style={{ fontSize: 20 }}/>,
+          icon: iconMap.consumptions,
         },
         {
           uri: `/${locale}/procurement/reports`,
           label: sidebar.menuItem.reports,
           type: 'nav-item',
-          icon: <AssessmentOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.barcharts,
         },
         {
           label: 'Masters',
           type: 'collapsible',
-          icon: <Inventory2Outlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.products,
           children: [
             {
               uri: `/${locale}/procurement/product_categories`,
@@ -313,7 +340,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/filesShelf`,
           label: sidebar.menuItem.filesShelf,
           type: 'nav-item',
-          icon: <FontAwesomeIcon icon={faFolderOpen} style={{ fontSize: 20 }}/>,
+          icon: iconMap.filesShelf,
         },
       ],
     },
@@ -325,19 +352,19 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/masters/stakeholders`,
           label: sidebar.menuItem.stakeholders,
           type: 'nav-item',
-          icon: <HandshakeOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.stakeholders,
         },
         {
           uri: `/${locale}/masters/currencies`,
           label: sidebar.menuItem.currencies,
           type: 'nav-item',
-          icon: <AccountBalanceOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.currencies,
         },
         {
           uri: `/${locale}/masters/measurement_units`,
           label: sidebar.menuItem.measurement_units,
           type: 'nav-item',
-          icon: <StraightenOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.measurement_units,
         },
       ],
     },
@@ -349,7 +376,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/prosControl/usersManagement`,
           label: sidebar.menuItem.usersManagement,
           type: 'nav-item',
-          icon: <FontAwesomeIcon icon={faUsersGear} style={{ fontSize: 20 }}/>,
+          icon: iconMap.prosControl,
         },
       ],
     },
@@ -361,13 +388,13 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/organizations`,
           label: sidebar.menuItem.organizations,
           type: 'nav-item',
-          icon: <CorporateFareOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.organizations,
         },
         {
           uri: `/${locale}/invitations`,
           label: sidebar.menuItem.invitations,
           type: 'nav-item',
-          icon: <ShareOutlined sx={{ fontSize: 20 }} />,
+          icon: iconMap.invitations,
         },
       ],
     },

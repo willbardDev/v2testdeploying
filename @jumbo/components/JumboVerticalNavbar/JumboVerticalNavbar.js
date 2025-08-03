@@ -22,7 +22,7 @@ const JumboVerticalNavbar = ({items}) => {
         >
             {
                 items.map((item, index) => (
-                    <JumboNavIdentifier translate item={item} key={index} />
+                    <JumboNavIdentifier item={item} key={index} />
                 ))
             }
         </List>

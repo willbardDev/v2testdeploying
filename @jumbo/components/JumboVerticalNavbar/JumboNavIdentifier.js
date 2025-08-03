@@ -9,7 +9,7 @@ const NAV_VARIANTS = {
     'nav-item': JumboNavItem
 };
 
-const JumboNavIdentifier = ({item, isNested = false, translate}) => {
+const JumboNavIdentifier = ({item, isNested = false}) => {
     if(!item) return null;
 
     if(item.type && ['section', 'collapsible', 'nav-item'].includes(item.type)) {
