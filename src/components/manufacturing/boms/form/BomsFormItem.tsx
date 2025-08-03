@@ -9,10 +9,10 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { AddOutlined } from '@mui/icons-material';
-import ProductSelector from '@/components/productAndServices/products/ProductSelector';
-import MeasurementUnitSelector from '@/components/masters/measurementUnits/MeasurementUnitSelector';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
 interface BomsFormItemProps {
   setItems: React.Dispatch<React.SetStateAction<any[]>>;
@@ -54,7 +54,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
       </Grid>
       
       <Grid size= {{xs:12, md:5}}>
-        <ProductSelector
+        <ProductSelect
           label="Input Product"
           value={product}
           onChange={setProduct}
@@ -73,7 +73,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
       </Grid>
       
       <Grid size= {{xs:5, md:3}}>
-        <MeasurementUnitSelector
+        <MeasurementSelector
           label="Unit"
           value={unit}
           onChange={setUnit}

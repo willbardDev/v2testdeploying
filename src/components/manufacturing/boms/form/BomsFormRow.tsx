@@ -9,6 +9,8 @@ import {
 } from '@mui/material';
 import { EditOutlined, DeleteOutlined } from '@mui/icons-material';
 import React, { useState } from 'react';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
 interface BomsFormRowProps {
   item: any;
@@ -107,7 +109,7 @@ const BomsFormItemEditor: React.FC<{
   return (
     <Grid container spacing={2} alignItems="flex-end" mb={2} pt={1}>
       <Grid size= {{xs:12, md:5}}>
-        <ProductSelector
+        <ProductSelect
           label="Input Product"
           value={product}
           onChange={setProduct}
@@ -126,9 +128,9 @@ const BomsFormItemEditor: React.FC<{
       </Grid>
       
       <Grid size= {{xs:5, md:3}}>
-        <MeasurementUnitSelector
+        <MeasurementSelector
           label="Unit"
-          value={unit}
+          defaultValue={unit}
           onChange={setUnit}
         />
       </Grid>

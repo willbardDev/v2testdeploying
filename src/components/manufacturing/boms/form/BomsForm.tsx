@@ -19,13 +19,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQueryClient } from '@tanstack/react-query';
-import ProductSelector from '@/components/productAndServices/products/ProductSelector';
 import BomsFormRow from './BomsFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import bomsServices from '../boms-services';
-import BomsFormItem from './BomsItemForm';
+import BomsFormItem from './BomsFormItem';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
 interface BomsFormProps {
   toggleOpen: (open: boolean) => void;
@@ -139,7 +140,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
           </Grid>
           
           <Grid size= {{xs:12, md:6}}>
-            <ProductSelector
+            <ProductSelect
               label="Output Product"
               value={outputProduct}
               onChange={(product) => {
@@ -164,7 +165,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
           </Grid>
           
           <Grid size= {{xs:6, md:3}}>
-            <MeasurementUnitSelector
+            <MeasurementSelector
               label="Unit"
               value={outputUnit}
               onChange={(unit) => {
