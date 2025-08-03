@@ -9,7 +9,6 @@ import BomsForm from './form/BomsForm';
 const BomsActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
-
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -33,7 +32,7 @@ const BomsActionTail = () => {
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
         {checkOrganizationPermission(PERMISSIONS.BOM_CREATE) && (
-          <Tooltip title="Add BOM">
+          <Tooltip title="New Bill of Material">
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

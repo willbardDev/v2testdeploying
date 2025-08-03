@@ -1,4 +1,3 @@
-'use client';
 
 import React from 'react';
 import {
@@ -8,6 +7,8 @@ import {
   Typography,
 } from '@mui/material';
 import { BOM } from './BomsType';
+import BomsListItemAction from './BomsListItemAction';
+import Boms from './Bom';
 
 interface BomsListItemProps {
   bom: BOM;
@@ -40,13 +41,17 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
           </Tooltip>
         </Grid>
 
-        {/* Quantity and Measurement Unit */}
+        {/* Quantity  */}
         <Grid size={{xs: 6, md: 6}}>
           <Tooltip title="Quantity & Unit">
             <Typography>
-              {bom.quantity} {bom.measurement_unit?.name ?? ''}
+              {bom.quantity} 
             </Typography>
           </Tooltip>
+        </Grid>
+         {/* Actions */}
+        <Grid size={{xs: 12, md: 2}}textAlign="end">
+          <BomsListItemAction BOM={Boms} />
         </Grid>
       </Grid>
     </React.Fragment>
