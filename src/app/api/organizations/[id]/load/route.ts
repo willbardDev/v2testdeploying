@@ -47,7 +47,7 @@ export async function PUT(req: NextRequest) {
 
     const sessionToken = await encode({
       token: jwtPayload,
-      secret: process.env.NEXTAUTH_SECRET!,
+      secret: process.env.NEXTAUTH_SECRET,
     });
 
     const response = NextResponse.json({

@@ -9,7 +9,7 @@ export async function authMiddleware(request: NextRequest) {
   // 1. Get token from secure HTTP-only cookie
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET!,
+    secret: process.env.NEXTAUTH_SECRET,
     cookieName: process.env.NODE_ENV === 'production'
       ? '__Secure-next-auth.session-token'
       : 'next-auth.session-token'
@@ -31,7 +31,7 @@ export async function authMiddleware(request: NextRequest) {
 export async function anonymousMiddleware(request: NextRequest) {
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET!,
+    secret: process.env.NEXTAUTH_SECRET,
     cookieName: COOKIE_NAME
   });
 

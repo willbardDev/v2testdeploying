@@ -1,5 +1,5 @@
 import { Autocomplete, Divider, Grid, LinearProgress, TextField } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Counter, Outlet, useCounter } from './CounterProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -10,36 +10,56 @@ interface UserOutletsParams {
     organizationId?: string;
 }
 
-function CounterSelector() {
+const CounterSelector = () => {
     const { authUser, authOrganization } = useJumboAuth();
     const organization = authOrganization?.organization;
 
-    const userOutletsParams = {
+    const userOutletsParams: UserOutletsParams = {
         userId: authUser?.user?.id,
-        organizationId: organization?.id
+        organizationId: organization?.id,
     };
 
-    const { 
-        data: outlets, 
-        isFetching 
+    const {
+        data: rawOutlets = [],
+        isFetching
     } = useQuery<Outlet[], Error, Outlet[], ['userSalesOutlets', UserOutletsParams]>({
         queryKey: ['userSalesOutlets', userOutletsParams],
         queryFn: ({ queryKey }) => posServices.getUserOutlets(queryKey[1]),
         enabled: !!authUser?.user?.id && !!organization?.id,
     });
 
+    // Add synthetic "All Outlets" option
+    const outlets: Outlet[] = useMemo(() => {
+        const allOutlet: any = {
+            id: 'all',
+            name: 'All Outlets',
+            counters: [{ id: 'all', name: 'All' }],
+        };
+        return [allOutlet, ...rawOutlets];
+    }, [rawOutlets]);
+
     const [counters, setCounters] = useState<Counter[]>([]);
     const { activeCounter, setActiveCounter, setOutlet } = useCounter();
 
     useEffect(() => {
-        if (outlets?.length === 1) {
-            setOutlet(outlets[0]);
-            setCounters(outlets[0].counters);
-            if (outlets[0].counters.length > 0) {
-                setActiveCounter(outlets[0].counters[0]);
+        if (rawOutlets.length === 1) {
+            const singleOutlet = rawOutlets[0];
+            setOutlet(singleOutlet);
+            setCounters(singleOutlet.counters);
+            if (singleOutlet.counters.length > 0) {
+                setActiveCounter(singleOutlet.counters[0]);
             }
+        } else if (rawOutlets.length > 1) {
+            const allOutlet: any = {
+                id: 'all',
+                name: 'All Outlets',
+                counters: [{ id: 'all', name: 'All' }],
+            };
+            setOutlet(allOutlet);
+            setCounters(allOutlet.counters);
+            setActiveCounter(allOutlet.counters[0]);
         }
-    }, [outlets, setOutlet, setActiveCounter]);
+    }, [rawOutlets, setOutlet, setActiveCounter]);
 
     if (isFetching) {
         return <LinearProgress />;
@@ -50,15 +70,12 @@ function CounterSelector() {
             <Grid size={{xs: 12, md: 4}}>
                 <Autocomplete<Outlet>
                     size="small"
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    options={outlets || []}
+                    isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                    options={outlets}
                     getOptionLabel={(option) => option.name}
-                    defaultValue={outlets?.length === 1 ? outlets[0] : null}
+                    value={outlets.find(o => o.id === activeCounter?.id || o.counters?.some(c => c.id === activeCounter?.id)) || null}
                     renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Outlet"
-                        />
+                        <TextField {...params} label="Outlet" />
                     )}
                     onChange={(event, newValue) => {
                         if (newValue) {
@@ -78,15 +95,12 @@ function CounterSelector() {
             <Grid size={{xs: 12, md: 4}}>
                 <Autocomplete<Counter>
                     size="small"
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    isOptionEqualToValue={(option, value) => option?.id === value?.id}
                     options={counters}
                     getOptionLabel={(option) => option.name}
                     value={activeCounter}
                     renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Counter"
-                        />
+                        <TextField {...params} label="Counter" />
                     )}
                     onChange={(event, newValue) => {
                         setActiveCounter(newValue);
@@ -99,6 +113,6 @@ function CounterSelector() {
             </Grid>
         </Grid>
     );
-}
+};
 
 export default CounterSelector;

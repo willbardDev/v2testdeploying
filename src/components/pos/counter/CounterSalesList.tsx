@@ -203,7 +203,7 @@ const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
                       />
                     </Grid>
                     <Grid size={{xs: 1, lg: 0.5}}>
-                      {checkOrganizationPermission(PERMISSIONS.SALES_CREATE) && (
+                      {activeCounter?.id !== 'all' && checkOrganizationPermission(PERMISSIONS.SALES_CREATE) && (
                         <React.Suspense fallback={null}>
                           <CounterSalesActionTail />
                         </React.Suspense>

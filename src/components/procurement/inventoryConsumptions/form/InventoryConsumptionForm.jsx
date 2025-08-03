@@ -38,8 +38,6 @@ const InventoryConsumptionForm = ({setOpenDialog, inventoryConsumption = null, c
   const { enqueueSnackbar } = useSnackbar();
   const {authOrganization : {costCenters, organization}, checkOrganizationPermission, authUser : {user}, organizationHasSubscribed} = useJumboAuth();
   const { activeStore } = useStoreProfile();
-  const {authOrganization : allena} = useJumboAuth();
-  console.log(allena)
   const [fetchedProductionBatches, setFetchedProductionBatches] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
 

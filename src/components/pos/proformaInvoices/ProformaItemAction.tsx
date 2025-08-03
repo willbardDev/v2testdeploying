@@ -17,6 +17,7 @@ import { Proforma } from './ProformaType';
 import { Organization } from '@/types/auth-types';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MenuItemProps } from '@jumbo/types';
+import { useSalesOutlet } from '../outlet/OutletProvider';
 
 interface EditProformaProps {
   proforma: Proforma;
@@ -173,6 +174,7 @@ const ProformaItemAction: React.FC<ProformaItemActionProps> = ({ proforma }) => 
   const queryClient = useQueryClient();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
+  const {activeOutlet} = useSalesOutlet();
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -190,8 +192,8 @@ const ProformaItemAction: React.FC<ProformaItemActionProps> = ({ proforma }) => 
 
   const menuItems = [
     { icon: <VisibilityOutlined />, title: "View", action: "open" },
-    checkOrganizationPermission(PERMISSIONS.SALES_CREATE) && { icon: <SellOutlined />, title: 'Sale', action: 'sale' },
-    checkOrganizationPermission(PERMISSIONS.PROFORMA_INVOICES_EDIT) && { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
+    checkOrganizationPermission(PERMISSIONS.SALES_CREATE) && String(activeOutlet?.id) !== 'all' && { icon: <SellOutlined />, title: 'Sale', action: 'sale' },
+    checkOrganizationPermission(PERMISSIONS.PROFORMA_INVOICES_EDIT) && String(activeOutlet?.id) !== 'all' && { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
     checkOrganizationPermission(PERMISSIONS.PROFORMA_INVOICES_DELETE) && { icon: <DeleteOutlined color='error' />, title: 'Delete', action: 'delete' }
   ].filter(menuItem => !!menuItem);
 

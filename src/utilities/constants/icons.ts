@@ -14,13 +14,12 @@ import {
   ReceiptOutlined,
   ShoppingCartOutlined,
   OutdoorGrillOutlined,
-  FolderOutlined, // MUI equivalent for faFolderOpen
+  FolderOutlined,
   ManageAccountsOutlined,
   VerifiedOutlined,
   ShoppingCartCheckout,
   ViewAgendaOutlined,
   QrCode,
-
 } from '@mui/icons-material';
 import { SvgIconProps } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';

@@ -16,7 +16,7 @@ export interface user {
 }
 
 export interface Outlet {
-  id?: number;
+  id?: number | string;
   name: string;
   address?: string;
   type?: string;

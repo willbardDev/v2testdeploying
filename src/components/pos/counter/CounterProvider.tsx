@@ -10,7 +10,7 @@ import { SalesOrder } from './SalesOrderType';
 import { Ledger } from '../../accounts/ledgers/LedgerType';
 
 export interface Counter {
-  id: number;
+  id: number | string;
   name: string;
   description: string | null;
   ledgers: Ledger[];
@@ -22,7 +22,7 @@ interface Store {
 }
 
 export interface Outlet {
-  id: number;
+  id: number | string;
   name: string;
   address: string | null;
   status: string;
