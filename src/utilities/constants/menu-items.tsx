@@ -29,6 +29,7 @@ import {
 
 import { Box } from '@mui/material';
 import React from 'react';
+import { getDictionary } from '@/app/[lang]/dictionaries';
 
 const iconSize = 20;
 
