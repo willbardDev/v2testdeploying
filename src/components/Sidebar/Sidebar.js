@@ -17,6 +17,13 @@ const Sidebar = ({ menus }) => {
 
     React.useEffect(() => {
         let updatedMenus = [...menus.filter(menu => menu.label === 'sidebar.menu.home')];
+
+        //Dashboard should always included
+        const dashMenu = menus.find(menu => menu.label === "Home");
+        if (dashMenu) {
+            updatedMenus.push(dashMenu);
+        }
+
         if (authOrganization?.organization?.name) {
 
             if(organizationHasSubscribed(MODULES.PROCESS_APPROVAL)){
