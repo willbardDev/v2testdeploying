@@ -25,6 +25,7 @@ import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import bomsServices from '../boms-services';
+import BomsFormItem from './BomsItemForm';
 
 interface BomsFormProps {
   toggleOpen: (open: boolean) => void;
@@ -65,7 +66,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
   });
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<BomsFormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema as any),
     defaultValues: {
       output_quantity: bom?.output_quantity || 1,
       items: bom?.items || [],
