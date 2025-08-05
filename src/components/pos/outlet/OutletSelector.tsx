@@ -22,15 +22,13 @@ interface OutletSelectorProps {
   } | null;
 }
 
-const OutletSelector = (props: OutletSelectorProps) => {
-  const {
-    onChange,
-    multiple = false,
-    label = "Outlet",
-    defaultValue = null,
-    frontError = null
-  } = props;
-
+const OutletSelector = ({
+  onChange,
+  multiple = false,
+  label = "Outlet",
+  defaultValue = null,
+  frontError = null
+}: OutletSelectorProps) => {
   const { authUser } = useJumboAuth();
 
   const { data: rawOutlets = [], isPending } = useQuery({
@@ -63,22 +61,24 @@ const OutletSelector = (props: OutletSelectorProps) => {
   const outlets: Outlet[] = useMemo(() => [allOutlet, ...rawOutlets], [rawOutlets, allOutlet]);
 
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(
-    defaultValue !== null ? defaultValue : multiple ? [] : null
+    defaultValue !== null
+      ? defaultValue
+      : multiple
+      ? []
+      : allOutlet
   );
 
+  // Sync default value or fallback selection on load
   useEffect(() => {
     if (defaultValue !== null) {
       setSelectedOutlet(defaultValue);
+      onChange(defaultValue);
     } else {
-      if (multiple) {
-        setSelectedOutlet([]);
-      } else {
-        const allOutlet = outlets.find((outlet) => outlet.id === 'all') || null;
-        setSelectedOutlet(allOutlet);
-        onChange(allOutlet);
-      }
+      const fallback = multiple ? [] : allOutlet;
+      setSelectedOutlet(fallback);
+      onChange(fallback);
     }
-  }, [defaultValue, multiple, outlets]);
+  }, [defaultValue, multiple, outlets]); // run when raw data or props change
 
   if (isPending) {
     return <LinearProgress />;
@@ -88,9 +88,7 @@ const OutletSelector = (props: OutletSelectorProps) => {
     <Autocomplete
       multiple={multiple}
       size="small"
-      isOptionEqualToValue={(option: Outlet, value: Outlet) =>
-        option?.id === value?.id
-      }
+      isOptionEqualToValue={(option, value) => option?.id === value?.id}
       options={outlets}
       disableCloseOnSelect={multiple}
       value={selectedOutlet}
@@ -107,7 +105,7 @@ const OutletSelector = (props: OutletSelectorProps) => {
         />
       )}
       renderTags={(tagValue: Outlet[], getTagProps) =>
-        tagValue.map((option: Outlet, index: number) => {
+        tagValue.map((option, index) => {
           const { key, ...restProps } = getTagProps({ index });
           return (
             <Chip
@@ -120,25 +118,22 @@ const OutletSelector = (props: OutletSelectorProps) => {
       }
       {...(multiple && {
         renderOption: (
-          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
+          props: React.HTMLAttributes<HTMLLIElement>,
           option: Outlet,
           { selected }
-        ) => {
-          const { key, ...otherProps } = props;
-          return (
-            <li key={option.id} {...otherProps}>
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              {option.name}
-            </li>
-          );
-        }
+        ) => (
+          <li {...props} key={option.id}>
+            <Checkbox
+              icon={<CheckBoxOutlineBlank fontSize="small" />}
+              checkedIcon={<CheckBox fontSize="small" />}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {option.name}
+          </li>
+        )
       })}
-      onChange={(e, newValue: Outlet | Outlet[] | null) => {
+      onChange={(e, newValue) => {
         setSelectedOutlet(newValue);
         onChange(newValue);
       }}

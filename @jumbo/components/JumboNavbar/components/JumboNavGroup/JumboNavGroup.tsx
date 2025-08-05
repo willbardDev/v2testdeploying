@@ -70,7 +70,7 @@ const JumboNavGroup = React.memo(function JumboNavGroup({
       if (!item.icon) return null;
       return (
         <ListItemIcon sx={{ 
-          minWidth: miniAndClosed ? 20 : 32, 
+          minWidth: miniAndClosed ? 15 : 20, 
           color: 'inherit',
           justifyContent: 'center'
         }}>
@@ -90,7 +90,7 @@ const JumboNavGroup = React.memo(function JumboNavGroup({
         }}>
           {state.open ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
         </Div>
-        <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
+        <ListItemIcon sx={{ color: 'inherit', minWidth: 20 }}>
           <Icon name={item.icon} fontSize={'small'} />
         </ListItemIcon>
         <ListItemText

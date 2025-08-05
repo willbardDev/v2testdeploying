@@ -123,7 +123,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.approvals,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.editAttributes,
           children: [
@@ -141,7 +141,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
       type: 'section',
       children: [
         {
-          label: 'Sales',
+          label: 'PoS',
           type: 'collapsible',
           icon: iconMap.counter,
           children: [
@@ -164,7 +164,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.barcharts,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.settings,
           children: [
@@ -198,7 +198,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.requisitions,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.products,
           children: [
@@ -222,7 +222,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.projects,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.accountTree,
           children: [
@@ -258,7 +258,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.reports,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.currencies,
           children: [
@@ -310,7 +310,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           icon: iconMap.barcharts,
         },
         {
-          label: 'Masters',
+          label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: iconMap.products,
           children: [
@@ -346,7 +346,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
       ],
     },
     {
-      label: sidebar.menu.masters,
+      label: sidebar.menuItem.masters,
       type: 'section',
       children: [
         {
