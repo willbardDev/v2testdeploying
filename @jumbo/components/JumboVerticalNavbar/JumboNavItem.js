@@ -120,7 +120,7 @@ const JumboNavItem = ({ item, isNested, translate }) => {
             <ListItemText
               primary={label}
               sx={{
-                m: 0,
+                ml: 1.4,
                 '& .MuiTypography-root': {
                   fontSize: '0.875rem',
                   whiteSpace: 'nowrap',
