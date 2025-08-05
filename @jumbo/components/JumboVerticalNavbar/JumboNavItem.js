@@ -109,7 +109,7 @@ const JumboNavItem = ({ item, isNested, translate }) => {
           }}
           aria-disabled={isLoading}
         >
-          <ListItemIcon sx={{ minWidth: isMiniAndClosed ? 20 : 32, color: 'inherit' }}>
+          <ListItemIcon sx={{ minWidth: isMiniAndClosed ? 5 : 15, color: 'inherit' }}>
             {isNested ? (
               <CircleIcon sx={{ fontSize: 6, ml: 1 }} />
             ) : (
@@ -122,10 +122,11 @@ const JumboNavItem = ({ item, isNested, translate }) => {
               sx={{
                 m: 0,
                 '& .MuiTypography-root': {
+                  fontSize: '0.875rem',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                }
+                },
               }}
             />
           )}
