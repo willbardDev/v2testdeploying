@@ -22,7 +22,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomsFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import bomsServices from '../boms-services';
 import BomsFormItem from './BomsFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
@@ -30,6 +29,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 interface BomsFormProps {
   toggleOpen: (open: boolean) => void;
   bom?: any;
+  onSuccess?: () => void; 
 }
 
 interface BomsFormValues {
@@ -151,7 +151,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             <Divider />
           </Grid>
           
-          <Grid size={{xs:12, md:8}}>
+          <Grid size={{xs: 12, md: 8}}>
             <ProductSelect
               label="Output Product"
               value={outputProduct}
@@ -164,12 +164,17 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             />
           </Grid>
           
-          <Grid size={{xs:12, md:4}}>
+          <Grid size={{xs: 12, md: 4}}>
             <TextField
               label="Quantity"
               fullWidth
               size="small"
               type="number"
+              inputProps={{
+                inputMode: 'numeric',
+                pattern: '[0-9]*',
+                step: 'any'
+              }}
               {...register('output_quantity')}
               error={!!errors.output_quantity}
               helperText={errors.output_quantity?.message}

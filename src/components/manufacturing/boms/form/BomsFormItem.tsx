@@ -20,21 +20,19 @@ interface BomsFormItemProps {
 
 const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
   const [product, setProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
-  const [conversionFactor, setConversionFactor] = useState<number>(1);
+  const [quantity, setQuantity] = useState<string>('1');
   const [isAdding, setIsAdding] = useState(false);
   const [showAlternatives, setShowAlternatives] = useState(false);
   const [alternatives, setAlternatives] = useState<any[]>([]);
 
   const handleAddItem = () => {
-    if (!product) return;
+    if (!product || !quantity) return;
     
     setIsAdding(true);
     
     const newItem = {
       product,
-      quantity,
-      conversion_factor: conversionFactor,
+      quantity: Number(quantity),
       alternatives: [...alternatives]
     };
     
@@ -42,8 +40,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
     
     // Reset form
     setProduct(null);
-    setQuantity(1);
-    setConversionFactor(1);
+    setQuantity('1');
     setAlternatives([]);
     setShowAlternatives(false);
     
@@ -51,20 +48,26 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
   };
 
   const handleAddAlternative = () => {
-    if (!product) return;
+    if (!product || !quantity) return;
     
     const newAlternative = {
       product,
-      quantity,
-      conversion_factor: conversionFactor
+      quantity: Number(quantity)
     };
     
     setAlternatives(prev => [...prev, newAlternative]);
     
     // Reset alternative fields
     setProduct(null);
-    setQuantity(1);
-    setConversionFactor(1);
+    setQuantity('1');
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow empty string or valid numbers
+    if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+      setQuantity(value);
+    }
   };
 
   return (
@@ -75,7 +78,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
           <Divider />
         </Grid>
         
-        <Grid size={{xs:12, md:5}}>
+        <Grid size={{xs: 12, md: 6}}>
           <ProductSelect
             label="Input Product"
             value={product}
@@ -83,29 +86,21 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
           />
         </Grid>
         
-        <Grid size={{xs:6, md:3}}>
+        <Grid size={{xs: 6, md: 4}}>
           <TextField
             label="Quantity"
             fullWidth
             size="small"
-            type="number"
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
+            onChange={handleQuantityChange}
+            inputProps={{
+              inputMode: 'decimal',
+              pattern: '[0-9]*\\.?[0-9]*'
+            }}
           />
         </Grid>
         
-        <Grid size={{xs:5, md:3}}>
-          <TextField
-            label="Conversion Factor"
-            fullWidth
-            size="small"
-            type="number"
-            value={conversionFactor}
-            onChange={(e) => setConversionFactor(Number(e.target.value))}
-          />
-        </Grid>
-        
-        <Grid size={{xs:1, md:1}} textAlign="center">
+        <Grid size={{xs: 6, md: 2}} textAlign="center">
           <Button
             variant="contained"
             color="primary"
@@ -141,7 +136,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
           </Typography>
           
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid size={{xs:12, md:5}}>
+            <Grid size={{xs: 12, md: 6}}>
               <ProductSelect
                 label="Alternative Product"
                 value={product}
@@ -149,29 +144,21 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
               />
             </Grid>
             
-            <Grid size={{xs:6, md:3}}>
+            <Grid size={{xs: 6, md: 4}}>
               <TextField
                 label="Quantity"
                 fullWidth
                 size="small"
-                type="number"
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={handleQuantityChange}
+                inputProps={{
+                  inputMode: 'decimal',
+                  pattern: '[0-9]*\\.?[0-9]*'
+                }}
               />
             </Grid>
             
-            <Grid size={{xs:5, md:3}}>
-              <TextField
-                label="Conversion Factor"
-                fullWidth
-                size="small"
-                type="number"
-                value={conversionFactor}
-                onChange={(e) => setConversionFactor(Number(e.target.value))}
-              />
-            </Grid>
-            
-            <Grid size={{xs:1, md:1}} textAlign="center">
+            <Grid size={{xs: 6, md: 2}} textAlign="center">
               <Button
                 variant="outlined"
                 color="primary"
@@ -193,7 +180,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
               <ul>
                 {alternatives.map((alt, index) => (
                   <li key={index}>
-                    {alt.product?.name} - Qty: {alt.quantity}, Conv: {alt.conversion_factor}
+                    {alt.product?.name} - Qty: {alt.quantity}
                   </li>
                 ))}
               </ul>

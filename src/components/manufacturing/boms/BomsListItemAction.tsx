@@ -1,4 +1,4 @@
-import { DeleteOutlined, MoreHorizOutlined } from '@mui/icons-material';
+import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React from 'react';
@@ -8,8 +8,14 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import bomsServices from './boms-services';
 import { BOM } from './BomsType';
+import BomsForm from './form/BomsForm';
 
-const BomsListItemAction = ({ bom}: { bom: BOM }) => {
+interface BomsListItemActionProps {
+  bom: BOM;
+  onEditSuccess?: () => void;
+}
+
+const BomsListItemAction = ({ bom, onEditSuccess }: BomsListItemActionProps) => {
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -18,7 +24,7 @@ const BomsListItemAction = ({ bom}: { bom: BOM }) => {
     mutationFn: (params: { id: number }) => bomsServices.delete(params),
     onSuccess: (data: { message: string }) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['boms'] }); // Make sure query key matches your list
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
     },
     onError: (error: any) => {
       enqueueSnackbar(
@@ -28,23 +34,56 @@ const BomsListItemAction = ({ bom}: { bom: BOM }) => {
     },
   });
 
+  const handleEditClick = () => {
+    showDialog({
+      title: 'Edit Bill of Material',
+      content: <BomsForm 
+        bom={bom} 
+        toggleOpen={(open) => !open && hideDialog()}
+        onSuccess={() => {
+          hideDialog();
+          queryClient.invalidateQueries({ queryKey: ['boms'] });
+          onEditSuccess?.();
+        }}
+      />,
+      fullScreen: true,
+      disableBackdropClick: true,
+    });
+  };
+
+  const handleDeleteClick = () => {
+    showDialog({
+      title: 'Confirm BOM Deletion',
+      content: 'Are you sure you want to delete this BOM?',
+      onYes: () => {
+        hideDialog();
+        deleteBom({ id: bom.id });
+      },
+      onNo: () => hideDialog(),
+      variant: 'confirm',
+    });
+  };
+
   const menuItems: MenuItemProps[] = [
-    { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
+    { 
+      icon: <EditOutlined color="primary" />, 
+      title: 'Edit', 
+      action: 'edit' 
+    },
+    { 
+      icon: <DeleteOutlined color="error" />, 
+      title: 'Delete', 
+      action: 'delete' 
+    },
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {
+      case 'edit':
+        handleEditClick();
+        break;
       case 'delete':
-        showDialog({
-          title: 'Confirm BOM Deletion',
-          content: 'Are you sure you want to delete this BOM?',
-          onYes: () => {
-            hideDialog();
-            deleteBom({ id: bom.id ?? 0 });
-          },
-          onNo: () => hideDialog(),
-          variant: 'confirm',
-        });
+        handleDeleteClick();
         break;
       default:
         break;

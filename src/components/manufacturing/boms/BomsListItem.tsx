@@ -34,7 +34,7 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         {/* Product Name */}
         <Grid size={{xs: 12, md: 4}}>
           <Tooltip title="Main Product">
-            <Typography fontWeight="bold">
+            <Typography variant="subtitle1" fontSize={14} noWrap>
               {bom.product?.name ?? '—'}
             </Typography>
           </Tooltip>
