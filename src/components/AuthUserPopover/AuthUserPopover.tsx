@@ -160,19 +160,35 @@ export const AuthUserPopover: React.FC<AuthUserPopoverProps> = ({ dictionary }) 
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenLogoutDialog(false)} color="primary">
-            No
-          </Button>
-          <Button
-            onClick={() => {
-              setOpenLogoutDialog(false);
-              logout();
-            }}
-            color="error"
-            variant="contained"
-          >
-            Yes
-          </Button>
+          <Button 
+          onClick={() => setOpenLogoutDialog(false)} 
+          variant="text" // Changed from 'outlined' to 'text'
+          sx={{
+            color: '#380dfaff',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              backgroundColor: 'rgba(25, 118, 210, 0.04)'
+            }
+          }}
+        >
+          Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setOpenLogoutDialog(false);
+                logout();
+              }}
+              variant="text" // Changed from 'outlined' to 'text'
+              sx={{
+                color: '#380dfaff', // Blue color for logout action
+                backgroundColor: 'transparent',
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                }
+              }}
+            >
+              Logout
+            </Button>
         </DialogActions>
       </Dialog>
     </ThemeProvider>

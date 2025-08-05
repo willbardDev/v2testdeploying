@@ -77,7 +77,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<BomsFormValues>({
     resolver: yupResolver(validationSchema as any),
     defaultValues: {
-      output_quantity: bom?.output_quantity || 1,
+      output_quantity: bom?.output_quantity || '',
       items: bom?.items || [],
     }
   });
@@ -114,27 +114,46 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
   };
 
   const onSubmit = (data: BomsFormValues) => {
-    const finalData = {
-      ...data,
-      output_product_id: outputProduct?.id,
-      items: items.map(item => ({
-        product_id: item.product?.id,
-        quantity: item.quantity,
-        conversion_factor: item.conversion_factor || 1,
-        alternatives: item.alternatives?.map(alt => ({
-          product_id: alt.product?.id,
-          quantity: alt.quantity,
-          conversion_factor: alt.conversion_factor || 1
-        })) || []
-      }))
-    };
-    
-    if (bom) {
-      updateBom(finalData);
-    } else {
-      addBom(finalData);
-    }
+  // Validate all required fields are present
+  if (!outputProduct?.id || items.length === 0) {
+    enqueueSnackbar('Please fill all required fields', { variant: 'error' });
+    return;
+  }
+
+  const finalData = {
+    ...data,
+    output_product_id: outputProduct.id,
+    items: items.map(item => {
+      // Ensure product exists and has id
+      if (!item.product?.id) {
+        throw new Error('Invalid product in items');
+      }
+
+      return {
+        product_id: item.product.id,
+        quantity: Number(item.quantity), // Ensure quantity is a number
+        alternatives: item.alternatives?.map(alt => {
+          // Validate alternative products
+          if (!alt.product?.id) {
+            throw new Error('Invalid product in alternatives');
+          }
+          
+          return {
+            product_id: alt.product.id,
+            quantity: Number(alt.quantity) // Ensure quantity is a number
+          };
+        }) || []
+      };
+    })
   };
+
+  // Submit operation
+  const operation = bom ? updateBom(finalData) : addBom(finalData);
+  
+  operation.catch(error => {
+    enqueueSnackbar(error.message || 'Operation failed', { variant: 'error' });
+  });
+};
 
   return (
     <React.Fragment>
