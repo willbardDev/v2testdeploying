@@ -258,7 +258,7 @@ function Sidebar ({ menus }) {
                     const manufacturingMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.manufacturing);
                     if (manufacturingMenuIndex >= 0) {
                         updatedMenus[manufacturingMenuIndex].children = updatedMenus[manufacturingMenuIndex].children.filter(
-                            child => child.label !== dictionary.sidebar.menuItem.batches
+                            child => child.label !== dictionary.sidebar.menuItem.boms
                         );
                     }
                 }
@@ -279,7 +279,6 @@ function Sidebar ({ menus }) {
                         );
                     }
                 }
-
 
                 //Project Management  > Masters > Product Categories
                 if (!hasProjectMasters) {
@@ -342,7 +341,6 @@ function Sidebar ({ menus }) {
                     }
                 }
 
-
                 //Project Management  > Masters > Product Categories
                 if (!hasProjectMasters) {
                     const projectsMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.projectManagement);
@@ -356,7 +354,6 @@ function Sidebar ({ menus }) {
                     }
                 }
             }
-
 
             if(organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)){
 
