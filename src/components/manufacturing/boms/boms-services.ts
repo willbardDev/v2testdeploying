@@ -26,7 +26,7 @@ bomsServices.add = async (bom: {
   project_id?: number;
 }) => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.post('/api/projectManagement/boms/add', bom);
+  const { data } = await axios.post('/api/manufacturing/boms/add', bom);
   return data;
 };
 
@@ -35,7 +35,7 @@ bomsServices.update = async (
   bom: { id: number; name: string; description?: string; project_id?: number }
 ): Promise<UpdateBOMResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.put(`/api/projectManagement/boms/${bom.id}/update`, bom);
+  const { data } = await axios.put(`/api/manufacturing/boms/${bom.id}/update`, bom);
   return data;
 };
 
@@ -44,7 +44,7 @@ bomsServices.delete = async (
   params: { id: number }
 ): Promise<DeleteBOMResponse> => {
   await axios.get('/sanctum/csrf-cookie');
-  const { data } = await axios.delete(`/api/projectManagement/boms/${params.id}/delete`);
+  const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`);
   return data;
 };
 

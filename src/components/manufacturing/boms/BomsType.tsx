@@ -1,22 +1,37 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
 export interface BOM {
-  id: number;
-  product_id: number;
-  quantity: number;
-
-  product?: {
+   id: number;
+  output_product_id: number;
+  output_quantity: number;
+  organization_id?: number;
+  created_at?: string;
+  updated_at?: string;
+  
+  // Optional expanded relationships
+  output_product?: {
     id: number;
     name: string;
+    measurement_unit_id?: number;
+    measurement_unit?: {
+      id: number;
+      name: string;
+      symbol: string;
+    };
   };
 
   items: BOMItem[];
 }
 
 export interface BOMItem {
-  product_id: number;
-  product?: Product;
+ product_id: number;
   quantity: number;
+  conversion_factor: number;
+  alternatives?: {
+    product_id: number;
+    quantity: number;
+    conversion_factor: number;
+  }[];
 }
 
 // Response types (optional if you want to type responses)
