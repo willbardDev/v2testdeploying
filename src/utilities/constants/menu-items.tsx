@@ -141,7 +141,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
       type: 'section',
       children: [
         {
-          label: 'PoS',
+          label: sidebar.menuItem.sales,
           type: 'collapsible',
           icon: iconMap.counter,
           children: [
