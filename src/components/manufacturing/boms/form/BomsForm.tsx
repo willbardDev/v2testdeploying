@@ -25,7 +25,6 @@ import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import bomsServices from '../boms-services';
 import BomsFormItem from './BomsFormItem';
-import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
 interface BomsFormProps {
@@ -36,11 +35,15 @@ interface BomsFormProps {
 interface BomsFormValues {
   output_product_id?: number;
   output_quantity: number;
-  output_unit_id?: number;
   items: {
     product_id?: number;
     quantity: number;
-    unit_id?: number;
+    conversion_factor: number;
+    alternatives?: {
+      product_id?: number;
+      quantity: number;
+      conversion_factor: number;
+    }[];
   }[];
 }
 
@@ -50,18 +53,23 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
   const queryClient = useQueryClient();
   const [items, setItems] = useState<any[]>(bom?.items || []);
   const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
-  const [outputUnit, setOutputUnit] = useState<MeasurementUnit | null>(bom?.output_unit || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validationSchema = yup.object({
     output_product_id: yup.number().required("Output product is required"),
     output_quantity: yup.number().positive("Quantity is required").required("Quantity is required"),
-    output_unit_id: yup.number().required("Unit is required"),
     items: yup.array().min(1, "At least one input item is required").of(
       yup.object().shape({
         product_id: yup.number().required("Product is required"),
         quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-        unit_id: yup.number().required("Unit is required"),
+        conversion_factor: yup.number().required("Conversion factor is required"),
+        alternatives: yup.array().of(
+          yup.object().shape({
+            product_id: yup.number().required("Product is required"),
+            quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
+            conversion_factor: yup.number().required("Conversion factor is required"),
+          })
+        ),
       })
     ),
   });
@@ -109,11 +117,15 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
     const finalData = {
       ...data,
       output_product_id: outputProduct?.id,
-      output_unit_id: outputUnit?.id,
       items: items.map(item => ({
         product_id: item.product?.id,
         quantity: item.quantity,
-        unit_id: item.unit?.id,
+        conversion_factor: item.conversion_factor || 1,
+        alternatives: item.alternatives?.map(alt => ({
+          product_id: alt.product?.id,
+          quantity: alt.quantity,
+          conversion_factor: alt.conversion_factor || 1
+        })) || []
       }))
     };
     
@@ -139,11 +151,11 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             <Divider />
           </Grid>
           
-          <Grid size= {{xs:12, md:6}}>
+          <Grid size={{xs:12, md:8}}>
             <ProductSelect
               label="Output Product"
               value={outputProduct}
-              onChange={(product) => {
+              onChange={(product: Product | null) => {
                 setOutputProduct(product);
                 setValue('output_product_id', product?.id);
               }}
@@ -152,7 +164,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             />
           </Grid>
           
-         <Grid size= {{xs:6, md:3}}>
+          <Grid size={{xs:12, md:4}}>
             <TextField
               label="Quantity"
               fullWidth
@@ -161,19 +173,6 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
               {...register('output_quantity')}
               error={!!errors.output_quantity}
               helperText={errors.output_quantity?.message}
-            />
-          </Grid>
-          
-          <Grid size= {{xs:6, md:3}}>
-            <MeasurementSelector
-              label="Unit"
-              value={outputUnit}
-              onChange={(unit) => {
-                setOutputUnit(unit);
-                setValue('output_unit_id', unit?.id);
-              }}
-              error={!!errors.output_unit_id}
-              helperText={errors.output_unit_id?.message}
             />
           </Grid>
         </Grid>
