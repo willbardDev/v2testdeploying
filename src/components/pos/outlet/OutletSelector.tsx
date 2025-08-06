@@ -68,17 +68,20 @@ const OutletSelector = ({
       : allOutlet
   );
 
-  // Sync default value or fallback selection on load
   useEffect(() => {
     if (defaultValue !== null) {
       setSelectedOutlet(defaultValue);
       onChange(defaultValue);
+    } else if (rawOutlets.length === 1) {
+      // Automatically select the only outlet
+      setSelectedOutlet(multiple ? [rawOutlets[0]] : rawOutlets[0]);
+      onChange(multiple ? [rawOutlets[0]] : rawOutlets[0]);
     } else {
-      const fallback = multiple ? [] : allOutlet;
+      const fallback = multiple ? [allOutlet] : allOutlet;
       setSelectedOutlet(fallback);
       onChange(fallback);
     }
-  }, [defaultValue, multiple, outlets]); // run when raw data or props change
+  }, [defaultValue, multiple, rawOutlets, allOutlet]);
 
   if (isPending) {
     return <LinearProgress />;

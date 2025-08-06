@@ -5,13 +5,13 @@ import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import productionBatchesServices from './productionBatchesServices';
 import ProductionBatchesForm from './form/ProductionBatchesForm';
-import PDFContent from '../../../../../proserp-front/src/app/prosServices/prosERP/pdf/PDFContent';
 import BatchPDF from './preview/BatchPDF';
 import BatchOnScreen from './preview/BatchOnScreen';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { JumboDdMenu } from '@jumbo/components';
+import PDFContent from '@/components/pdf/PDFContent';
 
 const EditBatch = ({batch, setOpenEditDialog}) => {
   const [isConsumptionDeletedInside, setIsConsumptionDeletedInside] = useState(false)

@@ -5,13 +5,13 @@ import { Alert, Box, Stack } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
-import ProductsSelectProvider from '../../../../../proserp-front/src/app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
 import productionBatchesServices from './productionBatchesServices';
 import ProductionBatchesActionTail from './ProductionBatchesActionTail';
 import ProductionBatchesListItem from './ProductionBatchesListItem';
-import LedgerSelectProvider from '../../../../../proserp-front/src/app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider';
-import CurrencySelectProvider from '../../../../../proserp-front/src/app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
 import { useParams } from 'next/navigation';
+import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 
 export const ProductionBatchesContext = createContext({});
 
