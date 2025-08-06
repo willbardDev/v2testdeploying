@@ -1,6 +1,5 @@
 import { 
   Grid, 
-  IconButton, 
   TextField, 
   Button,
   Divider,
@@ -20,27 +19,25 @@ interface BomsFormItemProps {
 
 const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
   const [product, setProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState<string>('1');
+  const [quantity, setQuantity] = useState<string>(''); // Changed to string and empty initial value
   const [isAdding, setIsAdding] = useState(false);
   const [showAlternatives, setShowAlternatives] = useState(false);
   const [alternatives, setAlternatives] = useState<any[]>([]);
 
   const handleAddItem = () => {
-    if (!product || !quantity) return;
-    
-    setIsAdding(true);
-    
-    const newItem = {
-      product,
-      quantity: Number(quantity),
-      alternatives: [...alternatives]
-    };
-    
-    setItems(prev => [...prev, newItem]);
+  if (!product || !quantity) return;
+  
+  const newItem = {
+    product_id: product.id, // Make sure this matches your form's expected structure
+    quantity: Number(quantity),
+    conversion_factor: 1 // Add if required
+  };
+  
+  setItems(prev => [...prev, newItem]);
     
     // Reset form
     setProduct(null);
-    setQuantity('1');
+    setQuantity(''); // Reset to empty string
     setAlternatives([]);
     setShowAlternatives(false);
     
@@ -59,7 +56,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
     
     // Reset alternative fields
     setProduct(null);
-    setQuantity('1');
+    setQuantity(''); // Reset to empty string
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +103,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
             color="primary"
             size="small"
             onClick={handleAddItem}
-            disabled={!product || isAdding}
+            disabled={!product || !quantity || isAdding} // Added !quantity check
             startIcon={<AddOutlined />}
           >
             Add
@@ -164,7 +161,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({ setItems, items }) => {
                 color="primary"
                 size="small"
                 onClick={handleAddAlternative}
-                disabled={!product}
+                disabled={!product || !quantity} // Added !quantity check
                 startIcon={<AddOutlined />}
               >
                 Add
