@@ -1,9 +1,9 @@
-import ProductionBatchesList from '@/components/production/batches/ProductionBatchesList'
+import ProductionBatches from '@/components/production/batches/ProductionBatches'
 import React from 'react'
 
 function page() {
   return (
-    <ProductionBatchesList/>
+    <ProductionBatches/>
   )
 }
 

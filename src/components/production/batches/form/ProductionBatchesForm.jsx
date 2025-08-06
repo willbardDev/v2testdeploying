@@ -126,27 +126,35 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
         end_date
     }
 
-    const addProduction = useMutation(productionBatchesServices.addProduction,{
+    const addProduction = useMutation({
+        mutationFn: productionBatchesServices.addProduction,
         onSuccess: (data) => {
             toggleOpen(false);
-            enqueueSnackbar(data.message,{variant : 'success'});
-            queryClient.invalidateQueries(['productionBatches']);
+            enqueueSnackbar(data.message, { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['productionBatches'] });
         },
         onError: (error) => {
-            error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-        }
-    })
+            const message = error?.response?.data?.message;
+            if (message) {
+               enqueueSnackbar(message, { variant: 'error' });
+            }
+        },
+    });
 
-    const updateProduction = useMutation(productionBatchesServices.updateProduction,{
+    const updateProduction = useMutation({
+        mutationFn: productionBatchesServices.updateProduction,
         onSuccess: (data) => {
             toggleOpen(false);
-            enqueueSnackbar(data.message,{variant : 'success'});
-            queryClient.invalidateQueries(['productionBatches']);
+            enqueueSnackbar(data.message, { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['productionBatches'] });
         },
         onError: (error) => {
-            error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
-        }
-    })
+            const message = error?.response?.data?.message;
+            if (message) {
+               enqueueSnackbar(message, { variant: 'error' });
+            }
+        },
+    });
 
     const saveMutation = React.useMemo(() => {
         return production ? updateProduction : addProduction
@@ -222,7 +230,7 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                                         />
                                     </Div>
                                 </Grid>
-                                <Grid ssize={{xs: 12, md: 3}}>
+                                <Grid size={{xs: 12, md: 3}}>
                                     <Div sx={{ mt: 0.3 }}>
                                         <DateTimePicker
                                             fullWidth
@@ -247,7 +255,7 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                                         />
                                     </Div>
                                 </Grid>
-                                <Grid size={{xs: 12, md: 6}} paddingTop={2}>
+                                <Grid size={{xs: 12, md: 6}}>
                                     <Div sx={{ mt: 0.3 }}>
                                         <TextField
                                             label="Remarks"

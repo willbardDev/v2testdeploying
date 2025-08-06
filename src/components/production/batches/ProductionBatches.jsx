@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { Autocomplete, Divider, Grid, LinearProgress, Stack, TextField } from '@mui/material';
 import ProductionBatchesList from './ProductionBatchesList';
@@ -10,10 +12,11 @@ function ProductionBatches() {
   const [activeWorkCenter, setActiveWorkCenter] = useState(null);
   const { authUser } = useJumboAuth();
 
-  const { data: workcenters, isFetching } = useQuery(
-    ['userWorkCenters', { userId: authUser?.user?.id, type: 'work center' }],
-    productionBatchesServices.getUserWorkCenters
-  );
+  const { data: workcenters, isPending: isFetching } = useQuery({
+    queryKey: ['userWorkCenters', { userId: authUser?.user?.id, type: 'work center' }],
+    queryFn: productionBatchesServices.getUserWorkCenters,
+    enabled: !!authUser?.user?.id,
+  });
   
   useEffect(() => {
     if (workcenters?.length === 1) {

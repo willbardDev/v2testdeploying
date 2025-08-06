@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import inventoryConsumptionsServices from '@/components/procurement/inventoryConsumptions/inventoryConsumptionsServices';
 
 function InventoryInputsItemRow({ setClearFormKey, submitMainForm, setSubmitItemForm, submitItemForm, setIsDirty, productionDates, inventoryInputs, setInventoryInputs, item, index, setIsConsumptionDeletedInside}) {
   const product = item.product;
@@ -18,14 +19,15 @@ function InventoryInputsItemRow({ setClearFormKey, submitMainForm, setSubmitItem
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
 
-  const deleteInventoryConsumption = useMutation(inventoryConsumptionsServices.delete, {
+  const deleteInventoryConsumption = useMutation({
+    mutationFn: inventoryConsumptionsServices.delete,
     onSuccess: (data) => {
-      setIsConsumptionDeletedInside(true)
+      setIsConsumptionDeletedInside(true);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['showBatchDetails']);
+      queryClient.invalidateQueries({ queryKey: ['showBatchDetails'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
@@ -92,6 +94,7 @@ function InventoryInputsItemRow({ setClearFormKey, submitMainForm, setSubmitItem
                 paddingRight={1}
                 columnSpacing={1}
                 alignItems={'center'}
+                width={'100%'}
                 container 
               >
                 <Grid size={0.5}>
