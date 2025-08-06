@@ -243,6 +243,25 @@ function InvoicePDF({ invoice, organization }: InvoicePDFProps) {
                         </View>
                     )}
                 </View>
+
+                <View style={{ ...pdfStyles.tableRow, marginTop: 15}}>
+                    <View style={{flex: 1, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Prepared By</Text>
+                        <Text style={{...pdfStyles.minInfo, paddingTop: 5 }}>{invoice.creator.name}</Text>
+                    </View>
+                    <View style={{flex: 1, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Received By</Text>
+                        <Text style={{...pdfStyles.minInfo, textDecoration: 'underline', paddingTop: 5}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </Text>
+                    </View>
+                </View>
                 
                 <PageFooter/>
             </Page> 

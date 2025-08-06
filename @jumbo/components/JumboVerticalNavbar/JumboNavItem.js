@@ -122,7 +122,7 @@ const JumboNavItem = ({ item, isNested, translate }) => {
               sx={{
                 ml: 1.4,
                 '& .MuiTypography-root': {
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',

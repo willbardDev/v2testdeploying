@@ -10,6 +10,7 @@ import { AuthObject } from '@/types/auth-types';
 interface PriceItem {
   id: number;
   price: number;
+  bottom_cap: number;
   product: {
     name: string;
     vat_exempted?: boolean;
@@ -127,6 +128,14 @@ const PriceListPDF: React.FC<PriceListPDFProps> = ({
               ...pdfStyles.midInfo, 
               backgroundColor: mainColor, 
               color: contrastText, 
+              flex: 1.2
+            }}>Bottom Cap</Text>
+            <Text style={{ 
+              ...pdfStyles.tableCell, 
+              ...pdfStyles.tableHeader, 
+              ...pdfStyles.midInfo, 
+              backgroundColor: mainColor, 
+              color: contrastText, 
               flex: 2 
             }}>Applicable Outlets</Text>
           </View>
@@ -171,6 +180,14 @@ const PriceListPDF: React.FC<PriceListPDFProps> = ({
                   </Text>
                 </>
               )}
+              <Text style={{ 
+                ...pdfStyles.tableCell, 
+                backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, 
+                flex: 1.2, 
+                textAlign: 'right' 
+              }}>
+                {priceItem.bottom_cap}
+              </Text>
               <Text style={{ 
                 ...pdfStyles.tableCell, 
                 backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, 

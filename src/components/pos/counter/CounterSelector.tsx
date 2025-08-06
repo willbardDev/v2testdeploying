@@ -1,3 +1,5 @@
+'use client'
+
 import {
     Autocomplete,
     Divider,
@@ -47,6 +49,13 @@ const CounterSelector = () => {
     const [counters, setCounters] = useState<Counter[]>([]);
     const { activeCounter, setActiveCounter, setOutlet } = useCounter();
 
+    // Determine selected outlet from activeCounter
+    const selectedOutlet = useMemo(() => {
+        return outlets.find(
+            o => o.id === activeCounter?.id || o.counters?.some(c => c.id === activeCounter?.id)
+        ) || null;
+    }, [outlets, activeCounter]);
+
     // Set initial outlet and counter
     useEffect(() => {
         if (rawOutlets.length === 1) {
@@ -66,13 +75,6 @@ const CounterSelector = () => {
     if (isFetching) {
         return <LinearProgress />;
     }
-
-    // Determine selected outlet from activeCounter
-    const selectedOutlet = useMemo(() => {
-        return outlets.find(
-            o => o.id === activeCounter?.id || o.counters?.some(c => c.id === activeCounter?.id)
-        ) || null;
-    }, [outlets, activeCounter]);
 
     return (
         <Grid container padding={1} spacing={2} justifyContent="center">
