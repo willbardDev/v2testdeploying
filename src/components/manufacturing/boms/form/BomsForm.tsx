@@ -1,3 +1,4 @@
+
 import { 
   Alert, 
   Button, 
@@ -18,7 +19,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomsFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
@@ -29,7 +30,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 interface BomsFormProps {
   toggleOpen: (open: boolean) => void;
   bom?: any;
-  onSuccess?: () => void; 
+  onSuccess?: () => void;
 }
 
 interface BomsFormValues {
@@ -38,22 +39,23 @@ interface BomsFormValues {
   items: {
     product_id?: number;
     quantity: number;
-    conversion_factor: number;
     alternatives?: {
       product_id?: number;
       quantity: number;
-      conversion_factor: number;
     }[];
   }[];
 }
 
-function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
+function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   const { authOrganization } = useJumboAuth();
+  const organization = authOrganization?.organization;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<any[]>(bom?.items || []);
   const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [clearFormKey, setClearFormKey] = useState(0);
 
   const validationSchema = yup.object({
     output_product_id: yup.number().required("Output product is required"),
@@ -62,112 +64,95 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
       yup.object().shape({
         product_id: yup.number().required("Product is required"),
         quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-        conversion_factor: yup.number().required("Conversion factor is required"),
         alternatives: yup.array().of(
           yup.object().shape({
             product_id: yup.number().required("Product is required"),
             quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-            conversion_factor: yup.number().required("Conversion factor is required"),
           })
         ),
       })
     ),
   });
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<BomsFormValues>({
+  const { register, handleSubmit, setValue, formState: { errors, isDirty } } = useForm<BomsFormValues>({
     resolver: yupResolver(validationSchema as any),
     defaultValues: {
+      output_product_id: bom?.output_product?.id || null,
       output_quantity: bom?.output_quantity || '',
       items: bom?.items || [],
     }
   });
 
-  const addBom = async (data: BomsFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const response = await bomsServices.add({
-        ...data,
-        organization_id: authOrganization?.organization.id,
-      });
-      enqueueSnackbar(response.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['boms'] });
+  // Mutation for adding a new BOM
+  const addBomMutation = useMutation({
+    mutationFn: bomsServices.add,
+    onSuccess: (data) => {
       toggleOpen(false);
-    } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to create BOM', { variant: 'error' });
-    } finally {
-      setIsSubmitting(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
     }
-  };
+  });
 
-  const updateBom = async (data: BomsFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const response = await bomsServices.update(bom.id, data);
-      enqueueSnackbar(response.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['boms'] });
-      toggleOpen(false);
-    } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Wrapped mutation function that accepts a single object
+const updateBomMutation = useMutation({
+  mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
+  onSuccess: (data) => {
+    toggleOpen(false);
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['boms'] });
+    onSuccess?.();
+  },
+  onError: (error: any) => {
+    enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
+  }
+});
 
   const onSubmit = (data: BomsFormValues) => {
-  // Validate all required fields are present
-  if (!outputProduct?.id || items.length === 0) {
-    enqueueSnackbar('Please fill all required fields', { variant: 'error' });
+  if (items.length === 0) {
+    setValue('items', [], { shouldValidate: true });
     return;
   }
 
-  const finalData = {
+  const payload: BomsFormValues = {
     ...data,
-    output_product_id: outputProduct.id,
-    items: items.map(item => {
-      // Ensure product exists and has id
-      if (!item.product?.id) {
-        throw new Error('Invalid product in items');
-      }
-
-      return {
-        product_id: item.product.id,
-        quantity: Number(item.quantity), // Ensure quantity is a number
-        alternatives: item.alternatives?.map(alt => {
-          // Validate alternative products
-          if (!alt.product?.id) {
-            throw new Error('Invalid product in alternatives');
-          }
-          
-          return {
-            product_id: alt.product.id,
-            quantity: Number(alt.quantity) // Ensure quantity is a number
-          };
-        }) || []
-      };
-    })
+    items: items.map(item => ({
+      ...item,
+      product_id: item.product?.id || item.product_id,
+      alternatives: item.alternatives?.map(alt => ({
+        ...alt,
+        product_id: alt.product?.id || alt.product_id
+      }))
+    })),
+    output_product_id: outputProduct?.id || data.output_product_id
   };
 
-  // Submit operation
-  const operation = bom ? updateBom(finalData) : addBom(finalData);
-  
-  operation.catch(error => {
-    enqueueSnackbar(error.message || 'Operation failed', { variant: 'error' });
-  });
+  if (bom) {
+    updateBomMutation.mutate({
+      id: bom.id,
+      bom: payload
+    });
+  } else {
+    addBomMutation.mutate({
+      ...payload,
+      organization_id: organization?.id,
+    });
+  }
 };
+
 
   return (
     <React.Fragment>
       <DialogTitle>
         <Typography variant="h4" textAlign="center" mb={2}>
-          {bom ? 'Edit Bill of Material' : 'New Bill of Material'}
+          {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
         
         <Grid container spacing={2} mb={3}>
           <Grid size={12}>
-            <Typography variant="h6" gutterBottom>
-              Output Product
-            </Typography>
-            <Divider />
           </Grid>
           
           <Grid size={{xs: 12, md: 8}}>
@@ -189,23 +174,20 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
               fullWidth
               size="small"
               type="number"
+              {...register('output_quantity')}
+              error={!!errors.output_quantity}
+              helperText={errors.output_quantity?.message}
               inputProps={{
                 inputMode: 'numeric',
                 pattern: '[0-9]*',
                 step: 'any'
               }}
-              {...register('output_quantity')}
-              error={!!errors.output_quantity}
-              helperText={errors.output_quantity?.message}
             />
           </Grid>
         </Grid>
         
         <Grid container spacing={2}>
           <Grid size={12}>
-            <Typography variant="h6" gutterBottom>
-              Input Products
-            </Typography>
             <Divider />
           </Grid>
           
@@ -213,6 +195,11 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             <BomsFormItem 
               setItems={setItems}
               items={items}
+              key={clearFormKey} 
+              setClearFormKey={setClearFormKey}
+              setSubmitItemForm={setSubmitItemForm}
+              submitItemForm={submitItemForm} 
+              submitMainForm={handleSubmit((data) => saveMutation(data))}
             />
           </Grid>
           
@@ -225,11 +212,15 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
             
             {items.map((item, index) => (
               <BomsFormRow
-                key={index}
-                item={item}
-                index={index}
-                items={items}
-                setItems={setItems}
+               key={index}
+               index={index}
+               item={item as any}
+               items={items as any}
+               setItems={setItems as any}
+               setClearFormKey={setClearFormKey}
+               submitMainForm={handleSubmit((data) => saveMutation(data))}
+               submitItemForm={submitItemForm}
+               setSubmitItemForm={setSubmitItemForm}
               />
             ))}
           </Grid>
@@ -245,6 +236,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
           size="small" 
           onClick={() => toggleOpen(false)}
           disabled={isSubmitting}
+          variant="outlined"
         >
           Cancel
         </Button>
@@ -253,6 +245,7 @@ function BomsForm({ toggleOpen, bom = null }: BomsFormProps) {
           size="small"
           onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
+          
         >
           {bom ? 'Update' : 'Create'} BOM
         </Button>

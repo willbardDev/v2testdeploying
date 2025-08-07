@@ -37,16 +37,19 @@ const BomsListItemAction = ({ bom, onEditSuccess }: BomsListItemActionProps) => 
   const handleEditClick = () => {
     showDialog({
       title: 'Edit Bill of Material',
-      content: <BomsForm 
-        bom={bom} 
-        toggleOpen={(open) => !open && hideDialog()}
-        onSuccess={() => {
-          hideDialog();
-          queryClient.invalidateQueries({ queryKey: ['boms'] });
-          onEditSuccess?.();
-        }}
-      />,
-      fullScreen: true,
+      content: (
+        <BomsForm
+          bom={bom}
+          toggleOpen={(open) => !open && hideDialog()}
+          onSuccess={() => {
+            hideDialog();
+            queryClient.invalidateQueries({ queryKey: ['boms'] });
+            onEditSuccess?.();
+          }}
+        />
+      ),
+      maxWidth: 'md',          // ✅ Medium width
+      fullWidth: true,         // ✅ Stretch to full width of 'md'
       disableBackdropClick: true,
     });
   };
