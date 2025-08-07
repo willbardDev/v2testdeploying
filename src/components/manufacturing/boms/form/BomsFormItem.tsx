@@ -30,6 +30,7 @@ interface FormValues {
   quantity: number;
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
+  conversion_factor?: number | null; // ✅ Add this conversion_factor?: number | null; // ✅ Add this
 }
 
 interface BomsFormItemProps {
@@ -71,225 +72,182 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
   const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
   const { checkOrganizationPermission } = useJumboAuth();
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
-  const [selectedUnit, setSelectedUnit] = useState<number | null>(
-    item ? item.measurement_unit_id ?? item.measurement_unit?.id ?? null : null
-  );
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null);
   const [isAdding, setIsAdding] = useState(false);
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema)as any,
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       product: item?.product ?? null,
       quantity: item?.quantity ?? 0,
       measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
-      unit_symbol: item?.unit_symbol ?? item?.measurement_unit?.unit_symbol ?? null
+      unit_symbol: item?.unit_symbol ?? item?.measurement_unit?.unit_symbol ?? null,
+      conversion_factor: item?.product?.primary_unit?.conversion_factor ?? 1,
     }
   });
 
-  useEffect(() => {
-    if (addedProduct?.id) {
-      setValue('product', addedProduct);
-      setValue('measurement_unit_id', addedProduct.measurement_unit_id);
-      setValue('unit_symbol', addedProduct.measurement_unit?.unit_symbol ?? '');
-      setSelectedUnit(addedProduct.measurement_unit_id);
-      setOpenProductQuickAdd(false);
-    }
-  }, [addedProduct, setValue]);
+  const product = watch('product') as Product | undefined;
 
+  const combinedUnits: MeasurementUnit[] = [
+    ...(product?.secondary_units || []),
+    ...(product?.primary_unit ? [product.primary_unit] : []),
+  ];
+
+  // ✅ Handle adding or editing item
   const updateItems: SubmitHandler<FormValues> = async (data) => {
     setIsAdding(true);
-    const product = watch('product');
+
     const newItem = {
       ...data,
-      product_id: product?.id,
+      product_id: data.product?.id,
       measurement_unit_id: selectedUnit,
-      unit_symbol: watch('unit_symbol'),
+      unit_symbol: data.unit_symbol,
     };
 
     if (index > -1) {
       const updatedItems = [...items];
       updatedItems[index] = newItem;
       await setItems(updatedItems);
-      setClearFormKey((prevKey) => prevKey + 1);
     } else {
-      await setItems((prevItems) => [...prevItems, newItem]);
-      if (submitItemForm) {
-        submitMainForm();
-      }
-      setSubmitItemForm(false);
-      setClearFormKey((prevKey) => prevKey + 1);
+      await setItems(prev => [...prev, newItem]);
     }
 
-    reset();
+    setClearFormKey(k => k + 1);
+    setSubmitItemForm(false);
     setIsAdding(false);
-    setShowForm && setShowForm(false);
+    reset();
+    setShowForm?.(false);
+
+    if (!index && submitItemForm) {
+      submitMainForm();
+    }
   };
 
+  // ✅ Auto-submit form when submitItemForm is triggered from parent
   useEffect(() => {
     if (submitItemForm) {
-      handleSubmit(updateItems, () => {
-        setSubmitItemForm(false);
-      })();
+      handleSubmit(updateItems, () => setSubmitItemForm(false))();
     }
   }, [submitItemForm]);
 
-  if (isAdding) {
-    return <LinearProgress />;
-  }
+  // ✅ Watch product changes (esp. after quick add)
+  useEffect(() => {
+    if (addedProduct) {
+      const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
+      const unitSymbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.unit_symbol ?? '';
 
-  const product = watch('product') as Product | undefined;
-  const combinedUnits: MeasurementUnit[] = [
-    ...(product?.secondary_units?.map((unit) => ({
-      id: unit.id,
-      name: unit.name ?? unit.unit_symbol,
-      unit_symbol: unit.unit_symbol,
-      conversion_factor: unit.conversion_factor,
-    })) ?? []),
-    ...(product?.primary_unit
-      ? [{
-        id: product.primary_unit.id,
-        name: product.primary_unit.name ?? product.primary_unit.unit_symbol,
-        unit_symbol: product.primary_unit.unit_symbol,
-        conversion_factor: undefined,
-      }]
-      : []),
-  ];
+      setValue('product', addedProduct);
+      setValue('product_id', addedProduct.id);
+      setValue('measurement_unit_id', unitId);
+      setValue('unit_symbol', unitSymbol);
+      setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
+      setSelectedUnit(unitId);
+      setOpenProductQuickAdd(false);
+    }
+  }, [addedProduct]);
+
+  if (isAdding) return <LinearProgress />;
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit(updateItems)}>
-          <>
-            <Grid container spacing={2} alignItems="flex-end" mb={2}>
-              <Grid size={{xs:12, md:8}}>
-                <ProductSelect
-                  label="Input Product"
-                  frontError={errors.product}
-                  defaultValue={item?.product}
-                  addedProduct={addedProduct}
-                  onChange={(newValue: Product | null) => {
-                    if (newValue) {
-                      setValue('product', newValue, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
-                      setAddedProduct(null);
-                      setSelectedUnit(newValue.primary_unit ? newValue.primary_unit.id : newValue.measurement_unit_id);
-                      setValue('measurement_unit_id', newValue.primary_unit ? newValue.primary_unit.id : newValue.measurement_unit_id);
-                      setValue('unit_symbol', newValue.primary_unit ? newValue.primary_unit.unit_symbol : newValue.measurement_unit?.unit_symbol ?? '');
-                      setValue('product_id', newValue.id);
-                    } else {
-                      setValue('product', null, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
-                      setSelectedUnit(null);
-                      setValue('measurement_unit_id', null);
-                      setValue('unit_symbol', '');
-                      setValue('product_id', undefined);
-                    }
-                  }}
-                  startAdornment={
-                    checkOrganizationPermission(['products_create']) && (
-                      <Tooltip title="Add New Product">
-                        <AddOutlined
-                          onClick={() => setOpenProductQuickAdd(true)}
-                          sx={{ cursor: 'pointer' }}
-                        />
-                      </Tooltip>
-                    )
-                  }
-                />
-              </Grid>
-              
-              <Grid size={{xs:12, md:4}}>
-                <TextField
-                  label="Quantity"
-                  fullWidth
-                  size="small"
-                  defaultValue={item?.quantity}
-                  InputProps={{
-                    inputComponent: CommaSeparatedField,
-                    endAdornment: product && selectedUnit && (
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <FormControl fullWidth>
-                          <Select
-                            value={selectedUnit ?? ''}
-                            onChange={(e) => {
-                              const selectedUnitId = e.target.value as number;
-                              setSelectedUnit(selectedUnitId);
-                              const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                              if (selectedUnit) {
-                                setValue('measurement_unit_id', selectedUnit.id);
-                                setValue('unit_symbol', selectedUnit.unit_symbol);
-                              }
-                            }}
-                            variant="standard"
-                            size="small"
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  borderRadius: 0,
-                                },
-                              },
-                            }}
-                          >
-                            {combinedUnits.map((unit: MeasurementUnit) => (
-                              <MenuItem key={unit.id} value={unit.id}>
-                                {unit.unit_symbol}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </div>
-                    ),
-                  }}
-                  error={!!errors.quantity}
-                  helperText={errors.quantity?.message}
-                  {...register('quantity')}
-                />
-              </Grid>
-            </Grid>
+    <form onSubmit={handleSubmit(updateItems)} autoComplete="off">
+      <Grid container spacing={2} alignItems="flex-end" mb={2}>
+        {/* Product Selector */}
+        <Grid size={{xs:12, md:8}}>
+          <ProductSelect
+            label="Input Product"
+            frontError={errors.product}
+            defaultValue={item?.product}
+            addedProduct={addedProduct}
+            onChange={(newValue: Product | null) => {
+              if (newValue) {
+                const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                const unitSymbol = newValue.primary_unit?.unit_symbol ?? newValue.measurement_unit?.unit_symbol ?? '';
 
-            <Grid size={{xs:12, md:12}} textAlign={'end'}>
-              <Button
-                variant="contained"
-                size="small"
-                type="submit"
-                onClick={() => {
-                  setAddedProduct(null);
-                }}
-              >
-                {item ? (
-                  <>
-                    <CheckOutlined fontSize="small" /> Done
-                  </>
-                ) : (
-                  <>
-                    <AddOutlined fontSize="small" /> Add
-                  </>
-                )}
-              </Button>
-              {item && (
-                <Tooltip title="Close Edit">
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setShowForm && setShowForm(false);
-                    }}
-                  >
-                    <DisabledByDefault fontSize="small" color="success" />
-                  </IconButton>
+                setValue('product', newValue, { shouldValidate: true, shouldDirty: true });
+                setValue('product_id', newValue.id);
+                setValue('measurement_unit_id', unitId);
+                setValue('unit_symbol', unitSymbol);
+                setValue('conversion_factor', newValue.primary_unit?.conversion_factor ?? 1);
+                setSelectedUnit(unitId);
+              } else {
+                setValue('product', null);
+                setSelectedUnit(null);
+              }
+            }}
+            startAdornment={
+              checkOrganizationPermission(['products_create']) && (
+                <Tooltip title="Add New Product">
+                  <AddOutlined onClick={() => setOpenProductQuickAdd(true)} sx={{ cursor: 'pointer' }} />
                 </Tooltip>
-              )}
-            </Grid>
-          </>
-        
-        
-        {openProductQuickAdd && (
-          <ProductQuickAdd 
-            setOpen={setOpenProductQuickAdd} 
-            setAddedProduct={setAddedProduct} 
+              )
+            }
           />
+        </Grid>
+
+        {/* Quantity + Units */}
+        <Grid size={{xs:12, md:4}}>
+          <TextField
+            label="Quantity"
+            fullWidth
+            size="small"
+            {...register('quantity')}
+            InputProps={{
+              inputComponent: CommaSeparatedField,
+              endAdornment: product && selectedUnit && (
+                <FormControl fullWidth>
+                  <Select
+                    value={selectedUnit}
+                    onChange={(e) => {
+                      const unitId = e.target.value as number;
+                      setSelectedUnit(unitId);
+                      const unit = combinedUnits.find((u) => u.id === unitId);
+                      if (unit) {
+                        setValue('measurement_unit_id', unit.id);
+                        setValue('unit_symbol', unit.unit_symbol);
+                        setValue('conversion_factor', unit.conversion_factor ?? 1);
+                      }
+                    }}
+                    variant="standard"
+                    size="small"
+                  >
+                    {combinedUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.unit_symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ),
+            }}
+            error={!!errors.quantity}
+            helperText={errors.quantity?.message}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Actions */}
+      <Grid size={12} textAlign="right">
+        <Button
+          variant="contained"
+          size="small"
+          type="submit"
+          onClick={() => setAddedProduct(null)}
+        >
+          {item ? <><CheckOutlined fontSize="small" /> Done</> : <><AddOutlined fontSize="small" /> Add</>}
+        </Button>
+        {item && (
+          <Tooltip title="Close Edit">
+            <IconButton size="small" onClick={() => setShowForm?.(false)}>
+              <DisabledByDefault fontSize="small" color="success" />
+            </IconButton>
+          </Tooltip>
         )}
+      </Grid>
+
+      {/* Quick Add Dialog */}
+      {openProductQuickAdd && (
+        <ProductQuickAdd setOpen={setOpenProductQuickAdd} setAddedProduct={setAddedProduct} />
+      )}
     </form>
   );
 };

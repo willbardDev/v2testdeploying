@@ -20,6 +20,10 @@ interface BomsFormRowProps {
   index: number;
   items: any[];
   setItems: React.Dispatch<React.SetStateAction<any[]>>;
+  setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
+  submitMainForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
+  submitItemForm: boolean;
+  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const BomsFormRow: React.FC<BomsFormRowProps> = ({ 
@@ -181,17 +185,6 @@ const BomsFormItemEditor: React.FC<{
             type="number"
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
-          />
-        </Grid>
-        
-        <Grid size={{xs:5, md:3}}>
-          <TextField
-            label="Conversion Factor"
-            fullWidth
-            size="small"
-            type="number"
-            value={conversionFactor}
-            onChange={(e) => setConversionFactor(Number(e.target.value))}
           />
         </Grid>
         

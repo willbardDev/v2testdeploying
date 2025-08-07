@@ -1,24 +1,22 @@
-
-import { 
-  Alert, 
-  Button, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogTitle, 
-  Divider, 
-  Grid, 
-  IconButton, 
-  LinearProgress, 
-  TextField, 
-  Typography 
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  LinearProgress,
+  TextField,
+  Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
-import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomsFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
@@ -47,8 +45,6 @@ interface BomsFormValues {
 }
 
 function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
-  const { authOrganization } = useJumboAuth();
-  const organization = authOrganization?.organization;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<any[]>(bom?.items || []);
@@ -74,7 +70,7 @@ function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     ),
   });
 
-  const { register, handleSubmit, setValue, formState: { errors, isDirty } } = useForm<BomsFormValues>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<BomsFormValues>({
     resolver: yupResolver(validationSchema as any),
     defaultValues: {
       output_product_id: bom?.output_product?.id || null,
@@ -83,7 +79,6 @@ function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   });
 
-  // Mutation for adding a new BOM
   const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
     onSuccess: (data) => {
@@ -97,52 +92,44 @@ function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   });
 
-  // Wrapped mutation function that accepts a single object
-const updateBomMutation = useMutation({
-  mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
-  onSuccess: (data) => {
-    toggleOpen(false);
-    enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['boms'] });
-    onSuccess?.();
-  },
-  onError: (error: any) => {
-    enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
-  }
-});
+  const updateBomMutation = useMutation({
+    mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
+    onSuccess: (data) => {
+      toggleOpen(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
+    }
+  });
 
   const onSubmit = (data: BomsFormValues) => {
-  if (items.length === 0) {
-    setValue('items', [], { shouldValidate: true });
-    return;
-  }
+    if (items.length === 0) {
+      setValue('items', [], { shouldValidate: true });
+      return;
+    }
 
-  const payload: BomsFormValues = {
-    ...data,
-    items: items.map(item => ({
-      ...item,
-      product_id: item.product?.id || item.product_id,
-      alternatives: item.alternatives?.map(alt => ({
-        ...alt,
-        product_id: alt.product?.id || alt.product_id
-      }))
-    })),
-    output_product_id: outputProduct?.id || data.output_product_id
+    const payload: BomsFormValues = {
+      ...data,
+      items: items.map(item => ({
+        ...item,
+        product_id: item.product?.id || item.product_id,
+        alternatives: item.alternatives?.map(alt => ({
+          ...alt,
+          product_id: alt.product?.id || alt.product_id
+        }))
+      })),
+      output_product_id: outputProduct?.id || data.output_product_id
+    };
+
+    if (bom) {
+      updateBomMutation.mutate({ id: bom.id, bom: payload });
+    } else {
+      addBomMutation.mutate(payload);
+    }
   };
-
-  if (bom) {
-    updateBomMutation.mutate({
-      id: bom.id,
-      bom: payload
-    });
-  } else {
-    addBomMutation.mutate({
-      ...payload,
-      organization_id: organization?.id,
-    });
-  }
-};
-
 
   return (
     <React.Fragment>
@@ -150,12 +137,9 @@ const updateBomMutation = useMutation({
         <Typography variant="h4" textAlign="center" mb={2}>
           {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
-        
+
         <Grid container spacing={2} mb={3}>
-          <Grid size={12}>
-          </Grid>
-          
-          <Grid size={{xs: 12, md: 8}}>
+          <Grid size={{xs:12, md:8}}>
             <ProductSelect
               label="Output Product"
               value={outputProduct}
@@ -167,8 +151,8 @@ const updateBomMutation = useMutation({
               helperText={errors.output_product_id?.message}
             />
           </Grid>
-          
-          <Grid size={{xs: 12, md: 4}}>
+
+          <Grid size={{xs:12, md:4}}>
             <TextField
               label="Quantity"
               fullWidth
@@ -185,55 +169,55 @@ const updateBomMutation = useMutation({
             />
           </Grid>
         </Grid>
-        
+
         <Grid container spacing={2}>
           <Grid size={12}>
             <Divider />
           </Grid>
-          
+
           <Grid size={12}>
-            <BomsFormItem 
+            <BomsFormItem
               setItems={setItems}
               items={items}
-              key={clearFormKey} 
+              key={clearFormKey}
               setClearFormKey={setClearFormKey}
               setSubmitItemForm={setSubmitItemForm}
-              submitItemForm={submitItemForm} 
-              submitMainForm={handleSubmit((data) => saveMutation(data))}
+              submitItemForm={submitItemForm}
+              submitMainForm={handleSubmit(onSubmit)}
             />
           </Grid>
-          
+
           <Grid size={12}>
             {errors.items?.message && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {errors.items.message}
               </Alert>
             )}
-            
+
             {items.map((item, index) => (
               <BomsFormRow
-               key={index}
-               index={index}
-               item={item as any}
-               items={items as any}
-               setItems={setItems as any}
-               setClearFormKey={setClearFormKey}
-               submitMainForm={handleSubmit((data) => saveMutation(data))}
-               submitItemForm={submitItemForm}
-               setSubmitItemForm={setSubmitItemForm}
+                key={index}
+                index={index}
+                item={item as any}
+                items={items as any}
+                setItems={setItems as any}
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit(onSubmit)}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
               />
             ))}
           </Grid>
         </Grid>
       </DialogTitle>
-      
+
       <DialogContent>
         {isSubmitting && <LinearProgress />}
       </DialogContent>
-      
+
       <DialogActions>
-        <Button 
-          size="small" 
+        <Button
+          size="small"
           onClick={() => toggleOpen(false)}
           disabled={isSubmitting}
           variant="outlined"
@@ -245,9 +229,8 @@ const updateBomMutation = useMutation({
           size="small"
           onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
-          
         >
-          {bom ? 'Update' : 'Create'} BOM
+          {bom ? 'Update' : 'submit'}
         </Button>
       </DialogActions>
     </React.Fragment>

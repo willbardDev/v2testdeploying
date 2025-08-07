@@ -37,10 +37,16 @@ const bomsServices = {
 
   // ✅ Add a new BOM (Header only – no output product/items here)
   add: async (bom: {
-    name: string;
-    description?: string;
-    project_id?: number;
-    organization_id?: number;
+   output_product_id?: number;
+  output_quantity: number;
+  items: {
+    product_id?: number;
+    quantity: number;
+    alternatives?: {
+      product_id?: number;
+      quantity: number;
+    }[][];
+  }[];
   }): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.post('/api/manufacturing/boms/add', bom);
