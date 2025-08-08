@@ -174,12 +174,23 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
         if (isDirty) {
             setShowWarning(true);
         } else {
-        handleSubmit((data) => {   
-            const updatedData = {
-                ...data,
-            };
-            saveMutation.mutate(updatedData);
-        })();
+            if (submitType === 'close') {
+                if (outputs.length > 0) {
+                    handleSubmit((data) => {
+                        const updatedData = {
+                            ...data,
+                        };
+                        saveMutation.mutate(updatedData);
+                    })();
+                }
+            } else {
+                handleSubmit((data) => {
+                    const updatedData = {
+                        ...data,
+                    };
+                    saveMutation.mutate(updatedData);
+                })();
+            }
         }
     };
     
@@ -383,26 +394,26 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
             <DialogActions>
                 <Button size="small" onClick={() => toggleOpen(false)}>Cancel</Button>
                 {
-                activeTab > 0 &&
-                <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => (activeTab-1))}>
-                    <KeyboardArrowLeftOutlined/>
-                    Previous
-                </Button>
+                    activeTab > 0 &&
+                    <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => (activeTab-1))}>
+                        <KeyboardArrowLeftOutlined/>
+                        Previous
+                    </Button>
                 }
                 {
-                activeTab < 4 &&
-                <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => activeTab+1)}>
-                    Next
-                    <KeyboardArrowRightOutlined/>
-                </Button>
+                    activeTab < 4 &&
+                    <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => activeTab+1)}>
+                        Next
+                        <KeyboardArrowRightOutlined/>
+                    </Button>
                 }
                 <LoadingButton
                     loading={addProduction.isPending || updateProduction.isPending}
                     size="small"
                     variant="contained"
-                    onClick={() => {
+                    onClick={async () => {
                         setValue('submit_type', 'suspend');
-                        handleSubmit(onSubmit)();
+                        await handleSubmit(onSubmit)();
                     }}
                 >
                     Initiate
@@ -412,9 +423,9 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                     variant="contained"
                     color="success"
                     size="small"
-                    onClick={() => {
+                    onClick={async () => {
                         setValue('submit_type', 'close');
-                        handleSubmit(onSubmit)();
+                        await handleSubmit(onSubmit)();
                     }}
                 >
                     Close

@@ -1,9 +1,10 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import ListItemButton from "@mui/material/ListItemButton";
-import { ListItemIcon, ListItemText } from "@mui/material";
+import ListItemButton from '@mui/material/ListItemButton';
+import { ListItemIcon, ListItemText } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SIDEBAR_VIEWS } from '@jumbo/utilities/constants';
@@ -27,8 +28,8 @@ const JumboNavItem = ({ item, isNested, translate }) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { sidebarOptions, setSidebarOptions } = useJumboLayout();
-  const isMobile = deviceType() === 'mobile';
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const isMiniAndClosed = React.useMemo(() => {
     return sidebarOptions?.view === SIDEBAR_VIEWS.MINI && !sidebarOptions?.open;
@@ -49,6 +50,10 @@ const JumboNavItem = ({ item, isNested, translate }) => {
   };
 
   useEffect(() => {
+    setIsMobile(deviceType() === 'mobile');
+  }, []);
+
+  useEffect(() => {
     setIsLoading(false);
   }, [pathname]);
 
@@ -57,7 +62,7 @@ const JumboNavItem = ({ item, isNested, translate }) => {
   return (
     <>
       <ListItemButton
-        component={"li"}
+        component="li"
         onClick={handleClick}
         sx={{
           p: 0,
@@ -67,25 +72,31 @@ const JumboNavItem = ({ item, isNested, translate }) => {
           ...(isMiniAndClosed ? { width: 40, height: 40, justifyContent: 'center' } : {}),
           ...(!isMiniAndClosed ? { '&::before': menuBefore } : {}),
           '&:hover': {
-            color: theme => theme.jumboComponents.JumboNavbar.nav.action?.hover,
-            backgroundColor: theme => theme.jumboComponents.JumboNavbar.nav.background.hover,
-            ...(!isMiniAndClosed ? {
-              '&::before': {
-                ...menuBefore,
-                backgroundColor: theme => theme.jumboComponents.JumboNavbar.nav.tick.hover,
-              }
-            } : {})
+            color: (theme) => theme.jumboComponents.JumboNavbar.nav.action?.hover,
+            backgroundColor: (theme) => theme.jumboComponents.JumboNavbar.nav.background.hover,
+            ...(!isMiniAndClosed
+              ? {
+                  '&::before': {
+                    ...menuBefore,
+                    backgroundColor: (theme) => theme.jumboComponents.JumboNavbar.nav.tick.hover,
+                  },
+                }
+              : {}),
           },
-          ...(pathname === item.uri ? {
-            color: theme => theme.jumboComponents.JumboNavbar.nav.action?.active,
-            backgroundColor: theme => theme.jumboComponents.JumboNavbar.nav.background.active,
-            ...(!isMiniAndClosed ? {
-              '&::before': {
-                ...menuBefore,
-                backgroundColor: theme => theme.jumboComponents.JumboNavbar.nav.tick.active,
+          ...(pathname === item.uri
+            ? {
+                color: (theme) => theme.jumboComponents.JumboNavbar.nav.action?.active,
+                backgroundColor: (theme) => theme.jumboComponents.JumboNavbar.nav.background.active,
+                ...(!isMiniAndClosed
+                  ? {
+                      '&::before': {
+                        ...menuBefore,
+                        backgroundColor: (theme) => theme.jumboComponents.JumboNavbar.nav.tick.active,
+                      },
+                    }
+                  : {}),
               }
-            } : {})
-          } : {}),
+            : {}),
           ...(isLoading && {
             opacity: 0.7,
             pointerEvents: 'none',

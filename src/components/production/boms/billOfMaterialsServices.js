@@ -15,12 +15,12 @@ billOfMaterialsServices.getList = async ({queryKey}) => {
 };
 
 billOfMaterialsServices.getBOMs = async() => {
-    const {data} = await axios.get(`bom-options`)
+    const {data} = await axios.get(`/api/manufacturing/boms/getBOMs`)
     return data;
 }
 
 billOfMaterialsServices.billOfMaterialDetails = async (id) => {
-    const {data} = await axios.get(`/boms/${id}`);
+    const {data} = await axios.get(`/api/manufacturing/boms/${id}/billOfMaterialDetails`);
     return data;
 }
 

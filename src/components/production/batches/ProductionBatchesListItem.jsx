@@ -18,6 +18,7 @@ const ProductionBatchesListItem = ({ batch }) => {
           bgcolor: 'action.hover',
         },
         paddingTop: 2,
+        paddingBottom:1,
         paddingRight:2,
     }}
     >
