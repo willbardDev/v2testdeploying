@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -70,14 +70,32 @@ function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     ),
   });
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<BomsFormValues>({
-    resolver: yupResolver(validationSchema as any),
-    defaultValues: {
-      output_product_id: bom?.output_product?.id || null,
-      output_quantity: bom?.output_quantity || '',
-      items: bom?.items || [],
-    }
-  });
+ const {
+  register,
+  handleSubmit,
+  setValue,
+  formState: { errors, isSubmitted },
+  trigger,
+} = useForm<BomsFormValues>({
+  resolver: yupResolver(validationSchema as any),
+  defaultValues: {
+    output_product_id: bom?.output_product?.id || null,
+    output_quantity: bom?.output_quantity || '',
+    items: bom?.items || [],
+  },
+  mode: "onSubmit", // ✅ validate only on submit
+});
+
+useEffect(() => {
+  setValue('items', items, { shouldValidate: false }); // don't trigger validation yet
+}, [items, setValue]);
+
+useEffect(() => {
+  if (isSubmitted) {
+    trigger('items'); // ✅ validate items only after submit
+  }
+}, [items, isSubmitted, trigger]);
+
 
   const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
