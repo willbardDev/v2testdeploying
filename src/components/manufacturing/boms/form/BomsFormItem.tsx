@@ -39,12 +39,12 @@ interface BomsFormItemProps {
   submitItemForm: boolean;
   setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
   item?: {
-    product_id?: number;
-    product?: Product;
-    quantity: number;
-    measurement_unit_id?: number;
-    measurement_unit?: MeasurementUnit;
-    unit_symbol?: string;
+  product_id?: number;
+  product?: Product;
+  quantity: number;
+  measurement_unit_id?: number;
+  measurement_unit?: MeasurementUnit;
+  unit_symbol?: string;
   };
   index?: number;
   setItems: React.Dispatch<React.SetStateAction<any[]>>;

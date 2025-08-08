@@ -13,11 +13,11 @@ interface BomsFormValues {
   output_product_id?: number;
   output_quantity: number;
   items: {
-    product_id?: number;
-    quantity: number;
-    alternatives?: {
-      product_id?: number;
-      quantity: number;
+  product_id?: number;
+  quantity: number;
+  alternatives?: {
+  product_id?: number;
+  quantity: number;
     }[];
   }[];
 }
@@ -37,14 +37,14 @@ const bomsServices = {
 
   // ✅ Add a new BOM (Header only – no output product/items here)
   add: async (bom: {
-   output_product_id?: number;
+  output_product_id?: number;
   output_quantity: number;
   items: {
-    product_id?: number;
-    quantity: number;
-    alternatives?: {
-      product_id?: number;
-      quantity: number;
+  product_id?: number;
+  quantity: number;
+  alternatives?: {
+  product_id?: number;
+  quantity: number;
     }[][];
   }[];
   }): Promise<AddBOMResponse> => {

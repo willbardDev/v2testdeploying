@@ -25,129 +25,134 @@ import bomsServices from '../boms-services';
 import BomsFormItem from './BomsFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
-interface BomsFormProps {
-  toggleOpen: (open: boolean) => void;
-  bom?: any;
-  onSuccess?: () => void;
-}
+  interface BomsFormProps {
+    toggleOpen: (open: boolean) => void;
+    bom?: any;
+    onSuccess?: () => void;
+  }
 
-interface BomsFormValues {
-  output_product_id?: number;
-  output_quantity: number;
-  items: {
-    product_id?: number;
-    quantity: number;
-    alternatives?: {
+  interface BomsFormValues {
+    output_product_id?: number;
+    output_quantity: number;
+    items: {
       product_id?: number;
       quantity: number;
+      alternatives?: {
+        product_id?: number;
+        quantity: number;
+      }[];
     }[];
-  }[];
-}
+  }
 
-function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
-  const { enqueueSnackbar } = useSnackbar();
-  const queryClient = useQueryClient();
-  const [items, setItems] = useState<any[]>(bom?.items || []);
-  const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitItemForm, setSubmitItemForm] = useState(false);
-  const [clearFormKey, setClearFormKey] = useState(0);
+  function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
+    const { enqueueSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const [items, setItems] = useState<any[]>(bom?.items || []);
+    const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitItemForm, setSubmitItemForm] = useState(false);
+    const [clearFormKey, setClearFormKey] = useState(0);
 
-  const validationSchema = yup.object({
-    output_product_id: yup.number().required("Output product is required"),
-    output_quantity: yup.number().positive("Quantity is required").required("Quantity is required"),
-    items: yup.array().min(1, "At least one input item is required").of(
-      yup.object().shape({
-        product_id: yup.number().required("Product is required"),
-        quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-        alternatives: yup.array().of(
-          yup.object().shape({
-            product_id: yup.number().required("Product is required"),
-            quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-          })
-        ),
-      })
-    ),
+    const validationSchema = yup.object({
+      output_product_id: yup.number().required("Output product is required"),
+      output_quantity: yup.number().positive("Quantity is required").required("Quantity is required"),
+      items: yup.array().min(1, "At least one input item is required").of(
+              yup.object().shape({
+                product_id: yup.number().required("Product is required"),
+                quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
+                measurement_unit_id: yup.number().required("Unit is required"),
+                conversion_factor: yup.number().required("Conversion factor is required").positive("Must be positive"),
+                alternatives: yup.array().of(
+                  yup.object().shape({
+                    product_id: yup.number().required("Product is required"),
+                    quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
+                  })
+                ),
+              })
+            ),
+      });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitted },
+    trigger,
+  } = useForm<BomsFormValues>({
+    resolver: yupResolver(validationSchema as any),
+    defaultValues: {
+      output_product_id: bom?.output_product?.id || null,
+      output_quantity: bom?.output_quantity || '',
+      items: bom?.items || [],
+    },
+    mode: "onSubmit", // ✅ validate only on submit
   });
 
- const {
-  register,
-  handleSubmit,
-  setValue,
-  formState: { errors, isSubmitted },
-  trigger,
-} = useForm<BomsFormValues>({
-  resolver: yupResolver(validationSchema as any),
-  defaultValues: {
-    output_product_id: bom?.output_product?.id || null,
-    output_quantity: bom?.output_quantity || '',
-    items: bom?.items || [],
-  },
-  mode: "onSubmit", // ✅ validate only on submit
-});
+  useEffect(() => {
+    setValue('items', items, { shouldValidate: false }); // don't trigger validation yet
+  }, [items, setValue]);
 
-useEffect(() => {
-  setValue('items', items, { shouldValidate: false }); // don't trigger validation yet
-}, [items, setValue]);
-
-useEffect(() => {
-  if (isSubmitted) {
-    trigger('items'); // ✅ validate items only after submit
-  }
-}, [items, isSubmitted, trigger]);
+  useEffect(() => {
+    if (isSubmitted) {
+      trigger('items'); // ✅ validate items only after submit
+    }
+  }, [items, isSubmitted, trigger]);
 
 
-  const addBomMutation = useMutation({
+   const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
     onSuccess: (data) => {
-      toggleOpen(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['boms'] });
-      onSuccess?.();
-    },
-    onError: (error: any) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
-  });
+    toggleOpen(false);
+    enqueueSnackbar(data.message, { variant: 'success' });
+    queryClient.invalidateQueries({ queryKey: ['boms'] });
+    onSuccess?.();
+      },
+      onError: (error: any) => {
+        error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      }
+    });
 
-  const updateBomMutation = useMutation({
-    mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
-    onSuccess: (data) => {
-      toggleOpen(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['boms'] });
-      onSuccess?.();
+   const updateBomMutation = useMutation({
+     mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
+     onSuccess: (data) => {
+     toggleOpen(false);
+     enqueueSnackbar(data.message, { variant: 'success' });
+     queryClient.invalidateQueries({ queryKey: ['boms'] });
+     onSuccess?.();
     },
     onError: (error: any) => {
       enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
     }
   });
 
-  const onSubmit = (data: BomsFormValues) => {
+   const onSubmit = (data: BomsFormValues) => {
     if (items.length === 0) {
       setValue('items', [], { shouldValidate: true });
       return;
     }
 
-    const payload: BomsFormValues = {
-      ...data,
-      items: items.map(item => ({
-        ...item,
-        product_id: item.product?.id || item.product_id,
-        alternatives: item.alternatives?.map(alt => ({
-          ...alt,
-          product_id: alt.product?.id || alt.product_id
+  const payload: BomsFormValues = {
+    ...data,
+    items: items.map(item => ({
+    product_id: item.product?.id || item.product_id,
+    quantity: item.quantity,
+    measurement_unit_id: item.measurement_unit_id,
+    conversion_factor: item.conversion_factor ?? 1,
+    alternatives: item.alternatives?.map(alt => ({
+    product_id: alt.product?.id || alt.product_id,
+    quantity: alt.quantity,
         }))
       })),
       output_product_id: outputProduct?.id || data.output_product_id
     };
 
-    if (bom) {
+    if (bom?.id) {
       updateBomMutation.mutate({ id: bom.id, bom: payload });
     } else {
       addBomMutation.mutate(payload);
     }
   };
+
 
   return (
     <React.Fragment>
