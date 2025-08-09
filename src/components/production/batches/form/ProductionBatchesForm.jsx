@@ -73,25 +73,15 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                             .min(0, 'Value Percentage must be greater or equal to 0')
                             .max(100, "Value Percentage must be less than or equal to 100")
                             .required("Value Percentage is required")
-                            .typeError('Value Percentage is required')
-                            .test('sum-check', function (value) {
-                                const { outputs } = this.options.context || {};
-    
-                                if (!outputs || outputs.length === 0) return true; // Skip validation if no outputs
-    
-                                const totalPercentage = outputs.reduce((total, it) => total + (it.value_percentage || 0), 0);
-    
-                                if (totalPercentage !== 100) {
-                                    return this.createError({
-                                        message: `Total Value Percentage must be exactly 100%. Current total: ${totalPercentage}%`
-                                    });
-                                }
-    
-                                return true;
-                            }),
+                            .typeError('Value Percentage is required'),
                     })
                 )
-                .required("Outputs are required"),
+                .required("Outputs are required")
+                .test('sum-check', 'Total Value Percentage must be exactly 100%', function (value) {
+                    if (!value || value.length === 0) return true;
+                    const totalPercentage = value.reduce((total, it) => total + (Number(it.value_percentage) || 0), 0);
+                    return totalPercentage === 100;
+                }),
             otherwise: yup.array().notRequired(),
         }),
     });
@@ -161,7 +151,7 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
     },[production, addProduction, updateProduction]);
 
     useEffect(() => {
-        setValue(`inventory_inputs`, combinedInputsConsumptions);
+        setValue(`inventory_inputs`, inventoryInputs);
         setValue(`by_products`, by_products);
         setValue(`outputs`, outputs,{
             shouldValidate: true,
@@ -170,27 +160,18 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
         setValue(`ledger_expenses`, otherExpenses);
     }, [production, inventoryInputs, by_products, outputs, otherExpenses])
 
-    const onSubmit = () => {
+    const submitType = watch(`submit_type`);
+
+    const onSubmit = async () => {
         if (isDirty) {
             setShowWarning(true);
-        } else {
-            if (submitType === 'close') {
-                if (outputs.length > 0) {
-                    handleSubmit((data) => {
-                        const updatedData = {
-                            ...data,
-                        };
-                        saveMutation.mutate(updatedData);
-                    })();
-                }
-            } else {
-                handleSubmit((data) => {
-                    const updatedData = {
-                        ...data,
-                    };
-                    saveMutation.mutate(updatedData);
-                })();
-            }
+            return;
+        }
+        const data = await handleSubmit((data) => ({
+            ...data,
+        }))();
+        if (data && (submitType !== 'close' || outputs.length > 0)) {
+            saveMutation.mutate(data);
         }
     };
     
@@ -411,9 +392,9 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                     loading={addProduction.isPending || updateProduction.isPending}
                     size="small"
                     variant="contained"
-                    onClick={async () => {
+                    onClick={() => {
                         setValue('submit_type', 'suspend');
-                        await handleSubmit(onSubmit)();
+                        onSubmit();
                     }}
                 >
                     Initiate
@@ -423,9 +404,9 @@ function ProductionBatchesForm({ toggleOpen, production, setIsConsumptionDeleted
                     variant="contained"
                     color="success"
                     size="small"
-                    onClick={async () => {
+                    onClick={() => {
                         setValue('submit_type', 'close');
-                        await handleSubmit(onSubmit)();
+                        onSubmit();
                     }}
                 >
                     Close
