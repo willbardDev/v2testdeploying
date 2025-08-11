@@ -103,6 +103,7 @@
     "@types/react-dom": "^19.1.5",
     "@types/recharts": "^1.8.29",
     "@types/stylis": "^4.2.7",
+    "@types/web-app-manifest": "^1.0.9",
     "eslint": "^9.15.0",
     "eslint-config-next": "^15.1.6",
     "eslint-config-prettier": "^9.1.0",

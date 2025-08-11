@@ -1,13 +1,20 @@
-import withPWAInit from '@ducanh2912/next-pwa'
+import withPWAInit from '@ducanh2912/next-pwa';
 
 const withPWA = withPWAInit({
   dest: 'public',
-  register: true,
-  skipWaiting: true,
-})
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swcMinify:true,
+  disable: false,
+  workboxOptions: {
+    disableDevLogs: true
+  }
+});
 
 const nextConfig = {
   reactStrictMode: true,
+  distDir: "build",
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
     NEXTAUTH_SECRET: 'YjByKC1BpoOaRVEgu4kdL98YErK7oA+2tRMaw+x0ino=',
@@ -19,6 +26,14 @@ const nextConfig = {
         source: '/',
         destination: '/en-US/dashboard',
         permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/manifest.json',
+        destination: '/manifest.json',
       },
     ];
   },

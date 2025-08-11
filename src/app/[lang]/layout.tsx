@@ -6,6 +6,7 @@ import { Providers } from '../providers';
 import { getDictionary } from './dictionaries';
 import { DictionaryProvider } from './contexts/DictionaryContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import Script from 'next/script';
 
 const APP_NAME = 'ProsERP';
 const APP_DEFAULT_TITLE = 'ProsERP';
@@ -19,33 +20,36 @@ interface RootLayoutProps {
   };
 }
 
+// Generate static params for language routes
 export async function generateStaticParams() {
   return [{ lang: 'en-US' }];
 }
 
 export const metadata: Metadata = {
-  applicationName: APP_NAME,
-  title: {
-    default: APP_DEFAULT_TITLE,
-    template: APP_TITLE_TEMPLATE,
-  },
+  title: APP_NAME,
   description: APP_DESCRIPTION,
+  generator: "Next.js",
   manifest: "/manifest.json",
-  themeColor: "#2113AD",
-  icons: {
-    icon: "/assets/images/logos/favicon.ico",
-    shortcut: "/assets/images/logos/favicon.ico",
-  },
+  keywords: ["nextjs", "next14", "pwa", "next-pwa"],
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#2113AD" }
+  ],
+  viewport: 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes',
+  icons: [
+    { rel: "apple-touch-icon", url: "/assets/images/icons/logo-512.png" },
+    { rel: "icon", url: "/assets/images/icons/logo-512.png" },
+  ],
+
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: 'default',
     title: APP_DEFAULT_TITLE,
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
-    type: "website",
+    type: 'website',
     siteName: APP_NAME,
     title: {
       default: APP_DEFAULT_TITLE,
@@ -54,7 +58,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
   },
   twitter: {
-    card: "summary",
+    card: 'summary',
     title: {
       default: APP_DEFAULT_TITLE,
       template: APP_TITLE_TEMPLATE,
@@ -62,9 +66,10 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
   },
   other: {
-    "msapplication-TileColor": "#6200EE",
-    "theme-color": "#2113AD",
-    keywords: "Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions",
+    'msapplication-TileColor': '#6200EE',
+    'theme-color': '#2113AD',
+    keywords:
+      'Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions',
   },
 };
 
@@ -73,17 +78,45 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const dictionary = await getDictionary(lang);
 
   return (
-    <html lang={lang} data-lt-installed='true'>
-      <body cz-shortcut-listen='true'>
-        <div id='root'>
+    <html lang={lang} data-lt-installed="true">
+      <head>
+        <meta name="theme-color" content="#6200EE" />
+        <link rel="manifest" href={`/api/manifest?lang=${lang}`} />
+        <link rel="icon" href="/assets/images/icons/logo-512.png" />
+        <link rel="apple-touch-icon" href="/assets/images/icons/logo-512.png" />
+      </head>
+      <body cz-shortcut-listen="true">
+        <div id="root">
           <LanguageProvider lang={lang}>
             <DictionaryProvider dictionary={dictionary}>
-              <Providers>
-                {children}
-              </Providers>
+              <Providers>{children}</Providers>
             </DictionaryProvider>
           </LanguageProvider>
         </div>
+        <Script strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+              window.addEventListener('load', () => {
+                console.log('Attempting to register service worker...');
+                navigator.serviceWorker.register('/sw.js').then(
+                  (registration) => {
+                    console.log('Service Worker registered:', registration);
+                  },
+                  (err) => {
+                    console.error('Service Worker registration failed:', err);
+                  }
+                );
+              });
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+              e.preventDefault(); // Prevent the default prompt
+              console.log('beforeinstallprompt triggered', e);
+              // Optionally prompt manually for testing
+              // e.prompt();
+            });
+          `}
+        </Script>
       </body>
     </html>
   );
