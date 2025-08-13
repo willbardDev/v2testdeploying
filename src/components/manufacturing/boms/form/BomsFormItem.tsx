@@ -94,9 +94,10 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
     ...(product?.primary_unit ? [product.primary_unit] : []),
   ];
 
-  const updateItems: SubmitHandler<FormValues> = async (data) => {
-    setIsAdding(true);
+ const updateItems: SubmitHandler<FormValues> = async (data) => {
+  setIsAdding(true);
 
+  try {
     const newItem = {
       ...data,
       product_id: data.product?.id,
@@ -113,16 +114,23 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
       await setItems(prev => [...prev, newItem]);
     }
 
+    // Only reset on success
     setClearFormKey(k => k + 1);
-    setSubmitItemForm(false);
-    setIsAdding(false);
     reset();
     setShowForm?.(false);
-
+    
     if (!index && submitItemForm) {
       submitMainForm();
     }
-  };
+  } catch (error) {
+    // On error, keep the form data but stop loading
+    console.error("Submission failed:", error);
+  } finally {
+    // Always stop loading whether success or fail
+    setIsAdding(false);
+    setSubmitItemForm(false);
+  }
+};
 
   useEffect(() => {
     if (submitItemForm) {

@@ -25,7 +25,7 @@ export interface BOM {
 
 export interface BomsFormValues {
   output_product_id?: number;
-  output_quantity: number;
+  output_quantity: number | null;
   items: BomItem[];
 }
 

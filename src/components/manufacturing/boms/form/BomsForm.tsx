@@ -73,7 +73,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     resolver: yupResolver(schema) as any,
     defaultValues: {
       output_product_id: bom?.output_product?.id || null,
-      output_quantity: bom?.output_quantity || '',
+      output_quantity: bom?.output_quantity || null,
       items: bom?.items || [],
     },
     mode: "onSubmit",
@@ -89,9 +89,25 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   }, [items, isSubmitted, trigger]);
 
+   const handleReset = () => {
+    setItems([]);
+    setOutputProduct(null);
+    setClearFormKey(prev => prev + 1);
+    setValue('output_product_id', undefined);
+    setValue('output_quantity', null);
+    setSubmitItemForm(false);
+  };
+
+   const handleClose = () => {
+    handleReset();
+    toggleOpen(false);
+  };
+
   const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
     onSuccess: (data) => {
+      handleClose();
+      setIsSubmitting(false);
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['boms'] });
@@ -105,6 +121,8 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   const updateBomMutation = useMutation({
     mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
     onSuccess: (data) => {
+      handleClose();
+      setIsSubmitting(false);
       toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['boms'] });
@@ -115,16 +133,14 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   });
 
-   const handleReset = () => {
-    setItems([]);
-    setOutputProduct(null);
-    setClearFormKey(prev => prev + 1);
-    setValue('output_product_id', undefined);
-    setValue('output_quantity', 0);
-    setSubmitItemForm(false);
-  };
 
-  const onSubmit = (data: BomsFormValues) => {
+
+    const onSubmit = (data: BomsFormValues) => {
+    if (!outputProduct?.id) {
+      enqueueSnackbar('Output product is required', { variant: 'error' });
+      return;
+    }
+
     if (items.length === 0) {
       enqueueSnackbar('Please add at least one item', { variant: 'error' });
       return;
@@ -132,7 +148,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
 
     const payload = {
       output_product_id: outputProduct?.id,
-      output_quantity: data.output_quantity,
+      output_quantity: data.output_quantity || 0,
       items: items.map(item => ({
         product_id: item.product?.id || item.product_id,
         quantity: item.quantity,
@@ -145,14 +161,12 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     if (bom) {
       updateBomMutation.mutate({ id: bom.id, bom: payload }, {
         onSettled: () => {
-          setIsSubmitting(false);
           if (!bom) handleReset();
         },
       });
     } else {
       addBomMutation.mutate(payload, {
         onSettled: () => {
-          setIsSubmitting(false);
           handleReset();
         },
       });
@@ -230,6 +244,10 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
                 item={item as any}
                 items={items as any}
                 setItems={setItems as any}
+                setClearFormKey={setClearFormKey}
+                setSubmitItemForm={setSubmitItemForm}
+                submitItemForm={submitItemForm}
+                submitMainForm={handleSubmit(onSubmit)}
               />
             ))}
           </Grid>
