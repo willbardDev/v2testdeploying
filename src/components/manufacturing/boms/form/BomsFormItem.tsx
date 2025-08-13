@@ -27,7 +27,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 interface FormValues {
   product?: Product | null;
   product_id?: number;
-  quantity: number;
+  quantity: number | null;
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
   conversion_factor?: number | null;
@@ -79,7 +79,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
     resolver: yupResolver(validationSchema)as any,
     defaultValues: {
       product: item?.product ?? null,
-      quantity: item?.quantity ?? 0,
+      quantity: item?.quantity ?? null,
       measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
       unit_symbol: item?.unit_symbol ?? item?.measurement_unit?.unit_symbol ?? null,
       conversion_factor: item?.product?.primary_unit?.conversion_factor ?? 1,

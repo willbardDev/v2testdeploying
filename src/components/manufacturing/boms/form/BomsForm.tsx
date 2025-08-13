@@ -115,6 +115,15 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   });
 
+   const handleReset = () => {
+    setItems([]);
+    setOutputProduct(null);
+    setClearFormKey(prev => prev + 1);
+    setValue('output_product_id', undefined);
+    setValue('output_quantity', 0);
+    setSubmitItemForm(false);
+  };
+
   const onSubmit = (data: BomsFormValues) => {
     if (items.length === 0) {
       enqueueSnackbar('Please add at least one item', { variant: 'error' });
@@ -135,23 +144,28 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     setIsSubmitting(true);
     if (bom) {
       updateBomMutation.mutate({ id: bom.id, bom: payload }, {
-        onSettled: () => setIsSubmitting(false),
+        onSettled: () => {
+          setIsSubmitting(false);
+          if (!bom) handleReset();
+        },
       });
     } else {
       addBomMutation.mutate(payload, {
-        onSettled: () => setIsSubmitting(false),
+        onSettled: () => {
+          setIsSubmitting(false);
+          handleReset();
+        },
       });
     }
   };
 
   return (
-    <Dialog open={open} onClose={() => toggleOpen(false)} maxWidth="md" fullWidth>
+    <Dialog open={open}onClose={() => {handleReset(); toggleOpen(false);}} maxWidth="md" fullWidth>
       <DialogTitle>
         <Typography variant="h4" textAlign="center" mb={2}>
           {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
       </DialogTitle>
-
       <DialogContent>
          <Grid container spacing={2} mb={3} sx={{ pt: 2 }}> 
            <Grid  size={{xs:12, md:8}}>
@@ -227,7 +241,10 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
       <DialogActions>
         <Button
           size="small"
-          onClick={() => toggleOpen(false)}
+          onClick={() => {
+            handleReset();
+            toggleOpen(false);
+          }}
           disabled={isSubmitting}
           variant="outlined"
         >
@@ -245,5 +262,4 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     </Dialog>
   );
 }
-
 export default BomsForm;
