@@ -1,4 +1,4 @@
-import Boms from '@/components/manufacturing/boms/Bom'
+import Boms from '@/components/manufacturing/boms/Boms'
 import React from 'react'
 
 function page() {

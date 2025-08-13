@@ -7,7 +7,7 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import bomsServices from './boms-services';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-import BomsForm from './form/BomsForm';
+import BomsForm from './form/BomForm';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 
 // Type for BOM object (adjust fields as per your backend)

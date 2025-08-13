@@ -28,6 +28,10 @@ interface BomsFormRowItem {
 }
 
 interface BomsFormRowProps {
+  setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
+  submitMainForm: () => void;
+  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
+  submitItemForm: boolean;
   item: BomsFormRowItem;
   index: number;
   items: BomsFormRowItem[];
@@ -35,11 +39,16 @@ interface BomsFormRowProps {
 }
 
 const BomsFormRow: React.FC<BomsFormRowProps> = ({ 
+  setClearFormKey,
+  submitMainForm,
+  setSubmitItemForm,
+  submitItemForm,
   item, 
   index, 
   items, 
   setItems 
 }) => {
+  const product = item.product;
   const [isEditing, setIsEditing] = useState(false);
   
   const handleRemove = () => {
@@ -72,7 +81,9 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
           </Grid>
           
           <Grid size={5}>
-            <Typography>{item.product?.name || 'Unknown Product'}</Typography>
+            <Typography>
+              {item.product?.name ?? 'No product selected'}
+            </Typography>
           </Grid>
           
           <Grid size={3}>

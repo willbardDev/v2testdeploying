@@ -12,9 +12,9 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import bomsServices from './boms-services';
-import BomsActionTail from './BomsActionTail';
+import BomsActionTail from './BomActionTail';
 import BomsListItem from './BomsListItem';
-import { BOM } from './BomsType';
+import { BOM } from './BomType';
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
 
