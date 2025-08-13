@@ -17,4 +17,4 @@ function JumboLayoutFooter({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { JumboLayoutFooter };
+export default JumboLayoutFooter;

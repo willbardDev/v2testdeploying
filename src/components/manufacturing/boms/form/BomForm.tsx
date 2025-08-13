@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  FormControl,
   Grid,
   IconButton,
   LinearProgress,
@@ -18,12 +19,13 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import BomsFormRow from './BomsFormRow';
+import BomsFormRow from './BomFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices, { BomsFormValues } from '../boms-services';
-import BomsFormItem from './BomsFormItem';
+import BomsFormItem from './BomFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+
 
 interface BomsFormProps {
   open: boolean;
@@ -40,7 +42,9 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
-
+  const [formData, setFormData] = useState({
+    output_quantity: bom?.output_quantity || null,
+  });
   const schema = yup.object().shape({
     output_product_id: yup
       .number()
@@ -65,6 +69,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
 
   const {
     register,
+    watch,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitted },
@@ -135,7 +140,12 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
 
 
 
-    const onSubmit = (data: BomsFormValues) => {
+    const onSubmit = async (data: BomsFormValues) => {
+  try {
+    // Validate before submission
+    const isValid = await trigger();
+    if (!isValid) return;
+
     if (!outputProduct?.id) {
       enqueueSnackbar('Output product is required', { variant: 'error' });
       return;
@@ -158,20 +168,31 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     };
 
     setIsSubmitting(true);
-    if (bom) {
-      updateBomMutation.mutate({ id: bom.id, bom: payload }, {
-        onSettled: () => {
-          if (!bom) handleReset();
-        },
-      });
-    } else {
-      addBomMutation.mutate(payload, {
-        onSettled: () => {
-          handleReset();
-        },
-      });
+   if (bom) {
+  updateBomMutation.mutate({ id: bom.id, bom: payload }, {
+    onSuccess: () => {
+      handleReset(); // Only reset on success
     }
-  };
+  });
+} else {
+  addBomMutation.mutate(payload, {
+    onSuccess: () => {
+      handleReset(); // Only reset on success
+    }
+  });
+}
+  if (bom) {
+      await updateBomMutation.mutateAsync({ id: bom.id, bom: payload });
+    } else {
+      await addBomMutation.mutateAsync(payload);
+    }
+    
+  } catch (error) {
+    // Error handling remains
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <Dialog open={open}onClose={() => {handleReset(); toggleOpen(false);}} maxWidth="md" fullWidth>
@@ -181,8 +202,8 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
         </Typography>
       </DialogTitle>
       <DialogContent>
-         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}> 
-           <Grid  size={{xs:12, md:8}}>
+         <Grid container spacing={2} alignItems="flex-end" mb={2}> 
+           <Grid size={{xs:12, md:8}}>
             <ProductSelect
               label="Output Product"
               value={outputProduct}
@@ -194,21 +215,20 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
               helperText={errors.output_product_id?.message}
             />
           </Grid>
-
-          <Grid  size={{xs:12, md:4}}>
-            <TextField
+          <Grid size={{xs: 12, md:4}}>
+             <TextField
               label="Quantity"
-              fullWidth
-              size="small"
-              type="number"
-              {...register('output_quantity')}
-              error={!!errors.output_quantity}
-              helperText={errors.output_quantity?.message}
-              inputProps={{
-                inputMode: 'numeric',
-                pattern: '[0-9]*',
-                step: 'any'
+              value={formData.output_quantity ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  output_quantity: value === '' ? null : Number(value)
+                }));
+                setValue('output_quantity', value === '' ? null : Number(value));
               }}
+              error={!!errors.output_quantity}
+              helperText={errors.output_quantity?.message as string}
             />
           </Grid>
         </Grid>

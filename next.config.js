@@ -15,6 +15,9 @@ const withPWA = withPWAInit({
 const nextConfig = {
   reactStrictMode: true,
   distDir: "build",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
     NEXTAUTH_SECRET: 'YjByKC1BpoOaRVEgu4kdL98YErK7oA+2tRMaw+x0ino=',

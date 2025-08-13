@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { SxProps } from '@mui/system';
-import { Grid2Props, ListProps, Theme } from '@mui/material';
+import { GridProps, ListProps, Theme } from '@mui/material';
 
 export interface MultiSelectOption {
   label: ReactNode;
@@ -26,7 +26,7 @@ export interface JumboListProps {
   wrapperSx?: SxProps<Theme>;
   component?: React.ElementType<ListProps>;
   componentElement?: string | React.ElementType;
-  sx?: SxProps<Theme> | Grid2Props['sx'];
+  sx?: SxProps<Theme> | GridProps['sx'];
   itemSx?: SxProps<Theme>;
   isLoading?: boolean;
   disableTransition?: boolean;

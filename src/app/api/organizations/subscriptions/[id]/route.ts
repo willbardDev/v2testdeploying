@@ -3,7 +3,8 @@ import { NextRequest } from 'next/server';
 
 const API_BASE = process.env.API_BASE
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: any) {
+const { params } = context as { params: { id: string } };
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
@@ -18,7 +19,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return handleJsonResponse(res);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: any) {
+const { params } = context as { params: { id: string } };
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 

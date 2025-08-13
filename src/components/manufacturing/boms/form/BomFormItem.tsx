@@ -123,10 +123,9 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
       submitMainForm();
     }
   } catch (error) {
-    // On error, keep the form data but stop loading
+    // On error, keep the form data
     console.error("Submission failed:", error);
   } finally {
-    // Always stop loading whether success or fail
     setIsAdding(false);
     setSubmitItemForm(false);
   }

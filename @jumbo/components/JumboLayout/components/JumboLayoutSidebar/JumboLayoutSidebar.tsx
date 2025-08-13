@@ -3,7 +3,7 @@ import { useJumboLayout } from "../../hooks";
 import { JumboLayoutAside } from "./JumboLayoutAside";
 import { JumboLayoutDrawer } from "./JumboLayoutDrawer";
 
-export function JumboLayoutSidebar({
+export default function JumboLayoutSidebar({
   children,
 }: {
   children: React.ReactNode;

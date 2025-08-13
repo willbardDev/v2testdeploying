@@ -6,7 +6,7 @@ import {
   PaginatedBOMResponse,
   BOM,  // Add this import
   BomsFormValues
-} from './BomsType';
+} from './BomType';
 
 // ... rest of your imports and interfaces ...
 

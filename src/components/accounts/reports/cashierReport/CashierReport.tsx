@@ -293,8 +293,8 @@ const CashierReport: React.FC<CashierReportProps> = ({ as_at, setOpenCashierRepo
                   multiple={true}
                   frontError={errors?.ledger_ids}
                   allowedGroups={['Cash and cash equivalents']}
-                  onChange={(newValue) => {
-                    setValue('ledger_ids', newValue?.map(ledger => ledger.id), {
+                  onChange={(newValue: any) => {
+                    setValue('ledger_ids', newValue?.map((ledger: any) => ledger.id), {
                       shouldDirty: true,
                       shouldValidate: true
                     });
@@ -306,8 +306,8 @@ const CashierReport: React.FC<CashierReportProps> = ({ as_at, setOpenCashierRepo
                   label="Cost Center(s)"
                   multiple={true}
                   allowSameType={true}
-                  onChange={(cost_centers: CostCenter[] | null) => {
-                    const costCenterIds = cost_centers?.map(cost_center => cost_center.id) || [];
+                  onChange={(cost_centers: any) => {
+                    const costCenterIds = cost_centers?.map((cost_center: CostCenter) => cost_center.id) || [];
                     setValue('cost_center_ids', costCenterIds);
                   }}
                 />

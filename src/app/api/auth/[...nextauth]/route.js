@@ -25,7 +25,7 @@ export const authOptions = {
             validateStatus: (status) => status < 500,
           });
 
-          if (!data?.authUser?.user || !data?.authUser?.user?.id) {
+          if (!data?.authUser?.user?.id) {
             throw new Error('Invalid login credentials');
           }
 
@@ -59,7 +59,6 @@ export const authOptions = {
       }
       return token;
     },
-
     async session({ session, token }) {
       session.user = token.user;
       session.organization_id = token.organization_id;
@@ -68,35 +67,13 @@ export const authOptions = {
     },
   },
 
-  session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 1 day
-  },
-
-  pages: {
-    signIn: '/login',
-  },
-
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Secure-next-auth.session-token'
-        : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'strict',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production'
-          ? '.proserp.co.tz'
-          : undefined,
-        maxAge: 24 * 60 * 60,
-      },
-    },
-  },
+  session: { strategy: 'jwt', maxAge: 24 * 60 * 60 },
+  pages: { signIn: '/login' },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV !== 'production',
 };
 
 const handler = NextAuth(authOptions);
+
+// Only export handlers, no other constants
 export { handler as GET, handler as POST };

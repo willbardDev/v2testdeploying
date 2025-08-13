@@ -6,8 +6,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { BOM } from './BomsType';
-import BomsListItemAction from './BomsListItemAction';
+import { BOM } from './BomType';
+import BomsListItemAction from './BomListItemAction';
 
 interface BomsListItemProps {
   bom: BOM;

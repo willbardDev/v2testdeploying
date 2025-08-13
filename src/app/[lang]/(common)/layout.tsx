@@ -3,9 +3,10 @@ import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { defaultLayoutConfig } from '@/config/layouts';
 import { getMenus } from '@/services';
-import { JumboLayout, JumboLayoutProvider } from '@jumbo/components';
+import { JumboLayout } from '@jumbo/components';
 import { getDictionary } from '@/app/[lang]/dictionaries';
 import React from 'react';
+import JumboLayoutProvider from '@jumbo/components/JumboLayout/components/JumboLayoutProvider/JumboLayoutProvider';
 
 interface CommonLayoutProps {
   children: React.ReactNode;

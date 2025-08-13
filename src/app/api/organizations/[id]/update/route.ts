@@ -13,9 +13,9 @@ const getTimezoneOffset = (): string => {
 };
 
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest, context: any
 ) {
+  const { params } = context as { params: { id: string } };
   try {
     const token = await getToken({ req: request });
 

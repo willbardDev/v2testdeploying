@@ -1,6 +1,8 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
 export interface BOM {
+  quantity: number;
+  product: any;
    id: number;
   output_product_id: number;
   output_quantity: number;

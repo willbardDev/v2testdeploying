@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import BomsForm from './form/BomsForm';
+import BomsForm from './form/BomForm';
 
 const BomsActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();

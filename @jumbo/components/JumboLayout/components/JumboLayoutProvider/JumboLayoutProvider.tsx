@@ -187,4 +187,4 @@ function JumboLayoutProvider({
   );
 }
 
-export { JumboLayoutProvider };
+export default JumboLayoutProvider;
