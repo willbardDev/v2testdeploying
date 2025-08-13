@@ -5,13 +5,11 @@ import { Box, Container, SxProps, Theme, Toolbar } from '@mui/material';
 import { Div } from '@jumbo/shared';
 import { SIDEBAR_STYLES } from '@jumbo/utilities/constants';
 import React from 'react';
-import {
-  JumboLayoutFooter,
-  JumboLayoutHeader,
-  JumboLayoutSidebar,
-} from './components';
 import { JumboLayoutRightSidebar } from './components/JumboLayoutRightSidebar';
 import { useContentMargin, useHeaderSpaceSx, useJumboLayout } from './hooks';
+import JumboLayoutHeader from './components/JumboLayoutHeader/JumboLayoutHeader';
+import JumboLayoutSidebar from './components/JumboLayoutSidebar/JumboLayoutSidebar';
+import JumboLayoutFooter from './components/JumboLayoutFooter/JumboLayoutFooter';
 
 function WrapperContainer({
   children,

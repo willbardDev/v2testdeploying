@@ -37,4 +37,4 @@ function JumboLayoutHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { JumboLayoutHeader };
+export default JumboLayoutHeader;

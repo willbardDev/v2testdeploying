@@ -94,7 +94,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
   });
 
   const { setValue, handleSubmit, watch, reset, formState: { errors, dirtyFields } } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       credit_ledger: item && ungroupedLedgerOptions.find(ledger => ledger.id === item.credit_ledger_id),
       credit_ledger_id: item?.credit_ledger_id,
