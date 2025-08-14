@@ -49,6 +49,11 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
     dataKey: 'data',
   });
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     setQueryOptions(state => ({
       ...state,
@@ -76,6 +81,8 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
       },
     }));
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <JumboRqList

@@ -23,6 +23,11 @@ function PriceLists() {
         dataKey: 'data',
     });
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+       setMounted(true);
+    }, []);
+
     React.useEffect(() => {
         setQueryOptions((state) => ({
             ...state,
@@ -46,6 +51,8 @@ function PriceLists() {
         },
         []
     );
+
+    if (!mounted) return null;
 
     return (
         <ProductsSelectProvider>

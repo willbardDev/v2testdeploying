@@ -49,7 +49,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
           content: 'Are you sure you want to delete this outlet?',
           onYes: () => {
             hideDialog();
-            deleteOutlet({ id: outlet.id ? outlet.id : 0 }); 
+            deleteOutlet({ id: outlet.id ? Number(outlet.id) : 0 }); 
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

@@ -54,9 +54,9 @@ const UserManagement = () => {
 
     if (!mounted) return null;
 
-//  if (!checkPermission([PROS_CONTROL_PERMISSIONS.USER_MANAGEMENT_READ])) {
-  //  return <UnauthorizedAccess />;
- // }
+ if (!checkPermission([PROS_CONTROL_PERMISSIONS.USERS_READ])) {
+   return <UnauthorizedAccess />;
+ }
 
   return (
           <>

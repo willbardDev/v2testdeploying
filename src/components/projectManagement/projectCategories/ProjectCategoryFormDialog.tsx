@@ -50,7 +50,7 @@ import { AddCategoryResponse, Category, UpdateCategoryResponse } from './Project
         name: category? category.name : '',
         description: category?.description || '',
       },
-      resolver: yupResolver(validationSchema),
+      resolver: yupResolver(validationSchema) as any,
     });
 
     const { mutate: addCategory, isPending: isAdding } = useMutation<AddCategoryResponse, unknown, Category>({

@@ -15,10 +15,9 @@ const ProductActionTail = lazy(() => import('./ProductActionTail'));
 const ProductList = () => {
     const params = useParams();
     const listRef = React.useRef();
+    const [mounted, setMounted] = React.useState(false);
     const {setSelectedProducts,setProductsListRefresh,refreshProductsList} = useProductApp();
     const {checkOrganizationPermission} = useJumboAuth();
-    const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
-
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "products",
@@ -41,10 +40,6 @@ const ProductList = () => {
         }
     }, [setProductsListRefresh]);
 
-    const renderProduct = React.useCallback((product) => {
-        return (<ProductListItem product={product}/>)
-    });
-
     const handleOnChange = React.useCallback((keyword) => {
         setQueryOptions(state => ({
             ...state,
@@ -54,6 +49,19 @@ const ProductList = () => {
             }
         }))
     }, []);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const renderProduct = React.useCallback((product) => {
+        return (<ProductListItem product={product}/>)
+    });
+
+    if (!mounted) return null;
+
+    const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
+
     return (
         <JumboRqList
             ref={listRef}

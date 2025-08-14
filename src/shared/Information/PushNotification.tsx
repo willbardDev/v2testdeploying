@@ -8,7 +8,7 @@ const PushNotification: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    const unsubscribePromise = onMessageListener().then((payload) => {
+    const unsubscribePromise = onMessageListener().then((payload: any) => {
       enqueueSnackbar(
         `${payload?.notification?.title}: ${payload?.notification?.body}`,
         {

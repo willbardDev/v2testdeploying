@@ -29,6 +29,13 @@ function SalesReports() {
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+       setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
         return <UnsubscribedAccess modules={'Point of Sale (POS)'} />;
     }

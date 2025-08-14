@@ -8,8 +8,9 @@ import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSel
 import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
 import ProductsSelectProvider from '../../productAndServices/products/ProductsSelectProvider';
 import ProductsProvider from '../../productAndServices/products/ProductsProvider';
-import OutletProvider, { OutletType, useSalesOutlet } from '../outlet/OutletProvider';
+import OutletProvider, { useSalesOutlet } from '../outlet/OutletProvider';
 import OutletSelector from '../outlet/OutletSelector';
+import { Outlet } from '../outlet/OutletType';
 
 const Toolbar = () => {
   const { setActiveOutlet } = useSalesOutlet();
@@ -18,9 +19,9 @@ const Toolbar = () => {
     <Grid container columnSpacing={1} rowGap={2} justifyContent={'center'}>
       <Grid size={{xs: 12, md: 4}}>
         <OutletSelector
-          onChange={(newValue: OutletType | OutletType[] | null) => {
+          onChange={(newValue: Outlet | Outlet[] | null) => {
             if (newValue && !Array.isArray(newValue)) {
-              setActiveOutlet(newValue);
+              setActiveOutlet(newValue as any);
             } else {
               setActiveOutlet(null);
             }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, IconButton, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
-import { useForm, FieldError } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import * as yup from 'yup';
@@ -19,7 +19,7 @@ interface FormValues {
 
 interface ProductVendorProps {
   isFromApproval?: boolean;
-  vendorIndex: number;
+  vendorIndex?: number;
   index?: number;
   setShowForm?: (show: boolean) => void;
   vendor?: Vendor | null;

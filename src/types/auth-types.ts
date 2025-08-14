@@ -51,6 +51,7 @@
   export interface AuthObject {
     authUser: AuthUser;
     authOrganization: AuthOrganization;
+    checkOrganizationPermission?: any
   }
   
   export interface AuthState {

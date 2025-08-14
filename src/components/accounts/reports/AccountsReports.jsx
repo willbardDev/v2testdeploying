@@ -3,7 +3,7 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import { BalanceOutlined, DeckOutlined, Money, ReceiptLongOutlined, TableChartOutlined, ViewTimelineOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, Grid,Typography, useMediaQuery } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import IncomeStatement from './incomeStatement/IncomeStatement'
 import LedgerSelectProvider from '../ledgers/forms/LedgerSelectProvider'
 import TrialBalance from './trial balance/TrialBalance'
@@ -34,6 +34,13 @@ function AccountsReports() {
     //Screen handling constants
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+       setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
 
     if(!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)){
         return <UnsubscribedAccess modules={'Accounts & Finance'}/>

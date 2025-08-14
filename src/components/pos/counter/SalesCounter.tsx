@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Typography } from '@mui/material'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
@@ -12,8 +12,18 @@ const CounterSelector = React.lazy(() => import('./CounterSelector'));
 const CounterSalesList = React.lazy(() => import('./CounterSalesList'));
 
 function SalesCounter() {
-  document.title = 'Sales Counter';
   const {checkOrganizationPermission} = useJumboAuth();
+
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    document.title = 'Sales Counter';
+  }, []);
+
+  if (!mounted) return null;
 
   if(!checkOrganizationPermission(PERMISSIONS.SALES_READ)){
     return <UnauthorizedAccess/>;

@@ -81,6 +81,11 @@ const Requisitions = () => {
         dataKey: 'data',
     });
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+       setMounted(true);
+    }, []);
+
     useEffect(() => {
         setQueryOptions((state) => ({
             ...state,
@@ -131,6 +136,8 @@ const Requisitions = () => {
             },
         }));
     }, []);
+
+    if (!mounted) return null;
 
     if (!checkOrganizationPermission([PERMISSIONS.REQUISITIONS_READ, PERMISSIONS.REQUISITIONS_CREATE, PERMISSIONS.REQUISITIONS_EDIT])) {
         return <UnauthorizedAccess />;

@@ -9,6 +9,11 @@ function PoSSettings() {
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
   const active_subscriptions = organization?.active_subscriptions || [];
+
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Get all modules from all subscriptions
   const modules = active_subscriptions.flatMap(
@@ -27,6 +32,8 @@ function PoSSettings() {
       </Typography>
     );
   }
+
+  if (!mounted) return null;
 
   return (
     <>

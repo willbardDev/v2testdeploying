@@ -304,7 +304,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
                   label="Cost Center(s)"
                   multiple={true}
                   allowSameType={true}
-                  onChange={(cost_centers: CostCenter[] | null) => {
+                  onChange={(cost_centers: CostCenter | CostCenter[] | null) => {
                     const selectedCostCenters = cost_centers || authOrganization?.costCenters || [];
                     const selectedCostCenterIds = selectedCostCenters.map((cost_center: CostCenter) => cost_center.id);
 
@@ -404,7 +404,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
               {(belowLargeScreen && activeTab === 0) ?
                 <SalesAndCashSummaryOnScreen
                   reportData={reportData}
-                  authOrganization={authOrganization}
+                  authOrganization={authOrganization as AuthOrganization}
                 /> :
                 <PDFContent
                   document={

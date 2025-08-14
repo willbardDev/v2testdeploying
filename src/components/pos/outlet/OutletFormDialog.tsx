@@ -33,7 +33,7 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
     }
 
     interface FormData {
-        id?: number;
+        id?: any;
         name: string;
         address?: string;
         type: string;
@@ -106,7 +106,7 @@ import { Ledger } from '@/components/accounts/ledgers/LedgerType';
         formState: { errors },
       } = useForm<FormData>({
         defaultValues: {
-          id: outlet?.id || undefined,
+          id: outlet?.id,
           name: outlet ? outlet.name : '',
           address: outlet?.address || '',
           type: outlet?.type?.toLowerCase() || 'shop',

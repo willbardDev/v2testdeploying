@@ -49,6 +49,11 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
   const { checkPermission } = useJumboAuth();
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
   const [queryOptions, setQueryOptions] = useState<
@@ -104,6 +109,8 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     display: 'flex',
     flexDirection: 'column',
   };
+
+  if (!mounted) return null;
 
   return (
     <OrganizationListContext.Provider value={{ refetchOrganizations }}>

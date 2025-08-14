@@ -17,6 +17,11 @@ function ProductionBatches() {
     queryFn: productionBatchesServices.getUserWorkCenters,
     enabled: !!authUser?.user?.id,
   });
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
   
   useEffect(() => {
     if (workcenters?.length === 1) {
@@ -27,6 +32,8 @@ function ProductionBatches() {
   if (isFetching) {
     return <LinearProgress />
   }
+
+  if (!mounted) return null;
 
   return (
     <JumboCardQuick

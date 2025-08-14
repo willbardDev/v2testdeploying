@@ -57,6 +57,11 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
   const [filterDate, setFilterDate] = useState<FilterDate>({ from: null, to: null });
   const [selectedCostCenter, setSelectedCostCenter] = useState<CostCenter[]>([]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
     queryKey: 'approvedRequisitions',
     queryParams: { 
@@ -133,6 +138,8 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
       }
     }));
   }, []);
+
+  if (!mounted) return null;
 
   if (!checkOrganizationPermission([PERMISSIONS.REQUISITIONS_CREATE, PERMISSIONS.REQUISITIONS_READ, PERMISSIONS.ACCOUNTS_MASTERS_EDIT])) {
     return <UnauthorizedAccess />;

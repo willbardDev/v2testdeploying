@@ -221,6 +221,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
                     <Grid size={12}>
                       <Div sx={{ mt: 0.5}}>
                         <StoreSelector
+                          defaultValue={null}
                           allowSubStores={true}
                           onChange={(newValue: { id: number } | null) => {
                             setValue('store_id', newValue ? newValue.id : null, {

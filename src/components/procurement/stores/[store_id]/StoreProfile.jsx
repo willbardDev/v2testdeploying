@@ -13,6 +13,11 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 function StoreProfile() {
     const { theme } = useJumboTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+       setMounted(true);
+    }, []);
     
     const layoutOptions = React.useMemo(() => ({
         sidebar: {
@@ -34,6 +39,8 @@ function StoreProfile() {
             }
         },
     }), [theme]);
+
+    if (!mounted) return null;
 
     return (
         <StoreProfileProvider>
