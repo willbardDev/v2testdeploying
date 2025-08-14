@@ -42,8 +42,6 @@ const CostCenters = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   useEffect(() => {
     setQueryOptions((prev) => ({
       ...prev,
@@ -67,6 +65,8 @@ const CostCenters = () => {
   const renderCostCenter = useCallback((costCenter: CostCenter) => {
     return <CostCenterListItem costCenter={costCenter} />;
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <>

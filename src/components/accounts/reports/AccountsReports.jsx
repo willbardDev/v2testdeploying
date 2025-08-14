@@ -31,16 +31,16 @@ function AccountsReports() {
     const [report, setReport] = useState(null);
     const {checkOrganizationPermission, authOrganization,organizationHasSubscribed} = useJumboAuth();
 
+    //Screen handling constants
+    const {theme} = useJumboTheme();
+    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
        setMounted(true);
     }, []);
 
     if (!mounted) return null;
-
-    //Screen handling constants
-    const {theme} = useJumboTheme();
-    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     if(!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)){
         return <UnsubscribedAccess modules={'Accounts & Finance'}/>

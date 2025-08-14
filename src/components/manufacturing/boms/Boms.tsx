@@ -62,9 +62,9 @@ const Boms = () => {
 
   if (
     !checkOrganizationPermission([
-      PERMISSIONS.BOM_CREATE
-   //   PERMISSIONS.BOM_READ
-   //   PERMISSIONS.BOM_EDIT
+      PERMISSIONS.BOM_CREATE,
+      PERMISSIONS.BOM_READ,
+      PERMISSIONS.BOM_EDIT
     ])
   ) {
     return <UnauthorizedAccess />;

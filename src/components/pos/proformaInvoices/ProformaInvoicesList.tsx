@@ -54,8 +54,6 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   useEffect(() => {
     setQueryOptions(state => ({
       ...state,
@@ -83,6 +81,8 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
       },
     }));
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <JumboRqList

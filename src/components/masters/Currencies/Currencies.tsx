@@ -28,8 +28,6 @@ const Currencies = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   React.useEffect(() => {
     setQueryOptions((state) => ({
       ...state,
@@ -53,6 +51,8 @@ const Currencies = () => {
     },
     []
   );
+
+  if (!mounted) return null;
 
   return (
     <CurrencySelectProvider>

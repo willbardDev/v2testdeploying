@@ -22,8 +22,6 @@ function ProductionBatches() {
     useEffect(() => {
       setMounted(true);
     }, []);
-
-    if (!mounted) return null;
   
   useEffect(() => {
     if (workcenters?.length === 1) {
@@ -34,6 +32,8 @@ function ProductionBatches() {
   if (isFetching) {
     return <LinearProgress />
   }
+
+  if (!mounted) return null;
 
   return (
     <JumboCardQuick

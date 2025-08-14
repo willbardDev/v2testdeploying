@@ -18,8 +18,6 @@ function StoreProfile() {
     React.useEffect(() => {
        setMounted(true);
     }, []);
-
-    if (!mounted) return null;
     
     const layoutOptions = React.useMemo(() => ({
         sidebar: {
@@ -41,6 +39,8 @@ function StoreProfile() {
             }
         },
     }), [theme]);
+
+    if (!mounted) return null;
 
     return (
         <StoreProfileProvider>

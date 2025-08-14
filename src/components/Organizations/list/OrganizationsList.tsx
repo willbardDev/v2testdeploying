@@ -54,8 +54,6 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
   const [queryOptions, setQueryOptions] = useState<
@@ -111,6 +109,8 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     display: 'flex',
     flexDirection: 'column',
   };
+
+  if (!mounted) return null;
 
   return (
     <OrganizationListContext.Provider value={{ refetchOrganizations }}>

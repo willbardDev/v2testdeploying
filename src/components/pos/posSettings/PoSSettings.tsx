@@ -14,8 +14,6 @@ function PoSSettings() {
   React.useEffect(() => {
     setMounted(true);
   }, []);
-
-  if (!mounted) return null;
   
   // Get all modules from all subscriptions
   const modules = active_subscriptions.flatMap(
@@ -34,6 +32,8 @@ function PoSSettings() {
       </Typography>
     );
   }
+
+  if (!mounted) return null;
 
   return (
     <>

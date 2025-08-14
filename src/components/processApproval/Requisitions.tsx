@@ -86,8 +86,6 @@ const Requisitions = () => {
        setMounted(true);
     }, []);
 
-    if (!mounted) return null;
-
     useEffect(() => {
         setQueryOptions((state) => ({
             ...state,
@@ -138,6 +136,8 @@ const Requisitions = () => {
             },
         }));
     }, []);
+
+    if (!mounted) return null;
 
     if (!checkOrganizationPermission([PERMISSIONS.REQUISITIONS_READ, PERMISSIONS.REQUISITIONS_CREATE, PERMISSIONS.REQUISITIONS_EDIT])) {
         return <UnauthorizedAccess />;

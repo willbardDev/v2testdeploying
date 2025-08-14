@@ -62,8 +62,6 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
     queryKey: 'approvedRequisitions',
     queryParams: { 
@@ -140,6 +138,8 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
       }
     }));
   }, []);
+
+  if (!mounted) return null;
 
   if (!checkOrganizationPermission([PERMISSIONS.REQUISITIONS_CREATE, PERMISSIONS.REQUISITIONS_READ, PERMISSIONS.ACCOUNTS_MASTERS_EDIT])) {
     return <UnauthorizedAccess />;

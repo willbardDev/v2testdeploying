@@ -19,11 +19,11 @@ function SalesCounter() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   useEffect(() => {
     document.title = 'Sales Counter';
   }, []);
+
+  if (!mounted) return null;
 
   if(!checkOrganizationPermission(PERMISSIONS.SALES_READ)){
     return <UnauthorizedAccess/>;

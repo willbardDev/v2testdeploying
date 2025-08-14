@@ -28,8 +28,6 @@ function PriceLists() {
        setMounted(true);
     }, []);
 
-    if (!mounted) return null;
-
     React.useEffect(() => {
         setQueryOptions((state) => ({
             ...state,
@@ -53,6 +51,8 @@ function PriceLists() {
         },
         []
     );
+
+    if (!mounted) return null;
 
     return (
         <ProductsSelectProvider>
