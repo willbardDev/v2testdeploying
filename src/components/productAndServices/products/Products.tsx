@@ -12,7 +12,14 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 
 const Products = () => {
+    const [mounted, setMounted] = React.useState(false);
     const {organizationHasSubscribed,checkOrganizationPermission} = useJumboAuth();
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
       return <UnsubscribedAccess modules={'Procurement & Supply'}/>

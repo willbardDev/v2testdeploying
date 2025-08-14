@@ -15,7 +15,6 @@ const ProductActionTail = lazy(() => import('./ProductActionTail'));
 const ProductList = () => {
     const params = useParams();
     const listRef = React.useRef();
-    const [mounted, setMounted] = React.useState(false);
     const {setSelectedProducts,setProductsListRefresh,refreshProductsList} = useProductApp();
     const {checkOrganizationPermission} = useJumboAuth();
 
@@ -49,12 +48,6 @@ const ProductList = () => {
             }
         }))
     }, []);
-
-    React.useEffect(() => {
-    setMounted(true);
-    }, []);
-    
-    if (!mounted) return null;
 
     const renderProduct = React.useCallback((product) => {
         return (<ProductListItem product={product}/>)
