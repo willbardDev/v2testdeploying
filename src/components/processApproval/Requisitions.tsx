@@ -81,6 +81,13 @@ const Requisitions = () => {
         dataKey: 'data',
     });
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+       setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     useEffect(() => {
         setQueryOptions((state) => ({
             ...state,

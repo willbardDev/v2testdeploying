@@ -19,13 +19,19 @@ const ProductList = () => {
     const {checkOrganizationPermission} = useJumboAuth();
     const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
 
-
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "products",
         queryParams: {id: params.id, keyword : ''},
         countKey: "total",
         dataKey: "data",
     });
+
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
 
     React.useEffect(() => {
         setQueryOptions(state => ({

@@ -17,6 +17,13 @@ function ProductionBatches() {
     queryFn: productionBatchesServices.getUserWorkCenters,
     enabled: !!authUser?.user?.id,
   });
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
   
   useEffect(() => {
     if (workcenters?.length === 1) {

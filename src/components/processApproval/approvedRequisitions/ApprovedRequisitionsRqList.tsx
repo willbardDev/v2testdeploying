@@ -57,6 +57,13 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
   const [filterDate, setFilterDate] = useState<FilterDate>({ from: null, to: null });
   const [selectedCostCenter, setSelectedCostCenter] = useState<CostCenter[]>([]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
     queryKey: 'approvedRequisitions',
     queryParams: { 

@@ -49,6 +49,13 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
   const { checkPermission } = useJumboAuth();
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const canAddOrganization = checkPermission([PROS_CONTROL_PERMISSIONS.ORGANIZATIONS_MANAGE]);
 
   const [queryOptions, setQueryOptions] = useState<

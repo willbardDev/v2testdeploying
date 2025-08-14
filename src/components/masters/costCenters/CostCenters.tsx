@@ -37,6 +37,13 @@ const CostCenters = () => {
     dataKey: 'data',
   });
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   useEffect(() => {
     setQueryOptions((prev) => ({
       ...prev,
