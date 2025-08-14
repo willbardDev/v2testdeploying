@@ -118,6 +118,18 @@ interface SalesManifestPDFProps {
   title?: string;
 }
 
+interface FormValues {
+  from: string;
+  to: string;
+  with_collection_distribution: boolean;
+  sales_outlet_id?: number | null;
+  counter_ids?: number[] | null;
+  stakeholder_ids?: number[];
+  user_ids?: number[];
+  user_names?: string[];
+  sales_people?: string[];
+}
+
 const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
   userNames, 
   reportData, 
@@ -772,7 +784,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
   const [reportData, setReportData] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
 
-  const { setValue, handleSubmit, watch } = useForm({
+  const { setValue, handleSubmit, watch } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       from: dayjs().startOf('day').toISOString(),
@@ -910,17 +922,17 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                   <Autocomplete
                     options={salesPersons || []}
                     multiple
-                    isOptionEqualToValue={(option, value) => option === value}
-                    getOptionLabel={(option) => option}
+                    isOptionEqualToValue={(option: string, value: string) => option === value}
+                    getOptionLabel={(option: string) => option}
                     renderInput={(params) => (
                       <TextField {...params} label="Sales Person" size="small" fullWidth />
                     )}
-                    renderTags={(tagValue, getTagProps) => {
+                    renderTags={(tagValue: string[], getTagProps) => {
                       return tagValue.map((option, index) => (
                         <Chip {...getTagProps({ index })} key={option} label={option} />
                       ))
                     }}
-                    onChange={(e, newValue) => {
+                    onChange={(e, newValue: string[]) => {
                       setValue('sales_people', newValue);
                     }}
                   />
@@ -940,7 +952,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                       },
                     }}
                     onChange={(newValue) => {
-                      setValue('from', newValue ? newValue.toISOString() : null, {
+                      setValue('from', newValue ? newValue.toISOString() : dayjs().startOf('day').toISOString(), {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
@@ -962,7 +974,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                       },
                     }}
                     onChange={(newValue) => {
-                      setValue('to', newValue ? newValue.toISOString() : null, {
+                      setValue('to', newValue ? newValue.toISOString() : dayjs().endOf('day').toISOString(), {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
@@ -1021,7 +1033,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                   type="submit" 
                   size="small" 
                   variant="contained" 
-                  onClick={() => setUpdatedUsers(watch('user_names'))}
+                  onClick={() => setUpdatedUsers(watch('user_names') as string[])}
                 >
                   Filter
                 </LoadingButton>
@@ -1051,7 +1063,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
           ) : displayAs === 'on screen' ? (
             <SalesManifestOnScreen 
               reportData={reportData} 
-              authObject={authObject} 
+              authObject={authObject as any} 
               separateVAT={separateVAT}
             />
           ) : null}

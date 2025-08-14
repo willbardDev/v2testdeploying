@@ -9,7 +9,7 @@ interface ProductVendorRowProps {
   vendor: Vendor;
   vendors: Vendor[];
   setVendors: Dispatch<SetStateAction<Vendor[]>>;
-  vendorIndex: number;
+  vendorIndex?: number;
   setRequisition_product_items: Dispatch<SetStateAction<any[]>>;
 }
 

@@ -42,6 +42,7 @@ function Vendors({ setRequisition_product_items, product_item, index }: VendorsP
           vendor={vendor} 
           vendors={vendors} 
           setVendors={setVendors}
+          setRequisition_product_items={setRequisition_product_items}
         />
       ))}
     </>

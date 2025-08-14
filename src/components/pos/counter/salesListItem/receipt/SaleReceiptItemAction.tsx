@@ -73,7 +73,7 @@ const AttachDialog: React.FC<AttachDialogProps> = ({ receipt, setAttachDialog })
       attachment_sourceNo={receipt.voucherNo} 
       attachmentable_type={'receipt'} 
       attachment_name={'Receipt'} 
-      attachmentable_id={receipt.id}
+      attachmentable_id={Number(receipt.id)}
     />
   );
 };
