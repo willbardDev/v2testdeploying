@@ -22,9 +22,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import bomsServices, { BomsFormValues } from '../boms-services';
+import bomsServices from '../boms-services';
 import BomsFormItem from './BomFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import { BOMPayload } from '../BomType';
 
 
 interface BomsFormProps {
@@ -75,7 +76,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     reset,
     formState: { errors, isSubmitted },
     trigger,
-  } = useForm<BomsFormValues>({
+  } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       output_product_id: bom?.output_product?.id || null,
@@ -104,7 +105,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   // Fully reset react-hook-form state
   reset({
     output_product_id: undefined,
-    output_quantity: null,
+    output_quantity: undefined,
     items: [],
   });
 
@@ -133,7 +134,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   });
 
   const updateBomMutation = useMutation({
-    mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
+    mutationFn: ({ id, bom }: { id: number, bom: BOMPayload }) => bomsServices.update(id, bom),
     onSuccess: (data) => {
       handleClose();
       setIsSubmitting(false);
@@ -148,8 +149,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   });
 
 
-
-    const onSubmit = async (data: BomsFormValues) => {
+    const onSubmit = async (data: BOMPayload) => {
   try {
     // Validate before submission
     const isValid = await trigger();
@@ -165,16 +165,17 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
       return;
     }
 
-    const payload = {
-      output_product_id: outputProduct?.id,
-      output_quantity: data.output_quantity || 0,
-      items: items.map(item => ({
-        product_id: item.product?.id || item.product_id,
-        quantity: item.quantity,
-        measurement_unit_id: item.measurement_unit_id,
-        conversion_factor: item.conversion_factor || 1
-      }))
-    };
+    const payload: BOMPayload = {
+  output_product_id: Number(outputProduct?.id), // ✅ ensures it's a number
+  output_quantity: Number(data.output_quantity) || 0,
+  items: items.map(item => ({
+    product_id: Number(item.product?.id || item.product_id),
+    quantity: Number(item.quantity),
+    measurement_unit_id: Number(item.measurement_unit_id),
+    conversion_factor: Number(item.conversion_factor) || 1
+  }))
+};
+
 
     setIsSubmitting(true);
    if (bom) {
@@ -218,7 +219,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
               value={outputProduct}
               onChange={(product: Product | null) => {
                 setOutputProduct(product);
-                setValue('output_product_id', product?.id);
+                setValue('output_product_id', product?.id ?? 0);
               }}
               error={!!errors.output_product_id}
               helperText={errors.output_product_id?.message}
@@ -236,7 +237,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
                   ...prev,
                   output_quantity: value === '' ? null : Number(value)
                 }));
-                setValue('output_quantity', value === '' ? null : Number(value));
+                setValue('output_quantity', value === '' ? 0 : Number(value));
               }}
               error={!!errors.output_quantity}
               helperText={errors.output_quantity?.message as string}

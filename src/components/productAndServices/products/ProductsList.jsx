@@ -51,14 +51,14 @@ const ProductList = () => {
     }, []);
 
     React.useEffect(() => {
-        setMounted(true);
+    setMounted(true);
     }, []);
+    
+    if (!mounted) return null;
 
     const renderProduct = React.useCallback((product) => {
         return (<ProductListItem product={product}/>)
     });
-
-    if (!mounted) return null;
 
     const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
 

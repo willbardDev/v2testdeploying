@@ -4,9 +4,8 @@ export interface BOM {
   quantity: number;
   product: any;
    id: number;
-  output_product_id: number;
-  output_quantity: number;
-  organization_id?: number;
+  output_product_id?: number;
+  output_quantity?: number;
   created_at?: string;
   updated_at?: string;
   
@@ -27,7 +26,7 @@ export interface BOM {
 
 export interface BomsFormValues {
   output_product_id?: number;
-  output_quantity: number | null;
+  output_quantity?: number | null;
   items: BomItem[];
 }
 
@@ -38,17 +37,10 @@ export interface BomAlternative {
 
 export interface BomItem {
   product_id?: number;
-  quantity: number;
+  quantity?: number;
   measurement_unit_id?: number;
   conversion_factor?: number;
 }
-
-export interface BOMItem {
-  product_id: number;
-  quantity: number;
-  conversion_factor: number;
-}
-
 
 // Response types (optional if you want to type responses)
 export interface AddBOMResponse {
@@ -68,4 +60,17 @@ export interface DeleteBOMResponse {
 export interface PaginatedBOMResponse {
   data: BOM[];
   total: number;
+}
+
+export interface BOMItem {
+  product_id: number;
+  quantity: number;
+  measurement_unit_id: number;
+  conversion_factor: number;
+}
+
+export interface BOMPayload {
+  output_product_id: number;
+  output_quantity: number;
+  items: BOMItem[];
 }

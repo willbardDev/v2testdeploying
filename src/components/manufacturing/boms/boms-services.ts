@@ -1,17 +1,16 @@
+// bomsServices.ts
 import axios from '@/lib/services/config';
 import {
   AddBOMResponse,
   UpdateBOMResponse,
   DeleteBOMResponse,
   PaginatedBOMResponse,
-  BOM,  // Add this import
+  BOM,
+  BOMPayload,
   BomsFormValues
 } from './BomType';
 
-// ... rest of your imports and interfaces ...
-
 const bomsServices = {
-  // ✅ Get paginated list of BOMs
   getList: async (
     params: { keyword?: string; page?: number; limit?: number } = {}
   ): Promise<PaginatedBOMResponse> => {
@@ -22,44 +21,27 @@ const bomsServices = {
     return data;
   },
 
-  // ✅ Get single BOM by ID
   show: async (id: number): Promise<BOM> => {
     const { data } = await axios.get(`/api/manufacturing/boms/${id}`);
     return data;
   },
 
-  // ✅ Add a new BOM
-  add: async (bom: {
-    output_product_id?: number;
-    output_quantity: number;
-    items: {
-      product_id?: number;
-      quantity: number;
-      alternatives?: {
-        product_id?: number;
-        quantity: number;
-      }[][];
-    }[];
-  }): Promise<AddBOMResponse> => {
+  add: async (bom: BOMPayload): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.post('/api/manufacturing/boms/add', bom);
     return data;
   },
 
-  // ✅ Update existing BOM
   update: async (
     id: number,
-    bom: Pick<BomsFormValues, 'output_product_id' | 'output_quantity' | 'items'>
+    bom: BOMPayload
   ): Promise<UpdateBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.put(`/api/manufacturing/boms/${id}/update`, bom);
     return data;
   },
 
-  // ✅ Delete a BOM
-  delete: async (
-    params: { id: number }
-  ): Promise<DeleteBOMResponse> => {
+  delete: async (params: { id: number }): Promise<DeleteBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`);
     return data;
@@ -67,13 +49,3 @@ const bomsServices = {
 };
 
 export default bomsServices;
-
-// Re-export types
-export type {
-  BomsFormValues,
-  AddBOMResponse,
-  UpdateBOMResponse,
-  DeleteBOMResponse,
-  PaginatedBOMResponse,
-  BOM  // Add this export if needed
-};
