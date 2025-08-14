@@ -5,13 +5,10 @@ import DocumentStakeholders from '@/components/pdf/DocumentStakeholders';
 import PageFooter from '@/components/pdf/PageFooter';
 import pdfStyles from '@/components/pdf/pdf-styles';
 import PdfLogo from '@/components/pdf/PdfLogo';
+import { Product } from '@/components/productAndServices/products/ProductType';
 import { Organization, User } from '@/types/auth-types';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
-
-interface Product {
-  name: string;
-}
 
 interface SaleItem {
   measurement_unit?: MeasurementUnit;
@@ -144,59 +141,61 @@ const DeliveryNotePDF: React.FC<DeliveryNotePDFProps> = ({ delivery, organizatio
   );
 
   const PDF80mm = () => (
-    <Page size={[80 * 2.83465, 297 * 2.83465]} style={{ ...pdfStyles.page, padding: 10, scale: 0.7 }}>
-      {/* Header */}
-      <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
-        <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250) }}>
-          <PdfLogo organization={organization} />
+    <Page size={[80 * 2.83465, 297 * 2.83465]} style={{ ...pdfStyles.page, padding: 10}}>
+      <View style={{ transform: 'scale(1)'}}>
+        {/* Header */}
+        <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
+          <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250) }}>
+            <PdfLogo organization={organization} />
+          </View>
         </View>
-      </View>
-      <View style={{ ...pdfStyles.tableRow, marginBottom: 10, textAlign: 'center' }}>
-        <View style={{ flex: 1, padding: 1 }}>
-          <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>DELIVERY NOTE</Text>
-          <Text style={pdfStyles.midInfo}>{delivery.deliveryNo}</Text>
+        <View style={{ ...pdfStyles.tableRow, marginBottom: 10, textAlign: 'center' }}>
+          <View style={{ flex: 1, padding: 1 }}>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>DELIVERY NOTE</Text>
+            <Text style={pdfStyles.midInfo}>{delivery.deliveryNo}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Dispatch Info */}
-      <View style={{ ...pdfStyles.tableRow }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatch Date:</Text>
-          <Text style={pdfStyles.minInfo}>{readableDate(delivery.dispatch_date)}</Text>
+        {/* Dispatch Info */}
+        <View style={{ ...pdfStyles.tableRow }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatch Date:</Text>
+            <Text style={pdfStyles.minInfo}>{readableDate(delivery.dispatch_date)}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatched By:</Text>
+            <Text style={pdfStyles.minInfo}>{delivery.creator.name}</Text>
+          </View>
         </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatched By:</Text>
-          <Text style={pdfStyles.minInfo}>{delivery.creator.name}</Text>
+        <View style={{ ...pdfStyles.tableRow, marginBottom: 5 }}>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatch From:</Text>
+            <Text style={pdfStyles.minInfo}>{delivery.dispatch_from}</Text>
+          </View>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Destination:</Text>
+            <Text style={pdfStyles.minInfo}>{delivery.destination}</Text>
+          </View>
         </View>
-      </View>
-      <View style={{ ...pdfStyles.tableRow, marginBottom: 5 }}>
-        <View style={{ flex: 1, padding: 2 }}>
-          <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Dispatch From:</Text>
-          <Text style={pdfStyles.minInfo}>{delivery.dispatch_from}</Text>
-        </View>
-        <View style={{ flex: 1, padding: 2 }}>
-          <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Destination:</Text>
-          <Text style={pdfStyles.minInfo}>{delivery.destination}</Text>
-        </View>
-      </View>
 
-      {/* Stakeholders */}
-      <DocumentStakeholders 
-        organization={organization} 
-        stakeholder={delivery.sale.stakeholder} 
-        fromLabel="FROM" 
-        toLabel="TO" 
-      />
+        {/* Stakeholders */}
+        <DocumentStakeholders 
+          organization={organization} 
+          stakeholder={delivery.sale.stakeholder} 
+          fromLabel="FROM" 
+          toLabel="TO" 
+        />
 
-      {/* Items Table */}
-      {renderItemsTable()}
-      {renderAdditionalInfo()}
-      {renderSignatureSection()}
+        {/* Items Table */}
+        {renderItemsTable()}
+        {renderAdditionalInfo()}
+        {renderSignatureSection()}
 
-      {/* Footer */}
-      <View style={{ ...pdfStyles.tableRow, marginTop: 50, textAlign: 'center' }}>
-        <View style={{ flex: 1, padding: 2 }}>
-          <Text style={pdfStyles.minInfo}>Powered by: proserp.co.tz</Text>
+        {/* Footer */}
+        <View style={{ ...pdfStyles.tableRow, marginTop: 50, textAlign: 'center' }}>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={pdfStyles.minInfo}>Powered by: proserp.co.tz</Text>
+          </View>
         </View>
       </View>
     </Page>

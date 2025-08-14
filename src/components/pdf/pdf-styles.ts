@@ -32,7 +32,7 @@ const pdfStyles = StyleSheet.create({
       color: '#CCCCCC', // Watermark text color
     },
     table: {
-      display: 'table',
+      display: 'table' as any,
       width: '100%',
       borderColor: '#000'
     },
@@ -91,7 +91,7 @@ const pdfStyles = StyleSheet.create({
       borderColor: 'black',
       marginBottom: 1,
     },
-    shadedBG : '#d5d5d5'
+    shadedBG : '#d5d5d5' as any
 });
 
 export default pdfStyles;

@@ -16,10 +16,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Organization, User } from '@/types/auth-types';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
-
-interface Product {
-  name: string;
-}
+import { Product } from '@/components/productAndServices/products/ProductType';
 
 interface SaleItem {
   measurement_unit?: MeasurementUnit;

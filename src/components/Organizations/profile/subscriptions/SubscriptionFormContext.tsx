@@ -10,15 +10,15 @@ interface SubscriptionFormContextProps {
   setTotalAdditionalFeaturesAmount: (value: number) => void;
   totalAdditionalFeaturesAmount: number;
   additionalFeaturesSelected: AdditionalFeature[];
-  setAdditionalFeaturesSelected: (features: AdditionalFeature[]) => void;
+  setAdditionalFeaturesSelected: (features: AdditionalFeature[] | ((prev: AdditionalFeature[]) => AdditionalFeature[])) => void;
   Modules?: SubscriptionModule[];
   organization?: Organization;
   start_date: Dayjs | Date;
   userIsProsAfrican: boolean;
   modulesSelected: SubscriptionModule[];
-  setModulesSelected: (modules: SubscriptionModule[]) => void;
+  setModulesSelected: (modules: SubscriptionModule[] | ((prev: SubscriptionModule[]) => SubscriptionModule[])) => void;
   moduleValues: SubscriptionModule[];
-  setModuleValues: (modules: SubscriptionModule[]) => void;
+  setModuleValues: (values: SubscriptionModule[] | ((prev: SubscriptionModule[]) => SubscriptionModule[])) => void;
   additionalFeatureValues: Record<string, any>;
   setAdditionalFeatureValues: (values: Record<string, any>) => void;
 }

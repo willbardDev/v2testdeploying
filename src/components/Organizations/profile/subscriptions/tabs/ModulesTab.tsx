@@ -21,15 +21,15 @@ function ModulesTab() {
   } = useSubscriptionFormContext();
 
   const handleModuleChange = (moduleId: number, newRate: string | number) => {
-    setModulesSelected((existingModules) =>
-      existingModules.map((module) =>
+    setModulesSelected((existingModules: SubscriptionModule[]) =>
+      existingModules.map((module: SubscriptionModule) =>
         module.id === moduleId
           ? { ...module, monthly_rate: sanitizedNumber(newRate) || 0 }
           : module
       )
     );
 
-    setModuleValues((prevValues: Module) => {
+    setModuleValues((prevValues: SubscriptionModule[]) => {
       const updatedValues = [...prevValues];
       const moduleIndex = updatedValues.findIndex(
         (module) => Number(module.id) === moduleId
@@ -118,7 +118,7 @@ function ModulesTab() {
               <Grid size={{xs: 4, md: 3, lg: 3}}>
                 <Tooltip title={subDictForm.helpTexts.monthlyRate}>
                   <Typography align="right">
-                    {module.monthly_rate.toLocaleString()}
+                    {module.monthly_rate?.toLocaleString()}
                   </Typography>        
                 </Tooltip>
               </Grid>

@@ -52,7 +52,7 @@ export const NewRoleForm = () => {
     reset,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       organization_id: organization?.id,
     },

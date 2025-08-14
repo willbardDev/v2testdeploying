@@ -59,7 +59,7 @@ const MeasurementSelector: React.FC<MeasurementSelectorProps> = (props) => {
       disableCloseOnSelect={multiple}
       value={selectedMeasurementUnits}
       
-      getOptionLabel={(option) => 
+      getOptionLabel={(option: any) => 
         option.name !== option.symbol ? `${option.name} (${option.symbol})` : option.name
       }
       

@@ -148,10 +148,10 @@ function SalesEditDispatchItemForm({ items }: SalesEditDispatchItemFormProps) {
                 <StoreSelector
                   allowSubStores={true}
                   defaultValue={watch(`items.${index}.store`)}
-                  proposedOptions={stores}
+                  proposedOptions={stores as any}
                   includeStores={authOrganization?.stores || []}
-                  frontError={errors.items?.[index]?.store_id?.message}
-                  onChange={(newValue) => {
+                  frontError={errors.items?.[index]?.store_id?.message as any}
+                  onChange={(newValue: any) => {
                     if (newValue) {
                       retrieveBalances(item.product.id, newValue.id, index);
                     }

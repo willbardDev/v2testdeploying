@@ -240,7 +240,7 @@
     "src/lib/auth.js",
     "src/utilities/helpers/user-agent-helpers.ts",
     "build/types/**/*.ts"
-, "src/app/api/auth/[...nextauth]/route.js", "src/app/api/auth/authOptions.js"  ],
+, "src/app/api/auth/[...nextauth]/route.js", "src/app/api/auth/authOptions.js", "src/components/pos/counter/saleForm/ProductsSaleSummary.jsx", "src/components/pos/counter/saleForm/QuickAdd.jsx"  ],
   "exclude": [
     "node_modules"
   ]

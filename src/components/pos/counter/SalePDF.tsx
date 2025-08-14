@@ -21,199 +21,201 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
     const contrastText = organization.settings?.contrast_text || "#FFFFFF";
 
     const PDF80mm = () => (
-        <Page size={[80 * 2.83465, 297 * 2.83465]} style={{...pdfStyles.page, padding: 10, scale: 0.7 }}>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
-                <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250)}}>
-                    <PdfLogo organization={organization} />
+        <Page size={[80 * 2.83465, 297 * 2.83465]} style={{...pdfStyles.page, padding: 10 }}>
+            <View style={{ transform: 'scale(1)'}}>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 10, justifyContent: 'center' }}>
+                    <View style={{ flex: 1, padding: 1, maxWidth: (organization?.logo_path ? 130 : 250)}}>
+                        <PdfLogo organization={organization} />
+                    </View>
                 </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 10, textAlign: 'center' }}>
-                <View style={{ flex: 1, padding: 1 }}>
-                    <Text style={{...pdfStyles.midInfo, color: mainColor }}>SALES ORDER</Text>
-                    <Text style={{ ...pdfStyles.minInfo }}>{sale.saleNo}</Text>
-                    {sale.reference && <Text style={{ ...pdfStyles.minInfo }}>Ref: {sale.reference}</Text>}
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 10, textAlign: 'center' }}>
+                    <View style={{ flex: 1, padding: 1 }}>
+                        <Text style={{...pdfStyles.midInfo, color: mainColor }}>SALES ORDER</Text>
+                        <Text style={{ ...pdfStyles.minInfo }}>{sale.saleNo}</Text>
+                        {sale.reference && <Text style={{ ...pdfStyles.minInfo }}>Ref: {sale.reference}</Text>}
+                    </View>
                 </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
-                <View style={{ flex: 1.2, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Sale Date & Time:</Text>
-                    <Text style={{...pdfStyles.minInfo }}>{readableDate(sale.transaction_date, true)}</Text>
-                </View>
-                <View style={{flex: 0.3}}></View>
-                <View style={{flex: 1, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Outlet:</Text>
-                    <Text style={{...pdfStyles.minInfo }}>{sale.sales_outlet?.name || 'N/A'}</Text>
-                </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
-                {sale.sales_person && (
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
+                    <View style={{ flex: 1.2, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Sale Date & Time:</Text>
+                        <Text style={{...pdfStyles.minInfo }}>{readableDate(sale.transaction_date, true)}</Text>
+                    </View>
+                    <View style={{flex: 0.3}}></View>
                     <View style={{flex: 1, padding: 2}}>
-                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Sales Person</Text>
-                        <Text style={{...pdfStyles.minInfo }}>{sale.sales_person}</Text>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Outlet:</Text>
+                        <Text style={{...pdfStyles.minInfo }}>{sale.sales_outlet?.name || 'N/A'}</Text>
+                    </View>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
+                    {sale.sales_person && (
+                        <View style={{flex: 1, padding: 2}}>
+                            <Text style={{...pdfStyles.minInfo, color: mainColor }}>Sales Person</Text>
+                            <Text style={{...pdfStyles.minInfo }}>{sale.sales_person}</Text>
+                        </View>
+                    )}
+                    <View style={{flex: 1, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Served By</Text>
+                        <Text style={{...pdfStyles.minInfo }}>{sale.creator?.name || 'N/A'}</Text>
+                    </View>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
+                    <View style={{ flex: 1, padding: 1 }}>
+                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, textAlign: 'center'}}>
+                            {'SUPPLIER'}
+                        </Text>
+                        <Text style={{...pdfStyles.midInfo, textAlign: 'center'}}>{organization.name}</Text>
+                        {organization?.address && <Text style={{...pdfStyles.minInfo, textAlign: 'center'}}>{organization.address}</Text>}
+                        {organization?.tin && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>TIN:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{organization.tin}</Text>
+                            </View>
+                        )}
+                        {organization?.settings?.vrn && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>VRN:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{organization.settings.vrn}</Text>
+                            </View>
+                        )}
+                        {organization?.phone && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>Phone:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{organization.phone}</Text>
+                            </View>
+                        )}
+                        {organization?.email && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>Email:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{organization.email}</Text>
+                            </View>
+                        )}
+                    </View>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
+                    <View style={{ flex: 1, padding: 1 }}>
+                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, textAlign: 'center'}}>
+                            {'CLIENT'}
+                        </Text>
+                        <Text style={{...pdfStyles.midInfo, fontWeight: 'bold', textAlign: 'center'}}>{sale.stakeholder?.name || 'N/A'}</Text>
+                        {sale.stakeholder?.address && <Text style={{...pdfStyles.minInfo, textAlign: 'center'}}>{sale.stakeholder.address}</Text>}
+                        {sale.stakeholder?.tin && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>TIN:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.tin}</Text>
+                            </View>
+                        )}
+                        {sale.stakeholder?.vrn && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>VRN:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.vrn}</Text>
+                            </View>
+                        )}
+                        {sale.stakeholder?.phone && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>Phone:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.phone}</Text>
+                            </View>
+                        )}
+                        {sale.stakeholder?.email && (
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{...pdfStyles.minInfo}}>Email:</Text>
+                                <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.email}</Text>
+                            </View>
+                        )}
+                    </View>
+                </View>
+                <View style={{...pdfStyles.table}}>
+                    <View style={pdfStyles.tableRow}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>S/N</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3 }}>Product/Service</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>Qty</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Price</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.7 }}>Amount</Text>
+                    </View>
+                    {sale.sale_items?.map((saleItem, index) => (
+                        <View key={saleItem.id} style={{ ...pdfStyles.tableRow, borderTop: '1px', borderTopStyle: 'solid', borderTopColor: mainColor }}>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.6}}>{index+1}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3}}>{saleItem.product?.name || 'N/A'}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3, textAlign: 'right' }}>
+                                {`${saleItem.quantity} ${saleItem.measurement_unit?.symbol || ''}`}
+                            </Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>
+                                {(saleItem.rate * (1 + (saleItem?.vat_exempted !== 1 ? sale.vat_percentage * 0.01 : 0))).toLocaleString('en-US', {maximumFractionDigits: 2, minimumFractionDigits: 2})}
+                            </Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.7, textAlign: 'right' }}>
+                                {(saleItem.quantity * saleItem.rate * (1 + (saleItem?.vat_exempted !== 1 ? sale.vat_percentage * 0.01 : 0))).toLocaleString('en-US', {maximumFractionDigits: 2})}
+                            </Text>
+                        </View>
+                    ))}
+                </View> 
+                <View style={{...pdfStyles.tableRow, marginTop: 5}}>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>Total</Text>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
+                        {sale.amount.toLocaleString("en-US", {style: "currency", currency: currencyCode})}
+                    </Text>
+                </View>
+                {sale.vat_percentage > 0 && (
+                    <React.Fragment>
+                        <View style={{ ...pdfStyles.tableRow, marginTop: 2 }}>
+                            <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>VAT</Text>
+                            <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
+                                {sale.vat_amount.toLocaleString("en-US", {style: "currency", currency: currencyCode})}
+                            </Text>
+                        </View>
+                        <View style={{ ...pdfStyles.tableRow, marginTop: 2 }}>
+                            <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>Grand Total (VAT Incl.)</Text>
+                            <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
+                                {(sale.amount + sale.vat_amount).toLocaleString("en-US", {style: "currency", currency: currencyCode})}
+                            </Text>
+                        </View>
+                    </React.Fragment>
+                )}
+
+                {sale.remarks && (
+                    <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
+                        <View style={{ flex: 1, padding: 2}}>
+                            <Text style={{...pdfStyles.minInfo, color: mainColor }}>Remarks</Text>
+                            <Text style={{...pdfStyles.minInfo }}>{sale.remarks}</Text>
+                        </View>
                     </View>
                 )}
-                <View style={{flex: 1, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Served By</Text>
-                    <Text style={{...pdfStyles.minInfo }}>{sale.creator?.name || 'N/A'}</Text>
-                </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
-                <View style={{ flex: 1, padding: 1 }}>
-                    <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, textAlign: 'center'}}>
-                        {'SUPPLIER'}
-                    </Text>
-                    <Text style={{...pdfStyles.midInfo, textAlign: 'center'}}>{organization.name}</Text>
-                    {organization?.address && <Text style={{...pdfStyles.minInfo, textAlign: 'center'}}>{organization.address}</Text>}
-                    {organization?.tin && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>TIN:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{organization.tin}</Text>
-                        </View>
-                    )}
-                    {organization?.settings?.vrn && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>VRN:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{organization.settings.vrn}</Text>
-                        </View>
-                    )}
-                    {organization?.phone && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>Phone:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{organization.phone}</Text>
-                        </View>
-                    )}
-                    {organization?.email && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>Email:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{organization.email}</Text>
-                        </View>
-                    )}
-                </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
-                <View style={{ flex: 1, padding: 1 }}>
-                    <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, textAlign: 'center'}}>
-                        {'CLIENT'}
-                    </Text>
-                    <Text style={{...pdfStyles.midInfo, fontWeight: 'bold', textAlign: 'center'}}>{sale.stakeholder?.name || 'N/A'}</Text>
-                    {sale.stakeholder?.address && <Text style={{...pdfStyles.minInfo, textAlign: 'center'}}>{sale.stakeholder.address}</Text>}
-                    {sale.stakeholder?.tin && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>TIN:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.tin}</Text>
-                        </View>
-                    )}
-                    {sale.stakeholder?.vrn && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>VRN:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.vrn}</Text>
-                        </View>
-                    )}
-                    {sale.stakeholder?.phone && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>Phone:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.phone}</Text>
-                        </View>
-                    )}
-                    {sale.stakeholder?.email && (
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={{...pdfStyles.minInfo}}>Email:</Text>
-                            <Text style={{...pdfStyles.minInfo}}>{sale.stakeholder.email}</Text>
-                        </View>
-                    )}
-                </View>
-            </View>
-            <View style={{...pdfStyles.table}}>
-                <View style={pdfStyles.tableRow}>
-                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>S/N</Text>
-                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3 }}>Product/Service</Text>
-                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>Qty</Text>
-                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Price</Text>
-                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.7 }}>Amount</Text>
-                </View>
-                {sale.sale_items?.map((saleItem, index) => (
-                    <View key={saleItem.id} style={{ ...pdfStyles.tableRow, borderTop: '1px', borderTopStyle: 'solid', borderTopColor: mainColor }}>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.6}}>{index+1}</Text>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3}}>{saleItem.product?.name || 'N/A'}</Text>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3, textAlign: 'right' }}>
-                            {`${saleItem.quantity} ${saleItem.measurement_unit?.symbol || ''}`}
+                
+                <View style={{ ...pdfStyles.tableRow, marginTop: 20}}>
+                    <View style={{flex: 3, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </Text>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>
-                            {(saleItem.rate * (1 + (saleItem?.vat_exempted !== 1 ? sale.vat_percentage * 0.01 : 0))).toLocaleString('en-US', {maximumFractionDigits: 2, minimumFractionDigits: 2})}
-                        </Text>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.7, textAlign: 'right' }}>
-                            {(saleItem.quantity * saleItem.rate * (1 + (saleItem?.vat_exempted !== 1 ? sale.vat_percentage * 0.01 : 0))).toLocaleString('en-US', {maximumFractionDigits: 2})}
-                        </Text>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Name</Text>
                     </View>
-                ))}
-            </View> 
-            <View style={{...pdfStyles.tableRow, marginTop: 5}}>
-                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>Total</Text>
-                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
-                    {sale.amount.toLocaleString("en-US", {style: "currency", currency: currencyCode})}
-                </Text>
-            </View>
-            {sale.vat_percentage > 0 && (
-                <React.Fragment>
-                    <View style={{ ...pdfStyles.tableRow, marginTop: 2 }}>
-                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>VAT</Text>
-                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
-                            {sale.vat_amount.toLocaleString("en-US", {style: "currency", currency: currencyCode})}
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginTop: 15}}>
+                    <View style={{flex: 1.5, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </Text>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Signature</Text>
                     </View>
-                    <View style={{ ...pdfStyles.tableRow, marginTop: 2 }}>
-                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2}}>Grand Total (VAT Incl.)</Text>
-                        <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 2.2, textAlign: 'right'}}>
-                            {(sale.amount + sale.vat_amount).toLocaleString("en-US", {style: "currency", currency: currencyCode})}
+                    <View style={{flex: 1.5, padding: 2}}>
+                        <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </Text>
+                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Date</Text>
                     </View>
-                </React.Fragment>
-            )}
-
-            {sale.remarks && (
-                <View style={{ ...pdfStyles.tableRow, marginBottom: 5}}>
+                </View>
+                <View style={{ ...pdfStyles.tableRow, marginTop: 50, textAlign: 'center'}}>
                     <View style={{ flex: 1, padding: 2}}>
-                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Remarks</Text>
-                        <Text style={{...pdfStyles.minInfo }}>{sale.remarks}</Text>
+                        <Text style={{...pdfStyles.minInfo }}>Powered by: proserp.co.tz</Text>
                     </View>
-                </View>
-            )}
-            
-            <View style={{ ...pdfStyles.tableRow, marginTop: 20}}>
-                <View style={{flex: 3, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </Text>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Name</Text>
-                </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginTop: 15}}>
-                <View style={{flex: 1.5, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </Text>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Signature</Text>
-                </View>
-                <View style={{flex: 1.5, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo, textDecoration: 'underline'}}>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </Text>
-                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Date</Text>
-                </View>
-            </View>
-            <View style={{ ...pdfStyles.tableRow, marginTop: 50, textAlign: 'center'}}>
-                <View style={{ flex: 1, padding: 2}}>
-                    <Text style={{...pdfStyles.minInfo }}>Powered by: proserp.co.tz</Text>
                 </View>
             </View>
         </Page> 

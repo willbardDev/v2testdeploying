@@ -85,7 +85,7 @@ function AdditionalFeatures() {
       )
     );
 
-    setAdditionalFeatureValues((prevValues: AdditionalFeature) => ({
+    setAdditionalFeatureValues((prevValues: any) => ({
       ...prevValues,
       [featureId]: {
         quantity: sanitizedNumber(quantity) || 0,
@@ -126,7 +126,7 @@ function AdditionalFeatures() {
                 <Checkbox
                   checked={isFeatureSelected}
                   onChange={() => {
-                    setAdditionalFeaturesSelected((existingFeatures) => {
+                    setAdditionalFeaturesSelected((existingFeatures: AdditionalFeature[]) => {
                       if (isFeatureSelected) {
                         return existingFeatures.filter(
                           (presentFeature: AdditionalFeature) => presentFeature.id !== additionaFeature.id

@@ -6,22 +6,15 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import productServices from '@/components/productAndServices/products/productServices';
 import { Div } from '@jumbo/shared';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
+import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { Product } from '@/components/productAndServices/products/ProductType';
 
 interface SaleItem {
   id: number;
   product_id?: number;
-  product: {
-    id: number;
-    name: string;
-    measurement_unit?: {
-      symbol: string;
-    };
-    vat_exempted?: boolean;
-  };
+  product: Product
   measurement_unit_id?: number;
-  measurement_unit?: {
-    symbol: string;
-  };
+  measurement_unit?: MeasurementUnit;
   undispatched_quantity: number;
   quantity: number;
   rate: number;
@@ -169,15 +162,16 @@ function SalesDispatchItemForm({ sale_items }: SaleItemFormProps) {
               <Div sx={{ mt: 0.7, mb: 0.5 }}>
                 <StoreSelector
                   allowSubStores={true}
-                  proposedOptions={stores}
+                  defaultValue={null}
+                  proposedOptions={stores as any}
                   includeStores={authOrganization?.stores}
-                  frontError={errors.items?.[index]?.store_id}
+                  frontError={errors.items?.[index]?.store_id as any}
                   onChange={(newValue: any) => {
                     if (newValue) {
                       retrieveBalances(
                         item.product.id, 
                         newValue.id,
-                        item.measurement_unit_id, 
+                        Number(item.measurement_unit_id), 
                         index
                       );
                     }
