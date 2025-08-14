@@ -72,6 +72,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     watch,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitted },
     trigger,
   } = useForm<BomsFormValues>({
@@ -95,13 +96,21 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   }, [items, isSubmitted, trigger]);
 
    const handleReset = () => {
-    setItems([]);
-    setOutputProduct(null);
-    setClearFormKey(prev => prev + 1);
-    setValue('output_product_id', undefined);
-    setValue('output_quantity', null);
-    setSubmitItemForm(false);
-  };
+  setItems([]);
+  setOutputProduct(null);
+  setClearFormKey(prev => prev + 1);
+  setFormData({ output_quantity: null });
+
+  // Fully reset react-hook-form state
+  reset({
+    output_product_id: undefined,
+    output_quantity: null,
+    items: [],
+  });
+
+  setSubmitItemForm(false);
+};
+
 
    const handleClose = () => {
     handleReset();
@@ -202,7 +211,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
         </Typography>
       </DialogTitle>
       <DialogContent>
-         <Grid container spacing={2} alignItems="flex-end" mb={2}> 
+         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}> 
            <Grid size={{xs:12, md:8}}>
             <ProductSelect
               label="Output Product"
@@ -218,6 +227,8 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
           <Grid size={{xs: 12, md:4}}>
              <TextField
               label="Quantity"
+              size="small"
+              fullWidth
               value={formData.output_quantity ?? ''}
               onChange={(e) => {
                 const value = e.target.value;

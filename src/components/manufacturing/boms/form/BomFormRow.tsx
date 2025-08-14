@@ -148,7 +148,7 @@ const BomsFormItemEditor: React.FC<{
   return (
     <Box sx={{ mb: 2, pt: 1, pl: 1, borderLeft: '2px solid', borderColor: 'primary.main' }}>
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid size={{xs: 12, md: 5}}>
+        <Grid size={{xs: 12, md: 4.5}}>
           <ProductSelect
             label="Product"
             value={product}
@@ -174,7 +174,7 @@ const BomsFormItemEditor: React.FC<{
           />
         </Grid>
         
-        <Grid size={{xs: 12, md: 5}}>
+        <Grid size={{xs: 12, md: 4.5}}>
           <TextField
             label="Quantity"
             fullWidth
@@ -208,17 +208,28 @@ const BomsFormItemEditor: React.FC<{
           />
         </Grid>
         
-        <Grid size={{xs: 12, md: 2}} textAlign="center">
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={handleDone}
-            startIcon={<CheckOutlined />}
-            fullWidth
-          >
-            Done
-          </Button>
+        <Grid size={{ xs: 12, md: 3 }} textAlign="center">
+          <Box sx={{ display: 'flex', gap: 0.5}}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={handleDone}
+              startIcon={<CheckOutlined />}
+              fullWidth
+            >
+              Done
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={onCancel}
+              fullWidth
+            >
+              Cancel
+            </Button>
+          </Box>
         </Grid>
       </Grid>
     </Box>
