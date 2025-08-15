@@ -1,11 +1,11 @@
+import React, { lazy, useState, useRef, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
+import { Card, Grid } from '@mui/material';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import { Card, Grid } from '@mui/material';
-import React, { lazy } from 'react'
 import { useProductApp } from './ProductsProvider';
 import ProductListItem from './productsListItem/ProductListItem';
-import { useParams } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import productServices from './productServices';
@@ -14,46 +14,50 @@ const ProductActionTail = lazy(() => import('./ProductActionTail'));
 
 const ProductList = () => {
     const params = useParams();
-    const listRef = React.useRef();
-    const {setSelectedProducts,setProductsListRefresh,refreshProductsList} = useProductApp();
-    const {checkOrganizationPermission} = useJumboAuth();
-
-    const [queryOptions, setQueryOptions] = React.useState({
+    const listRef = useRef();
+    const { setSelectedProducts, setProductsListRefresh, refreshProductsList } = useProductApp();
+    const { checkOrganizationPermission } = useJumboAuth();
+    const [mounted, setMounted] = useState(false);
+    const [queryOptions, setQueryOptions] = useState({
         queryKey: "products",
-        queryParams: {id: params.id, keyword : ''},
+        queryParams: { id: params.id, keyword: '' },
         countKey: "total",
         dataKey: "data",
     });
 
-    React.useEffect(() => {
-        setQueryOptions(state => ({
-            ...state,
-            queryParams: {...state.queryParams, id: params.id}
-        }))
-    }, [params]);
-
-    React.useEffect(() => {
-        if (refreshProductsList) {
-            listRef.current.refresh();
-            setProductsListRefresh(false);
-        }
-    }, [setProductsListRefresh]);
-
-    const handleOnChange = React.useCallback((keyword) => {
-        setQueryOptions(state => ({
-            ...state,
-            queryParams: {
-                ...state.queryParams,
-                keyword: keyword,
-            }
-        }))
+    // ✅ All hooks are called before any conditional returns
+    useEffect(() => {
+        setMounted(true);
     }, []);
 
-    const renderProduct = React.useCallback((product) => {
-        return (<ProductListItem product={product}/>)
-    });
+    useEffect(() => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: { ...state.queryParams, id: params.id }
+        }));
+    }, [params]);
+
+    useEffect(() => {
+        if (refreshProductsList) {
+            listRef.current?.refresh();
+            setProductsListRefresh(false);
+        }
+    }, [refreshProductsList, setProductsListRefresh]);
+
+    const handleOnChange = useCallback((keyword) => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: { ...state.queryParams, keyword }
+        }));
+    }, []);
+
+    const renderProduct = useCallback((product) => (
+        <ProductListItem product={product} />
+    ), []);
 
     const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
+
+    if (!mounted) return null; // ✅ Early return AFTER all hooks
 
     return (
         <JumboRqList
@@ -64,7 +68,7 @@ const ProductList = () => {
             primaryKey={"id"}
             queryOptions={queryOptions}
             itemsPerPage={10}
-            itemsPerPageOptions={[10, 15, 20,50,100]}
+            itemsPerPageOptions={[10, 15, 20, 50, 100]}
             renderItem={renderProduct}
             componentElement={"div"}
             wrapperSx={{
@@ -76,27 +80,25 @@ const ProductList = () => {
                 <JumboListToolbar
                     hideItemsPerPage={true}
                     actionTail={
-                    <Grid container columnSpacing={1} direction={'row'}>
-                        <Grid size={canCreate ? 9.5 : 12}>
-                            <JumboSearch
-                                onChange={handleOnChange}
-                                value={queryOptions.queryParams.keyword}
-                            /> 
-                        </Grid>
-                        {
-                            canCreate &&
-                            <Grid size={2.5}>
-                                <ProductActionTail/>
+                        <Grid container columnSpacing={1} direction={'row'}>
+                            <Grid item xs={canCreate ? 9.5 : 12}>
+                                <JumboSearch
+                                    onChange={handleOnChange}
+                                    value={queryOptions.queryParams.keyword}
+                                />
                             </Grid>
-                        }
-                    </Grid>
-                }
-                >
-                </JumboListToolbar>
+                            {canCreate && (
+                                <Grid item xs={2.5}>
+                                    <ProductActionTail />
+                                </Grid>
+                            )}
+                        </Grid>
+                    }
+                />
             }
             onSelectionChange={setSelectedProducts}
         />
     );
-}
+};
 
-export default ProductList
+export default ProductList;

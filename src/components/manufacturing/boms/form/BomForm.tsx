@@ -47,26 +47,17 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     output_quantity: bom?.output_quantity || null,
   });
   const schema = yup.object().shape({
-    output_product_id: yup
-      .number()
-      .required('Output product is required'),
-    output_quantity: yup
-      .number()
-      .typeError('Output quantity must be a number')
-      .positive('Output quantity must be greater than zero')
-      .required('Output quantity is required'),
-    items: yup
-      .array()
-      .min(1, 'At least one item is required')
-      .of(
-        yup.object().shape({
-          product_id: yup.number().required('Product is required'),
-          quantity: yup.number().required().positive(),
-          measurement_unit_id: yup.number().required(),
-          conversion_factor: yup.number().required().positive()
-        })
-      )
-  });
+  output_product_id: yup.number().required().positive(),
+  output_quantity: yup.number().required().min(0),
+  items: yup.array().of(
+    yup.object().shape({
+      product_id: yup.number().required().positive(),
+      quantity: yup.number().required().min(0),
+      measurement_unit_id: yup.number().required().positive(),
+      conversion_factor: yup.number().required().min(1)
+    })
+  )
+});
 
   const {
     register,
@@ -78,11 +69,11 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     trigger,
   } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
-    defaultValues: {
-      output_product_id: bom?.output_product?.id || null,
-      output_quantity: bom?.output_quantity || null,
-      items: bom?.items || [],
-    },
+  defaultValues: {
+  output_product_id: bom?.output_product?.id || undefined,
+  output_quantity: bom?.output_quantity || 0,
+  items: bom?.items || [],
+},
     mode: "onSubmit",
   });
 
@@ -105,7 +96,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   // Fully reset react-hook-form state
   reset({
     output_product_id: undefined,
-    output_quantity: undefined,
+    output_quantity: 0,
     items: [],
   });
 
