@@ -6,9 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  FormControl,
   Grid,
-  IconButton,
   LinearProgress,
   TextField,
   Typography,
@@ -20,13 +18,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomFormRow';
-import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
 import BomsFormItem from './BomFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { BOMPayload } from '../BomType';
-
 
 interface BomsFormProps {
   open: boolean;
@@ -35,33 +31,38 @@ interface BomsFormProps {
   onSuccess?: () => void;
 }
 
+const schema = yup.object().shape({
+  product_id: yup.number().required().positive(),
+  quantity: yup.number().required().min(0),
+  measurement_unit_id: yup.number().required().positive(),
+  conversion_factor: yup.number().required().min(1),
+  items: yup.array().of(
+    yup.object().shape({
+      product_id: yup.number().required().positive(),
+      quantity: yup.number().required().min(0),
+      measurement_unit_id: yup.number().required().positive(),
+      conversion_factor: yup.number().required().min(1),
+    })
+  ),
+});
+
 function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+
   const [items, setItems] = useState<any[]>(bom?.items || []);
-  const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
+  const [outputProduct, setOutputProduct] = useState<Product | null>(
+    bom?.output_product || null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
   const [formData, setFormData] = useState({
     output_quantity: bom?.output_quantity || null,
   });
-  const schema = yup.object().shape({
-  output_product_id: yup.number().required().positive(),
-  output_quantity: yup.number().required().min(0),
-  items: yup.array().of(
-    yup.object().shape({
-      product_id: yup.number().required().positive(),
-      quantity: yup.number().required().min(0),
-      measurement_unit_id: yup.number().required().positive(),
-      conversion_factor: yup.number().required().min(1)
-    })
-  )
-});
 
   const {
     register,
-    watch,
     handleSubmit,
     setValue,
     reset,
@@ -69,12 +70,15 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     trigger,
   } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
-  defaultValues: {
-  product_id: bom?.output_product?.id || undefined,
-  output_quantity: bom?.output_quantity || 0,
-  items: bom?.items || [],
-},
-    mode: "onSubmit",
+    defaultValues: {
+      product_id: bom?.output_product?.id || undefined,
+      quantity: bom?.quantity || 0,
+      measurement_unit_id:
+        bom?.output_product?.measurement_unit_id || undefined,
+      conversion_factor: bom?.output_product?.conversion_factor || 1,
+      items: bom?.items || [],
+    },
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -87,24 +91,22 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
   }, [items, isSubmitted, trigger]);
 
-   const handleReset = () => {
-  setItems([]);
-  setOutputProduct(null);
-  setClearFormKey(prev => prev + 1);
-  setFormData({ output_quantity: null });
+  const handleReset = () => {
+    setItems([]);
+    setOutputProduct(null);
+    setClearFormKey((prev) => prev + 1);
+    setFormData({ output_quantity: null });
+    reset({
+      product_id: undefined,
+      quantity: 0,
+      measurement_unit_id: undefined,
+      conversion_factor: 1,
+      items: [],
+    });
+    setSubmitItemForm(false);
+  };
 
-  // Fully reset react-hook-form state
-  reset({
-    product_id: undefined,
-    output_quantity: 0,
-    items: [],
-  });
-
-  setSubmitItemForm(false);
-};
-
-
-   const handleClose = () => {
+  const handleClose = () => {
     handleReset();
     toggleOpen(false);
   };
@@ -112,40 +114,37 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
     onSuccess: (data) => {
-      handleClose();
-      setIsSubmitting(false);
-      toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['boms'] });
+      handleClose();
       onSuccess?.();
     },
     onError: (error: any) => {
-      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-    }
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to create BOM',
+        { variant: 'error' }
+      );
+    },
   });
 
   const updateBomMutation = useMutation({
-    mutationFn: ({ id, bom }: { id: number, bom: BOMPayload }) => bomsServices.update(id, bom),
+    mutationFn: ({ id, bom }: { id: number; bom: BOMPayload }) =>
+      bomsServices.update(id, bom),
     onSuccess: (data) => {
-      handleClose();
-      setIsSubmitting(false);
-      toggleOpen(false);
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['boms'] });
+      handleClose();
       onSuccess?.();
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
-    }
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to update BOM',
+        { variant: 'error' }
+      );
+    },
   });
 
-
-    const onSubmit = async (data: BOMPayload) => {
-  try {
-    // Validate before submission
-    const isValid = await trigger();
-    if (!isValid) return;
-
+  const onSubmit = async (data: BOMPayload) => {
     if (!outputProduct?.id) {
       enqueueSnackbar('Output product is required', { variant: 'error' });
       return;
@@ -157,82 +156,101 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
 
     const payload: BOMPayload = {
-      product_id: Number(outputProduct?.id),
-      output_quantity: Number(data.output_quantity) || 0,
-      items: items.map(item => ({
+      product_id: Number(outputProduct.id),
+      quantity: Number(data.quantity),
+      measurement_unit_id: Number(data.measurement_unit_id),
+      conversion_factor: Number(data.conversion_factor),
+      items: items.map((item) => ({
         product_id: Number(item.product?.id || item.product_id),
         quantity: Number(item.quantity),
         measurement_unit_id: Number(item.measurement_unit_id),
-        conversion_factor: Number(item.conversion_factor) || 1
-      }))
+        conversion_factor: Number(item.conversion_factor) || 1,
+      })),
     };
 
-    console.log("Payload being sent to backend:", JSON.stringify(payload, null, 2));
-
-    setIsSubmitting(true);
-   if (bom) {
-  updateBomMutation.mutate({ id: bom.id, bom: payload }, {
-    onSuccess: () => {
-      handleReset(); // Only reset on success
+    try {
+      setIsSubmitting(true);
+      if (bom) {
+        await updateBomMutation.mutateAsync({ id: bom.id, bom: payload });
+      } else {
+        await addBomMutation.mutateAsync(payload);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
-  });
-} else {
-  addBomMutation.mutate(payload, {
-    onSuccess: () => {
-      handleReset(); // Only reset on success
-    }
-  });
-}
-  if (bom) {
-      await updateBomMutation.mutateAsync({ id: bom.id, bom: payload });
-    } else {
-      await addBomMutation.mutateAsync(payload);
-    }
-    
-  } catch (error) {
-    // Error handling remains
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
-    <Dialog open={open}onClose={() => {handleReset(); toggleOpen(false);}} maxWidth="md" fullWidth>
-      <DialogTitle component="div"> 
-        <Typography variant="h4" component="h2" textAlign="center" mb={2}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle component="div"> <Typography variant="h4" component="h2" textAlign="center" mb={2}>
           {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
       </DialogTitle>
+
       <DialogContent>
-         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}> 
-           <Grid size={{xs:12, md:8}}>
+        {/* Top Fields */}
+        <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <ProductSelect
               label="Output Product"
-              value={outputProduct}
-              onChange={(product: Product | null) => {
-                setOutputProduct(product);
-                setValue('product_id', product?.id ?? 0);
+              frontError={errors.product_id}
+              defaultValue={outputProduct}
+              onChange={(newValue: Product | null) => {
+                if (newValue) {
+                  const unitId =
+                    newValue.primary_unit?.id ??
+                    newValue.measurement_unit_id;
+                  const unitSymbol =
+                    newValue.primary_unit?.unit_symbol ??
+                    newValue.measurement_unit?.unit_symbol ??
+                    '';
+                  setOutputProduct(newValue);
+                  setValue('product_id', newValue.id);
+                  setValue('measurement_unit_id', unitId);
+                  setValue(
+                    'conversion_factor',
+                    newValue.primary_unit?.conversion_factor ?? 1
+                  );
+                } else {
+                  setOutputProduct(null);
+                  setValue('product_id', 0);
+                  setValue('measurement_unit_id', undefined);
+                  setValue('conversion_factor', 1);
+                }
               }}
-              error={!!errors.product_id}
-              helperText={errors.product_id?.message}
+              sx={{
+                '& .MuiInputBase-root': { paddingRight: '8px' },
+              }}
             />
           </Grid>
-          <Grid size={{xs: 12, md:4}}>
-             <TextField
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField
               label="Quantity"
               size="small"
               fullWidth
               value={formData.output_quantity ?? ''}
               onChange={(e) => {
                 const value = e.target.value;
-                setFormData(prev => ({
+                setFormData((prev) => ({
                   ...prev,
-                  output_quantity: value === '' ? null : Number(value)
+                  output_quantity:
+                    value === '' ? null : Number(value),
                 }));
-                setValue('output_quantity', value === '' ? 0 : Number(value));
+                setValue(
+                  'quantity',
+                  value === '' ? 0 : Number(value)
+                );
               }}
-              error={!!errors.output_quantity}
-              helperText={errors.output_quantity?.message as string}
+              error={!!errors.quantity}
+              helperText={errors.quantity?.message as string}
             />
           </Grid>
         </Grid>
@@ -265,9 +283,9 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
               <BomsFormRow
                 key={index}
                 index={index}
-                item={item as any}
-                items={items as any}
-                setItems={setItems as any}
+                item={item}
+                items={items}
+                setItems={setItems}
                 setClearFormKey={setClearFormKey}
                 setSubmitItemForm={setSubmitItemForm}
                 submitItemForm={submitItemForm}
@@ -283,10 +301,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
       <DialogActions>
         <Button
           size="small"
-          onClick={() => {
-            handleReset();
-            toggleOpen(false);
-          }}
+          onClick={handleClose}
           disabled={isSubmitting}
           variant="outlined"
         >
@@ -304,4 +319,5 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     </Dialog>
   );
 }
+
 export default BomsForm;
