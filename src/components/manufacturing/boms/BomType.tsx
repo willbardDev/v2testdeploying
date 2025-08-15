@@ -70,7 +70,7 @@ export interface BOMItem {
 }
 
 export interface BOMPayload {
-  output_product_id: number;
+  product_id: number;
   output_quantity: number;
   items: BOMItem[];
 }

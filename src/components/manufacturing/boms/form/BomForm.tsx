@@ -70,7 +70,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
   defaultValues: {
-  output_product_id: bom?.output_product?.id || undefined,
+  product_id: bom?.output_product?.id || undefined,
   output_quantity: bom?.output_quantity || 0,
   items: bom?.items || [],
 },
@@ -95,7 +95,7 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
 
   // Fully reset react-hook-form state
   reset({
-    output_product_id: undefined,
+    product_id: undefined,
     output_quantity: 0,
     items: [],
   });
@@ -157,16 +157,17 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
     }
 
     const payload: BOMPayload = {
-  output_product_id: Number(outputProduct?.id), // ✅ ensures it's a number
-  output_quantity: Number(data.output_quantity) || 0,
-  items: items.map(item => ({
-    product_id: Number(item.product?.id || item.product_id),
-    quantity: Number(item.quantity),
-    measurement_unit_id: Number(item.measurement_unit_id),
-    conversion_factor: Number(item.conversion_factor) || 1
-  }))
-};
+      product_id: Number(outputProduct?.id),
+      output_quantity: Number(data.output_quantity) || 0,
+      items: items.map(item => ({
+        product_id: Number(item.product?.id || item.product_id),
+        quantity: Number(item.quantity),
+        measurement_unit_id: Number(item.measurement_unit_id),
+        conversion_factor: Number(item.conversion_factor) || 1
+      }))
+    };
 
+    console.log("Payload being sent to backend:", JSON.stringify(payload, null, 2));
 
     setIsSubmitting(true);
    if (bom) {
@@ -210,10 +211,10 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
               value={outputProduct}
               onChange={(product: Product | null) => {
                 setOutputProduct(product);
-                setValue('output_product_id', product?.id ?? 0);
+                setValue('product_id', product?.id ?? 0);
               }}
-              error={!!errors.output_product_id}
-              helperText={errors.output_product_id?.message}
+              error={!!errors.product_id}
+              helperText={errors.product_id?.message}
             />
           </Grid>
           <Grid size={{xs: 12, md:4}}>
