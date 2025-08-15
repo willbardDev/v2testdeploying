@@ -197,8 +197,8 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
 
   return (
     <Dialog open={open}onClose={() => {handleReset(); toggleOpen(false);}} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h4" textAlign="center" mb={2}>
+      <DialogTitle component="div"> 
+        <Typography variant="h4" component="h2" textAlign="center" mb={2}>
           {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
       </DialogTitle>
