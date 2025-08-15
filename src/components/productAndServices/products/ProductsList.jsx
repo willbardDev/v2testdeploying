@@ -17,18 +17,13 @@ const ProductList = () => {
     const listRef = useRef();
     const { setSelectedProducts, setProductsListRefresh, refreshProductsList } = useProductApp();
     const { checkOrganizationPermission } = useJumboAuth();
-    const [mounted, setMounted] = useState(false);
+    
     const [queryOptions, setQueryOptions] = useState({
         queryKey: "products",
         queryParams: { id: params.id, keyword: '' },
         countKey: "total",
         dataKey: "data",
     });
-
-    // ✅ All hooks are called before any conditional returns
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     useEffect(() => {
         setQueryOptions(state => ({
@@ -56,8 +51,6 @@ const ProductList = () => {
     ), []);
 
     const canCreate = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
-
-    if (!mounted) return null; // ✅ Early return AFTER all hooks
 
     return (
         <JumboRqList

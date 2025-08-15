@@ -140,20 +140,17 @@ function AttachmentForm({
 
           <Grid size={{xs: 12, md: 6}}>
             <Input
-              type="file"
               id="file-input"
+              type="file"
               inputProps={{ accept: '*/*' }}
-              error={!!errors?.file}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  const files = target.files;
-                  if (files && files.length > 0) {
-                    setValue('file', files, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
-                  }
-                }}
+              error={!!errors.file}
+              {...register('file', {
+                required: 'File is required',
+                validate: {
+                  validType: (files) => 
+                    files?.length > 0 || 'Please select a file',
+                }
+              })}
             />
             {!errors?.file ? (
               <InputLabel htmlFor="file-input">File Attachment</InputLabel>

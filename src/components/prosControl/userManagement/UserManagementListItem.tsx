@@ -8,9 +8,11 @@ import {
   Stack,
   Avatar,
   Badge,
+  Chip,
 } from '@mui/material';
 import UserManagementListItemActions from './UserManagementListItemAction';
 import { User } from './UserManagementType';
+import { Div } from '@jumbo/shared';
 
     type Props = {
       user: User;
@@ -26,85 +28,83 @@ import { User } from './UserManagementType';
     <Divider />
     <Grid
       container
-      spacing={2}
-      alignItems="center"
-      px={2}
-      py={1}
+      columnSpacing={1}
+      padding={1}
       sx={{
         cursor: 'pointer',
-        '&:hover': { bgcolor: 'action.hover' },
+        borderTop: 1,
+        borderColor: 'divider',
+        '&:hover': {
+          bgcolor: 'action.hover',
+        }
       }}
     >
-      {/* 1. User Name */}
       <Grid size={{xs: 12, md: 3}}>
-        <Tooltip title="User Name">
-          <Typography variant="subtitle1" noWrap sx={{ fontSize: '0.85rem' }}>
-          {user.name}
-        </Typography>
-
-        </Tooltip>
-      </Grid>
-
-      {/* 2. Email + Phone */}
-      <Grid size={{xs: 12, md: 3}}>
-        <Box display="flex" flexDirection="column" alignItems="flex-start">
-          <Tooltip title="Email">
-          <Typography variant="body2" fontWeight={500} color="text.primary" noWrap>
-            {user.email}
-          </Typography>
+        <Div sx={{ mt: 1, mb: 1 }}>
+          <Tooltip title={'Name'}>
+            <Typography>{user.name}</Typography>
           </Tooltip>
-            <Tooltip title="Phone Number">
-              <Typography variant="body2" fontWeight={450} color="text.secondary" noWrap>
-                {(user as any).phone || 'N/A'}
-              </Typography>
-            </Tooltip>
-        </Box>
+        </Div>
       </Grid>
 
-         {/* 3. Organizations (Logo only) */}
-          <Grid size={{ xs: 12, md: 2 }} >
-      <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-start">
-        {(user.organizations || []).map((org) =>
-          org.logo_path && (
-            <Tooltip key={org.id} title={org.name}>
-              <Avatar
-                src={org.logo_path}
-                alt={org.name}
-                sx={{ width: 32, height: 32 }}
-              />
-            </Tooltip>
-          )
-        )}
-      </Stack>
-        </Grid>
+      <Grid size={{xs: 12, md: 3}}>
+        <Div sx={{ mt: 1, mb: 1 }}>
+          <Tooltip title={'Email'}>
+            <Typography variant="body1">{user.email}</Typography>
+          </Tooltip>
+          <Tooltip title={'Phone'}>
+            <Typography variant="body2" color="text.secondary">{user.phone}</Typography>
+          </Tooltip>
+        </Div>
+      </Grid>
 
-      {/* 4. Status Badge */}
-    <Grid size={{ xs: 4, md: 3 }}>
-      <Box display="flex" justifyContent="flex-end">
-        <Tooltip title="Status">
-          <Box
+    <Grid size={{ xs: 12, md: 4 }} >
+      <Div
+        sx={{
+          display: { xs: 'flex' },
+          gap: 1,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+        >
+        {user?.organizations?.slice(0, 4).map((org, index) => (
+          <Avatar
+            key={org.id || index}
+            alt={org.name}
+            src={org.logo_path || ''}
             sx={{
-              px: 1.5,
-              py: 0.5,
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              backgroundColor: isActive ? '#00C853' : 'error.main',
-              color: '#fff',
-              borderRadius: '999px',
-              textTransform: 'lowercase',
-              minWidth: 60,
-              textAlign: 'center',
-              display: 'inline-block',
-              lineHeight: 1.4,
+              width: 45,
+              height: 45,
+              fontSize: 16,
+              borderRadius: '50%',
             }}
           >
-            {isActive ? 'active' : 'inactive'}
-          </Box>
-        </Tooltip>
-      </Box>
+            {!org.logo_path && org.name?.charAt(0).toUpperCase()}
+          </Avatar>
+        ))}
+        {user?.organizations && user?.organizations?.length > 4 && (
+          <Avatar
+            sx={{
+              width: 35,
+              height: 35,
+              fontSize: 16,
+              bgcolor: 'grey.400',
+              color: 'white',
+              borderRadius: '50%',
+            }}
+          >
+            +{user.organizations?.length - 4}
+          </Avatar>
+        )}
+      </Div>
     </Grid>
 
-    {/* 5. Actions */}
+    <Grid size={{ xs: 4, md: 1 }} textAlign={"end"}>
+      <Tooltip title={'Status'}>
+          <Chip size='small' color={user.status === 'active' ? 'success' : 'error'} label={user.status} />
+      </Tooltip>
+    </Grid>
+
     <Grid size={{ xs: 12, md: 1 }} container justifyContent="flex-end">
       <UserManagementListItemActions
         user={user}

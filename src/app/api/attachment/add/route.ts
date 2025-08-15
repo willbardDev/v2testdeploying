@@ -7,15 +7,16 @@ export async function POST(req: NextRequest) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
+  const formData = await req.formData();
+
   const res = await fetch(`${API_BASE}/attachments`, {
     method: 'POST',
-    body: req.body,
-    headers: { ...headers }, // Let fetch forward raw headers + multipart
+    body: formData,
+    headers: {
+      ...headers,
+    },
     credentials: 'include'
   });
 
-  return new Response(res.body, {
-    status: res.status,
-    headers: res.headers
-  });
+  return handleJsonResponse(res);
 }
