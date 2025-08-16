@@ -70,7 +70,7 @@ ledgerServices.statement = async (params) => {
 
 ledgerServices.mergeLedgers = async(ledger) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.post(`/api/accountsAndFinance/ledgers/merge-ledgers`,ledger)
+        const {data} = await axios.post(`/api/accountsAndFinance/ledgers/mergeLedgers`,ledger)
         return data;
     })
 }
