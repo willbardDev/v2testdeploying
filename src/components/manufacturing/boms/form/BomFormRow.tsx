@@ -156,29 +156,28 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
+        <Box onClick={(e) => e.stopPropagation()}>
           <Tooltip title="Edit">
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
+            <EditOutlined 
+              fontSize="small" 
+              onClick={() => setIsEditing(true)}
+              sx={{
+                cursor: 'pointer',
+                padding: '8px',
+                '&:hover': { color: 'primary.main' }
               }}
-            >
-              <EditOutlined fontSize="small" />
-            </IconButton>
+            />
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
+            <DeleteOutlined 
+              fontSize="small" 
+              onClick={handleRemove}
+              sx={{
+                cursor: 'pointer',
+                padding: '8px',
+                '&:hover': { color: 'error.main' }
               }}
-              color="error"
-            >
-              <DeleteOutlined fontSize="small" />
-            </IconButton>
+            />
           </Tooltip>
         </Box>
       </AccordionSummary>
