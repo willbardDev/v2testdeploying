@@ -67,10 +67,13 @@ export interface BOMItem {
   quantity: number;
   measurement_unit_id: number;
   conversion_factor: number;
+  alternatives?: BOMItem[]
 }
 
 export interface BOMPayload {
-  output_product_id: number;
-  output_quantity: number;
+  product_id: number;
+  quantity: number;
+  measurement_unit_id?: number | null;
+  conversion_factor?: number | null;
   items: BOMItem[];
 }

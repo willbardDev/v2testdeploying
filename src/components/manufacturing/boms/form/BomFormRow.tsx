@@ -1,142 +1,304 @@
-import { 
-  Grid, 
-  IconButton, 
+import * as React from 'react';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
-  Divider,
+  IconButton,
   Tooltip,
-  TextField,
-  Button,
+  Divider,
   Box,
+  Grid,
+  Button,
   FormControl,
   Select,
-  MenuItem
+  MenuItem,
+  TextField,
+  Stack
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, CheckOutlined } from '@mui/icons-material';
-import React, { useState } from 'react';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  AddOutlined
+} from '@mui/icons-material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 
-interface BomsFormRowItem {
+interface BOMItem {
   product?: Product | null;
   product_id?: number;
   quantity: number;
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
   conversion_factor?: number | null;
+  alternatives?: BOMItem[];
 }
 
 interface BomsFormRowProps {
-  setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
-  submitMainForm: () => void;
-  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
-  submitItemForm: boolean;
-  item: BomsFormRowItem;
+  item: BOMItem;
   index: number;
-  items: BomsFormRowItem[];
-  setItems: React.Dispatch<React.SetStateAction<BomsFormRowItem[]>>;
+  items: BOMItem[];
+  setItems: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+  setClearFormKey?: React.Dispatch<React.SetStateAction<number>>;
+  submitMainForm?: () => void;
+  submitItemForm?: boolean;
+  setSubmitItemForm?: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BomsFormRow: React.FC<BomsFormRowProps> = ({ 
-  setClearFormKey,
-  submitMainForm,
-  setSubmitItemForm,
-  submitItemForm,
-  item, 
-  index, 
-  items, 
-  setItems 
+const BomsFormRow: React.FC<BomsFormRowProps> = ({
+  item,
+  index,
+  items,
+  setItems,
 }) => {
-  const product = item.product;
-  const [isEditing, setIsEditing] = useState(false);
-  
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(false);
+  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
+    item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
+  );
+  const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
+  const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
+    product: null,
+    quantity: 0,
+    measurement_unit_id: null,
+    unit_symbol: null,
+    conversion_factor: 1
+  });
+
+  const combinedUnits: MeasurementUnit[] = [
+    ...(item.product?.secondary_units || []),
+    ...(item.product?.primary_unit ? [item.product.primary_unit] : [])
+  ];
+
   const handleRemove = () => {
     setItems(items.filter((_, i) => i !== index));
   };
-  
-  const handleUpdate = (updatedItem: BomsFormRowItem) => {
-    const newItems = [...items];
-    newItems[index] = updatedItem;
-    setItems(newItems);
+
+  const handleUpdate = (updatedItem: BOMItem) => {
+    const updated = [...items];
+    updated[index] = {
+      ...updatedItem,
+      alternatives: alternatives
+    };
+    setItems(updated);
     setIsEditing(false);
+    setExpanded(false);
   };
 
-  if (isEditing) {
-    return (
-      <BomsFormItemEditor
-        item={item}
-        onUpdate={handleUpdate}
-        onCancel={() => setIsEditing(false)}
-      />
-    );
-  }
+  const handleAddAlternative = () => {
+    if (newAlternative.product && newAlternative.quantity > 0) {
+      const updatedAlternative = {
+        ...newAlternative,
+        measurement_unit_id: newAlternative.product.primary_unit?.id ?? newAlternative.product.measurement_unit_id,
+        unit_symbol: newAlternative.product.primary_unit?.unit_symbol ?? newAlternative.product.measurement_unit?.unit_symbol,
+        conversion_factor: newAlternative.product.primary_unit?.conversion_factor ?? 1
+      };
+      
+      setAlternatives(prev => [...prev, updatedAlternative]);
+      setNewAlternative({
+        product: null,
+        quantity: 0,
+        measurement_unit_id: null,
+        unit_symbol: null,
+        conversion_factor: 1
+      });
+    }
+  };
+
+  const handleRemoveAlternative = (altIndex: number) => {
+    setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
+  };
 
   return (
-    <>
-      <Box sx={{ py: 1, '&:hover': { backgroundColor: 'action.hover' } }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid size={1}>
-            <Typography variant="body2">{index + 1}.</Typography>
-          </Grid>
+    <Accordion 
+      expanded={expanded} 
+      onChange={(_, exp) => setExpanded(exp)}
+      sx={{ 
+        mb: 1,
+        '&.Mui-expanded': {
+          margin: '8px 0'
+        }
+      }}
+    >
+      <AccordionSummary
+        expandIcon={<ArrowDropDownIcon />}
+        sx={{
+          minHeight: '48px',
+          '& .MuiAccordionSummary-content': {
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+          <Typography variant="body1" sx={{ 
+            fontWeight: 500,
+            minWidth: 120,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {item.product?.name || 'No product selected'}
+          </Typography>
           
-          <Grid size={5}>
-            <Typography>
-              {item.product?.name ?? 'No product selected'}
+          <Divider orientation="vertical" flexItem sx={{ height: 20 }} />
+          
+          <Typography variant="body1" sx={{ minWidth: 60 }}>
+            {item.quantity}
+          </Typography>
+          
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+            {item.unit_symbol || 'Pcs'}
+          </Typography>
+        </Box>
+
+        <Box onClick={(e) => e.stopPropagation()}>
+          <Tooltip title="Edit">
+            <EditOutlined 
+              fontSize="small" 
+              onClick={() => setIsEditing(true)}
+              sx={{
+                cursor: 'pointer',
+                padding: '8px',
+                '&:hover': { color: 'primary.main' }
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <DeleteOutlined 
+              fontSize="small" 
+              onClick={handleRemove}
+              sx={{
+                cursor: 'pointer',
+                padding: '8px',
+                '&:hover': { color: 'error.main' }
+              }}
+            />
+          </Tooltip>
+        </Box>
+      </AccordionSummary>
+
+      <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
+        {isEditing ? (
+          <BomsFormItemEditor
+            item={item}
+            onUpdate={handleUpdate}
+            onCancel={() => setIsEditing(false)}
+          />
+        ) : (
+          <>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+              Alternative Input Products
             </Typography>
-          </Grid>
-          
-          <Grid size={3}>
-            <Typography>
-              {item.quantity} {item.unit_symbol || ''}
-            </Typography>
-          </Grid>
-          
-          <Grid size={3} textAlign="right">
-            <Tooltip title="Edit">
-              <IconButton size="small" onClick={() => setIsEditing(true)}>
-                <EditOutlined fontSize="small" />
-              </IconButton>
-            </Tooltip>
             
-            <Tooltip title="Delete">
-              <IconButton size="small" onClick={handleRemove} color="error">
-                <DeleteOutlined fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-        </Grid>
-      </Box>
-      <Divider />
-    </>
+            <Grid container spacing={2} alignItems="flex-end" sx={{ mb: 2 }}>
+              <Grid size={{ xs: 12, md: 5 }}>
+                <ProductSelect
+                  label="Product"
+                  value={newAlternative.product}
+                  onChange={(product: Product | null) => {
+                    setNewAlternative(prev => ({
+                      ...prev,
+                      product,
+                      measurement_unit_id: product?.primary_unit?.id ?? product?.measurement_unit_id ?? null,
+                      unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
+                      conversion_factor: product?.primary_unit?.conversion_factor ?? 1
+                    }));
+                  }}
+                />
+              </Grid>
+              
+              <Grid size={{ xs: 12, md: 4 }}>
+                <TextField
+                  label="Quantity"
+                  fullWidth
+                  size="small"
+                  type="number"
+                  value={newAlternative.quantity}
+                  onChange={(e) => setNewAlternative(prev => ({
+                    ...prev,
+                    quantity: Number(e.target.value)
+                  }))}
+                  InputProps={{
+                    inputComponent: CommaSeparatedField,
+                    inputProps: { min: 0.01, step: "any" }
+                  }}
+                />
+              </Grid>
+              
+              <Grid size={{ xs: 12, md: 3 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<AddOutlined />}
+                  onClick={handleAddAlternative}
+                  disabled={!newAlternative.product || newAlternative.quantity <= 0}
+                  fullWidth
+                >
+                  Add
+                </Button>
+              </Grid>
+            </Grid>
+
+            {alternatives.length > 0 && (
+              <Stack spacing={1}>
+                {alternatives.map((alt, idx) => (
+                  <Box 
+                    key={idx} 
+                    sx={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      p: 1,
+                      bgcolor: 'action.hover',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ flex: 1 }}>
+                      {alt.product?.name} - {alt.quantity} {alt.unit_symbol}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveAlternative(idx)}
+                      color="error"
+                    >
+                      <DeleteOutlined fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Stack>
+            )}
+          </>
+        )}
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
-// Helper component for inline editing
-const BomsFormItemEditor: React.FC<{ 
-  item: BomsFormRowItem; 
-  onUpdate: (item: BomsFormRowItem) => void; 
+const BomsFormItemEditor: React.FC<{
+  item: BOMItem;
+  onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
-  // Initialize all fields with the current item values
-  const [product, setProduct] = useState<Product | null>(item.product ?? null);
-  const [quantity, setQuantity] = useState<number>(item.quantity);
-  const [selectedUnit, setSelectedUnit] = useState<number | null>(
-    item.measurement_unit_id ?? 
-    item.product?.primary_unit?.id ?? 
-    null
+  const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
+  const [quantity, setQuantity] = React.useState<number>(item.quantity);
+  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
+    item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
-  
-  // Get combined units (primary + secondary)
+
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
-    ...(product?.primary_unit ? [product.primary_unit] : []),
+    ...(product?.primary_unit ? [product.primary_unit] : [])
   ];
 
   const handleDone = () => {
-    const selectedUnitData = combinedUnits.find(u => u.id === selectedUnit);
-    onUpdate({ 
-      ...item, 
+    const selectedUnitData = combinedUnits.find((u) => u.id === selectedUnit);
+    onUpdate({
+      ...item,
       product,
       quantity,
       measurement_unit_id: selectedUnit ?? undefined,
@@ -146,83 +308,52 @@ const BomsFormItemEditor: React.FC<{
   };
 
   return (
-    <Box sx={{ mb: 2, pt: 1, pl: 1, borderLeft: '2px solid', borderColor: 'primary.main' }}>
+    <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid size={{xs: 12, md: 4.5}}>
+       <Grid size={{ xs: 12, md: 5 }}>
           <ProductSelect
             label="Product"
             value={product}
-            defaultValue={item.product} // Ensure product is pre-selected
             onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
               if (newProduct) {
-                // Try to maintain the same unit if available in new product
-                const availableUnits = [
-                  ...(newProduct.secondary_units || []),
-                  ...(newProduct.primary_unit ? [newProduct.primary_unit] : [])
-                ];
-                
-                const unitToSelect = availableUnits.some(u => u.id === selectedUnit) 
-                  ? selectedUnit 
-                  : newProduct.primary_unit?.id ?? null;
-                
-                setSelectedUnit(unitToSelect);
+                const unitId = newProduct.primary_unit?.id ?? newProduct.measurement_unit_id;
+                setSelectedUnit(unitId);
               } else {
                 setSelectedUnit(null);
               }
             }}
           />
         </Grid>
-        
-        <Grid size={{xs: 12, md: 4.5}}>
+
+        <Grid size={{ xs: 12, md: 4 }}>
           <TextField
             label="Quantity"
             fullWidth
             size="small"
+            type="number"
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
             InputProps={{
               inputComponent: CommaSeparatedField,
-              endAdornment: product && (
-                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                  <Select
-                    value={selectedUnit ?? ''}
-                    onChange={(e) => setSelectedUnit(e.target.value as number)}
-                    size="small"
-                    displayEmpty
-                  >
-                    {combinedUnits.map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )
-            }}
-            sx={{
-              '& .MuiInputBase-root': {
-                paddingRight: product ? 0 : '14px'
-              }
+              inputProps: { min: 0.01, step: "any" }
             }}
           />
         </Grid>
-        
-        <Grid size={{ xs: 12, md: 3 }} textAlign="center">
-          <Box sx={{ display: 'flex', gap: 0.5}}>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
               variant="contained"
-              color="primary"
               size="small"
               onClick={handleDone}
               startIcon={<CheckOutlined />}
               fullWidth
             >
-              Done
+              Update
             </Button>
             <Button
               variant="outlined"
-              color="secondary"
               size="small"
               onClick={onCancel}
               fullWidth
