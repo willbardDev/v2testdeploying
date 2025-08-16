@@ -77,6 +77,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const { lang } = params;
   const dictionary = await getDictionary(lang);
 
+  const isProd = process.env.NODE_ENV === 'production';
+
   return (
     <html lang={lang} data-lt-installed="true">
       <head>
@@ -95,9 +97,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         </div>
         <Script strategy="afterInteractive">
           {`
-            if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+            if ('serviceWorker' in navigator && ${isProd}) {
               window.addEventListener('load', () => {
-                console.log('Attempting to register service worker...');
                 navigator.serviceWorker.register('/sw.js').then(
                   (registration) => {
                     console.log('Service Worker registered:', registration);
@@ -111,9 +112,6 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 
             window.addEventListener('beforeinstallprompt', (e) => {
               e.preventDefault(); // Prevent the default prompt
-              console.log('beforeinstallprompt triggered', e);
-              // Optionally prompt manually for testing
-              // e.prompt();
             });
           `}
         </Script>
