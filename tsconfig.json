@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "types": ["node"],
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -52,7 +53,7 @@
     "src/app/[lang]/(common)/organizations/page.jsx",
     "src/app/[lang]/(common)/pos/sales-counters/page.jsx",
     "src/app/[lang]/(common)/procurement/stores/[id]/page.tsx",
-    "src/app/api/auth/[...nextauth]/route.js",
+    "src/app/api/auth/[...nextauth]/route.ts",
     "src/app/api/organizationServices/route.js",
     "src/app/auth-providers/BasicAuth/BasicAuth.tsx",
     "src/app/helpers/init-firebase.ts",
@@ -240,7 +241,7 @@
     "src/lib/auth.js",
     "src/utilities/helpers/user-agent-helpers.ts",
     "build/types/**/*.ts"
-, "src/app/api/auth/[...nextauth]/route.js", "src/app/api/auth/authOptions.js", "src/components/pos/counter/saleForm/ProductsSaleSummary.jsx", "src/components/pos/counter/saleForm/QuickAdd.jsx"  ],
+, "src/app/api/auth/[...nextauth]/route.js"  ],
   "exclude": [
     "node_modules"
   ]

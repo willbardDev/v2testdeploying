@@ -94,6 +94,7 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/minimatch": "^6.0.0",
     "@types/negotiator": "^0.6.3",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
