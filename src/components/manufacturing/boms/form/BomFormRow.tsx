@@ -308,9 +308,13 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                       borderRadius: 1
                     }}
                   >
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      {alt.product?.name} - {alt.quantity} {alt.unit_symbol}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 22, flex: 1 }}>
+                    <Typography variant="body2">{alt.product?.name}</Typography>
+                    <Typography variant="body2"></Typography>
+                    <Typography variant="body2">
+                      {alt.quantity} {alt.unit_symbol}
                     </Typography>
+                  </Box>
                     <IconButton
                       size="small"
                       onClick={() => handleRemoveAlternative(idx)}
