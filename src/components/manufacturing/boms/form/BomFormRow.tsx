@@ -219,7 +219,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
             </Typography>
             
             <Grid container spacing={2} alignItems="flex-end" sx={{ mb: 2 }}>
-              <Grid size={{ xs: 12, md: 5 }}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <ProductSelect
                   label="Product"
                   value={newAlternative.product}
@@ -250,7 +250,6 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                   }
                   InputProps={{
                     inputComponent: CommaSeparatedField,
-                    inputProps: { min: 0.01, step: 'any' },
                     endAdornment:
                       newAlternative.product && selectedUnit ? (
                         <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
@@ -282,19 +281,17 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                 />
 
               </Grid>
-              
-              <Grid size={{ xs: 12, md: 3 }}>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<AddOutlined />}
-                  onClick={handleAddAlternative}
-                  disabled={!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0}
-                  fullWidth
-                >
-                  Add
-                </Button>
-              </Grid>
+            <Grid size={{xs:12, md:12}} container justifyContent="flex-end">
+              {/* Add Alternative Button */}
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddOutlined />}
+                onClick={handleAddAlternative}
+              >
+                Add
+              </Button>
+            </Grid>
             </Grid>
 
             {alternatives.length > 0 && (
