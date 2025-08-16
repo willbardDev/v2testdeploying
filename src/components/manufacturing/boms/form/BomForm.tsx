@@ -145,43 +145,48 @@ function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
   });
 
   const onSubmit = async (data: BOMPayload) => {
-    if (!outputProduct?.id) {
-      enqueueSnackbar('Output product is required', { variant: 'error' });
-      return;
-    }
+  if (!outputProduct?.id) {
+    enqueueSnackbar('Output product is required', { variant: 'error' });
+    return;
+  }
 
-    if (items.length === 0) {
-      enqueueSnackbar('Please add at least one item', { variant: 'error' });
-      return;
-    }
+  if (items.length === 0) {
+    enqueueSnackbar('Please add at least one item', { variant: 'error' });
+    return;
+  }
 
-    const payload: BOMPayload = {
-      product_id: Number(outputProduct.id),
-      quantity: Number(data.quantity),
-      measurement_unit_id: Number(data.measurement_unit_id),
-      conversion_factor: Number(data.conversion_factor),
-      items: items.map((item) => ({
-        product_id: Number(item.product?.id || item.product_id),
-        quantity: Number(item.quantity),
-        measurement_unit_id: Number(item.measurement_unit_id),
-        conversion_factor: Number(item.conversion_factor) || 1,
-      })),
-    };
-
-    try {
-      setIsSubmitting(true);
-      if (bom) {
-        await updateBomMutation.mutateAsync({ id: bom.id, bom: payload });
-      } else {
-        await addBomMutation.mutateAsync(payload);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const payload: BOMPayload = {
+    product_id: Number(outputProduct.id),
+    quantity: Number(data.quantity),
+    measurement_unit_id: Number(data.measurement_unit_id),
+    conversion_factor: Number(data.conversion_factor),
+    items: items.map((item) => ({
+      product_id: Number(item.product?.id || item.product_id),
+      quantity: Number(item.quantity),
+      measurement_unit_id: Number(item.measurement_unit_id),
+      conversion_factor: Number(item.conversion_factor) || 1,
+      alternatives: item.alternatives?.map((alt: { product: { id: any; }; product_id: any; quantity: any; measurement_unit_id: any; conversion_factor: any; }) => ({
+        product_id: Number(alt.product?.id || alt.product_id),
+        quantity: Number(alt.quantity),
+        measurement_unit_id: Number(alt.measurement_unit_id),
+        conversion_factor: Number(alt.conversion_factor) || 1
+      })) || []
+    }))
   };
 
+  try {
+    setIsSubmitting(true);
+    if (bom) {
+      await updateBomMutation.mutateAsync({ id: bom.id, bom: payload });
+    } else {
+      await addBomMutation.mutateAsync(payload);
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   return (
     <Dialog
       open={open}

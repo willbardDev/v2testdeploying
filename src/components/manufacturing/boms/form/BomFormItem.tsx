@@ -23,6 +23,7 @@ import ProductQuickAdd from '@/components/productAndServices/products/ProductQui
 import { useForm, SubmitHandler } from 'react-hook-form';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { BOMItem } from '../BomType';
 
 interface FormValues {
   product?: Product | null;
@@ -31,6 +32,8 @@ interface FormValues {
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
   conversion_factor?: number | null;
+  items: BOMItem[];
+  alternatives?: BOMItem[]
 }
 
 interface BomsFormItemProps {
