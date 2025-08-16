@@ -175,8 +175,8 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         }}
       >
         {isAuthOrganization && checkOrganizationPermission(PERMISSIONS.ORGANIZATION_UPDATE) && (
-          <Link href={`/${lang}/organizations/edit/${organization.id}`} passHref legacyBehavior>
-            <IconButton component="a">
+          <Link href={`/${lang}/organizations/edit/${organization.id}`}>
+            <IconButton>
               <Tooltip title={`${dictionary.organizations.list.labels.listtoEdit} ${organization.name}`} disableInteractive>
                 <Edit/>
               </Tooltip>
@@ -193,8 +193,8 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
         )}
         
         {isAuthOrganization ? (
-          <Link href={`/${lang}/dashboard`} passHref legacyBehavior>
-            <IconButton component="a">
+          <Link href={`/${lang}/dashboard`}>
+            <IconButton>
               <Tooltip title={`${organization.name} ${dictionary.organizations.list.labels.listtoDashboard}`} disableInteractive>
                 <DashboardOutlined />
               </Tooltip>
