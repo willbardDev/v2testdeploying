@@ -132,13 +132,23 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
     '& .MuiAccordionSummary-content': {
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 2 // Added gap between elements
+      gap: 12// Added gap between elements
     }
+  }}
+>
+ <Box 
+  sx={{ 
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1,  // Adjust this for spacing between product name and quantity-unit group
+    p: 1,
+    borderRadius: 1,
+    width: '100%'
   }}
 >
   {/* Product Name */}
   <Typography 
-    variant="body1" 
+    variant="body2" 
     sx={{ 
       fontWeight: 500,
       minWidth: 120,
@@ -155,17 +165,16 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
     display: 'flex', 
     alignItems: 'center',
     gap: 0.5,
-    minWidth: 80,
-    justifyContent: 'flex-end'
+    minWidth: 80
   }}>
-    <Typography variant="body1">
+    <Typography variant="body2">
       {item.quantity}
     </Typography>
-    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
       {item.unit_symbol || 'Pcs'}
     </Typography>
   </Box>
-
+</Box>
   {/* Actions */}
   <Box onClick={(e) => e.stopPropagation()} sx={{ 
     display: 'flex', 
