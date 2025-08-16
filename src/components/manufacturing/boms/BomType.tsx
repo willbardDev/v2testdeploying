@@ -67,6 +67,7 @@ export interface BOMItem {
   quantity: number;
   measurement_unit_id: number;
   conversion_factor: number;
+  alternatives?: BOMItem[]
 }
 
 export interface BOMPayload {
