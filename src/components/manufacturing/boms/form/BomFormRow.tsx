@@ -182,19 +182,23 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
     ml: 1
   }}>
     <Tooltip title="Edit">
-      <IconButton 
-        size="small"
-        onClick={() => setIsEditing(true)}
-        sx={{
-          '&:hover': { 
-            backgroundColor: 'primary.light',
-            color: 'primary.main'
-          }
-        }}
-      >
-        <EditOutlined fontSize="small" />
-      </IconButton>
-    </Tooltip>
+  <IconButton 
+    size="small"
+    onClick={() => {
+      setIsEditing(true);
+      setExpanded(true);   // <-- force accordion open when editing
+    }}
+    sx={{
+      '&:hover': { 
+        backgroundColor: 'primary.light',
+        color: 'primary.main'
+      }
+    }}
+  >
+    <EditOutlined fontSize="small" />
+  </IconButton>
+</Tooltip>
+
     <Tooltip title="Delete">
       <IconButton 
         size="small"
@@ -373,7 +377,7 @@ const BomsFormItemEditor: React.FC<{
   return (
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
-       <Grid size={{ xs: 12, md: 5 }}>
+       <Grid size={{ xs: 12, md: 5.5 }}>
           <ProductSelect
             label="Product"
             value={product}
@@ -404,7 +408,7 @@ const BomsFormItemEditor: React.FC<{
           />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: 1 }}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
               variant="contained"
@@ -413,7 +417,7 @@ const BomsFormItemEditor: React.FC<{
               startIcon={<CheckOutlined />}
               fullWidth
             >
-              Update
+              Done
             </Button>
             <Button
               variant="outlined"
