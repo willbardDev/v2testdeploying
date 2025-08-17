@@ -27,29 +27,29 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <QueryClientProvider client={queryClient}>
-          <JumboAuthProvider>
-            <AppRouterCacheProvider>
-              <JumboConfigProvider LinkComponent={Link}>
-                <JumboTheme init={CONFIG.THEME}>
-                  <CssBaseline />
-                  <JumboDialogProvider>
-                    <AuthInitializer>
-                      <JumboDialog />
-                      <AppSnackbar>
-                        <Suspense fallback={<Spinner />}>
-                          {children}
-                        </Suspense>
-                      </AppSnackbar>
-                    </AuthInitializer>
-                  </JumboDialogProvider>
-                </JumboTheme>
-              </JumboConfigProvider>
-            </AppRouterCacheProvider>
-          </JumboAuthProvider>
-        </QueryClientProvider>
-      </LocalizationProvider>
+      <AppSnackbar>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <QueryClientProvider client={queryClient}>
+            <JumboAuthProvider>
+              <AppRouterCacheProvider>
+                <JumboConfigProvider LinkComponent={Link}>
+                  <JumboTheme init={CONFIG.THEME}>
+                    <CssBaseline />
+                    <JumboDialogProvider>
+                      <AuthInitializer>
+                        <JumboDialog />
+                          <Suspense fallback={<Spinner />}>
+                            {children}
+                          </Suspense>
+                      </AuthInitializer>
+                    </JumboDialogProvider>
+                  </JumboTheme>
+                </JumboConfigProvider>
+              </AppRouterCacheProvider>
+            </JumboAuthProvider>
+          </QueryClientProvider>
+        </LocalizationProvider>
+      </AppSnackbar>
     </SessionProvider>
   );
 }

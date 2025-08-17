@@ -21,6 +21,9 @@
     roles?: OrganizationRole[];
     recording_start_date?: string | null;
     is_tra_connected?: boolean;
+    base_currency?: {
+      code: string;
+    };
     active_subscriptions?: {
       modules: {
         id: string;

@@ -64,55 +64,48 @@ const organizationServices = {
   },
 
   addRole: async (roleData) => {
-    await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.post(
-      `/api/organizations/${roleData.organization_id}/new-role`,
-      roleData
-    );
-    return data;
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+      const {data} = await axios.post(`/api/organizations/${roleData.organization_id}/new-role`,roleData);
+      return data;
+    })
   },
 
   inviteUsers: async (organizationId, invitationsData) => {
-    await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.post(
-      `/api/organizations/${organizationId}/invite_users`,
-      { invitees: invitationsData }
-    );
-    return data;
+    console.log(invitationsData)
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+      const {data} = await axios.post(`/api/organizations/${organizationId}/invite_users`,{invitees: invitationsData});
+      return data;
+    })
   },
 
   saveUserRoles: async (organizationId, userId, roleIds) => {
-    await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.put(
-      `/api/organizations/${organizationId}/edit-user-roles`,
-      { user_id: userId, role_ids: roleIds }
-    );
-    return data;
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+      const {data} = await axios.put(`/api/organizations/${organizationId}/edit-user-roles`,{
+        user_id: userId,
+        role_ids: roleIds
+      });
+      return data;
+    })
   },
 
   userDetachAction: async (organizationId, actionData) => {
-    await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.put(
-      `/api/organizations/${organizationId}/detach-user`,
-      actionData
-    );
-    return data;
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+      const {data} = await axios.put(`/api/organizations/${organizationId}/detach-user`, actionData);
+      return data; 
+    })
   },
 
   userLeaveAction: async (organizationId, actionData) => {
-    await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.put(
-      `/api/organizations/${organizationId}/detach-user`,
-      actionData
-    );
-    return data;
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+      const {data} = await axios.put(`/api/organizations/${organizationId}/detach-user`, actionData);
+      return data; 
+    })
   },
 
   loadOrganization: async (params) => {
     const { data } = await axios.put(`/api/organizations/${params.organization_id}/load`, {
       organization_id: params.organization_id,
     });
-    
     return data;
   },
 };
