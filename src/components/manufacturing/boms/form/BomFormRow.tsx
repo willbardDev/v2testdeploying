@@ -241,29 +241,24 @@ const [warning, setWarning] = React.useState<string | null>(null);
     </Box>
   </Tooltip>
 
- {/* Delete Button */}
-<Tooltip title="Delete">
-  <IconButton
-    size="small"
+  <Box
+    component="span"
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      cursor: 'pointer',
+      p: 0.5,
+      borderRadius: '50%',
+      '&:hover': { bgcolor: 'action.hover' },
+    }}
     onClick={(e) => {
-      e.stopPropagation();
+      e.stopPropagation(); // prevent accordion toggle
       handleRemove();
     }}
-    sx={{
-      color: 'error.main', 
-      '&:hover': {
-        backgroundColor: 'transparent',
-        color: 'error.dark', 
-      },
-      padding: 0,
-      '& .MuiIconButton-root': {
-        backgroundColor: 'transparent !important',
-      }
-    }}
   >
-    <DeleteOutlined fontSize="small" />
-  </IconButton>
-</Tooltip>
+    <DeleteOutlined fontSize="small" color="error" />
+
+  </Box>
 </Box>
 </AccordionSummary>
 
