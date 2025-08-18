@@ -102,7 +102,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
       setAlternatives(prev => [...prev, updatedAlternative]);
       setNewAlternative({
         product: null,
-        quantity: 0,
+        quantity: null,
         measurement_unit_id: null,
         unit_symbol: null,
         conversion_factor: 1
@@ -176,42 +176,57 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   </Box>
 </Box>
   {/* Actions */}
-  <Box onClick={(e) => e.stopPropagation()} sx={{ 
+<Box 
+  onClick={(e) => e.stopPropagation()} 
+  sx={{ 
     display: 'flex', 
     gap: 1,
     ml: 1
-  }}>
-    <Tooltip title="Edit">
-      <IconButton 
-        size="small"
-        onClick={() => setIsEditing(true)}
-        sx={{
-          '&:hover': { 
-            backgroundColor: 'primary.light',
-            color: 'primary.main'
-          }
-        }}
-      >
-        <EditOutlined fontSize="small" />
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Delete">
-      <IconButton 
-        size="small"
-        onClick={handleRemove}
-        sx={{
-          border: '1px solid',
-          borderColor: 'error.main',
-          color: 'error.main',
-          '&:hover': { 
-            backgroundColor: 'error.light',
-          }
-        }}
-      >
-        <DeleteOutlined fontSize="small" />
-      </IconButton>
-    </Tooltip>
-  </Box>
+  }}
+>
+  {/* Edit Button - Already Correct */}
+  <Tooltip title="Edit">
+    <IconButton 
+      size="small"
+      onClick={() => {
+        setIsEditing(true);
+        setExpanded(true);
+      }}
+      sx={{
+        '&:hover': { 
+          backgroundColor: 'primary.light',
+          color: 'primary.main'
+        }
+      }}
+    >
+      <EditOutlined fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+ {/* Delete Button */}
+<Tooltip title="Delete">
+  <IconButton
+    size="small"
+    onClick={(e) => {
+      e.stopPropagation();
+      handleRemove();
+    }}
+    sx={{
+      color: 'error.main', 
+      '&:hover': {
+        backgroundColor: 'transparent',
+        color: 'error.dark', 
+      },
+      padding: 0,
+      '& .MuiIconButton-root': {
+        backgroundColor: 'transparent !important',
+      }
+    }}
+  >
+    <DeleteOutlined fontSize="small" />
+  </IconButton>
+</Tooltip>
+</Box>
 </AccordionSummary>
 
       <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
@@ -347,11 +362,20 @@ const BomsFormItemEditor: React.FC<{
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
-  const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
-  const [quantity, setQuantity] = React.useState<number | null>(item.quantity);
+ const [product, setProduct] = React.useState<Product | null>(() => {
+    return item?.product?.id ? item.product : null;
+  });
+  const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
+
+  React.useEffect(() => {
+    setProduct(item.product ?? null);
+    setQuantity(item.quantity ?? null);
+    setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
+  }, [item]);
+
 
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
@@ -373,7 +397,7 @@ const BomsFormItemEditor: React.FC<{
   return (
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
-       <Grid size={{ xs: 12, md: 5 }}>
+        <Grid size={{ xs: 12, md: 5.5 }}>
           <ProductSelect
             label="Product"
             value={product}
@@ -392,19 +416,47 @@ const BomsFormItemEditor: React.FC<{
         <Grid size={{ xs: 12, md: 4 }}>
           <TextField
             label="Quantity"
-            fullWidth
             size="small"
+            fullWidth
             type="number"
-            value={quantity}
+            value={quantity ?? ''}
             onChange={(e) => setQuantity(Number(e.target.value))}
             InputProps={{
               inputComponent: CommaSeparatedField,
-              inputProps: { min: 0.01, step: "any" }
+              endAdornment: product && selectedUnit ? (
+                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                  <Select
+                    value={selectedUnit ?? ''}
+                    onChange={(e) => {
+                      const unitId = e.target.value as number;
+                      setSelectedUnit(unitId);
+                    }}
+                  >
+                    {combinedUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.unit_symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : null,
+            }}
+            sx={{
+              '& input[type=number]': {
+                MozAppearance: 'textfield',
+              },
+              '& input[type=number]::-webkit-outer-spin-button': {
+                WebkitAppearance: 'none',
+                margin: 0,
+              },
+              '& input[type=number]::-webkit-inner-spin-button': {
+                WebkitAppearance: 'none',
+                margin: 0,
+              },
             }}
           />
         </Grid>
-
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: 1 }}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
               variant="contained"
@@ -413,7 +465,7 @@ const BomsFormItemEditor: React.FC<{
               startIcon={<CheckOutlined />}
               fullWidth
             >
-              Update
+              Done
             </Button>
             <Button
               variant="outlined"
