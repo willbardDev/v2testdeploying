@@ -1,6 +1,8 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
 export interface BOM {
+  id: number;
+  product?: Product | null;
   product_id: number;
   quantity: number;
   measurement_unit_id?: number | null;
