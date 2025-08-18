@@ -35,7 +35,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import StakeholderSelector from '../../../masters/stakeholders/StakeholderSelector';
 import SalesManifestOnScreen from './SalesManifestOnScreen';
-import { HighlightOff } from '@mui/icons-material';
+import { CheckBox, CheckBoxOutlineBlank, HighlightOff } from '@mui/icons-material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import useProsERPStyles from '@/app/helpers/style-helpers';
@@ -846,6 +846,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                     onChange={(newValue: any) => {
                       setValue('sales_outlet_id', newValue ? newValue.id : null);
                       if (newValue) {
+                        console.log(newValue)
                         setCounters(newValue.counters);
                       } else {
                         setCounters([]);
@@ -854,45 +855,56 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                   />
                 </Div>
               </Grid>
+              {String(watch(`sales_outlet_id`)) !== 'all' &&
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Div sx={{ mt: 1, mb: 1 }}>
+                    <Autocomplete
+                      size="small"
+                      multiple
+                      disableCloseOnSelect
+                      options={counters}
+                      value={selectedCounter}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                      getOptionLabel={(option) => option.name}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Counter" />
+                      )}
+                      renderTags={(tagValue, getTagProps) =>
+                        tagValue.map((option, index) => (
+                          <Chip
+                            {...getTagProps({ index })}
+                            key={option.id}
+                            label={option.name}
+                          />
+                        ))
+                      }
+                      renderOption={(props, option, { selected }) => {
+                        const { key, ...otherProps } = props;
 
-              <Grid size={{ xs: 12, md: 3 }}>
-                <Div sx={{ mt: 1, mb: 1 }}>
-                  <Autocomplete
-                    size="small"
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    options={counters}
-                    multiple={true}
-                    disableCloseOnSelect={true}
-                    getOptionLabel={(option) => option.name}
-                    value={selectedCounter}
-                    renderInput={(params) => (
-                      <TextField {...params} label="Counter" />
-                    )}
-                    renderTags={(tagValue, getTagProps) => {
-                      return tagValue.map((option, index) => (
-                        <Chip {...getTagProps({ index })} key={option.id} label={option.name} />
-                      ))
-                    }}
-                    renderOption={(props, option, { selected }) => (
-                      <li {...props} key={option.id}>
-                        <Checkbox
-                          icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                          checkedIcon={<CheckBoxIcon fontSize="small" />}
-                          style={{ marginRight: 8 }}
-                          checked={selected}
-                        />
-                        {option.name}
-                      </li>
-                    )}
-                    onChange={(event, newValue) => {
-                      setValue('counter_ids', newValue ? newValue.map(counter => counter.id) : null);
-                      setSelectedCounter(newValue);
-                    }}
-                  />
-                </Div>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 3 }}>
+                        return (
+                          <li key={option.id} {...otherProps}>
+                            <Checkbox
+                              icon={<CheckBoxOutlineBlank fontSize="small" />}
+                              checkedIcon={<CheckBox fontSize="small" />}
+                              style={{ marginRight: 8 }}
+                              checked={selected}
+                            />
+                            {option.name}
+                          </li>
+                        );
+                      }}
+                      onChange={(event, newValue) => {
+                        setValue(
+                          'counter_ids',
+                          newValue ? newValue.map((counter) => counter.id) : null
+                        );
+                        setSelectedCounter(newValue);
+                      }}
+                    />
+                  </Div>
+                </Grid>
+              }
+              <Grid size={{ xs: 12, md: String(watch(`sales_outlet_id`)) !== 'all' ? 3 : 6 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <StakeholderSelector
                     label='Clients'
@@ -943,8 +955,8 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="From (MM/DD/YYYY)"
+                    value={dayjs(watch('from'))}
                     minDate={dayjs(authOrganization?.organization.recording_start_date)}
-                    defaultValue={dayjs().startOf('day')}
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -965,8 +977,8 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="To (MM/DD/YYYY)"
-                    defaultValue={dayjs().endOf('day')}
-                    minDate={dayjs(authOrganization?.organization.recording_start_date)}
+                    value={dayjs(watch('to'))}
+                    minDate={dayjs(watch('from'))}
                     slotProps={{
                       textField: {
                         size: 'small',

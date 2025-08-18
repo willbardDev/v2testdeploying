@@ -31,7 +31,7 @@ import { MeasurementUnit } from '@/components/masters/measurementUnits/Measureme
 interface BOMItem {
   product?: Product | null;
   product_id?: number;
-  quantity: number;
+  quantity: number | null;
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
   conversion_factor?: number | null;
@@ -64,7 +64,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
   const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
     product: null,
-    quantity: 0,
+    quantity: null,
     measurement_unit_id: null,
     unit_symbol: null,
     conversion_factor: 1
@@ -91,7 +91,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   };
 
   const handleAddAlternative = () => {
-    if (newAlternative.product && newAlternative.quantity > 0) {
+    if (newAlternative.product && newAlternative.quantity !== null && newAlternative.quantity > 0) {
       const updatedAlternative = {
         ...newAlternative,
         measurement_unit_id: newAlternative.product.primary_unit?.id ?? newAlternative.product.measurement_unit_id,
@@ -126,61 +126,93 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
       }}
     >
       <AccordionSummary
-        expandIcon={<ArrowDropDownIcon />}
+  expandIcon={<ArrowDropDownIcon />}
+  sx={{
+    minHeight: '48px',
+    '& .MuiAccordionSummary-content': {
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12// Added gap between elements
+    }
+  }}
+>
+ <Box 
+  sx={{ 
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1,  // Adjust this for spacing between product name and quantity-unit group
+    p: 1,
+    borderRadius: 1,
+    width: '100%'
+  }}
+>
+  {/* Product Name */}
+  <Typography 
+    variant="body2" 
+    sx={{ 
+      fontWeight: 500,
+      minWidth: 120,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      flex: 1
+    }}
+  >
+    {item.product?.name || 'No product selected'}
+  </Typography>
+
+  {/* Quantity and Unit (grouped together) */}
+  <Box sx={{ 
+    display: 'flex', 
+    alignItems: 'center',
+    gap: 0.5,
+    minWidth: 80
+  }}>
+    <Typography variant="body2">
+      {item.quantity}
+    </Typography>
+    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+      {item.unit_symbol || 'Pcs'}
+    </Typography>
+  </Box>
+</Box>
+  {/* Actions */}
+  <Box onClick={(e) => e.stopPropagation()} sx={{ 
+    display: 'flex', 
+    gap: 1,
+    ml: 1
+  }}>
+    <Tooltip title="Edit">
+      <IconButton 
+        size="small"
+        onClick={() => setIsEditing(true)}
         sx={{
-          minHeight: '48px',
-          '& .MuiAccordionSummary-content': {
-            alignItems: 'center',
-            justifyContent: 'space-between'
+          '&:hover': { 
+            backgroundColor: 'primary.light',
+            color: 'primary.main'
           }
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-          <Typography variant="body1" sx={{ 
-            fontWeight: 500,
-            minWidth: 120,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {item.product?.name || 'No product selected'}
-          </Typography>
-          
-          <Divider orientation="vertical" flexItem sx={{ height: 20 }} />
-          
-          <Typography variant="body1" sx={{ minWidth: 60 }}>
-            {item.quantity}
-          </Typography>
-          
-          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-            {item.unit_symbol || 'Pcs'}
-          </Typography>
-        </Box>
-
-        <Box onClick={(e) => e.stopPropagation()}>
-          <Tooltip title="Edit">
-            <EditOutlined 
-              fontSize="small" 
-              onClick={() => setIsEditing(true)}
-              sx={{
-                cursor: 'pointer',
-                padding: '8px',
-                '&:hover': { color: 'primary.main' }
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <DeleteOutlined 
-              fontSize="small" 
-              onClick={handleRemove}
-              sx={{
-                cursor: 'pointer',
-                padding: '8px',
-                '&:hover': { color: 'error.main' }
-              }}
-            />
-          </Tooltip>
-        </Box>
-      </AccordionSummary>
+        <EditOutlined fontSize="small" />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Delete">
+      <IconButton 
+        size="small"
+        onClick={handleRemove}
+        sx={{
+          border: '1px solid',
+          borderColor: 'error.main',
+          color: 'error.main',
+          '&:hover': { 
+            backgroundColor: 'error.light',
+          }
+        }}
+      >
+        <DeleteOutlined fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  </Box>
+</AccordionSummary>
 
       <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
         {isEditing ? (
@@ -196,7 +228,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
             </Typography>
             
             <Grid container spacing={2} alignItems="flex-end" sx={{ mb: 2 }}>
-              <Grid size={{ xs: 12, md: 5 }}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <ProductSelect
                   label="Product"
                   value={newAlternative.product}
@@ -219,29 +251,56 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                   size="small"
                   type="number"
                   value={newAlternative.quantity}
-                  onChange={(e) => setNewAlternative(prev => ({
-                    ...prev,
-                    quantity: Number(e.target.value)
-                  }))}
+                  onChange={(e) =>
+                    setNewAlternative((prev) => ({
+                      ...prev,
+                      quantity: Number(e.target.value)
+                    }))
+                  }
                   InputProps={{
                     inputComponent: CommaSeparatedField,
-                    inputProps: { min: 0.01, step: "any" }
+                    endAdornment:
+                      newAlternative.product && selectedUnit ? (
+                        <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                          <Select
+                            value={selectedUnit}
+                            onChange={(e) => {
+                              const unitId = e.target.value as number;
+                              setSelectedUnit(unitId);
+                              const unit = combinedUnits.find((u) => u.id === unitId);
+                              if (unit) {
+                                setNewAlternative((prev) => ({
+                                  ...prev,
+                                  measurement_unit_id: unit.id,
+                                  unit_symbol: unit.unit_symbol,
+                                  conversion_factor: unit.conversion_factor ?? 1
+                                }));
+                              }
+                            }}
+                          >
+                            {combinedUnits.map((unit) => (
+                              <MenuItem key={unit.id} value={unit.id}>
+                                {unit.unit_symbol}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      ) : null
                   }}
                 />
+
               </Grid>
-              
-              <Grid size={{ xs: 12, md: 3 }}>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<AddOutlined />}
-                  onClick={handleAddAlternative}
-                  disabled={!newAlternative.product || newAlternative.quantity <= 0}
-                  fullWidth
-                >
-                  Add
-                </Button>
-              </Grid>
+            <Grid size={{xs:12, md:12}} container justifyContent="flex-end">
+              {/* Add Alternative Button */}
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddOutlined />}
+                onClick={handleAddAlternative}
+              >
+                Add
+              </Button>
+            </Grid>
             </Grid>
 
             {alternatives.length > 0 && (
@@ -258,9 +317,13 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                       borderRadius: 1
                     }}
                   >
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      {alt.product?.name} - {alt.quantity} {alt.unit_symbol}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 22, flex: 1 }}>
+                    <Typography variant="body2">{alt.product?.name}</Typography>
+                    <Typography variant="body2"></Typography>
+                    <Typography variant="body2">
+                      {alt.quantity} {alt.unit_symbol}
                     </Typography>
+                  </Box>
                     <IconButton
                       size="small"
                       onClick={() => handleRemoveAlternative(idx)}
@@ -285,7 +348,7 @@ const BomsFormItemEditor: React.FC<{
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
-  const [quantity, setQuantity] = React.useState<number>(item.quantity);
+  const [quantity, setQuantity] = React.useState<number | null>(item.quantity);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );

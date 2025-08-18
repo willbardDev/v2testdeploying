@@ -119,22 +119,26 @@ const OutletSelector = ({
           );
         })
       }
-      {...(multiple && {
+      {...(multiple && { 
         renderOption: (
-          props: React.HTMLAttributes<HTMLLIElement>,
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
           option: Outlet,
           { selected }
-        ) => (
-          <li {...props} key={option.id}>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option.name}
-          </li>
-        )
+        ) => {
+          const { key, ...otherProps } = props;
+
+          return (
+            <li key={option.id} {...otherProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          );
+        }
       })}
       onChange={(e, newValue) => {
         setSelectedOutlet(newValue);

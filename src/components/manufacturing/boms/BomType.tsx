@@ -1,33 +1,19 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
 export interface BOM {
+  product_id: number;
   quantity: number;
-  product: any;
-   id: number;
-  output_product_id?: number;
-  output_quantity?: number;
-  created_at?: string;
-  updated_at?: string;
-  
-  // Optional expanded relationships
-  output_product?: {
-    id: number;
-    name: string;
-    measurement_unit_id?: number;
-    measurement_unit?: {
-      id: number;
-      name: string;
-      symbol: string;
-    };
-  };
-
+  measurement_unit_id?: number | null;
+  conversion_factor?: number | null;
   items: BOMItem[];
+  alternatives?: BOMItem[]
 }
 
 export interface BomsFormValues {
   output_product_id?: number;
   output_quantity?: number | null;
   items: BomItem[];
+  alternatives?: BOMItem[]
 }
 
 export interface BomAlternative {
@@ -76,4 +62,5 @@ export interface BOMPayload {
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   items: BOMItem[];
+  alternatives?: BOMItem[]
 }
