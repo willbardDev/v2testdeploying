@@ -69,6 +69,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
     unit_symbol: null,
     conversion_factor: 1
   });
+const [warning, setWarning] = React.useState<string | null>(null);
 
   const combinedUnits: MeasurementUnit[] = [
     ...(item.product?.secondary_units || []),
@@ -91,24 +92,59 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   };
 
   const handleAddAlternative = () => {
-    if (newAlternative.product && newAlternative.quantity !== null && newAlternative.quantity > 0) {
-      const updatedAlternative = {
-        ...newAlternative,
-        measurement_unit_id: newAlternative.product.primary_unit?.id ?? newAlternative.product.measurement_unit_id,
-        unit_symbol: newAlternative.product.primary_unit?.unit_symbol ?? newAlternative.product.measurement_unit?.unit_symbol,
-        conversion_factor: newAlternative.product.primary_unit?.conversion_factor ?? 1
-      };
-      
-      setAlternatives(prev => [...prev, updatedAlternative]);
-      setNewAlternative({
-        product: null,
-        quantity: null,
-        measurement_unit_id: null,
-        unit_symbol: null,
-        conversion_factor: 1
-      });
-    }
+  if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+    setWarning("Please select a product and enter a valid quantity.");
+    return;
+  }
+
+  // Prevent same product as main item
+  if (newAlternative.product.id === item.product?.id) {
+    setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+    return;
+  }
+
+  // Prevent duplicate product in alternatives
+  const alreadyExists = alternatives.some(
+    (alt) => alt.product?.id === newAlternative.product?.id
+  );
+  if (alreadyExists) {
+    setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+    return;
+  }
+
+  // Prevent duplicate unit symbol
+  const unitExists = alternatives.some(
+    (alt) => alt.unit_symbol === newAlternative.unit_symbol
+  );
+  if (unitExists) {
+    setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
+    return;
+  }
+
+  // ✅ Passed all checks → add alternative
+  const updatedAlternative = {
+    ...newAlternative,
+    measurement_unit_id:
+      newAlternative.product.primary_unit?.id ??
+      newAlternative.product.measurement_unit_id,
+    unit_symbol:
+      newAlternative.product.primary_unit?.unit_symbol ??
+      newAlternative.product.measurement_unit?.unit_symbol,
+    conversion_factor:
+      newAlternative.product.primary_unit?.conversion_factor ?? 1,
   };
+
+  setAlternatives((prev) => [...prev, updatedAlternative]);
+  setNewAlternative({
+    product: null,
+    quantity: null,
+    measurement_unit_id: null,
+    unit_symbol: null,
+    conversion_factor: 1,
+  });
+  setWarning(null); // clear any warning after successful add
+};
+
 
   const handleRemoveAlternative = (altIndex: number) => {
     setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
@@ -186,13 +222,15 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
 >
   {/* Edit Button - Already Correct */}
   <Tooltip title="Edit">
-    <IconButton 
-      size="small"
+    <Box
       onClick={() => {
         setIsEditing(true);
         setExpanded(true);
       }}
       sx={{
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
         '&:hover': { 
           backgroundColor: 'primary.light',
           color: 'primary.main'
@@ -200,7 +238,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
       }}
     >
       <EditOutlined fontSize="small" />
-    </IconButton>
+    </Box>
   </Tooltip>
 
  {/* Delete Button */}
@@ -242,21 +280,33 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
               Alternative Input Products
             </Typography>
             
-            <Grid container spacing={2} alignItems="flex-end" sx={{ mb: 2 }}>
+              <Grid container spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
+              {/* Product with warning below */}
               <Grid size={{ xs: 12, md: 8 }}>
-                <ProductSelect
-                  label="Product"
-                  value={newAlternative.product}
-                  onChange={(product: Product | null) => {
-                    setNewAlternative(prev => ({
-                      ...prev,
-                      product,
-                      measurement_unit_id: product?.primary_unit?.id ?? product?.measurement_unit_id ?? null,
-                      unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
-                      conversion_factor: product?.primary_unit?.conversion_factor ?? 1
-                    }));
-                  }}
-                />
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <ProductSelect
+                    label="Alternative Input Product"
+                    value={newAlternative.product}
+                    onChange={(product: Product | null) => {
+                      setNewAlternative(prev => ({
+                        ...prev,
+                        product,
+                        measurement_unit_id: product?.primary_unit?.id ?? product?.measurement_unit_id ?? null,
+                        unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
+                        conversion_factor: product?.primary_unit?.conversion_factor ?? 1
+                      }));
+                    }}
+                  />
+
+                  {/* Reserve space for warning to avoid layout shift */}
+                  <Box sx={{ minHeight: 20, mt: 0.5 }}>
+                    {warning && (
+                      <Typography variant="body2" color="error">
+                        {warning}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
               </Grid>
               
               <Grid size={{ xs: 12, md: 4 }}>
@@ -399,7 +449,7 @@ const BomsFormItemEditor: React.FC<{
       <Grid container spacing={2} alignItems="flex-end">
         <Grid size={{ xs: 12, md: 5.5 }}>
           <ProductSelect
-            label="Product"
+            label=" Input Product"
             value={product}
             onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
