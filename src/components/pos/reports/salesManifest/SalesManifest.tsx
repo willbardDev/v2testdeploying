@@ -14,6 +14,7 @@ import {
   LinearProgress,
   Radio,
   RadioGroup,
+  Stack,
   TextField,
   Tooltip,
   Typography,
@@ -31,8 +32,6 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import pdfStyles from '../../../pdf/pdf-styles';
 import PDFContent from '../../../pdf/PDFContent';
 import PdfLogo from '../../../pdf/PdfLogo';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import StakeholderSelector from '../../../masters/stakeholders/StakeholderSelector';
 import SalesManifestOnScreen from './SalesManifestOnScreen';
 import { CheckBox, CheckBoxOutlineBlank, HighlightOff } from '@mui/icons-material';
@@ -50,6 +49,7 @@ import { Product } from '@/components/productAndServices/products/ProductType';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import { AuthObject } from '@/types/auth-types';
+import { useSnackbar } from 'notistack';
 
 interface SaleItem {
   id: number;
@@ -205,7 +205,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
               </Text>
             </View>
             
-            {reportData.filters.counters.length > 0 && (
+            {reportData?.filters?.counters?.length > 0 && (
               <View style={{ flex: 1, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Counters</Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
@@ -764,6 +764,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
   const css = useProsERPStyles();
   const authObject = useJumboAuth();
   const { authOrganization } = authObject;
+  const { enqueueSnackbar } = useSnackbar();
   const organization = authOrganization?.organization;
   const is_vat_registered = organization?.settings?.vat_registered;
 
@@ -773,6 +774,8 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
   const [separateVAT, setSeparateVAT] = useState(false);
   const [updatedUsers, setUpdatedUsers] = useState<string[]>([]);
   const [withCashDistribution, setWithCashDistribution] = useState(false);
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
+  const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -788,7 +791,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       from: dayjs().startOf('day').toISOString(),
-      to: dayjs().toISOString(),
+      to: dayjs().endOf('day').toISOString(),
       with_collection_distribution: withCashDistribution
     },
   });
@@ -798,6 +801,42 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
     const report = await posServices.salesManifest(filters);
     setReportData(report);
     setIsFetching(false);
+  };
+
+  const downloadExcelTemplate = async () => {
+    try {
+      setIsDownloadingTemplate(true);
+      setUploadFieldsKey((prevKey) => prevKey + 1);
+      
+      // Get all current filter parameters
+      const filters = {
+        from: watch('from'),
+        to: watch('to'),
+        sales_outlet_id: watch('sales_outlet_id'),
+        counter_ids: watch('counter_ids'),
+        stakeholder_ids: watch('stakeholder_ids'),
+        user_ids: watch('user_ids'),
+        sales_people: watch('sales_people'),
+        with_collection_distribution: watch('with_collection_distribution'),
+        separate_vat: separateVAT
+      };
+
+      // Pass all filters to the service
+      const responseData = await posServices.downloadExcelTemplate(filters);
+      
+      const blob = new Blob([responseData], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Sales Manifest.xlsx`;
+      link.click();
+      setIsDownloadingTemplate(false);
+    } catch (error) {
+      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      setIsDownloadingTemplate(false);
+    }
   };
 
   const { 
@@ -838,7 +877,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
           )}
         </Grid>
         <span className={css.hiddenOnPrint}>
-          <form autoComplete="off" onSubmit={handleSubmit(retrieveReport)}>
+          <form autoComplete="off" key={uploadFieldsKey} onSubmit={handleSubmit(retrieveReport)}>
             <Grid container spacing={1}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
@@ -862,7 +901,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                       size="small"
                       multiple
                       disableCloseOnSelect
-                      options={counters}
+                      options={counters ?? []}
                       value={selectedCounter}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                       getOptionLabel={(option) => option.name}
@@ -1040,15 +1079,23 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
               </Grid>
 
               <Grid size={{ xs: 12, md: 1 }} textAlign="right">
-                <LoadingButton 
-                  loading={isFetching} 
-                  type="submit" 
-                  size="small" 
-                  variant="contained" 
-                  onClick={() => setUpdatedUsers(watch('user_names') as string[])}
-                >
-                  Filter
-                </LoadingButton>
+                <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                  <>                                
+                    <LoadingButton
+                      size="small"
+                      onClick={downloadExcelTemplate}
+                      loading={isDownloadingTemplate}
+                      disabled
+                      variant="contained"
+                      color="success"
+                    >
+                      Excel
+                    </LoadingButton>
+                    <LoadingButton loading={isFetching} type="submit" size="small" variant="contained" onClick={()=> setUpdatedUsers(watch(`user_names`) as string[])}>
+                      Filter
+                    </LoadingButton>
+                  </>
+                </Stack>
               </Grid>
             </Grid>
           </form>

@@ -9,6 +9,7 @@ import ProductListItem from './productsListItem/ProductListItem';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import productServices from './productServices';
+import ProductsCategorySelector from './ProductsCategorySelector';
 
 const ProductActionTail = lazy(() => import('./ProductActionTail'));
 
@@ -20,7 +21,7 @@ const ProductList = () => {
     
     const [queryOptions, setQueryOptions] = useState({
         queryKey: "products",
-        queryParams: { id: params.id, keyword: '' },
+        queryParams: { id: params.id, keyword: '', category_id: 'null' },
         countKey: "total",
         dataKey: "data",
     });
@@ -38,6 +39,16 @@ const ProductList = () => {
             setProductsListRefresh(false);
         }
     }, [refreshProductsList, setProductsListRefresh]);
+
+    const handleOnCategoryChange = React.useCallback((category_id) => {
+        setQueryOptions(state => ({
+            ...state,
+            queryParams: {
+                ...state.queryParams,
+                category_id: category_id
+            }
+        }));
+    }, [queryOptions.queryParams.category_id]);
 
     const handleOnChange = useCallback((keyword) => {
         setQueryOptions(state => ({
@@ -73,18 +84,29 @@ const ProductList = () => {
                 <JumboListToolbar
                     hideItemsPerPage={true}
                     actionTail={
-                        <Grid container columnSpacing={1} direction={'row'}>
-                            <Grid item xs={canCreate ? 9.5 : 12}>
-                                <JumboSearch
-                                    onChange={handleOnChange}
-                                    value={queryOptions.queryParams.keyword}
+                        <Grid container columnSpacing={1} rowSpacing={1}>
+                            <Grid size={{xs: 12, lg: 4}}alignItems={'center'}>
+                                <ProductsCategorySelector
+                                    value={queryOptions.queryParams.category_id}
+                                    onChange={handleOnCategoryChange}
                                 />
                             </Grid>
-                            {canCreate && (
-                                <Grid item xs={2.5}>
-                                    <ProductActionTail />
+                            <Grid size={{xs: 12, lg: 8}}>
+                                <Grid container columnSpacing={1} direction={'row'}>
+                                    <Grid size={canCreate ? 9.5 : 12}>
+                                        <JumboSearch
+                                            onChange={handleOnChange}
+                                            value={queryOptions.queryParams.keyword}
+                                        /> 
+                                    </Grid>
+                                    {
+                                        canCreate &&
+                                        <Grid size={2.5}>
+                                            <ProductActionTail/>
+                                        </Grid>
+                                    }
                                 </Grid>
-                            )}
+                            </Grid>
                         </Grid>
                     }
                 />
