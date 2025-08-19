@@ -92,70 +92,71 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
 };
 
 
-  const handleAddAlternative = () => {
-    if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
-      setWarning("Please select a product and enter a valid quantity.");
-      return;
-    }
-
-    if (newAlternative.product.id === item.product?.id) {
-      setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
-      return;
-    }
-
-    const alreadyExists = alternatives.some(
-      (alt) => alt.product?.id === newAlternative.product?.id
-    );
-    if (alreadyExists) {
-      setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-      return;
-    }
-
-    const unitExists = alternatives.some(
-      (alt) => alt.unit_symbol === newAlternative.unit_symbol
-    );
-    if (unitExists) {
-      setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
-      return;
-    }
-
-    const updatedAlternative = {
-      ...newAlternative,
-      measurement_unit_id:
-        newAlternative.product.primary_unit?.id ??
-        newAlternative.product.measurement_unit_id,
-      unit_symbol:
-        newAlternative.product.primary_unit?.unit_symbol ??
-        newAlternative.product.measurement_unit?.unit_symbol,
-      conversion_factor:
-        newAlternative.product.primary_unit?.conversion_factor ?? 1,
-    };
-
-  React.useEffect(() => {
+  // Move this useEffect to the top level of your component
+React.useEffect(() => {
   // Sync alternatives to parent whenever they change
   setItems(prevItems => {
     const updated = [...prevItems];
     updated[index] = {
       ...updated[index],
-      alternatives, // replace just the alternatives
+      alternatives,
     };
     return updated;
   });
-}, [alternatives]);
+}, [alternatives, index, setItems]);
 
+const handleAddAlternative = () => {
+  if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+    setWarning("Please select a product and enter a valid quantity.");
+    return;
+  }
 
+  if (newAlternative.product.id === item.product?.id) {
+    setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+    return;
+  }
 
-    setAlternatives((prev) => [...prev, updatedAlternative]);
-    setNewAlternative({
-      product: null,
-      quantity: null,
-      measurement_unit_id: null,
-      unit_symbol: null,
-      conversion_factor: 1,
-    });
-    setWarning(null);
-    setSelectedUnit(null);
+  const alreadyExists = alternatives.some(
+    (alt) => alt.product?.id === newAlternative.product?.id
+  );
+  if (alreadyExists) {
+    setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+    return;
+  }
+
+  const unitExists = alternatives.some(
+    (alt) => alt.unit_symbol === newAlternative.unit_symbol
+  );
+  if (unitExists) {
+    setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
+    return;
+  }
+
+  const updatedAlternative = {
+    ...newAlternative,
+    measurement_unit_id:
+      newAlternative.product.primary_unit?.id ??
+      newAlternative.product.measurement_unit_id,
+    unit_symbol:
+      newAlternative.product.primary_unit?.unit_symbol ??
+      newAlternative.product.measurement_unit?.unit_symbol,
+    conversion_factor:
+      newAlternative.product.primary_unit?.conversion_factor ?? 1,
   };
+
+  setAlternatives((prev) => [...prev, updatedAlternative]);
+  
+  // Reset the form
+  setNewAlternative({
+    product: null,
+    quantity: null,
+    measurement_unit_id: null,
+    unit_symbol: null,
+    conversion_factor: 1,
+  });
+  setWarning(null);
+  setSelectedUnit(null); // This will reset the unit selection
+};
 
   const handleRemoveAlternative = (altIndex: number) => {
     setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
@@ -271,44 +272,50 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
 
       <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
         {isEditingMain ? (
-          <BomsFormItemEditor
-            item={item}
-            onUpdate={handleUpdate}
-            onCancel={() => setIsEditingMain(false)}
-          />
-        ) : editingAlternativeIndex !== null ? (
-          <BomsFormItemEditor
-            item={alternatives[editingAlternativeIndex]}
-            onUpdate={(updatedAlt) => {
-              const updatedAlternatives = [...alternatives];
-              updatedAlternatives[editingAlternativeIndex] = updatedAlt;
-              setAlternatives(updatedAlternatives);
-              setEditingAlternativeIndex(null);
-            }}
-            onCancel={() => setEditingAlternativeIndex(null)}
-          />
-        ) : (
+        <BomsFormItemEditor
+          item={item}
+          onUpdate={handleUpdate}
+          onCancel={() => setIsEditingMain(false)}
+          key={`main-edit-${item.product?.id || 'new'}`}
+        />
+      ) : editingAlternativeIndex !== null ? (
+        <BomsFormItemEditor
+          item={alternatives[editingAlternativeIndex]}
+          onUpdate={(updatedAlt) => {
+            const updatedAlternatives = [...alternatives];
+            updatedAlternatives[editingAlternativeIndex] = updatedAlt;
+            setAlternatives(updatedAlternatives);
+            setEditingAlternativeIndex(null);
+          }}
+          onCancel={() => setEditingAlternativeIndex(null)}
+          key={`alt-edit-${editingAlternativeIndex}-${alternatives[editingAlternativeIndex]?.product?.id || 'new'}`}
+        />
+      ) : (
           <>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
               Alternative Input Products
             </Typography>
             
-            <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
+            <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }} key={alternatives.length}>
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <ProductSelect
-                    label="Alternative Input Product"
-                    value={newAlternative.product}
-                    onChange={(product: Product | null) => {
-                      setNewAlternative(prev => ({
-                        ...prev,
-                        product,
-                        measurement_unit_id: product?.primary_unit?.id ?? product?.measurement_unit_id ?? null,
-                        unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
-                        conversion_factor: product?.primary_unit?.conversion_factor ?? 1
-                      }));
-                    }}
-                  />
+                <ProductSelect
+                  key={newAlternative.product ? "has-product" : "no-product"} // Add this line
+                  label="Alternative Input Product"
+                  value={newAlternative.product}
+                  onChange={(product: Product | null) => {
+                  const unitId = product?.primary_unit?.id ?? product?.measurement_unit_id ?? null;
+                  setSelectedUnit(unitId); // This ensures selectedUnit is set
+                  
+                  setNewAlternative(prev => ({
+                    ...prev,
+                    product,
+                    measurement_unit_id: unitId,
+                    unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
+                    conversion_factor: product?.primary_unit?.conversion_factor ?? 1
+                  }));
+                }}
+                />
                   <Box sx={{ minHeight: 10, mt: 0.5 }}>
                     {warning && (
                       <Typography variant="body2" color="error">
@@ -325,20 +332,20 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
                   fullWidth
                   size="small"
                   type="number"
-                  value={newAlternative.quantity}
+                  value={newAlternative.quantity === null ? '' : newAlternative.quantity}
                   onChange={(e) =>
                     setNewAlternative((prev) => ({
                       ...prev,
-                      quantity: Number(e.target.value)
+                      quantity: e.target.value === '' ? null : Number(e.target.value)
                     }))
                   }
                   InputProps={{
                     inputComponent: CommaSeparatedField,
                     endAdornment:
-                      newAlternative.product && selectedUnit ? (
+                      newAlternative.product ? ( // Changed condition: only check for product, not selectedUnit
                         <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
                           <Select
-                            value={selectedUnit}
+                            value={selectedUnit || ''} // Handle null case
                             onChange={(e) => {
                               const unitId = e.target.value as number;
                               setSelectedUnit(unitId);
@@ -437,18 +444,22 @@ const BomsFormItemEditor: React.FC<{
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
-  const [product, setProduct] = React.useState<Product | null>(() => {
-    return item?.product?.id ? item.product : null;
-  });
+  // Initialize state with the item values
+  const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
 
+  // Use a key to force re-render when item changes
+  const [editorKey, setEditorKey] = React.useState(0);
+
+  // Update state when item changes
   React.useEffect(() => {
     setProduct(item.product ?? null);
     setQuantity(item.quantity ?? null);
     setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
+    setEditorKey(prev => prev + 1); // Force re-render
   }, [item]);
 
   const combinedUnits: MeasurementUnit[] = [
@@ -469,10 +480,11 @@ const BomsFormItemEditor: React.FC<{
   };
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2 }} key={editorKey}> {/* Add key here to force re-render */}
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid size={{ xs: 12, md: 5.5 }}>
+        <Grid size={{xs: 12, md: 5.5}}>
           <ProductSelect
+            key={`product-select-${product?.id || 'empty'}`} // Unique key based on product
             label="Input Product"
             value={product}
             onChange={(newProduct: Product | null) => {
@@ -487,7 +499,7 @@ const BomsFormItemEditor: React.FC<{
           />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{xs: 12, md: 4}}>
           <TextField
             label="Quantity"
             size="small"
@@ -515,29 +527,15 @@ const BomsFormItemEditor: React.FC<{
                 </FormControl>
               ) : null,
             }}
-            sx={{
-              '& input[type=number]': {
-                MozAppearance: 'textfield',
-              },
-              '& input[type=number]::-webkit-outer-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-              '& input[type=number]::-webkit-inner-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-            }}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 1 }}>
+        <Grid size={{xs: 12, md: 2}}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
               variant="contained"
               size="small"
               onClick={handleDone}
               startIcon={<CheckOutlined />}
-              fullWidth
             >
               Done
             </Button>
@@ -545,7 +543,6 @@ const BomsFormItemEditor: React.FC<{
               variant="outlined"
               size="small"
               onClick={onCancel}
-              fullWidth
             >
               Cancel
             </Button>
@@ -555,5 +552,4 @@ const BomsFormItemEditor: React.FC<{
     </Box>
   );
 };
-
 export default BomsFormRow;
