@@ -56,7 +56,8 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   items,
   setItems,
 }) => {
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditingMain, setIsEditingMain] = React.useState(false);
+  const [editingAlternativeIndex, setEditingAlternativeIndex] = React.useState<number | null>(null);
   const [expanded, setExpanded] = React.useState(false);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
@@ -69,7 +70,7 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
     unit_symbol: null,
     conversion_factor: 1
   });
-const [warning, setWarning] = React.useState<string | null>(null);
+  const [warning, setWarning] = React.useState<string | null>(null);
 
   const combinedUnits: MeasurementUnit[] = [
     ...(item.product?.secondary_units || []),
@@ -81,70 +82,80 @@ const [warning, setWarning] = React.useState<string | null>(null);
   };
 
   const handleUpdate = (updatedItem: BOMItem) => {
-    const updated = [...items];
-    updated[index] = {
-      ...updatedItem,
-      alternatives: alternatives
-    };
-    setItems(updated);
-    setIsEditing(false);
-    setExpanded(false);
-  };
-
-  const handleAddAlternative = () => {
-  if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
-    setWarning("Please select a product and enter a valid quantity.");
-    return;
-  }
-
-  // Prevent same product as main item
-  if (newAlternative.product.id === item.product?.id) {
-    setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
-    return;
-  }
-
-  // Prevent duplicate product in alternatives
-  const alreadyExists = alternatives.some(
-    (alt) => alt.product?.id === newAlternative.product?.id
-  );
-  if (alreadyExists) {
-    setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-    return;
-  }
-
-  // Prevent duplicate unit symbol
-  const unitExists = alternatives.some(
-    (alt) => alt.unit_symbol === newAlternative.unit_symbol
-  );
-  if (unitExists) {
-    setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
-    return;
-  }
-
-  // ✅ Passed all checks → add alternative
-  const updatedAlternative = {
-    ...newAlternative,
-    measurement_unit_id:
-      newAlternative.product.primary_unit?.id ??
-      newAlternative.product.measurement_unit_id,
-    unit_symbol:
-      newAlternative.product.primary_unit?.unit_symbol ??
-      newAlternative.product.measurement_unit?.unit_symbol,
-    conversion_factor:
-      newAlternative.product.primary_unit?.conversion_factor ?? 1,
-  };
-
-  setAlternatives((prev) => [...prev, updatedAlternative]);
-  setNewAlternative({
-    product: null,
-    quantity: null,
-    measurement_unit_id: null,
-    unit_symbol: null,
-    conversion_factor: 1,
+  setItems(prev => {
+    const updated = [...prev];
+    updated[index] = { ...updatedItem, alternatives: prev[index].alternatives };
+    return updated;
   });
-  setWarning(null); // clear any warning after successful add
+  setIsEditingMain(false);
+  setExpanded(false);
 };
 
+
+  const handleAddAlternative = () => {
+    if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+      setWarning("Please select a product and enter a valid quantity.");
+      return;
+    }
+
+    if (newAlternative.product.id === item.product?.id) {
+      setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+      return;
+    }
+
+    const alreadyExists = alternatives.some(
+      (alt) => alt.product?.id === newAlternative.product?.id
+    );
+    if (alreadyExists) {
+      setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+      return;
+    }
+
+    const unitExists = alternatives.some(
+      (alt) => alt.unit_symbol === newAlternative.unit_symbol
+    );
+    if (unitExists) {
+      setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
+      return;
+    }
+
+    const updatedAlternative = {
+      ...newAlternative,
+      measurement_unit_id:
+        newAlternative.product.primary_unit?.id ??
+        newAlternative.product.measurement_unit_id,
+      unit_symbol:
+        newAlternative.product.primary_unit?.unit_symbol ??
+        newAlternative.product.measurement_unit?.unit_symbol,
+      conversion_factor:
+        newAlternative.product.primary_unit?.conversion_factor ?? 1,
+    };
+
+  React.useEffect(() => {
+  // Sync alternatives to parent whenever they change
+  setItems(prevItems => {
+    const updated = [...prevItems];
+    updated[index] = {
+      ...updated[index],
+      alternatives, // replace just the alternatives
+    };
+    return updated;
+  });
+}, [alternatives]);
+
+
+
+    setAlternatives((prev) => [...prev, updatedAlternative]);
+    setNewAlternative({
+      product: null,
+      quantity: null,
+      measurement_unit_id: null,
+      unit_symbol: null,
+      conversion_factor: 1,
+    });
+    setWarning(null);
+    setSelectedUnit(null);
+  };
 
   const handleRemoveAlternative = (altIndex: number) => {
     setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
@@ -162,112 +173,119 @@ const [warning, setWarning] = React.useState<string | null>(null);
       }}
     >
       <AccordionSummary
-  expandIcon={<ArrowDropDownIcon />}
-  sx={{
-    minHeight: '48px',
-    '& .MuiAccordionSummary-content': {
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12// Added gap between elements
-    }
-  }}
->
- <Box 
-  sx={{ 
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1,  // Adjust this for spacing between product name and quantity-unit group
-    p: 1,
-    borderRadius: 1,
-    width: '100%'
-  }}
->
-  {/* Product Name */}
-  <Typography 
-    variant="body2" 
-    sx={{ 
-      fontWeight: 500,
-      minWidth: 120,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      flex: 1
-    }}
-  >
-    {item.product?.name || 'No product selected'}
-  </Typography>
+        expandIcon={<ArrowDropDownIcon />}
+        sx={{
+          minHeight: '48px',
+          '& .MuiAccordionSummary-content': {
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12
+          }
+        }}
+      >
+        <Box 
+          sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            p: 1,
+            borderRadius: 1,
+            width: '100%'
+          }}
+        >
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontWeight: 500,
+              minWidth: 120,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flex: 1
+            }}
+          >
+            {item.product?.name || 'No product selected'}
+          </Typography>
 
-  {/* Quantity and Unit (grouped together) */}
-  <Box sx={{ 
-    display: 'flex', 
-    alignItems: 'center',
-    gap: 0.5,
-    minWidth: 80
-  }}>
-    <Typography variant="body2">
-      {item.quantity}
-    </Typography>
-    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-      {item.unit_symbol || 'Pcs'}
-    </Typography>
-  </Box>
-</Box>
-  {/* Actions */}
-<Box 
-  onClick={(e) => e.stopPropagation()} 
-  sx={{ 
-    display: 'flex', 
-    gap: 1,
-    ml: 1
-  }}
->
-  {/* Edit Button - Already Correct */}
-  <Tooltip title="Edit">
-    <Box
-      onClick={() => {
-        setIsEditing(true);
-        setExpanded(true);
-      }}
-      sx={{
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        '&:hover': { 
-          backgroundColor: 'primary.light',
-          color: 'primary.main'
-        }
-      }}
-    >
-      <EditOutlined fontSize="small" />
-    </Box>
-  </Tooltip>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: 0.5,
+            minWidth: 80
+          }}>
+            <Typography variant="body2">
+              {item.quantity}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {item.unit_symbol || 'Pcs'}
+            </Typography>
+          </Box>
+        </Box>
 
-  <Box
-    component="span"
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      p: 0.5,
-      borderRadius: '50%',
-      '&:hover': { bgcolor: 'action.hover' },
-    }}
-    onClick={(e) => {
-      e.stopPropagation(); // prevent accordion toggle
-      handleRemove();
-    }}
-  >
-    <DeleteOutlined fontSize="small" color="error" />
+        <Box 
+          onClick={(e) => e.stopPropagation()} 
+          sx={{ 
+            display: 'flex', 
+            gap: 1,
+            ml: 1
+          }}
+        >
+          <Tooltip title="Edit">
+            <Box
+              onClick={() => {
+                setIsEditingMain(true);
+                setExpanded(true);
+              }}
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                '&:hover': { 
+                  backgroundColor: 'primary.light',
+                  color: 'primary.main'
+                }
+              }}
+            >
+              <EditOutlined fontSize="small" />
+            </Box>
+          </Tooltip>
 
-  </Box>
-</Box>
-</AccordionSummary>
+          <Box
+            component="span"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              p: 0.5,
+              borderRadius: '50%',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemove();
+            }}
+          >
+            <DeleteOutlined fontSize="small" color="error" />
+          </Box>
+        </Box>
+      </AccordionSummary>
 
       <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
-        {isEditing ? (
+        {isEditingMain ? (
           <BomsFormItemEditor
             item={item}
             onUpdate={handleUpdate}
-            onCancel={() => setIsEditing(false)}
+            onCancel={() => setIsEditingMain(false)}
+          />
+        ) : editingAlternativeIndex !== null ? (
+          <BomsFormItemEditor
+            item={alternatives[editingAlternativeIndex]}
+            onUpdate={(updatedAlt) => {
+              const updatedAlternatives = [...alternatives];
+              updatedAlternatives[editingAlternativeIndex] = updatedAlt;
+              setAlternatives(updatedAlternatives);
+              setEditingAlternativeIndex(null);
+            }}
+            onCancel={() => setEditingAlternativeIndex(null)}
           />
         ) : (
           <>
@@ -275,8 +293,7 @@ const [warning, setWarning] = React.useState<string | null>(null);
               Alternative Input Products
             </Typography>
             
-              <Grid container spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
-              {/* Product with warning below */}
+            <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <ProductSelect
@@ -292,9 +309,7 @@ const [warning, setWarning] = React.useState<string | null>(null);
                       }));
                     }}
                   />
-
-                  {/* Reserve space for warning to avoid layout shift */}
-                  <Box sx={{ minHeight: 20, mt: 0.5 }}>
+                  <Box sx={{ minHeight: 10, mt: 0.5 }}>
                     {warning && (
                       <Typography variant="body2" color="error">
                         {warning}
@@ -348,19 +363,17 @@ const [warning, setWarning] = React.useState<string | null>(null);
                       ) : null
                   }}
                 />
-
               </Grid>
-            <Grid size={{xs:12, md:12}} container justifyContent="flex-end">
-              {/* Add Alternative Button */}
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<AddOutlined />}
-                onClick={handleAddAlternative}
-              >
-                Add
-              </Button>
-            </Grid>
+              <Grid size={{ xs: 12, md: 12 }} container justifyContent="flex-end">
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<AddOutlined />}
+                  onClick={handleAddAlternative}
+                >
+                  Add
+                </Button>
+              </Grid>
             </Grid>
 
             {alternatives.length > 0 && (
@@ -378,12 +391,29 @@ const [warning, setWarning] = React.useState<string | null>(null);
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 22, flex: 1 }}>
-                    <Typography variant="body2">{alt.product?.name}</Typography>
-                    <Typography variant="body2"></Typography>
-                    <Typography variant="body2">
-                      {alt.quantity} {alt.unit_symbol}
-                    </Typography>
-                  </Box>
+                      <Typography variant="body2">{alt.product?.name}</Typography>
+                      <Typography variant="body2"></Typography>
+                      <Typography variant="body2">
+                        {alt.quantity} {alt.unit_symbol}
+                      </Typography>
+                      <Box
+                        onClick={() => {
+                          setEditingAlternativeIndex(idx);
+                          setExpanded(true);
+                        }}
+                        sx={{
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          '&:hover': { 
+                            backgroundColor: 'primary.light',
+                            color: 'primary.main'
+                          }
+                        }}
+                      >
+                        <EditOutlined fontSize="small" />
+                      </Box>
+                    </Box>
                     <IconButton
                       size="small"
                       onClick={() => handleRemoveAlternative(idx)}
@@ -407,7 +437,7 @@ const BomsFormItemEditor: React.FC<{
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
- const [product, setProduct] = React.useState<Product | null>(() => {
+  const [product, setProduct] = React.useState<Product | null>(() => {
     return item?.product?.id ? item.product : null;
   });
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
@@ -420,7 +450,6 @@ const BomsFormItemEditor: React.FC<{
     setQuantity(item.quantity ?? null);
     setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
   }, [item]);
-
 
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
@@ -444,7 +473,7 @@ const BomsFormItemEditor: React.FC<{
       <Grid container spacing={2} alignItems="flex-end">
         <Grid size={{ xs: 12, md: 5.5 }}>
           <ProductSelect
-            label=" Input Product"
+            label="Input Product"
             value={product}
             onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
