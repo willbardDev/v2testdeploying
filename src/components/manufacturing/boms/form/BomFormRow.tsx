@@ -132,16 +132,13 @@ const handleAddAlternative = () => {
     return;
   }
 
+  // Use the current newAlternative state which has the correct unit info
   const updatedAlternative = {
     ...newAlternative,
-    measurement_unit_id:
-      newAlternative.product.primary_unit?.id ??
-      newAlternative.product.measurement_unit_id,
-    unit_symbol:
-      newAlternative.product.primary_unit?.unit_symbol ??
-      newAlternative.product.measurement_unit?.unit_symbol,
-    conversion_factor:
-      newAlternative.product.primary_unit?.conversion_factor ?? 1,
+    // These should already be set correctly from the unit selector
+    measurement_unit_id: newAlternative.measurement_unit_id,
+    unit_symbol: newAlternative.unit_symbol,
+    conversion_factor: newAlternative.conversion_factor
   };
 
   setAlternatives((prev) => [...prev, updatedAlternative]);
@@ -155,9 +152,8 @@ const handleAddAlternative = () => {
     conversion_factor: 1,
   });
   setWarning(null);
-  setSelectedUnit(null); // This will reset the unit selection
+  setSelectedUnit(null);
 };
-
   const handleRemoveAlternative = (altIndex: number) => {
     setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
   };
@@ -300,22 +296,42 @@ const handleAddAlternative = () => {
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <ProductSelect
-                  key={newAlternative.product ? "has-product" : "no-product"} // Add this line
-                  label="Alternative Input Product"
-                  value={newAlternative.product}
-                  onChange={(product: Product | null) => {
-                  const unitId = product?.primary_unit?.id ?? product?.measurement_unit_id ?? null;
-                  setSelectedUnit(unitId); // This ensures selectedUnit is set
-                  
-                  setNewAlternative(prev => ({
-                    ...prev,
-                    product,
-                    measurement_unit_id: unitId,
-                    unit_symbol: product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null,
-                    conversion_factor: product?.primary_unit?.conversion_factor ?? 1
-                  }));
+                key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : "alt-product-empty"}
+                label="Alternative Input Product"
+                value={newAlternative.product}
+                onChange={(product: Product | null) => {
+                  if (product) {
+                    const unitId = product?.primary_unit?.id ?? product?.measurement_unit_id ?? null;
+                    const unitSymbol = product?.primary_unit?.unit_symbol ?? product?.measurement_unit?.unit_symbol ?? null;
+                    const conversionFactor = product?.primary_unit?.conversion_factor ?? 1;
+                    
+                    setNewAlternative(prev => ({
+                      ...prev,
+                      product,
+                      measurement_unit_id: unitId,
+                      unit_symbol: unitSymbol,
+                      conversion_factor: conversionFactor
+                    }));
+                    
+                    // Also update the selectedUnit state to match the product's default unit
+                    setSelectedUnit(unitId);
+                  } else {
+                    setNewAlternative(prev => ({
+                      ...prev,
+                      product: null,
+                      measurement_unit_id: null,
+                      unit_symbol: null,
+                      conversion_factor: 1
+                    }));
+                    setSelectedUnit(null);
+                  }
                 }}
-                />
+                sx={{
+                  '& .MuiInputBase-root': { 
+                    paddingRight: '8px',
+                  },
+                }}
+              />
                   <Box sx={{ minHeight: 10, mt: 0.5 }}>
                     {warning && (
                       <Typography variant="body2" color="error">
@@ -327,7 +343,7 @@ const handleAddAlternative = () => {
               </Grid>
               
               <Grid size={{ xs: 12, md: 4 }}>
-               <TextField
+              <TextField
                 label="Quantity"
                 fullWidth
                 size="small"
@@ -349,6 +365,13 @@ const handleAddAlternative = () => {
                           onChange={(e) => {
                             const unitId = e.target.value as number;
                             setSelectedUnit(unitId);
+                            
+                            // CORRECTED: Use newAlternative.product instead of item.product
+                            const combinedUnits = [
+                              ...(newAlternative.product?.secondary_units || []),
+                              ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
+                            ];
+                            
                             const unit = combinedUnits.find((u) => u.id === unitId);
                             if (unit) {
                               setNewAlternative((prev) => ({
@@ -359,8 +382,21 @@ const handleAddAlternative = () => {
                               }));
                             }
                           }}
+                          size="small"
+                          MenuProps={{
+                            PaperProps: {
+                              sx: {
+                                maxHeight: 300,
+                                borderRadius: 1
+                              }
+                            }
+                          }}
                         >
-                          {combinedUnits.map((unit) => (
+                          {/* CORRECTED: Use newAlternative.product instead of item.product */}
+                          {[
+                            ...(newAlternative.product?.secondary_units || []),
+                            ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
+                          ].map((unit) => (
                             <MenuItem key={unit.id} value={unit.id}>
                               {unit.unit_symbol}
                             </MenuItem>
@@ -370,7 +406,6 @@ const handleAddAlternative = () => {
                     ) : null
                 }}
                 sx={{
-                  // Hide the spinner (up/down arrows) for number input
                   '& input[type=number]': {
                     MozAppearance: 'textfield',
                   },
@@ -444,7 +479,7 @@ const handleAddAlternative = () => {
                         {alt.quantity}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {alt.unit_symbol || 'Pcs'}
+                        {alt.unit_symbol}
                       </Typography>
                     </Box>
                     

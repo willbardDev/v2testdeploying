@@ -1,34 +1,26 @@
 // bomsServices.ts
 import axios from '@/lib/services/config';
-import {
-  AddBOMResponse,
-  UpdateBOMResponse,
-  DeleteBOMResponse,
-  PaginatedBOMResponse,
-  BOM,
-  BOMPayload,
-  BomsFormValues
-} from './BomType';
+import { AddBOMResponse, BOM, BOMPayload, DeleteBOMResponse, PaginatedBOMResponse, UpdateBOMResponse } from './BomType';
 
 const bomsServices = {
   getList: async (
     params: { keyword?: string; page?: number; limit?: number } = {}
   ): Promise<PaginatedBOMResponse> => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get('/api/manufacturing/boms', {
+    const { data } = await axios.get('/api/manufacturing/boms', { // Keep this as is for listing
       params: { page, limit, ...queryParams },
     });
     return data;
   },
 
   show: async (id: number): Promise<BOM> => {
-    const { data } = await axios.get(`/api/manufacturing/boms/${id}`);
+    const { data } = await axios.get(`/api/manufacturing/boms/${id}`); // This calls your Next.js API route
     return data;
   },
 
   add: async (bom: BOMPayload): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.post('/api/manufacturing/boms/add', bom);
+    const { data } = await axios.post('/api/manufacturing/boms/add', bom); // Keep this as is
     return data;
   },
 
@@ -37,13 +29,13 @@ const bomsServices = {
     bom: BOMPayload
   ): Promise<UpdateBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.put(`/api/manufacturing/boms/${id}/update`, bom);
+    const { data } = await axios.put(`/api/manufacturing/boms/${id}`, bom); // Updated to match API route
     return data;
   },
 
   delete: async (params: { id: number }): Promise<DeleteBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`);
+    const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`); // Keep this as is
     return data;
   },
 };

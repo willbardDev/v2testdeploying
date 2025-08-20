@@ -9,9 +9,18 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import bomsServices from './boms-services';
 import BomsForm from './form/BomForm';
+import { Product } from '@/components/productAndServices/products/ProductType';
+import { BOMItem } from './BomType';
 
-interface BOM {
+export interface BOM {
   id: number;
+  product?: Product | null;
+  product_id: number;
+  quantity: number;
+  measurement_unit_id?: number | null;
+  conversion_factor?: number | null;
+  items: BOMItem[];
+  alternatives?: BOMItem[]
 }
 
 const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
@@ -75,7 +84,7 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
       >
         <BomsForm
           open={true}
-          bom={bom}
+          bomId={bom.id} // Pass the BOM ID instead of the full bom object
           toggleOpen={setOpenEditDialog}
           onSuccess={() => setOpenEditDialog(false)}
         />
