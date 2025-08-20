@@ -36,23 +36,24 @@ const DashboardContext = createContext<DashboardContextType>({} as DashboardCont
 
 export const useDashboardSettings = () => useContext(DashboardContext);
 
-// const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
+const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
 const Filters = lazy(() => import('./Filters'));
-// const LowStockAlerts = lazy(() => import('./procurementCards/LowStockAlerts'));
-// const DueInvoices = lazy(() => import('./accountsCards/DueInvoices'));
-// const ExpenseDistributionCard = lazy(() => import('./accountsCards/ExpenseDistributionCard'));
-// const InventoryValueTrend = lazy(() => import('./procurementCards/InventoryValueTrend'));
-// const PurchasesAndGrns = lazy(() => import('./procurementCards/PurchasesAndGrns'));
-// const ProductSalesCard = lazy(() => import('./posCards/ProductSalesCard'));
-// const ProfitAndLossTrendCard = lazy(() => import('./accountsCards/ProfitAndLossTrendCard'));
-// const BalanceSheetTrend = lazy(() => import('./accountsCards/BalanceSheetTrend'));
-// const RevenueDistributionCard = lazy(() => import('./accountsCards/RevenueDistributionCard'));
-// const DippingsCard = lazy(() => import('./fuelStationCards/DippingsCard'));
+const LowStockAlerts = lazy(() => import('./procurementCards/LowStockAlerts'));
+const DueInvoices = lazy(() => import('./accountsCards/DueInvoices'));
+const ExpenseDistributionCard = lazy(() => import('./accountsCards/ExpenseDistributionCard'));
+const InventoryValueTrend = lazy(() => import('./procurementCards/InventoryValueTrend'));
+const PurchasesAndGrns = lazy(() => import('./procurementCards/PurchasesAndGrns'));
+const ProductSalesCard = lazy(() => import('./posCards/ProductSalesCard'));
+const ProfitAndLossTrendCard = lazy(() => import('./accountsCards/ProfitAndLossTrendCard'));
+const BalanceSheetTrend = lazy(() => import('./accountsCards/BalanceSheetTrend'));
+const RevenueDistributionCard = lazy(() => import('./accountsCards/RevenueDistributionCard'));
+const DippingsCard = lazy(() => import('./fuelStationCards/DippingsCard'));
 const QuickReports = lazy(() => import('./QuickReports'));
 
 function Dashboard() {
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed, authUser } = useJumboAuth();
   const active_subscriptions: any = authOrganization?.organization?.active_subscriptions || [];
+  const [mounted, setMounted] = useState(false);
 
   const [chartFilters, setChartFilters] = useState<ChartFilters>({
     from: dayjs().startOf('month').toISOString(),
@@ -74,6 +75,12 @@ function Dashboard() {
   const haveFuelStation = (chartFilters.costCenters || []).filter((cost_center: CostCenter) => 
     cost_center?.type === 'Fuel Station'
   ).length > 0;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <React.Fragment>
@@ -118,7 +125,7 @@ function Dashboard() {
               {
                 (organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE) && checkOrganizationPermission(PERMISSIONS.ACCOUNTS_REPORTS)) &&
                 <React.Fragment>
-                  {/* {
+                  {
                     chartFilters.costCenters && chartFilters.costCenters.filter(cost_center => cost_center.type === 'Fuel Station').length > 0 &&
                     <Grid size={{ xs: 12, xl: 8 }}>
                       <DippingsCard />
@@ -135,13 +142,13 @@ function Dashboard() {
                   </Grid>
                   <Grid size={{ xs: 12, md: 6, xl: 4 }}>
                     <ExpenseDistributionCard />
-                  </Grid> */}
+                  </Grid>
                 </React.Fragment>
               }
               {
                 (organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY) && checkOrganizationPermission(PERMISSIONS.STORES_REPORTS)) &&
                 <React.Fragment>
-                  {/* {
+                  {
                     checkOrganizationPermission(PERMISSIONS.ACCOUNTS_REPORTS) &&
                     <Grid size={{ xs: 12, md: 6, xl: 4 }}>
                       <InventoryValueTrend />
@@ -149,10 +156,10 @@ function Dashboard() {
                   }
                   <Grid size={{ xs: 12, md: 6, xl: 4 }}>
                     <LowStockAlerts />
-                  </Grid> */}
+                  </Grid>
                 </React.Fragment>
               }
-              {/* {
+              {
                 (organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY) && checkOrganizationPermission(PERMISSIONS.PURCHASES_REPORTS)) &&
                 <Grid size={{ xs: 12, md: 6, xl: haveFuelStation ? 4 : 6 }}>
                   <PurchasesAndGrns />
@@ -175,7 +182,7 @@ function Dashboard() {
                 <Grid size={{ xs: 12, xl: haveFuelStation ? 8 : 12 }}>
                   <ProductSalesCard />
                 </Grid>
-              } */}
+              }
               {
                 active_subscriptions.length > 0 &&
                 <Grid size={{ xs: 12 }} textAlign={'center'}>

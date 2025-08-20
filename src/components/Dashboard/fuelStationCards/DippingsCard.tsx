@@ -1,50 +1,68 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { Autocomplete, Grid, LinearProgress, Typography, TextField, Checkbox, Chip, useMediaQuery, FormControl, InputLabel, Select, MenuItem, ButtonGroup, Tooltip, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import fuelStationServices from '../../fuelStation/fuelStationServices';
-import { useQuery } from 'react-query';
 import { useDashboardSettings } from '../Dashboard';
 import DippingTrend from './DippingTrend';
 import LatestDippings from './LatestDippings';
-import { useJumboTheme } from '@jumbo/hooks';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { deviceType } from 'app/helpers/user-agent-helpers';
-import Div from '@jumbo/shared/Div';
+import { deviceType } from '@/utilities/helpers/user-agent-helpers';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+
+interface DippingReportParams {
+  from: string;
+  to: string;
+  fuel_station_ids: number[] | undefined;
+  with_calculated_stock: number;
+}
 
 function DippingsCard() {
     const { chartFilters: { from, to, costCenters } } = useDashboardSettings();
     const isMobile = deviceType() === 'mobile';
 
-    const fuelStationCostCenters = costCenters.filter(cost_center => cost_center.type === 'Fuel Station');
+    const fuelStationCostCenters = costCenters?.filter(cost_center => cost_center.type === 'Fuel Station');
 
     // Screen handling constants
     const { theme } = useJumboTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down('md')) || isMobile;
     const midScreen = useMediaQuery('(min-width: 960.1px) and (max-width: 1279.9px)');
 
-    const [selectedStations, setSelectedStations] = useState([]);
-    const [selectedType, setSelectedType] = useState('closing')
-    const [params, setParams] = useState({
+    const [selectedStations, setSelectedStations] = useState<CostCenter[]>([]);
+    const [selectedType, setSelectedType] = useState<'closing' | 'deviation' | 'calculated stock'>('closing');
+    const [params, setParams] = useState<DippingReportParams>({
         from,
         to,
-        fuel_station_ids: fuelStationCostCenters.map(cost_center => cost_center.cost_centerable_id),
-        with_calculated_stock: 0
+        fuel_station_ids: fuelStationCostCenters
+            ?.map(cost_center => cost_center.cost_centerable_id)
+            .filter((id): id is number => id !== undefined),
+        with_calculated_stock: 0,
     });
 
     useEffect(() => {
-        setParams(params => ({
-            ...params,
+        setParams(prevParams => ({
+            ...prevParams,
             from,
             to,
-            fuel_station_ids: selectedStations.length > 0 ?
-                selectedStations.map(station => station.cost_centerable_id)
-                :  fuelStationCostCenters.map(cost_center => cost_center.cost_centerable_id),
-            with_calculated_stock: selectedType === 'closing' ? 0 : 1, 
+            fuel_station_ids:
+            selectedStations.length > 0
+                ? selectedStations
+                    .map(station => station.cost_centerable_id)
+                    .filter((id): id is number => id !== undefined)
+                : fuelStationCostCenters
+                    ?.map(cost_center => cost_center.cost_centerable_id)
+                    .filter((id): id is number => id !== undefined),
+            with_calculated_stock: selectedType === 'closing' ? 0 : 1,
         }));
-    }, [from, to, selectedStations, costCenters, selectedType]);
+    }, [from, to, selectedStations, fuelStationCostCenters, selectedType]);
 
-    const { data: reportData, isLoading } = useQuery(['dippingsReport', params], async () => {
-        return await fuelStationServices.dippingReport(params);
+    const { data: reportData, isLoading } = useQuery({
+        queryKey: ['dippingsReport', params],
+        queryFn: async () => {
+            // return await fuelStationServices.dippingReport(params);
+            return null;
+        }
     });
 
     return (
@@ -57,10 +75,10 @@ function DippingsCard() {
                     !smallScreen && !midScreen ? 
                     <>
                         <Grid container spacing={1} borderBottom={1} borderColor={'divider'} pb={1}>
-                            <Grid item xs={12} md={2}>
+                            <Grid size={{ xs: 12, md: 2 }}>
                                 <Typography variant='h4'>Dippings</Typography>
                             </Grid>
-                            <Grid item xs={6} md={5} lg={3}> 
+                            <Grid size={{ xs: 6, md: 5, lg: 3 }}> 
                                 <ButtonGroup
                                     variant="outlined"
                                     size='small'
@@ -83,10 +101,10 @@ function DippingsCard() {
                                     </Tooltip>
                                 </ButtonGroup>
                             </Grid>
-                            <Grid item xs={6} md={5} lg={7}>
+                            <Grid size={{ xs: 6, md: 5, lg: 7 }}>
                                 <Autocomplete
                                     multiple
-                                    options={fuelStationCostCenters}
+                                    options={fuelStationCostCenters || []}
                                     value={selectedStations}
                                     getOptionLabel={(option) => option.name}
                                     size='small'
@@ -125,24 +143,24 @@ function DippingsCard() {
                             </Grid>
                         </Grid>
                         <Grid container spacing={5}>
-                            <Grid item xs={12} md={6}>
-                                <DippingTrend reportData={reportData} selectedType={selectedType}/>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <DippingTrend reportData={reportData as any} selectedType={selectedType as any}/>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                <LatestDippings reportData={reportData} selectedType={selectedType}/>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <LatestDippings reportData={reportData as any} selectedType={selectedType as any}/>
                             </Grid>
                         </Grid>
                     </>
                     :
                     <Grid container spacing={1} columnSpacing={3}>
-                        <Grid item xs={12} mb={1}>
+                        <Grid size={{ xs: 12 }} mb={1}>
                             <Grid container spacing={1} borderBottom={1} borderColor={'divider'}>
-                                <Grid item xs={4} md={1.5} lg={2.5}>
+                                <Grid size={{ xs: 4, md: 1.5, lg: 2.5 }}>
                                     <Typography variant='h4'>Dippings</Typography>
                                 </Grid>
-                                <Grid item xs={8} md={4} lg={3}>
+                                <Grid size={{ xs: 8, md: 4, lg: 3 }}>
                                     <Div>
-                                        <FormControl fullWidth size='small' label="Display">
+                                        <FormControl fullWidth size='small'>
                                             <InputLabel id="selected-display-trend-group-by-input-label">Display</InputLabel>
                                             <Select
                                                 labelId="selected-display-group-by-label"
@@ -150,7 +168,7 @@ function DippingsCard() {
                                                 value={selectedType}
                                                 label={'Display'}
                                                 onChange={(e) => {
-                                                    setSelectedType(e.target.value);
+                                                    setSelectedType(e.target.value as 'closing' | 'deviation' | 'calculated stock');
                                                 }}
                                             >
                                                 <MenuItem value='closing'>Closing</MenuItem>
@@ -160,10 +178,10 @@ function DippingsCard() {
                                         </FormControl>
                                     </Div>
                                 </Grid>
-                                <Grid item xs={12} md={6.5} paddingBottom={1}>
+                                <Grid size={{ xs: 12, md: 6.5 }} paddingBottom={1}>
                                     <Autocomplete
                                         multiple
-                                        options={fuelStationCostCenters}
+                                        options={fuelStationCostCenters || []}
                                         value={selectedStations}
                                         getOptionLabel={(option) => option.name}
                                         size='small'
@@ -202,11 +220,11 @@ function DippingsCard() {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <DippingTrend reportData={reportData} selectedType={selectedType}/>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <DippingTrend reportData={reportData as any} selectedType={selectedType as any}/>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <LatestDippings reportData={reportData} selectedType={selectedType}/>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <LatestDippings reportData={reportData as any} selectedType={selectedType as any}/>
                         </Grid>
                     </Grid>
                 )

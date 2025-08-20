@@ -2,44 +2,55 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import React, { useEffect, useState } from 'react'
 import { useDashboardSettings } from '../Dashboard';
 import { Button, ButtonGroup, FormControl, InputLabel, LinearProgress, MenuItem, Select, Tooltip, useMediaQuery } from '@mui/material';
-import { useQuery } from 'react-query';
 import purchaseServices from '../../procurement/purchases/purchase-services';
 import { CartesianGrid, ResponsiveContainer, XAxis, YAxis,  Tooltip as RechartTooltip, Bar, ComposedChart, Legend } from 'recharts';
 import grnServices from '../../procurement/grns/grn-services';
-import { shortNumber } from 'app/helpers/input-sanitization-helpers';
-import { useJumboTheme } from '@jumbo/hooks';
-import Div from '@jumbo/shared/Div/Div';
 import dayjs from 'dayjs';
+import { useQuery } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+
+interface ChartDataItem {
+  period: string;
+  amount: number;
+}
+
+interface MergedDataItem {
+  name: string;
+  Purchases: number;
+  GRNs: number;
+}
 
 function PurchasesAndGrns() {
-
-  //Screen handling constants
+  // Screen handling constants
   const {theme} = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  const {chartFilters : {from,to,cost_center_ids}} = useDashboardSettings();
+  const { chartFilters: { from, to, cost_center_ids } } = useDashboardSettings();
   const [params, setParams] = useState({ 
-      from,
-      to,
-      cost_center_ids,
-      aggregate_by: 'day'
+    from,
+    to,
+    cost_center_ids,
+    aggregate_by: 'day' as 'day' | 'week' | 'month' | 'year'
   });
 
   useEffect(() => {
-    setParams(params => ({...params, from, to,cost_center_ids}));
-  }, [from,to,cost_center_ids])
+    setParams(prevParams => ({...prevParams, from, to, cost_center_ids}));
+  }, [from, to, cost_center_ids]);
 
-  const {data : purchaseValues,isLoading} = useQuery(['purchasesChart',params],async() => {
-    const purchaseValues = await purchaseServices.purchaseValues(params);
-    const grnValues = await grnServices.grnValues(params);
-    const mergedArray = [];
+  const { data: purchaseValues = [], isLoading } = useQuery({
+    queryKey: ['purchasesChart', params],
+    queryFn: async () => {
+      const purchaseValues = await purchaseServices.purchaseValues(params);
+      const grnValues = await grnServices.grnValues(params);
+      const mergedArray: MergedDataItem[] = [];
+      
+      purchaseValues.forEach((purchaseItem: ChartDataItem) => {
+        const grnItem = grnValues.find((grn: ChartDataItem) => grn.period === purchaseItem.period);
     
-    purchaseValues.forEach((purchaseItem) => {
-        const grnItem = grnValues.find((grn) => grn.period === purchaseItem.period);
-    
-        const mergedItem = {
+        const mergedItem: MergedDataItem = {
           name: purchaseItem.period,
           Purchases: purchaseItem.amount,
           GRNs: grnItem ? grnItem.amount : 0
@@ -48,12 +59,11 @@ function PurchasesAndGrns() {
         mergedArray.push(mergedItem);
       });
     
-      grnValues.forEach((grnItem) => {
-        const purchaseItem = purchaseValues.find((purchase) => purchase.period === grnItem.period);
+      grnValues.forEach((grnItem: ChartDataItem) => {
+        const purchaseItem = purchaseValues.find((purchase: ChartDataItem) => purchase.period === grnItem.period);
     
         if (!purchaseItem) {
-          const mergedItem = {
-            //name:params.aggregate_by === 'day' ? dayjs(grnItem.period).format('dddd, MMMM D, YYYY') : grnItem.period,
+          const mergedItem: MergedDataItem = {
             name: grnItem.period,
             Purchases: 0,
             GRNs: grnItem.amount
@@ -70,7 +80,17 @@ function PurchasesAndGrns() {
         ...item,
         name: params.aggregate_by === 'day' ? dayjs(item.name).format('ddd, MMM D, YYYY') : item.name,
       }));
+    }
   });
+
+  const shortNumber = (value: number) => {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toString();
+  };
 
   return (
     <JumboCardQuick 
@@ -87,28 +107,28 @@ function PurchasesAndGrns() {
         >
             <Tooltip title={'Daily Trend'}>
                 <Button variant={params.aggregate_by === "day" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'day'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'day'}))}
                 >Daily</Button>
             </Tooltip>
             <Tooltip title={'Weekly Trend'}>
                 <Button variant={params.aggregate_by === "week" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'week'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'week'}))}
                 >Weekly</Button>
             </Tooltip>
             <Tooltip title={'Monthly Trend'}>
                 <Button variant={params.aggregate_by === "month" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'month'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'month'}))}
                 >Monthly</Button>
             </Tooltip>
             <Tooltip title={'Yearly Trend'}>
                 <Button variant={params.aggregate_by === "year" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'year'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'year'}))}
                 >Yearly</Button>
             </Tooltip>
         </ButtonGroup>
         :
         <Div sx={{mt: 1}}>
-            <FormControl fullWidth size='small' label="Interval">
+            <FormControl fullWidth size='small'>
                 <InputLabel id="purchase-and-grns-group-by-input-label">Interval</InputLabel>
                 <Select
                     labelId="purchase-and-grns-group-by-label"
@@ -116,7 +136,7 @@ function PurchasesAndGrns() {
                     value={params.aggregate_by}
                     label={'Interval'}
                     onChange={(e) => {
-                        setParams(params => ({...params,aggregate_by:e.target.value}))
+                        setParams(prevParams => ({...prevParams, aggregate_by: e.target.value as 'day' | 'week' | 'month' | 'year'}))
                     }}
                 >
                     <MenuItem value='day'>Daily</MenuItem>
@@ -137,7 +157,7 @@ function PurchasesAndGrns() {
                 <CartesianGrid strokeDasharray="3 3"/>
                 <RechartTooltip 
                   labelStyle={{color: 'black'}} itemStyle={{color: 'black'}} cursor={false}
-                  formatter={(value) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+                  formatter={(value: number) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
                 />
                 <Legend/>
                 <Bar type="monotone" dataKey="Purchases" fill={"blue"} barSize={10} />

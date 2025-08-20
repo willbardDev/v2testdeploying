@@ -1,45 +1,57 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import { Button, ButtonGroup, Dialog, DialogActions, FormControl, Grid, IconButton, InputLabel, LinearProgress, MenuItem, Select, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { useQuery } from 'react-query'
 import { CartesianGrid, Legend, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartTooltip, ComposedChart} from 'recharts'
 import financialReportsServices from '../../accounts/reports/financial-reports-services'
 import { useDashboardSettings } from '../Dashboard'
-import { shortNumber } from 'app/helpers/input-sanitization-helpers'
-import { useJumboTheme } from '@jumbo/hooks'
-import Div from '@jumbo/shared/Div/Div'
 import dayjs from 'dayjs'
 import { ViewTimelineOutlined } from '@mui/icons-material'
 import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatement'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import { useQuery } from '@tanstack/react-query'
+import { Div } from '@jumbo/shared'
 
-  function ProfitAndLossTrendCard() {
-   const [openDialog, setOpenDialog] = useState(false)
+interface FinancialFigure {
+  period: string;
+  amount: number;
+}
 
-    //Screen handling constants
-    const {theme} = useJumboTheme();
-    const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
+interface ChartDataPoint {
+  name: string;
+  Revenue: number;
+  Expenses: number;
+  Profit: number;
+}
 
-    const {chartFilters : {from,to,cost_center_ids}} = useDashboardSettings();
-    const [params, setParams] = useState({ 
-      from,
-      to,
-      cost_center_ids,
-      aggregate_by: 'day'
-    });
+function ProfitAndLossTrendCard() {
+  const [openDialog, setOpenDialog] = useState(false)
 
-    useEffect(() => {
-      setParams(params => ({...params, from, to,cost_center_ids}));
-    }, [from,to,cost_center_ids])
+  // Screen handling constants
+  const {theme} = useJumboTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { data: profitAndLossTrend, isLoading } = useQuery(['profitAndLossTrend', params], async () => {
-      
-      const {incomeFigures, expenseFigures} = await financialReportsServices.profitAndLossFigures(params);
+  const { chartFilters: { from, to, cost_center_ids } } = useDashboardSettings();
+  const [params, setParams] = useState({ 
+    from,
+    to,
+    cost_center_ids,
+    aggregate_by: 'day' as 'day' | 'week' | 'month' | 'year'
+  });
 
-      const mergedArray = [];
+  useEffect(() => {
+    setParams(prevParams => ({...prevParams, from, to, cost_center_ids}));
+  }, [from, to, cost_center_ids])
+
+  const { data: profitAndLossTrend, isLoading } = useQuery({
+    queryKey: ['profitAndLossTrend', params],
+    queryFn: async () => {
+      const { incomeFigures, expenseFigures } = await financialReportsServices.profitAndLossFigures(params);
+
+      const mergedArray: { name: string; Revenue: number; Expenses: number }[] = [];
     
-      incomeFigures.forEach((salesItem) => {
-        const expenseItem = expenseFigures.find((expense) => expense.period === salesItem.period);
+      incomeFigures.forEach((salesItem: FinancialFigure) => {
+        const expenseItem = expenseFigures.find((expense: FinancialFigure) => expense.period === salesItem.period);
     
         const mergedItem = {
           name: salesItem.period,
@@ -50,8 +62,8 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
         mergedArray.push(mergedItem);
       });
     
-      expenseFigures.forEach((expenseItem) => {
-        const incomeItem = incomeFigures.find((income) => income.period === expenseItem.period);
+      expenseFigures.forEach((expenseItem: FinancialFigure) => {
+        const incomeItem = incomeFigures.find((income: FinancialFigure) => income.period === expenseItem.period);
     
         if (!incomeItem) {
           const mergedItem = {
@@ -65,7 +77,6 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
       });
 
       mergedArray.sort((a, b) => {
-        // Assuming name is a string, use localeCompare for string comparison
         return a.name.localeCompare(b.name);
       });
     
@@ -74,11 +85,20 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
           name: params.aggregate_by === 'day' ? dayjs(item.name).format('ddd, MMM D, YYYY') : item.name,
           Revenue: item.Revenue,
           Expenses: item.Expenses,
-          Profit : item.Revenue - item.Expenses
-        };
+          Profit: item.Revenue - item.Expenses
+        } as ChartDataPoint;
       });
-    });
-    
+    }
+  });
+
+  const shortNumber = (value: number) => {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toString();
+  };
 
   return (
     <JumboCardQuick 
@@ -88,7 +108,7 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
       }}
       action={
         <Grid container columnSpacing={2} alignItems="center">
-          <Grid item xs={8}>
+          <Grid size={{ xs: 8 }}>
             {
             !midScreen && !smallScreen ? 
               <ButtonGroup
@@ -98,28 +118,28 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
               >
                 <Tooltip title={'Daily Trend'}>
                   <Button variant={params.aggregate_by === "day" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'day'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'day'}))}
                   >Daily</Button>
                 </Tooltip>
                 <Tooltip title={'Weekly Trend'}>
                   <Button variant={params.aggregate_by === "week" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'week'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'week'}))}
                   >Weekly</Button>
                 </Tooltip>
                 <Tooltip title={'Monthly Trend'}>
                   <Button variant={params.aggregate_by === "month" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'month'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'month'}))}
                   >Monthly</Button>
                 </Tooltip>
                 <Tooltip title={'Yearly Trend'}>
                   <Button variant={params.aggregate_by === "year" ? "contained" : "outlined"}
-                    onClick={() => setParams(params => ({...params,aggregate_by: 'year'}))}
+                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'year'}))}
                   >Yearly</Button>
                 </Tooltip>
               </ButtonGroup>
             :
             <Div>
-              <FormControl fullWidth size='small' label="Interval">
+              <FormControl fullWidth size='small'>
                 <InputLabel id="business-trend-group-by-input-label">Interval</InputLabel>
                 <Select
                   labelId="business-trend-group-by-label"
@@ -127,7 +147,7 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
                   value={params.aggregate_by}
                   label={'Interval'}
                   onChange={(e) => {
-                    setParams(params => ({...params,aggregate_by:e.target.value}))
+                    setParams(prevParams => ({...prevParams, aggregate_by: e.target.value as 'day' | 'week' | 'month' | 'year'}))
                   }}
                 >
                   <MenuItem value='day'>Daily</MenuItem>
@@ -139,7 +159,7 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
             </Div>
             }
           </Grid>
-          <Grid item xs={4}>
+          <Grid size={{ xs: 4 }}>
             <Tooltip title='Income Statement'>
               <IconButton onClick={() => setOpenDialog(true)} size="small" color="primary">
                 <ViewTimelineOutlined sx={smallScreen ? { fontSize: '40px' } : { fontSize: '38px', marginLeft: 2 }}/>
@@ -148,7 +168,6 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
           </Grid>
         </Grid>
       }
-
     >
       <Dialog open={openDialog} fullWidth fullScreen={smallScreen} scroll={smallScreen ? 'body' : 'paper'} maxWidth='md'>
         <IncomeStatement from={from} to={to} cost_center_ids={cost_center_ids}/>
@@ -158,26 +177,26 @@ import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatem
           </Button>
         </DialogActions>
       </Dialog>
-    {
-      isLoading ? <LinearProgress/> :(
-      <ResponsiveContainer width="100%" height={180}>
-        <ComposedChart data={profitAndLossTrend}>
-          <XAxis dataKey="name"/>
-          <YAxis tickFormatter={shortNumber}/>
-          <CartesianGrid strokeDasharray="3 3"/>
-          <RechartTooltip 
-            labelStyle={{color: 'black'}} 
-            itemStyle={{color: 'black'}} 
-            cursor={false}
-            formatter={(value) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-          />
-          <Legend/>
-          <Line type="monotone" dataKey="Revenue" stroke={"blue"} dot={''} activeDot={{r: 5}}/>
-          <Line type="monotone" dataKey="Expenses" stroke={"#e91e63"} dot={''}  activeDot={{r: 5}}/>
-          <Line type="monotone" dataKey="Profit" stroke={"#009f2f"} dot={''}  activeDot={{r: 5}}/>
-        </ComposedChart>
-      </ResponsiveContainer>)
-    }
+      {
+        isLoading ? <LinearProgress/> :(
+        <ResponsiveContainer width="100%" height={180}>
+          <ComposedChart data={profitAndLossTrend}>
+            <XAxis dataKey="name"/>
+            <YAxis tickFormatter={shortNumber}/>
+            <CartesianGrid strokeDasharray="3 3"/>
+            <RechartTooltip 
+              labelStyle={{color: 'black'}} 
+              itemStyle={{color: 'black'}} 
+              cursor={false}
+              formatter={(value: number) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+            />
+            <Legend/>
+            <Line type="monotone" dataKey="Revenue" stroke={"blue"} dot={false} activeDot={{r: 5}}/>
+            <Line type="monotone" dataKey="Expenses" stroke={"#e91e63"} dot={false} activeDot={{r: 5}}/>
+            <Line type="monotone" dataKey="Profit" stroke={"#009f2f"} dot={false} activeDot={{r: 5}}/>
+          </ComposedChart>
+        </ResponsiveContainer>)
+      }
     </JumboCardQuick>
   )
 }

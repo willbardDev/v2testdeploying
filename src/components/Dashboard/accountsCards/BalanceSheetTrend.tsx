@@ -1,16 +1,21 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import { Button, ButtonGroup, Dialog, DialogActions, FormControl, Grid, IconButton, InputLabel, LinearProgress, MenuItem, Select, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { useQuery } from 'react-query'
 import { CartesianGrid, Legend, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartTooltip, ComposedChart} from 'recharts'
 import financialReportsServices from '../../accounts/reports/financial-reports-services'
 import { useDashboardSettings } from '../Dashboard'
-import { shortNumber } from 'app/helpers/input-sanitization-helpers'
-import { useJumboTheme } from '@jumbo/hooks'
-import Div from '@jumbo/shared/Div/Div'
 import dayjs from 'dayjs'
 import { BalanceOutlined } from '@mui/icons-material'
 import BalanceSheet from '../../accounts/reports/balance sheet/BalanceSheet'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import { useQuery } from '@tanstack/react-query'
+import { Div } from '@jumbo/shared'
+
+interface BalanceSheetItem {
+  period: string;
+  assetsFigure: number;
+  liabilitiesFigure: number;
+}
 
 function BalanceSheetTrend() {
    const [openDialog, setOpenDialog] = useState(false)
@@ -21,35 +26,42 @@ function BalanceSheetTrend() {
     const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const xlScreen = useMediaQuery(theme.breakpoints.up('lg'))
 
-    const {chartFilters : {from,to,cost_center_ids}} = useDashboardSettings();
+    const { chartFilters: { from, to, cost_center_ids } } = useDashboardSettings();
     const [params, setParams] = useState({ 
         from,
         to,
         cost_center_ids,
-        aggregate_by: 'week'
+        aggregate_by: 'week' as 'day' | 'week' | 'month' | 'year'
     });
 
     useEffect(() => {
-      setParams(params => ({...params, from, to,cost_center_ids}));
-    }, [from,to,cost_center_ids])
+      setParams(prevParams => ({...prevParams, from, to, cost_center_ids}));
+    }, [from, to, cost_center_ids])
     
-    
-
-    const { data: BalanceSheetTrend, isLoading } = useQuery(['balanceSheetTrend', params], async () => {
-      
-      const balanceSheetFigures = await financialReportsServices.balanceSheetFigures(params);
-
-    
-      return balanceSheetFigures.map((item) => {
-        return {
-          name: params.aggregate_by === 'day' ? dayjs(item.period).format('dddd, MMMM D, YYYY') : item.period,
-          Assets: item.assetsFigure,
-          Liabilities: item.liabilitiesFigure,
-          Equity : item.assetsFigure - item.liabilitiesFigure
-        };
-      });
+    const { data: balanceSheetTrend, isLoading } = useQuery({
+      queryKey: ['balanceSheetTrend', params],
+      queryFn: async () => {
+        const balanceSheetFigures = await financialReportsServices.balanceSheetFigures(params);
+        
+        return balanceSheetFigures.map((item: BalanceSheetItem) => {
+          return {
+            name: params.aggregate_by === 'day' ? dayjs(item.period).format('dddd, MMMM D, YYYY') : item.period,
+            Assets: item.assetsFigure,
+            Liabilities: item.liabilitiesFigure,
+            Equity: item.assetsFigure - item.liabilitiesFigure
+          };
+        });
+      }
     });
-    
+
+    const shortNumber = (value: number) => {
+      if (value >= 1000000) {
+        return (value / 1000000).toFixed(1) + 'M';
+      } else if (value >= 1000) {
+        return (value / 1000).toFixed(1) + 'K';
+      }
+      return value.toString();
+    };
 
   return (
     <JumboCardQuick 
@@ -59,7 +71,7 @@ function BalanceSheetTrend() {
         }}
         action={
             <Grid container columnSpacing={1} alignItems="center">
-                <Grid item xs={8}>
+                <Grid size={{ xs: 8 }}>
                     {
                     !midScreen && !smallScreen ? 
                         <ButtonGroup
@@ -74,23 +86,23 @@ function BalanceSheetTrend() {
                             </Tooltip> */}
                             <Tooltip title={'Weekly Trend'}>
                                 <Button variant={params.aggregate_by === "week" ? "contained" : "outlined"}
-                                    onClick={() => setParams(params => ({...params,aggregate_by: 'week'}))}
+                                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'week'}))}
                                 >Weekly</Button>
                             </Tooltip>
                             <Tooltip title={'Monthly Trend'}>
                                 <Button variant={params.aggregate_by === "month" ? "contained" : "outlined"}
-                                    onClick={() => setParams(params => ({...params,aggregate_by: 'month'}))}
+                                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'month'}))}
                                 >Monthly</Button>
                             </Tooltip>
                             <Tooltip title={'Yearly Trend'}>
                                 <Button variant={params.aggregate_by === "year" ? "contained" : "outlined"}
-                                    onClick={() => setParams(params => ({...params,aggregate_by: 'year'}))}
+                                    onClick={() => setParams(prevParams => ({...prevParams, aggregate_by: 'year'}))}
                                 >Yearly</Button>
                             </Tooltip>
                         </ButtonGroup>
                     :
                         <Div>
-                            <FormControl fullWidth size='small' label="Interval">
+                            <FormControl fullWidth size='small'>
                                 <InputLabel id="balance-sheet-trend-group-by-input-label">Interval</InputLabel>
                                 <Select
                                     labelId="balance-sheet-trend-group-by-label"
@@ -98,7 +110,7 @@ function BalanceSheetTrend() {
                                     value={params.aggregate_by}
                                     label={'Interval'}
                                     onChange={(e) => {
-                                        setParams(params => ({...params,aggregate_by:e.target.value}))
+                                        setParams(prevParams => ({...prevParams, aggregate_by: e.target.value as 'week' | 'month' | 'year'}))
                                     }}
                                 >
                                     {/* <MenuItem value='day'>Daily</MenuItem> */}
@@ -110,10 +122,10 @@ function BalanceSheetTrend() {
                         </Div>
                     }
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={{ xs: 4 }}>
                     <Tooltip title='Balance Sheet'>
                         <IconButton onClick={() => setOpenDialog(true)} size="small" color="primary">
-                            <BalanceOutlined sx={smallScreen ? { fontSize: '40px' } : { fontSize: '38px', marginLeft:2 }}/>
+                            <BalanceOutlined sx={smallScreen ? { fontSize: '40px' } : { fontSize: '38px', marginLeft: 2 }}/>
                         </IconButton>
                     </Tooltip>
                 </Grid>
@@ -131,7 +143,7 @@ function BalanceSheetTrend() {
     {
         isLoading ? <LinearProgress/> :(
         <ResponsiveContainer width="100%" height={180}>
-            <ComposedChart data={BalanceSheetTrend}>
+            <ComposedChart data={balanceSheetTrend}>
                 <XAxis dataKey="name"/>
                 <YAxis tickFormatter={shortNumber}/>
                 <CartesianGrid strokeDasharray="3 3"/>
@@ -139,12 +151,12 @@ function BalanceSheetTrend() {
                     labelStyle={{color: 'black'}} 
                     itemStyle={{color: 'black'}} 
                     cursor={false}
-                    formatter={(value) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+                    formatter={(value: number) => value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
                 />
                 <Legend/>
-                <Line type="monotone" dataKey="Assets" stroke={"#009f2f"} dot={''} activeDot={{r: 5}}/>
-                <Line type="monotone" dataKey="Liabilities" stroke={"#e91e63"} dot={''}  activeDot={{r: 5}}/>
-                <Line type="monotone" dataKey="Equity" stroke={"blue"} dot={''}  activeDot={{r: 5}}/>
+                <Line type="monotone" dataKey="Assets" stroke={"#009f2f"} dot={false} activeDot={{r: 5}}/>
+                <Line type="monotone" dataKey="Liabilities" stroke={"#e91e63"} dot={false} activeDot={{r: 5}}/>
+                <Line type="monotone" dataKey="Equity" stroke={"blue"} dot={false} activeDot={{r: 5}}/>
             </ComposedChart>
         </ResponsiveContainer>)
     }
