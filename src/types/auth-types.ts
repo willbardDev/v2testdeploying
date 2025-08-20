@@ -33,6 +33,9 @@
           value: any;
         }[];
       }[];
+      days_remaining?: number;
+      status?: string;
+      successor?: any;
     }[];
     [key: string]: any;
   }
