@@ -29,7 +29,7 @@ const bomsServices = {
     bom: BOMPayload
   ): Promise<UpdateBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.put(`/api/manufacturing/boms/${id}`, bom); // Updated to match API route
+    const { data } = await axios.put(`/api/manufacturing/boms/${id}/update`, bom); // Updated to match API route
     return data;
   },
 
