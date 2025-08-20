@@ -180,7 +180,7 @@ const handleAddAlternative = () => {
           '& .MuiAccordionSummary-content': {
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 12
+            gap: 17
           }
         }}
       >
@@ -327,49 +327,63 @@ const handleAddAlternative = () => {
               </Grid>
               
               <Grid size={{ xs: 12, md: 4 }}>
-                <TextField
-                  label="Quantity"
-                  fullWidth
-                  size="small"
-                  type="number"
-                  value={newAlternative.quantity === null ? '' : newAlternative.quantity}
-                  onChange={(e) =>
-                    setNewAlternative((prev) => ({
-                      ...prev,
-                      quantity: e.target.value === '' ? null : Number(e.target.value)
-                    }))
-                  }
-                  InputProps={{
-                    inputComponent: CommaSeparatedField,
-                    endAdornment:
-                      newAlternative.product ? ( // Changed condition: only check for product, not selectedUnit
-                        <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                          <Select
-                            value={selectedUnit || ''} // Handle null case
-                            onChange={(e) => {
-                              const unitId = e.target.value as number;
-                              setSelectedUnit(unitId);
-                              const unit = combinedUnits.find((u) => u.id === unitId);
-                              if (unit) {
-                                setNewAlternative((prev) => ({
-                                  ...prev,
-                                  measurement_unit_id: unit.id,
-                                  unit_symbol: unit.unit_symbol,
-                                  conversion_factor: unit.conversion_factor ?? 1
-                                }));
-                              }
-                            }}
-                          >
-                            {combinedUnits.map((unit) => (
-                              <MenuItem key={unit.id} value={unit.id}>
-                                {unit.unit_symbol}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      ) : null
-                  }}
-                />
+               <TextField
+                label="Quantity"
+                fullWidth
+                size="small"
+                type="number"
+                value={newAlternative.quantity === null ? '' : newAlternative.quantity}
+                onChange={(e) =>
+                  setNewAlternative((prev) => ({
+                    ...prev,
+                    quantity: e.target.value === '' ? null : Number(e.target.value)
+                  }))
+                }
+                InputProps={{
+                  inputComponent: CommaSeparatedField,
+                  endAdornment:
+                    newAlternative.product ? (
+                      <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                        <Select
+                          value={selectedUnit || ''}
+                          onChange={(e) => {
+                            const unitId = e.target.value as number;
+                            setSelectedUnit(unitId);
+                            const unit = combinedUnits.find((u) => u.id === unitId);
+                            if (unit) {
+                              setNewAlternative((prev) => ({
+                                ...prev,
+                                measurement_unit_id: unit.id,
+                                unit_symbol: unit.unit_symbol,
+                                conversion_factor: unit.conversion_factor ?? 1
+                              }));
+                            }
+                          }}
+                        >
+                          {combinedUnits.map((unit) => (
+                            <MenuItem key={unit.id} value={unit.id}>
+                              {unit.unit_symbol}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    ) : null
+                }}
+                sx={{
+                  // Hide the spinner (up/down arrows) for number input
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                  '& input[type=number]::-webkit-outer-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0,
+                  },
+                  '& input[type=number]::-webkit-inner-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0,
+                  },
+                }}
+              />
               </Grid>
               <Grid size={{ xs: 12, md: 12 }} container justifyContent="flex-end">
                 <Button
@@ -384,54 +398,80 @@ const handleAddAlternative = () => {
             </Grid>
 
             {alternatives.length > 0 && (
-              <Stack spacing={1}>
-                {alternatives.map((alt, idx) => (
+            <Stack spacing={1}>
+              {alternatives.map((alt, idx) => (
+                <Box 
+                  key={idx} 
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    bgcolor: 'action.hover',
+                    borderRadius: 1
+                  }}
+                >
                   <Box 
-                    key={idx} 
                     sx={{ 
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1,
-                      p: 1,
-                      bgcolor: 'action.hover',
-                      borderRadius: 1
+                      justifyContent: 'space-between', // Add this to push elements to edges
+                      width: '100%',
+                      gap: 22 // Reduce the gap between elements
                     }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 22, flex: 1 }}>
-                      <Typography variant="body2">{alt.product?.name}</Typography>
-                      <Typography variant="body2"></Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 500,
+                        minWidth: 120,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        flex: 1,
+                        mr: 2 // Add right margin to reduce space to quantity
+                      }}
+                    >
+                      {alt.product?.name || 'No product selected'}
+                    </Typography>
+
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: 0.5,
+                      minWidth: 60 // Reduce minWidth
+                    }}>
                       <Typography variant="body2">
-                        {alt.quantity} {alt.unit_symbol}
+                        {alt.quantity}
                       </Typography>
-                      <Box
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        {alt.unit_symbol || 'Pcs'}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+                      <IconButton
+                        size="small"
                         onClick={() => {
                           setEditingAlternativeIndex(idx);
                           setExpanded(true);
                         }}
-                        sx={{
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          '&:hover': { 
-                            backgroundColor: 'primary.light',
-                            color: 'primary.main'
-                          }
-                        }}
+                        color="primary"
                       >
                         <EditOutlined fontSize="small" />
-                      </Box>
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveAlternative(idx)}
+                        color="error"
+                      >
+                        <DeleteOutlined fontSize="small" />
+                      </IconButton>
                     </Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleRemoveAlternative(idx)}
-                      color="error"
-                    >
-                      <DeleteOutlined fontSize="small" />
-                    </IconButton>
                   </Box>
-                ))}
-              </Stack>
-            )}
+                </Box>
+              ))}
+            </Stack>
+          )}
           </>
         )}
       </AccordionDetails>
@@ -444,23 +484,12 @@ const BomsFormItemEditor: React.FC<{
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
 }> = ({ item, onUpdate, onCancel }) => {
-  // Initialize state with the item values
+  // Initialize state directly with item values - no useEffect needed
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
-
-  // Use a key to force re-render when item changes
-  const [editorKey, setEditorKey] = React.useState(0);
-
-  // Update state when item changes
-  React.useEffect(() => {
-    setProduct(item.product ?? null);
-    setQuantity(item.quantity ?? null);
-    setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
-    setEditorKey(prev => prev + 1); // Force re-render
-  }, [item]);
 
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
@@ -480,11 +509,11 @@ const BomsFormItemEditor: React.FC<{
   };
 
   return (
-    <Box sx={{ mb: 2 }} key={editorKey}> {/* Add key here to force re-render */}
+    <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
         <Grid size={{xs: 12, md: 5.5}}>
           <ProductSelect
-            key={`product-select-${product?.id || 'empty'}`} // Unique key based on product
+            key={`product-select-${item.product?.id || 'empty'}`}
             label="Input Product"
             value={product}
             onChange={(newProduct: Product | null) => {
@@ -526,6 +555,19 @@ const BomsFormItemEditor: React.FC<{
                   </Select>
                 </FormControl>
               ) : null,
+            }}
+            sx={{
+              '& input[type=number]': {
+                MozAppearance: 'textfield',
+              },
+              '& input[type=number]::-webkit-outer-spin-button': {
+                WebkitAppearance: 'none',
+                margin: 0,
+              },
+              '& input[type=number]::-webkit-inner-spin-button': {
+                WebkitAppearance: 'none',
+                margin: 0,
+              },
             }}
           />
         </Grid>
