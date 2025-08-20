@@ -22,7 +22,10 @@ function DippingsCard() {
     const { chartFilters: { from, to, costCenters } } = useDashboardSettings();
     const isMobile = deviceType() === 'mobile';
 
-    const fuelStationCostCenters = costCenters?.filter(cost_center => cost_center.type === 'Fuel Station');
+    const fuelStationCostCenters = React.useMemo(
+        () => costCenters?.filter(cost_center => cost_center.type === 'Fuel Station'),
+        [costCenters]
+    );
 
     // Screen handling constants
     const { theme } = useJumboTheme();

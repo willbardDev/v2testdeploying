@@ -7,9 +7,11 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import { MODULES } from '@/utilities/constants/modules'
 import { PERMISSIONS } from '@/utilities/constants/permissions'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext'
 
 function QuickLinks() {
     const router = useRouter();
+    const lang = useLanguage();
     const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
     
     return (
@@ -34,7 +36,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/projects')}
+                        onClick={() => router.push(`/${lang}/projectManagement/projects`)}
                     >
                         <ListOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Projects</Typography>
@@ -52,7 +54,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/production-batches')}
+                        onClick={() => router.push(`/${lang}/manufacturing/batches`)}
                     >
                         <QrCodeOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Batches</Typography>
@@ -76,7 +78,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/fuel-station/sales-shifts')}
+                        // onClick={() => router.push(`/${lang}/fuel-station/sales-shifts`)}
                     >
                         <LocalGasStation sx={{ fontSize: '40px' }} />
                         <Typography>Sales Shift</Typography>
@@ -99,7 +101,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/pos/counter')}
+                        onClick={() => router.push(`/${lang}/pos/sales-counters`)}
                     >
                         <PointOfSaleOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Sales</Typography>
@@ -121,7 +123,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/purchase_orders')}
+                        onClick={() => router.push(`/${lang}/procurement/purchases`)}
                     >
                         <ShoppingCartOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Purchases</Typography>
@@ -144,7 +146,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/requisitions')}
+                        onClick={() => router.push(`/${lang}/requisitions`)}
                     >
                         <FormatListNumberedRtl sx={{ fontSize: '40px' }} />
                         <Typography>Requisitions</Typography>
@@ -162,7 +164,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/accounts/transactions')}
+                        onClick={() => router.push(`/${lang}/accounts/transactions`)}
                     >
                         <ReceiptOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Transactions</Typography>
@@ -180,7 +182,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/accounts/ledgers')}
+                        onClick={() => router.push(`/${lang}/accounts/ledgers`)}
                     >
                         <AutoStoriesOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Ledgers</Typography>
@@ -201,7 +203,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/procurement/stores')}
+                        onClick={() => router.push(`/${lang}/procurement/stores`)}
                     >
                         <Inventory2Outlined sx={{ fontSize: '40px' }} />
                         <Typography>Stores</Typography>
@@ -243,7 +245,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push('/products')}
+                        onClick={() => router.push(`/${lang}/procurement/products`)}
                     >
                         <QrCode2Rounded sx={{ fontSize: '40px' }} />
                         <Typography>Products</Typography>

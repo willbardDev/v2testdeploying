@@ -10,6 +10,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import { useRouter } from 'next/navigation';
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import { AuthUser } from '@/types/auth-types';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext'
 
 interface DashboardContextType {
   chartFilters: ChartFilters;
@@ -54,6 +55,7 @@ function Dashboard() {
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed, authUser } = useJumboAuth();
   const active_subscriptions: any = authOrganization?.organization?.active_subscriptions || [];
   const [mounted, setMounted] = useState(false);
+  const lang = useLanguage();
 
   const [chartFilters, setChartFilters] = useState<ChartFilters>({
     from: dayjs().startOf('month').toISOString(),
@@ -68,9 +70,9 @@ function Dashboard() {
 
   useEffect(() => {
     if (!authOrganization?.organization) {
-      router.push('organizations');
+      router.push(`/${lang}/dashboard`);
     }
-  }, [authOrganization, router]);
+  }, [authOrganization]);
 
   const haveFuelStation = (chartFilters.costCenters || []).filter((cost_center: CostCenter) => 
     cost_center?.type === 'Fuel Station'
