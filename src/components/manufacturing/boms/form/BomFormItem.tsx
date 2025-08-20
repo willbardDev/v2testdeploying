@@ -184,19 +184,24 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
                 setSelectedUnit(null);
               }
             }}
-            startAdornment={
-              checkOrganizationPermission(['products_create']) && (
+           startAdornment={
+            checkOrganizationPermission(['products_create']) && (
+              <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
                 <Tooltip title="Add New Product">
                   <IconButton 
-                    onClick={() => setOpenProductQuickAdd(true)} 
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent triggering parent button
+                      setOpenProductQuickAdd(true);
+                    }} 
                     size="small"
                     sx={{ p: 0.5 }}
                   >
                     <AddOutlined fontSize="small" />
                   </IconButton>
                 </Tooltip>
-              )
-            }
+              </Box>
+            )
+          }
             sx={{ 
               '& .MuiInputBase-root': { 
                 paddingRight: '8px' 
