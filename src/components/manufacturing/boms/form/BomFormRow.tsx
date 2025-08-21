@@ -446,6 +446,18 @@ const handleAddAlternative = () => {
                     borderRadius: 1
                   }}
                 >
+                  {/* Index number (starting from 1) */}
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontWeight: 600,
+                      minWidth: 24,
+                      textAlign: 'center',
+                      color: 'text.secondary'
+                    }}
+                  >
+                {idx + 1} {/* Display index starting from 1 */}   
+                  </Typography>
                   <Box 
                     sx={{ 
                       display: 'flex',
