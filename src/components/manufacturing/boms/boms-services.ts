@@ -14,10 +14,9 @@ const bomsServices = {
   },
 
   show: async (id: number): Promise<BOM> => {
-    const { data } = await axios.get(`/api/manufacturing/boms/${id}`); // This calls your Next.js API route
-    return data;
-  },
-
+  const { data } = await axios.get(`/api/manufacturing/boms/${id}/show`); // Updated to match API route
+  return data;
+},
   add: async (bom: BOMPayload): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.post('/api/manufacturing/boms/add', bom); // Keep this as is

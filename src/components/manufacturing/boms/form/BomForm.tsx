@@ -245,7 +245,7 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
       fullWidth
     >
       <DialogTitle component="div"> <Typography variant="h4" component="h2" textAlign="center" mb={2}>
-          {!bomId ? 'New Bill of Material' : `Edit ${bomId}`}
+          {!bomId ? 'New Bill of Material' : `Edit BOM #${bomId}`}
         </Typography>
       </DialogTitle>
 
