@@ -17,6 +17,7 @@ import {
   VerifiedOutlined,
   AccountTreeOutlined,
   EditAttributes,
+  TuneOutlined,
 } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -64,6 +65,7 @@ export const iconMap: Record<string, React.ReactNode> = {
   reports: muiIcon(AssessmentOutlined),
   product_categories: muiIcon(Inventory2Outlined),
   products: muiIcon(Inventory2Outlined),
+  manufacturingMasters: muiIcon(TuneOutlined),
   outlets: muiIcon(StoreOutlined),
   settings: muiIcon(StoreOutlined),
   stakeholders: muiIcon(HandshakeOutlined),
@@ -200,7 +202,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
         {
           label: sidebar.menuItem.masters,
           type: 'collapsible',
-          icon: iconMap.products,
+          icon: iconMap.manufacturingMasters,
           children: [
             {
               uri: `/${locale}/manufacturing/boms`,
