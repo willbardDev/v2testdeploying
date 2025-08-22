@@ -36,7 +36,7 @@ interface FormValues {
   alternatives?: BOMItem[]
 }
 
-interface BomsFormItemProps {
+interface BomItemFormProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
   submitMainForm: () => void;
   submitItemForm: boolean;
@@ -61,7 +61,7 @@ const validationSchema = yup.object({
   measurement_unit_id: yup.number().required("Unit is required")
 });
 
-const BomsFormItem: React.FC<BomsFormItemProps> = ({
+const BomItemForm: React.FC<BomItemFormProps> = ({
   setClearFormKey,
   submitMainForm,
   submitItemForm,
@@ -308,4 +308,4 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
   );
 };
 
-export default BomsFormItem;
+export default BomItemForm;

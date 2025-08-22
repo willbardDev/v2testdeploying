@@ -38,7 +38,7 @@ interface BOMItem {
   alternatives?: BOMItem[];
 }
 
-interface BomsFormRowProps {
+interface BomFormRowProps {
   item: BOMItem;
   index: number;
   items: BOMItem[];
@@ -50,7 +50,7 @@ interface BomsFormRowProps {
   setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BomsFormRow: React.FC<BomsFormRowProps> = ({
+const BomItemRow: React.FC<BomFormRowProps> = ({
   item,
   index,
   items,
@@ -213,7 +213,7 @@ const handleAddAlternative = () => {
               {item.quantity}
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.unit_symbol || 'Pcs'}
+              {item.unit_symbol}
             </Typography>
           </Box>
         </Box>
@@ -641,4 +641,4 @@ const BomsFormItemEditor: React.FC<{
     </Box>
   );
 };
-export default BomsFormRow;
+export default BomItemRow;

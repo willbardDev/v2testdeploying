@@ -20,15 +20,16 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import BomsFormRow from './BomFormRow';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
-import BomsFormItem from './BomFormItem';
+import BomsItemForm from './BomItemForm';
+import BomItemRow from './BomItemRow';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { BOMPayload } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import BomItemForm from './BomItemForm';
 
-interface BomsFormProps {
+interface BomFormProps {
   open: boolean;
   toggleOpen: (open: boolean) => void;
   bomId?: number;
@@ -50,7 +51,7 @@ const schema = yup.object().shape({
   ),
 });
 
-function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
+function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { data: bomData, isLoading, isError } = useQuery({
@@ -367,7 +368,7 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
           </Grid>
 
           <Grid size={12}>
-            <BomsFormItem
+            <BomItemForm
               setItems={setItems}
               items={items}
               key={clearFormKey}
@@ -386,7 +387,7 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
             )}
 
             {items.map((item, index) => (
-              <BomsFormRow
+              <BomItemRow
                 key={index}
                 index={index}
                 item={item}
@@ -400,8 +401,6 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
             ))}
           </Grid>
         </Grid>
-
-        {isSubmitting && <LinearProgress />}
       </DialogContent>
 
       <DialogActions>
@@ -417,6 +416,7 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
           variant="contained"
           size="small"
           onClick={handleSubmit(onSubmit)}
+          loading
           disabled={isSubmitting}
         >
           {bomId ? 'Update' : 'Submit'}
@@ -426,4 +426,4 @@ function BomsForm({ open, toggleOpen, bomId, onSuccess }: BomsFormProps) {
   );
 }
 
-export default BomsForm;
+export default BomForm;
