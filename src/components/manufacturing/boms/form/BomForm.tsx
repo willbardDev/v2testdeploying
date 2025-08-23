@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab'; 
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -416,7 +417,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
           variant="contained"
           size="small"
           onClick={handleSubmit(onSubmit)}
-          loading
+          loading={isSubmitting}
           disabled={isSubmitting}
         >
           {bomId ? 'Update' : 'Submit'}
