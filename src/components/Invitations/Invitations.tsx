@@ -84,13 +84,20 @@ function OrganizationInvitations() {
                 p: 1,
             }}
             noDataPlaceholder={
-                <Alert variant="outlined" severity="info">
+                <Alert
+                    variant="outlined"
+                    severity="info"
+                >
                     <span>No invitations available yet. Please wait for invitations to appear!</span>
                     <span>
-                        {''} You can manage organizations{' '}
-                        <Link href={`/${lang}/organizations`} passHref>
-                            <MuiLink underline="hover">here</MuiLink>
-                        </Link>
+                        {""} You can manage organizations{' '}
+                        <MuiLink
+                            component={Link}
+                            href={`/${lang}/organizations`}
+                            underline="hover"
+                        >
+                            here
+                        </MuiLink>
                         .
                     </span>
                 </Alert>
