@@ -90,13 +90,40 @@ const BomsFormItemEditor: React.FC<{
             label={isAlternative ? "Alternative Product" : "Input Product"}
             value={product}
             onChange={(newProduct: Product | null) => {
-              setProduct(newProduct);
               if (newProduct) {
-                const unitId = newProduct.primary_unit?.id ?? newProduct.measurement_unit_id;
+                const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit_id ?? null;
+                const unitSymbol = newProduct?.primary_unit?.unit_symbol ?? newProduct?.measurement_unit?.unit_symbol ?? null;
+                const conversionFactor = newProduct?.primary_unit?.conversion_factor ?? 1;
+                
+                // Update local state
+                setProduct(newProduct);
                 setSelectedUnit(unitId);
+                
+                // Optional: If you want to update the parent component's state immediately
+                onProductChange({
+                  product: newProduct,
+                  measurement_unit_id: unitId,
+                  unit_symbol: unitSymbol,
+                  conversion_factor: conversionFactor
+                });
+                
               } else {
+                setProduct(null);
                 setSelectedUnit(null);
+                
+                // Optional: Reset in parent component
+                onProductChange({
+                  product: null,
+                  measurement_unit_id: null,
+                  unit_symbol: null,
+                  conversion_factor: 1
+                });
               }
+            }}
+            sx={{
+              '& .MInputBase-root': { 
+                paddingRight: '8px',
+              },
             }}
           />
         </Grid>
@@ -221,74 +248,68 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
       }}
     >
       <AccordionSummary
-  expandIcon={false} // disable default right expand icon
-  sx={{
-    minHeight: '48px',
-    '& .MuiAccordionSummary-content': {
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: 0.5,
-    },
-  }}
->
-  {/* Custom expand box aligned to start */}
-  <Box
+    expandIcon={false}
     sx={{
-      width: 20,
-      height: 20,
-      border: '1px solid',
-      borderColor: 'primary.main',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 14,
-      fontWeight: 'bold',
-      color: 'primary.main',
-      bgcolor: expanded ? 'primary.main' : 'transparent',
-      ...(expanded && { color: 'white' }),
+      minHeight: '48px',
+      py: 0,
+      '& .MuiAccordionSummary-content': {
+        alignItems: 'center',
+        gap: 2,
+        m: 0,
+      },
     }}
   >
-    {expanded ? '-' : '+'}
-  </Box>
+    {/* Expand/Collapse Box */}
+    <Box
+      sx={{
+        width: 24,
+        height: 24,
+        border: '1px solid',
+        borderColor: 'primary.main',
+        borderRadius: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: expanded ? 'white' : 'primary.main',
+        bgcolor: expanded ? 'primary.main' : 'transparent',
+        flexShrink: 0,
+      }}
+    >
+      {expanded ? '-' : '+'}
+    </Box>
 
-        <Box 
-          sx={{ 
-            display: 'flex',
-            alignItems: 'start',
-            gap: 1,
-            p: 1,
-            borderRadius: 1,
-            width: '100%'
-          }}
-        >
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              fontWeight: 500,
-              minWidth: 120,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              flex: 1
-            }}
-          >
-            {item.product?.name}
-          </Typography>
+    {/* Product Name */}
+    <Typography 
+      variant="body2" 
+      sx={{ 
+        fontWeight: 500,
+        minWidth: 120,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        flex: 1,
+      }}
+    >
+      {item.product?.name}
+    </Typography>
 
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            gap: 0.5,
-            minWidth: 80
-          }}>
-            <Typography variant="body2">
-              {item.quantity}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.unit_symbol}
-            </Typography>
-          </Box>
-        </Box>
+    {/* Quantity and Unit */}
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center',
+      gap: 0.5,
+      minWidth: 80,
+      flexShrink: 0,
+    }}>
+      <Typography variant="body2" fontWeight="medium">
+        {item.quantity}
+      </Typography>
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {item.unit_symbol}
+      </Typography>
+    </Box>
 
         <Box 
           onClick={(e) => e.stopPropagation()} 
