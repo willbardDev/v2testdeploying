@@ -18,6 +18,9 @@ import {
   AccountTreeOutlined,
   EditAttributes,
   TuneOutlined,
+  ManageAccountsOutlined,
+  TroubleshootOutlined,
+  CardMembershipOutlined,
 } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -74,7 +77,10 @@ export const iconMap: Record<string, React.ReactNode> = {
   organizations: muiIcon(CorporateFareOutlined),
   invitations: muiIcon(ShareOutlined),
   filesShelf: faIcon(faFolderOpen),
-  prosControl: faIcon(faUsersGear),
+  usersManagement: muiIcon(ManageAccountsOutlined),
+  prosAfricans: faIcon(faUsersGear),
+  troubleshooting: muiIcon(TroubleshootOutlined),
+  subscriptions: muiIcon(CardMembershipOutlined),
   projects: faIcon(faBarsProgress),
   consumptions: faIcon(faFillDrip),
   approvedPurchases: muiIcon(ShoppingCartCheckoutOutlined),
@@ -376,10 +382,28 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
       type: 'section',
       children: [
         {
+          uri: `/${locale}/prosControl/prosAfricans`,
+          label: sidebar.menuItem.prosAfricans,
+          type: 'nav-item',
+          icon: iconMap.prosAfricans,
+        },
+        {
+          uri: `/${locale}/prosControl/subscriptions`,
+          label: sidebar.menuItem.subscriptions,
+          type: 'nav-item',
+          icon: iconMap.subscriptions,
+        },
+        {
+          uri: `/${locale}/prosControl/troubleshooting`,
+          label: sidebar.menuItem.troubleshooting,
+          type: 'nav-item',
+          icon: iconMap.troubleshooting,
+        },
+        {
           uri: `/${locale}/prosControl/usersManagement`,
           label: sidebar.menuItem.usersManagement,
           type: 'nav-item',
-          icon: iconMap.prosControl,
+          icon: iconMap.usersManagement,
         },
       ],
     },

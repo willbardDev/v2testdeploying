@@ -249,15 +249,11 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
     
             // Check if there is a selling price
             const selling_price = storeBalances && storeBalances.selling_price;
-            if ( !item && !checkedForSuggestPrice ) {
-                if(!!selling_price){
-                    await setValue(`rate`, selling_price?.price, {
-                        shouldDirty: true,
-                        shouldValidate: true
-                    });
-                } else {
-                    await setValue(`rate`, 0);
-                }
+            if(!!selling_price && !checkedForSuggestPrice){
+                await setValue(`rate`, selling_price?.price, {
+                    shouldDirty: true,
+                    shouldValidate: true
+                });
 
                 setPriceFieldKey(key => key + 1)
                 setVatPriceFieldKey(key => key + 1)
