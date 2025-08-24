@@ -13,10 +13,10 @@ import JumboSearch from '@jumbo/components/JumboSearch';
 import { OrganizationListItem } from './OrganizationListItem';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { Organization, User } from '@/types/auth-types';
-import { Dictionary } from '@/dictionaries/type';
 import organizationServices from '../organizationServices';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { Dictionary } from '@/dictionaries/type';
 
 interface QueryOptions<TQueryKey> {
   queryKey: string;
@@ -76,17 +76,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
   const renderOrganization = useCallback((organization: Organization) => {
     return organization ? (
       <OrganizationListItem organization={organization} />
-    ) : (
-      <Alert variant="outlined" severity="info">
-        <span>{dictionary.organizations.list.messages.noOrganizations}</span>
-        <span>
-          {dictionary.organizations.list.messages.invitationText}
-          <Link href={`/${lang}/invitations`}>
-            {dictionary.organizations.list.labels.invitationLink}
-          </Link>
-        </span>
-      </Alert>
-    );
+    ) : null;
   }, []);
 
   const handleOnChange = useCallback((keyword: string) => {
@@ -127,6 +117,17 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
           renderItem={renderOrganization}
           componentElement={"div"}
           wrapperSx={wrapperSx}
+          noDataPlaceholder={
+            <Alert variant="outlined" severity="info">
+              <span>{dictionary.organizations.list.messages.noOrganizations}</span>
+              <span>
+                {dictionary.organizations.list.messages.invitationText}
+                <Link href={`/${lang}/invitations`}>
+                  {dictionary.organizations.list.labels.invitationLink}
+                </Link>
+              </span>
+            </Alert>
+          }
           toolbar={
             <JumboListToolbar
               hideItemsPerPage={true}

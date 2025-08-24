@@ -241,7 +241,7 @@
     "src/lib/auth.js",
     "src/utilities/helpers/user-agent-helpers.ts",
     "build/types/**/*.ts"
-, "src/app/api/auth/[...nextauth]/route.js", "src/components/productAndServices/products/ProductsCategorySelector.jsx", "src/components/prosControl/support/support-services.js"  ],
+, "src/app/api/auth/[...nextauth]/route.js", "src/components/productAndServices/products/ProductsCategorySelector.jsx", "src/components/prosControl/support/support-services.js", "src/components/Invitations/invitationsServices.js"  ],
   "exclude": [
     "node_modules"
   ]
