@@ -51,9 +51,10 @@ export interface PaginatedBOMResponse {
 }
 
 export interface BOMItem {
-  product_id: number;
-  quantity: number;
-  measurement_unit_id: number;
+  [x: string]: any;
+  product_id: number | null;
+  quantity: number | null;
+  measurement_unit_id: number | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
 }
