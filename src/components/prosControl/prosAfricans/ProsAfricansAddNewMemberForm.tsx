@@ -20,7 +20,7 @@ interface User {
   name: string;
   email: string;
   roles?: Role[];
-  selectedRoles?: Role[];
+  selectedRoles?: Role[] | number[];
 }
 
 interface FormData {
@@ -145,8 +145,8 @@ function ProsAfricansAddNewMemberForm() {
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                     <ProsAfricansAddNewMemberQueue 
-                        addNewProsAfrican={addNewProsAfrican}
-                        setAddNewProsAfrican={setAddNewProsAfrican}
+                        addNewProsAfrican={addNewProsAfrican as any}
+                        setAddNewProsAfrican={setAddNewProsAfrican as any}
                     />
                 </Grid>
             </Grid>

@@ -34,12 +34,18 @@ const ProsAfricansList = () => {
     }));
   }, [params]);
 
-  const handleOnChange = (keywords: string) => {
-    setQueryOptions((state) => ({
-      ...state,
-      queryParams: { ...state.queryParams, keywords },
-    }));
-  };
+  const handleOnChange = React.useCallback(
+    (keyword: string) => {
+      setQueryOptions((state) => ({
+        ...state,
+        queryParams: {
+          ...state.queryParams,
+          keyword: keyword,
+        },
+      }));
+    },
+    []
+  );
 
   return (
     <JumboRqList

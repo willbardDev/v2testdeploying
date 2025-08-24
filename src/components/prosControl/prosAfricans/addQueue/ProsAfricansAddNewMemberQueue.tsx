@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 interface Role {
   id: number;
   name: string;
+  [key: string]: any;
 }
 
 interface NewProsAfrican {
@@ -17,17 +18,17 @@ interface NewProsAfrican {
   name: string;
   email: string;
   roles?: Role[];
-  selectedRoles: Role[] | number[];
+  selectedRoles?: Role[] | number[];
 }
 
 interface ProsAfricansAddNewMemberQueueProps {
   addNewProsAfrican: NewProsAfrican[];
-  setaddNewProsAfrican: React.Dispatch<React.SetStateAction<NewProsAfrican[]>>;
+  setAddNewProsAfrican: React.Dispatch<React.SetStateAction<NewProsAfrican[]>>;
 }
 
 export const ProsAfricansAddNewMemberQueue: React.FC<ProsAfricansAddNewMemberQueueProps> = ({
   addNewProsAfrican,
-  setaddNewProsAfrican,
+  setAddNewProsAfrican,
 }) => {
   const { hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
@@ -64,7 +65,7 @@ export const ProsAfricansAddNewMemberQueue: React.FC<ProsAfricansAddNewMemberQue
             {addNewProsAfrican.map((newProsAfrican) => (
               <ProsAfricansAddNewMemberQueueItem
                 key={newProsAfrican.email}
-                setaddNewProsAfrican={setaddNewProsAfrican}
+                setAddNewProsAfrican={setAddNewProsAfrican}
                 addNewProsAfrican={addNewProsAfrican}
                 newProsAfrican={newProsAfrican}
               />

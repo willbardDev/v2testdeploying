@@ -14,18 +14,18 @@ interface NewProsAfrican {
   name: string;
   email: string;
   roles?: Role[];
-  selectedRoles: Role[] | number[];
+  selectedRoles?: Role[] | number[];
 }
 
 interface ProsAfricansAddNewMemberQueueItemProps {
   newProsAfrican: NewProsAfrican;
-  setaddNewProsAfrican: React.Dispatch<React.SetStateAction<NewProsAfrican[]>>;
+  setAddNewProsAfrican: React.Dispatch<React.SetStateAction<NewProsAfrican[]>>;
   addNewProsAfrican: NewProsAfrican[];
 }
 
 export const ProsAfricansAddNewMemberQueueItem: React.FC<ProsAfricansAddNewMemberQueueItemProps> = ({
   newProsAfrican,
-  setaddNewProsAfrican,
+  setAddNewProsAfrican,
   addNewProsAfrican
 }) => {
     const [expanded, setExpanded] = useState(true);
@@ -36,13 +36,13 @@ export const ProsAfricansAddNewMemberQueueItem: React.FC<ProsAfricansAddNewMembe
     );
 
     useEffect(() => {
-        setaddNewProsAfrican(prevaddNewProsAfrican => prevaddNewProsAfrican.map(item => 
+        setAddNewProsAfrican(prevaddNewProsAfrican => prevaddNewProsAfrican.map(item => 
           item.email === newProsAfrican.email ? {
             ...item,
             selectedRoles
           } : item
         ));
-    }, [selectedRoles, newProsAfrican.email, setaddNewProsAfrican]);
+    }, [selectedRoles, newProsAfrican.email, setAddNewProsAfrican]);
 
     const handleChecked = (target: HTMLInputElement) => {
         const roleId = parseInt(target.value);
@@ -72,7 +72,7 @@ export const ProsAfricansAddNewMemberQueueItem: React.FC<ProsAfricansAddNewMembe
                     )
                 }
                 <ListItemSecondaryAction>
-                    <IconButton onClick={() => setaddNewProsAfrican(addNewProsAfrican.filter(item => item.email !== newProsAfrican.email))}>
+                    <IconButton onClick={() => setAddNewProsAfrican(addNewProsAfrican.filter(item => item.email !== newProsAfrican.email))}>
                         <CloseOutlined color='error'/>
                     </IconButton>
                 </ListItemSecondaryAction>
