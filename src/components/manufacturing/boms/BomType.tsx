@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  unit_symbol: string; // Change from 'symbol' to 'unit_symbol'
+  symbol: string;
   conversion_factor?: number;
 }
 

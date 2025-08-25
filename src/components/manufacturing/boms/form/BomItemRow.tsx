@@ -78,7 +78,7 @@ const BomsFormItemEditor: React.FC<{
       product,
       quantity,
       measurement_unit_id: selectedUnit !== null ? selectedUnit : item.measurement_unit_id,
-      unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
+      symbol: selectedUnitData?.symbol ?? item.symbol,
       conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1
     });
   };
@@ -120,7 +120,7 @@ const BomsFormItemEditor: React.FC<{
                   const primaryUnit = newProduct.primary_unit;
                   const defaultUnit = primaryUnit ?? (newProduct.measurement_unit ? {
                     id: newProduct.measurement_unit.id,
-                    symbol: newProduct.measurement_unit.unit_symbol,
+                    symbol: newProduct.measurement_unit.symbol,
                     name: newProduct.measurement_unit.name,
                   } : null);
 
@@ -137,7 +137,7 @@ const BomsFormItemEditor: React.FC<{
                   }: {
                     product: Product | null;
                     measurement_unit_id: number | null;
-                    measurement_unit: { id: number; unit_symbol: string; name: string } | null; // Change symbol to unit_symbol
+                    measurement_unit: { id: number; symbol: string; name: string } | null;
                     conversion_factor: number;
                   }) => {
                     setProduct(newProduct);
@@ -186,7 +186,7 @@ const BomsFormItemEditor: React.FC<{
                     >
                       {combinedUnits.map((unit) => (
                         <MenuItem key={unit.id} value={unit.id}>
-                          {unit.unit_symbol}
+                          {unit.symbol}
                         </MenuItem>
                       ))}
                     </Select>
@@ -374,7 +374,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 {item.quantity}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.unit_symbol}
+                {item.symbol}
               </Typography>
             </Box>
 

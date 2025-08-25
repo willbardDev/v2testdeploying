@@ -38,7 +38,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     quantity: null,
     measurement_unit_id: null,
     conversion_factor: 1,
-    unit_symbol: undefined
+    symbol: undefined
   });
   const [warning, setWarning] = React.useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
@@ -60,8 +60,8 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       return;
     }
 
-    if (alternatives.some((alt) => alt.unit_symbol === newAlternative.unit_symbol)) {
-      setWarning(`⚠️ Unit "${newAlternative.unit_symbol}" is already used by another alternative.`);
+    if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
+      setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
       return;
     }
 
@@ -73,7 +73,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       quantity: null,
       measurement_unit_id: null,
       conversion_factor: 1,
-      unit_symbol: undefined
+      symbol: undefined
     });
     setSelectedUnit(null);
     setWarning(null);
@@ -121,14 +121,14 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 onChange={(product: Product | null) => {
                   if (product) {
                     const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                    const unitSymbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.unit_symbol ?? undefined;
+                    const unitSymbol = product.primary_unit?.symbol ?? product.measurement_unit?.symbol ?? undefined;
                     const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
                     setNewAlternative((prev) => ({
                       ...prev,
                       product,
                       measurement_unit_id: unitId,
-                      unit_symbol: unitSymbol,
+                      symbol: unitSymbol,
                       conversion_factor: conversionFactor
                     }));
                     setSelectedUnit(unitId);
@@ -139,7 +139,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                       quantity: null,
                       measurement_unit_id: null,
                       conversion_factor: 1,
-                      unit_symbol: undefined
+                      symbol: undefined
                     });
                     setSelectedUnit(null);
                   }
@@ -185,7 +185,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                             setNewAlternative((prev) => ({
                               ...prev,
                               measurement_unit_id: unit.id,
-                              unit_symbol: unit.unit_symbol,
+                              symbol: unit.symbol,
                               conversion_factor: unit.conversion_factor ?? 1
                             }));
                           }
@@ -197,7 +197,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                           ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
                         ].map((unit) => (
                           <MenuItem key={unit.id} value={unit.id}>
-                            {unit.unit_symbol}
+                            {unit.symbol}
                           </MenuItem>
                         ))}
                       </Select>

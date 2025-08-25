@@ -106,6 +106,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
         product_id: bomData.product_id,
         quantity: bomData.quantity || 0,
         measurement_unit_id: bomData.measurement_unit_id || undefined,
+        measurement_unit: bomData.measurement_unit || undefined,
         conversion_factor: bomData.conversion_factor || 1,
         items: bomData.items || [],
       });
@@ -131,6 +132,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       product_id: undefined,
       quantity: 0,
       measurement_unit_id: undefined,
+      measurement_unit:undefined,
       conversion_factor: 1,
       items: [],
     });
@@ -262,16 +264,19 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
               onChange={(newValue: Product | null) => {
                 if (newValue) {
                   const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                  const unitSymbol = newValue.primary_unit?.unit_symbol ?? newValue.measurement_unit?.unit_symbol ?? '';
+                  const symbol = newValue.primary_unit?.symbol ?? newValue.measurement_unit?.symbol ?? '';
+                  const conversionFactor = newValue.primary_unit?.conversion_factor ?? 1;
                   
                   setOutputProduct(newValue);
                   setValue('product_id', newValue.id);
                   setValue('measurement_unit_id', unitId);
-                  setValue('conversion_factor', newValue.primary_unit?.conversion_factor ?? 1);
+                  setValue('measurement_unit', symbol); // Fixed the incomplete line
+                  setValue('conversion_factor', conversionFactor);
                 } else {
                   setOutputProduct(null);
                   setValue('product_id', 0);
                   setValue('measurement_unit_id', undefined);
+                  setValue('measurement_unit', undefined); // Added missing field reset
                   setValue('conversion_factor', 1);
                 }
               }}

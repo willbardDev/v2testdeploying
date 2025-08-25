@@ -57,7 +57,7 @@ const AlternativeItemEditor: React.FC<{
       product,
       quantity,
       measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
-      unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
+      symbol: selectedUnitData?.symbol ?? item.symbol,
       conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1
     });
   };
@@ -101,7 +101,7 @@ const AlternativeItemEditor: React.FC<{
                   >
                     {combinedUnits.map((unit) => (
                       <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
+                        {unit.symbol}
                       </MenuItem>
                     ))}
                   </Select>
@@ -193,7 +193,7 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
           <Typography variant="body2">{alternative.quantity}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.unit_symbol}</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.symbol}</Typography>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
