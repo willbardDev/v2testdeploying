@@ -161,50 +161,50 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
     onCancelEdit();
   };
 
-  if (!localIsEditing) {
+  if (localIsEditing) {
     return (
-      <Box 
-        sx={{ 
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          p: 1,
-          bgcolor: 'action.hover',
-          borderRadius: 1
-        }}
-      >
-        <Typography 
-          variant="body2" 
-          sx={{ fontWeight: 600, minWidth: 24, textAlign: 'center', color: 'text.secondary' }}
-        >
-          {index + 1}.
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 22 }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, mr: 2 }}>
-            {alternative.product?.name}
-          </Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
-            <Typography variant="body2">{alternative.quantity}</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.unit_symbol}</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
-            <IconButton size="small" onClick={handleEditClick} color="primary">
-              <EditOutlined fontSize="small" />
-            </IconButton>
-            <IconButton size="small" onClick={onRemove} color="error">
-              <DeleteOutlined fontSize="small" />
-            </IconButton>
-          </Box>
-        </Box>
+      <Box sx={{ p: 2, borderRadius: 1, border: '1px solid', borderColor: 'primary.main' }}>
+        <AlternativeItemEditor item={alternative} onUpdate={handleUpdate} onCancel={handleCancel} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: 2, borderRadius: 1, border: '1px solid', borderColor: 'primary.main' }}>
-      <AlternativeItemEditor item={alternative} onUpdate={handleUpdate} onCancel={handleCancel} />
+    <Box 
+      sx={{ 
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        p: 1,
+        bgcolor: 'action.hover',
+        borderRadius: 1
+      }}
+    >
+      <Typography 
+        variant="body2" 
+        sx={{ fontWeight: 600, minWidth: 24, textAlign: 'center', color: 'text.secondary' }}
+      >
+        {index + 1}.
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 22 }}>
+        <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, mr: 2 }}>
+          {alternative.product?.name}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
+          <Typography variant="body2">{alternative.quantity}</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.unit_symbol}</Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+          <IconButton size="small" onClick={handleEditClick} color="primary">
+            <EditOutlined fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={onRemove} color="error">
+            <DeleteOutlined fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   );
 };
