@@ -65,7 +65,7 @@ const AlternativeItemEditor: React.FC<{
   return (
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
-         <Grid size={{xs:12, md:6}}>
+         <Grid size={{xs:12, md:4}}>
           <ProductSelect
             key={`alt-product-select-${item.product?.id || 'empty'}`}
             value={product}

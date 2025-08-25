@@ -22,7 +22,7 @@ interface AlternativesFormProps {
   alternatives: BOMItem[];
   setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
   onEditAlternative: (index: number) => void;
-  isEditing?: boolean; // <-- added this to avoid TS error
+  isEditing?: boolean;
 }
 
 const AlternativesForm: React.FC<AlternativesFormProps> = ({
@@ -102,116 +102,124 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
   return (
     <>
-      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
-        Alternative Input Products
-      </Typography>
+      {/* Only show the title if not in edit mode */}
+      {!isEditing && (
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+          Alternative Input Products
+        </Typography>
+      )}
 
-      <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
-        <Grid size={{xs:12, md:8}}>
-          <ProductSelect
-            key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : "alt-product-empty"}
-            label="Alternative Input Product"
-            value={newAlternative.product}
-            onChange={(product: Product | null) => {
-              if (product) {
-                const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                const unitSymbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.unit_symbol ?? undefined;
-                const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
+      {/* Only show the add form if not in edit mode */}
+      {!isEditing && (
+        <>
+          <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
+            <Grid size={{xs:12, md:8}}>
+              <ProductSelect
+                key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : "alt-product-empty"}
+                label="Alternative Input Product"
+                value={newAlternative.product}
+                onChange={(product: Product | null) => {
+                  if (product) {
+                    const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
+                    const unitSymbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.unit_symbol ?? undefined;
+                    const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
-                setNewAlternative((prev) => ({
-                  ...prev,
-                  product,
-                  measurement_unit_id: unitId,
-                  unit_symbol: unitSymbol,
-                  conversion_factor: conversionFactor
-                }));
-                setSelectedUnit(unitId);
-              } else {
-                setNewAlternative({
-                  product: null,
-                  product_id: null,
-                  quantity: null,
-                  measurement_unit_id: null,
-                  conversion_factor: 1,
-                  unit_symbol: undefined
-                });
-                setSelectedUnit(null);
-              }
-            }}
-          />
-          {warning && (
-            <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
-              {warning}
-            </Typography>
-          )}
-        </Grid>
+                    setNewAlternative((prev) => ({
+                      ...prev,
+                      product,
+                      measurement_unit_id: unitId,
+                      unit_symbol: unitSymbol,
+                      conversion_factor: conversionFactor
+                    }));
+                    setSelectedUnit(unitId);
+                  } else {
+                    setNewAlternative({
+                      product: null,
+                      product_id: null,
+                      quantity: null,
+                      measurement_unit_id: null,
+                      conversion_factor: 1,
+                      unit_symbol: undefined
+                    });
+                    setSelectedUnit(null);
+                  }
+                }}
+              />
+              {warning && (
+                <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                  {warning}
+                </Typography>
+              )}
+            </Grid>
 
-        <Grid size={{xs:12, md:4}}>
-          <TextField
-            label="Quantity"
-            fullWidth
-            size="small"
-            type="number"
-            value={newAlternative.quantity ?? ''}
-            onChange={(e) =>
-              setNewAlternative((prev) => ({
-                ...prev,
-                quantity: e.target.value === '' ? null : Number(e.target.value)
-              }))
-            }
-            InputProps={{
-              inputComponent: CommaSeparatedField,
-              endAdornment: newAlternative.product ? (
-                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                  <Select
-                    value={selectedUnit ?? ''}
-                    onChange={(e) => {
-                      const unitId = e.target.value as number;
-                      setSelectedUnit(unitId);
+            <Grid size={{xs:12, md:4}}>
+              <TextField
+                label="Quantity"
+                fullWidth
+                size="small"
+                type="number"
+                value={newAlternative.quantity ?? ''}
+                onChange={(e) =>
+                  setNewAlternative((prev) => ({
+                    ...prev,
+                    quantity: e.target.value === '' ? null : Number(e.target.value)
+                  }))
+                }
+                InputProps={{
+                  inputComponent: CommaSeparatedField,
+                  endAdornment: newAlternative.product ? (
+                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                      <Select
+                        value={selectedUnit ?? ''}
+                        onChange={(e) => {
+                          const unitId = e.target.value as number;
+                          setSelectedUnit(unitId);
 
-                      const combinedUnits = [
-                        ...(newAlternative.product?.secondary_units || []),
-                        ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                      ];
+                          const combinedUnits = [
+                            ...(newAlternative.product?.secondary_units || []),
+                            ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
+                          ];
 
-                      const unit = combinedUnits.find((u) => u.id === unitId);
-                      if (unit) {
-                        setNewAlternative((prev) => ({
-                          ...prev,
-                          measurement_unit_id: unit.id,
-                          unit_symbol: unit.unit_symbol,
-                          conversion_factor: unit.conversion_factor ?? 1
-                        }));
-                      }
-                    }}
-                    size="small"
-                  >
-                    {[
-                      ...(newAlternative.product?.secondary_units || []),
-                      ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                    ].map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : null
-            }}
-          />
-        </Grid>
+                          const unit = combinedUnits.find((u) => u.id === unitId);
+                          if (unit) {
+                            setNewAlternative((prev) => ({
+                              ...prev,
+                              measurement_unit_id: unit.id,
+                              unit_symbol: unit.unit_symbol,
+                              conversion_factor: unit.conversion_factor ?? 1
+                            }));
+                          }
+                        }}
+                        size="small"
+                      >
+                        {[
+                          ...(newAlternative.product?.secondary_units || []),
+                          ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
+                        ].map((unit) => (
+                          <MenuItem key={unit.id} value={unit.id}>
+                            {unit.unit_symbol}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : null
+                }}
+              />
+            </Grid>
 
-        <Grid size={12} container justifyContent="flex-end">
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<AddOutlined />}
-            onClick={handleAddAlternative}
-          >
-            Add
-          </Button>
-        </Grid>
-      </Grid>
+            <Grid size={12} container justifyContent="flex-end">
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddOutlined />}
+                onClick={handleAddAlternative}
+              >
+                Add
+              </Button>
+            </Grid>
+          </Grid>
+        </>
+      )}
 
       {alternatives.length > 0 && (
         <Stack spacing={1}>

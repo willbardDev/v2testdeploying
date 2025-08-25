@@ -376,43 +376,48 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
             </Box>
 
             <Box 
-              onClick={(e) => e.stopPropagation()} 
-              sx={{ 
-                display: 'flex', 
-                gap: 1,
-                ml: 1
-              }}
-            >
-              <Tooltip title="Edit">
-                <IconButton
-                  aria-label="Edit item"
-                  onClick={() => {
-                    setIsEditingMain(true);
-                    setExpanded(true);
-                  }}
-                  sx={{
-                    '&:hover': { 
-                      backgroundColor: 'primary.light',
-                      color: 'primary.main'
-                    }
-                  }}
-                >
-                  <EditOutlined fontSize="small" />
-                </IconButton>
-              </Tooltip>
+            component="div"
+            onClick={(e) => e.stopPropagation()} 
+            sx={{ 
+              display: 'flex', 
+              gap: 1,
+              ml: 1
+            }}
+          >
+            <Tooltip title="Edit">
+              <IconButton
+                aria-label="Edit item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingMain(true);
+                  setExpanded(true);
+                }}
+                sx={{
+                  '&:hover': { 
+                    backgroundColor: 'primary.light',
+                    color: 'primary.main'
+                  }
+                }}
+              >
+                <EditOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-              <Tooltip title="Delete">
-                <IconButton
-                  aria-label="Delete item"
-                  onClick={handleRemove}
-                  sx={{
-                    '&:hover': { bgcolor: 'action.hover' },
-                  }}
-                >
-                  <DeleteOutlined fontSize="small" color="error" />
-                </IconButton>
-              </Tooltip>
-            </Box>
+            <Tooltip title="Delete">
+              <IconButton
+                aria-label="Delete item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove();
+                }}
+                sx={{
+                  '&:hover': { bgcolor: 'action.hover' },
+                }}
+              >
+                <DeleteOutlined fontSize="small" color="error" />
+              </IconButton>
+            </Tooltip>
+          </Box>
           </AccordionSummary>
 
           <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
