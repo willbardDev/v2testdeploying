@@ -30,7 +30,7 @@ interface FormValues {
   product_id?: number;
   quantity: number | null;
   measurement_unit_id?: number | null;
-  unit_symbol?: string | null;
+  measurement_unit:MeasurementUnit | null;
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]
@@ -78,16 +78,29 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
   const [selectedUnit, setSelectedUnit] = useState<number | null>(item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null);
   const [isAdding, setIsAdding] = useState(false);
 
-  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema)as any,
-    defaultValues: {
-      product: item?.product ?? null,
-      quantity: item?.quantity ?? null,
-      measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
-      unit_symbol: item?.unit_symbol ?? item?.measurement_unit?.unit_symbol ?? null,
-      conversion_factor: item?.product?.primary_unit?.conversion_factor ?? 1,
-    }
-  });
+ const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
+  resolver: yupResolver(validationSchema) as any,
+  defaultValues: {
+    product: item?.product ?? null,
+    product_id: item?.product_id ?? item?.product?.id ?? null,
+    quantity: item?.quantity ?? null,
+
+    // ✅ Always prefer direct measurement_unit_id, else derive from nested measurement_unit
+    measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
+
+    // ✅ Keep the full object if available
+    measurement_unit: item?.measurement_unit ?? null,
+
+    // ✅ Derive symbol from measurement_unit (since not in response root)
+    unit_symbol: item?.measurement_unit?.symbol ?? null,
+
+    // ✅ Use item conversion_factor if present, else fallback
+    conversion_factor: item?.conversion_factor
+      ?? item?.product?.primary_unit?.conversion_factor
+      ?? 1,
+  }
+});
+
 
   const product = watch('product') as Product | undefined;
   const quantity = watch('quantity');
@@ -105,7 +118,8 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
       ...data,
       product_id: data.product?.id,
       measurement_unit_id: selectedUnit,
-      unit_symbol: data.unit_symbol,
+      measurement_unit:data.measurement_unit,
+      symbol: data.symbol,
       conversion_factor: data.conversion_factor ?? 1
     };
 
@@ -143,12 +157,12 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
   useEffect(() => {
     if (addedProduct) {
       const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
-      const unitSymbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.unit_symbol ?? '';
+      const unitSymbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.symbol ?? '';
 
       setValue('product', addedProduct);
       setValue('product_id', addedProduct.id);
       setValue('measurement_unit_id', unitId);
-      setValue('unit_symbol', unitSymbol);
+      setValue('symbol', unitSymbol);
       setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
       setSelectedUnit(unitId);
       setOpenProductQuickAdd(false);
@@ -244,7 +258,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
                       if (selectedUnit) {
                         setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
                         setValue('measurement_unit_id', selectedUnit.id);
-                        setValue('unit_symbol', selectedUnit.unit_symbol);
+                        setValue('symbol', selectedUnit.symbol);
                       }
                     }}
                     size="small"

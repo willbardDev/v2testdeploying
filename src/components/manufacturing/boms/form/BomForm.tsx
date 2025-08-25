@@ -83,35 +83,37 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       product_id: undefined,
       quantity: 0,
       measurement_unit_id: undefined,
+      measurement_unit: undefined,   // ✅ full object
+      unit_symbol: undefined,        // ✅ derived from measurement_unit
       conversion_factor: 1,
       items: [],
+      alternatives: [],
     },
     mode: 'onChange',
   });
 
-  // Initialize form with bomData when available
+
   useEffect(() => {
-    if (bomData) {
-      // Set output product
-      setOutputProduct(bomData.product || null);
-      
-      // Set output quantity
-      setFormData({ output_quantity: bomData.quantity || null });
-      
-      // Set items
-      setItems(bomData.items || []);
-      
-      // Set form values
-      reset({
-        product_id: bomData.product_id,
-        quantity: bomData.quantity || 0,
-        measurement_unit_id: bomData.measurement_unit_id || undefined,
-        measurement_unit: bomData.measurement_unit || undefined,
-        conversion_factor: bomData.conversion_factor || 1,
-        items: bomData.items || [],
-      });
-    }
-  }, [bomData, reset]);
+  if (bomData) {
+    setOutputProduct(bomData.product || null);
+    setFormData({ output_quantity: bomData.quantity || null });
+    setItems(bomData.items || []);
+
+    reset({
+      product_id: bomData.product_id ?? bomData.product?.id ?? undefined,
+      quantity: bomData.quantity ?? 0,
+      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
+      measurement_unit: bomData.measurement_unit ?? undefined,
+      unit_symbol: bomData.measurement_unit?.symbol ?? undefined,
+      conversion_factor: bomData.conversion_factor
+        ?? bomData.product?.primary_unit?.conversion_factor
+        ?? 1,
+      items: bomData.items ?? [],
+      alternatives: bomData.alternatives ?? [],
+    });
+  }
+}, [bomData, reset]);
+
 
   useEffect(() => {
     setValue('items', items, { shouldValidate: false });
@@ -124,20 +126,25 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   }, [items, isSubmitted, trigger]);
 
   const handleReset = () => {
-    setItems([]);
-    setOutputProduct(null);
-    setClearFormKey((prev) => prev + 1);
-    setFormData({ output_quantity: null });
-    reset({
-      product_id: undefined,
-      quantity: 0,
-      measurement_unit_id: undefined,
-      measurement_unit:undefined,
-      conversion_factor: 1,
-      items: [],
-    });
-    setSubmitItemForm(false);
-  };
+  setItems([]);
+  setOutputProduct(null);
+  setClearFormKey((prev) => prev + 1);
+  setFormData({ output_quantity: null });
+
+  reset({
+    product_id: undefined,
+    quantity: 0,
+    measurement_unit_id: undefined,
+    measurement_unit: undefined,
+    unit_symbol: undefined,
+    conversion_factor: 1,
+    items: [],
+    alternatives: [],
+  });
+
+  setSubmitItemForm(false);
+};
+
 
   const handleClose = () => {
     handleReset();
@@ -257,33 +264,38 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
         {/* Top Fields */}
         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
           <Grid size={{ xs: 12, md: 8 }}>
-            <ProductSelect
-              label="Output Product"
-              frontError={errors.product_id}
-              value={outputProduct}
-              onChange={(newValue: Product | null) => {
-                if (newValue) {
-                  const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                  const symbol = newValue.primary_unit?.symbol ?? newValue.measurement_unit?.symbol ?? '';
-                  const conversionFactor = newValue.primary_unit?.conversion_factor ?? 1;
-                  
-                  setOutputProduct(newValue);
-                  setValue('product_id', newValue.id);
-                  setValue('measurement_unit_id', unitId);
-                  setValue('measurement_unit', symbol); // Fixed the incomplete line
-                  setValue('conversion_factor', conversionFactor);
-                } else {
-                  setOutputProduct(null);
-                  setValue('product_id', 0);
-                  setValue('measurement_unit_id', undefined);
-                  setValue('measurement_unit', undefined); // Added missing field reset
-                  setValue('conversion_factor', 1);
-                }
-              }}
-              sx={{
-                '& .MuiInputBase-root': { paddingRight: '8px' },
-              }}
-            />
+           <ProductSelect
+            label="Output Product"
+            frontError={errors.product_id}
+            value={outputProduct}
+            onChange={(newValue: Product | null) => {
+              if (newValue) {
+                const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? null;
+                const symbol = unitObj?.symbol ?? '';
+                const conversionFactor = unitObj?.conversion_factor ?? 1;
+
+                setOutputProduct(newValue);
+                setValue('product_id', newValue.id);
+                setValue('measurement_unit_id', unitId ?? undefined);
+                setValue('measurement_unit', unitObj ?? undefined);
+                setValue('unit_symbol', symbol ?? undefined);
+                setValue('conversion_factor', conversionFactor);
+              } else {
+                setOutputProduct(null);
+                reset({
+                  product_id: undefined,
+                  quantity: 0,
+                  measurement_unit_id: undefined,
+                  measurement_unit: undefined,
+                  unit_symbol: undefined,
+                  conversion_factor: 1,
+                  items: [],
+                  alternatives: [],
+                });
+              }
+            }}
+          />
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
