@@ -47,7 +47,8 @@ interface BomItemFormProps {
     quantity: number;
     measurement_unit_id?: number;
     measurement_unit?: MeasurementUnit;
-    unit_symbol?: string;
+    conversion_factor?: number | null;
+    unit_symbol?: string |null ;
   };
   index?: number;
   setItems: React.Dispatch<React.SetStateAction<any[]>>;
@@ -82,7 +83,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
   resolver: yupResolver(validationSchema) as any,
   defaultValues: {
     product: item?.product ?? null,
-    product_id: item?.product_id ?? item?.product?.id ?? null,
+    product_id: item?.product_id ?? item?.product?.id ?? undefined,
     quantity: item?.quantity ?? null,
 
     // ✅ Always prefer direct measurement_unit_id, else derive from nested measurement_unit
@@ -91,9 +92,6 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
     // ✅ Keep the full object if available
     measurement_unit: item?.measurement_unit ?? null,
 
-    // ✅ Derive symbol from measurement_unit (since not in response root)
-    unit_symbol: item?.measurement_unit?.symbol ?? null,
-
     // ✅ Use item conversion_factor if present, else fallback
     conversion_factor: item?.conversion_factor
       ?? item?.product?.primary_unit?.conversion_factor
@@ -101,7 +99,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
   }
 });
 
-
+  const symbol = watch("measurement_unit")?.symbol;
   const product = watch('product') as Product | undefined;
   const quantity = watch('quantity');
 
@@ -115,13 +113,14 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
 
   try {
     const newItem = {
-      ...data,
-      product_id: data.product?.id,
-      measurement_unit_id: selectedUnit,
-      measurement_unit:data.measurement_unit,
-      symbol: data.symbol,
-      conversion_factor: data.conversion_factor ?? 1
-    };
+  ...data,
+  product_id: data.product?.id,
+  measurement_unit_id: selectedUnit,
+  measurement_unit: data.measurement_unit,
+  unit_symbol: data.unit_symbol,
+  conversion_factor: data.conversion_factor ?? 1,
+};
+
 
     if (index > -1) {
       const updatedItems = [...items];
@@ -162,7 +161,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
       setValue('product', addedProduct);
       setValue('product_id', addedProduct.id);
       setValue('measurement_unit_id', unitId);
-      setValue('symbol', unitSymbol);
+      setValue('unit_symbol', unitSymbol);
       setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
       setSelectedUnit(unitId);
       setOpenProductQuickAdd(false);
@@ -181,23 +180,29 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
             frontError={errors.product}
             defaultValue={item?.product}
             addedProduct={addedProduct}
-            onChange={(newValue: Product | null) => {
-              if (newValue) {
-                const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                const unitSymbol = newValue.primary_unit?.unit_symbol ?? 
-                                  newValue.measurement_unit?.unit_symbol ?? '';
+           onChange={(newValue: Product | null) => {
+            if (newValue) {
+              const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? null;
+              const unitId = unitObj?.id ?? null;
+              const symbol = unitObj?.symbol ?? '';
 
-                setValue('product', newValue, { shouldValidate: true, shouldDirty: true });
-                setValue('product_id', newValue.id);
-                setValue('measurement_unit_id', unitId);
-                setValue('unit_symbol', unitSymbol);
-                setValue('conversion_factor', newValue.primary_unit?.conversion_factor ?? 1);
-                setSelectedUnit(unitId);
-              } else {
-                setValue('product', null);
-                setSelectedUnit(null);
-              }
-            }}
+              setValue('product', newValue, { shouldValidate: true, shouldDirty: true });
+              setValue('product_id', newValue.id);
+              setValue('measurement_unit_id', unitId);
+              setValue('measurement_unit', unitObj);
+              setValue('unit_symbol', symbol);
+              setValue('conversion_factor', unitObj?.conversion_factor ?? 1);
+              setSelectedUnit(unitId);
+            } else {
+              setValue('product', null);
+              setValue('product_id', undefined);
+              setValue('measurement_unit_id', undefined);
+              setValue('measurement_unit', null);
+              setValue('unit_symbol', undefined);
+              setValue('conversion_factor', 1);
+              setSelectedUnit(null);
+            }
+          }}
            startAdornment={
             checkOrganizationPermission(['products_create']) && (
               <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -250,33 +255,26 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
                   }}
                 >
                   <Select
-                    value={selectedUnit ?? ''}
-                    onChange={(e) => {
-                      const selectedUnitId = e.target.value as number;
-                      setSelectedUnit(selectedUnitId);
-                      const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                      if (selectedUnit) {
-                        setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                        setValue('measurement_unit_id', selectedUnit.id);
-                        setValue('symbol', selectedUnit.symbol);
-                      }
-                    }}
-                    size="small"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 300,
-                          borderRadius: 1
-                        }
-                      }
-                    }}
-                  >
-                    {combinedUnits.map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  value={selectedUnit ?? ''}
+                  onChange={(e) => {
+                    const selectedUnitId = e.target.value as number;
+                    setSelectedUnit(selectedUnitId);
+
+                    const selectedUnitObj = combinedUnits.find((u) => u.id === selectedUnitId);
+                    if (selectedUnitObj) {
+                      setValue('measurement_unit_id', selectedUnitObj.id);
+                      setValue('measurement_unit', selectedUnitObj);
+                      setValue('unit_symbol', selectedUnitObj.symbol);
+                      setValue('conversion_factor', selectedUnitObj.conversion_factor ?? 1);
+                    }
+                  }}
+                >
+                  {combinedUnits.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.id}>
+                      {unit.symbol}
+                    </MenuItem>
+                  ))}
+                </Select>
                 </FormControl>
               ) : null
             }}
