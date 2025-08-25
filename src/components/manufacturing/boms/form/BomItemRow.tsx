@@ -129,19 +129,20 @@ const BomsFormItemEditor: React.FC<{
 
                   setProduct(newProduct);
                   setSelectedUnit(unitId);
-
-                  onProductChange({
+                  const onProductChange = ({
                     product: newProduct,
-                    measurement_unit_id: unitId,
-                    measurement_unit: defaultUnit
-                      ? { id: defaultUnit.id, symbol: defaultUnit.symbol, name: defaultUnit.name ?? '' }
-                      : null,
-                    conversion_factor: conversionFactor,
-                  });
-                } else {
-                  setProduct(null);
-                  setSelectedUnit(null);
-
+                    measurement_unit_id,
+                    measurement_unit,
+                    conversion_factor
+                  }: {
+                    product: Product | null;
+                    measurement_unit_id: number | null;
+                    measurement_unit: { id: number; unit_symbol: string; name: string } | null; // Change symbol to unit_symbol
+                    conversion_factor: number;
+                  }) => {
+                    setProduct(newProduct);
+                    setSelectedUnit(measurement_unit_id);
+                  };
                   onProductChange({
                     product: null,
                     measurement_unit_id: null,
@@ -241,6 +242,8 @@ const BomsFormItemEditor: React.FC<{
   );
 };
 
+// ... (other imports and interfaces remain the same)
+
 const BomItemRow: React.FC<BomFormRowProps> = ({
   item,
   index,
@@ -311,12 +314,12 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 />
               </Box>
             )}
+            {/* ADD THIS AlternativesForm COMPONENT */}
             <AlternativesForm
               item={item}
               alternatives={alternatives}
               setAlternatives={setAlternatives}
               onEditAlternative={setEditingAlternativeIndex}
-              onAddAlternative={handleAddAlternative}
             />
           </Box>
         </BomsFormItemEditor>
@@ -376,48 +379,48 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
             </Box>
 
             <Box 
-            component="div"
-            onClick={(e) => e.stopPropagation()} 
-            sx={{ 
-              display: 'flex', 
-              gap: 1,
-              ml: 1
-            }}
-          >
-            <Tooltip title="Edit">
-              <IconButton
-                aria-label="Edit item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingMain(true);
-                  setExpanded(true);
-                }}
-                sx={{
-                  '&:hover': { 
-                    backgroundColor: 'primary.light',
-                    color: 'primary.main'
-                  }
-                }}
-              >
-                <EditOutlined fontSize="small" />
-              </IconButton>
-            </Tooltip>
+              component="div"
+              onClick={(e) => e.stopPropagation()} 
+              sx={{ 
+                display: 'flex', 
+                gap: 1,
+                ml: 1
+              }}
+            >
+              <Tooltip title="Edit">
+                <IconButton
+                  aria-label="Edit item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingMain(true);
+                    setExpanded(true);
+                  }}
+                  sx={{
+                    '&:hover': { 
+                      backgroundColor: 'primary.light',
+                      color: 'primary.main'
+                    }
+                  }}
+                >
+                  <EditOutlined fontSize="small" />
+                </IconButton>
+              </Tooltip>
 
-            <Tooltip title="Delete">
-              <IconButton
-                aria-label="Delete item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemove();
-                }}
-                sx={{
-                  '&:hover': { bgcolor: 'action.hover' },
-                }}
-              >
-                <DeleteOutlined fontSize="small" color="error" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+              <Tooltip title="Delete">
+                <IconButton
+                  aria-label="Delete item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove();
+                  }}
+                  sx={{
+                    '&:hover': { bgcolor: 'action.hover' },
+                  }}
+                >
+                  <DeleteOutlined fontSize="small" color="error" />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </AccordionSummary>
 
           <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
@@ -437,7 +440,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
               alternatives={alternatives}
               setAlternatives={setAlternatives}
               onEditAlternative={setEditingAlternativeIndex}
-              onAddAlternative={handleAddAlternative}
             />
           </AccordionDetails>
         </Accordion>

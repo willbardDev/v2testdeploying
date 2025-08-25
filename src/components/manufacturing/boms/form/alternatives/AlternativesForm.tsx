@@ -22,7 +22,7 @@ interface AlternativesFormProps {
   alternatives: BOMItem[];
   setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
   onEditAlternative: (index: number) => void;
-  isEditing?: boolean;
+  isEditing: boolean; 
 }
 
 const AlternativesForm: React.FC<AlternativesFormProps> = ({

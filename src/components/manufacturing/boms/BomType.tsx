@@ -3,9 +3,9 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol: string;
+  unit_symbol: string; // Change from 'symbol' to 'unit_symbol'
+  conversion_factor?: number;
 }
-
 
 export interface BOM {
   id: number;
