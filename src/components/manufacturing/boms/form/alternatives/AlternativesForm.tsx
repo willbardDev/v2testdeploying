@@ -33,7 +33,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   isEditing = false
 }) => {
   const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
-    product_id: null,
+    product_id: undefined,
     product: null,
     quantity: null,
     measurement_unit_id: null,
@@ -68,7 +68,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     setAlternatives((prev) => [...prev, { ...newAlternative }]);
 
     setNewAlternative({
-      product_id: null,
+      product_id: undefined,
       product: null,
       quantity: null,
       measurement_unit_id: null,
@@ -135,7 +135,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                   } else {
                     setNewAlternative({
                       product: null,
-                      product_id: null,
+                      product_id: undefined,
                       quantity: null,
                       measurement_unit_id: null,
                       conversion_factor: 1,

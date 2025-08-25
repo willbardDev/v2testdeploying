@@ -83,8 +83,8 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       product_id: undefined,
       quantity: 0,
       measurement_unit_id: undefined,
-      measurement_unit: undefined,   // ✅ full object
-      unit_symbol: undefined,        // ✅ derived from measurement_unit
+      measurement_unit: undefined, 
+      symbol: undefined,        
       conversion_factor: 1,
       items: [],
       alternatives: [],
@@ -104,7 +104,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       quantity: bomData.quantity ?? 0,
       measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
       measurement_unit: bomData.measurement_unit ?? undefined,
-      unit_symbol: bomData.measurement_unit?.symbol ?? undefined,
+      symbol: bomData.measurement_unit?.symbol ?? undefined,
       conversion_factor: bomData.conversion_factor
         ?? bomData.product?.primary_unit?.conversion_factor
         ?? 1,
@@ -136,7 +136,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     quantity: 0,
     measurement_unit_id: undefined,
     measurement_unit: undefined,
-    unit_symbol: undefined,
+    symbol: undefined,
     conversion_factor: 1,
     items: [],
     alternatives: [],
@@ -272,14 +272,14 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
               if (newValue) {
                 const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
                 const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? null;
-                const symbol = unitObj?.symbol ?? '';
+                const symbol = unitObj?.unit_symbol ?? '';
                 const conversionFactor = unitObj?.conversion_factor ?? 1;
 
                 setOutputProduct(newValue);
                 setValue('product_id', newValue.id);
                 setValue('measurement_unit_id', unitId ?? undefined);
                 setValue('measurement_unit', unitObj ?? undefined);
-                setValue('unit_symbol', symbol ?? undefined);
+                setValue('symbol', symbol ?? undefined);
                 setValue('conversion_factor', conversionFactor);
               } else {
                 setOutputProduct(null);
@@ -288,7 +288,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                   quantity: 0,
                   measurement_unit_id: undefined,
                   measurement_unit: undefined,
-                  unit_symbol: undefined,
+                  symbol: undefined,
                   conversion_factor: 1,
                   items: [],
                   alternatives: [],
