@@ -65,6 +65,7 @@ export interface BOMItem {
   product_id: number | null;
   quantity: number | null;
   measurement_unit_id: number | null;
+  measurement_unit?: MeasurementUnit | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
 }
@@ -72,6 +73,7 @@ export interface BOMItem {
 export interface BOMPayload {
   product_id: number;
   quantity: number;
+  measurement_unit?: MeasurementUnit | null;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   items: BOMItem[];

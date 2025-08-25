@@ -54,7 +54,7 @@ const BomsFormItemEditor: React.FC<{
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
-    item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
+    item.measurement_unit ?? item.product?.primary_unit?.id ?? null
   );
 
   const combinedUnits: MeasurementUnit[] = [
@@ -81,51 +81,62 @@ const BomsFormItemEditor: React.FC<{
     });
   };
 
+  function onProductChange(arg0: { product: Product; measurement_unit_id: number | null; measurement_unit: { id: number; symbol: any; name: string; } | null; conversion_factor: any; }) {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
         <Grid size={{xs: 12, md: isAlternative ? 6 : 5.5}}>
-          <ProductSelect
-            key={`product-select-${item.product?.id || 'empty'}`}
-            label={isAlternative ? "Alternative Product" : "Input Product"}
-            value={product}
-            onChange={(newProduct: Product | null) => {
-              if (newProduct) {
-                const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit_id ?? null;
-                const unitSymbol = newProduct?.primary_unit?.unit_symbol ?? newProduct?.measurement_unit?.unit_symbol ?? null;
-                const conversionFactor = newProduct?.primary_unit?.conversion_factor ?? 1;
-                
-                // Update local state
-                setProduct(newProduct);
-                setSelectedUnit(unitId);
-                
-                // Optional: If you want to update the parent component's state immediately
-                onProductChange({
-                  product: newProduct,
-                  measurement_unit_id: unitId,
-                  unit_symbol: unitSymbol,
-                  conversion_factor: conversionFactor
-                });
-                
-              } else {
-                setProduct(null);
-                setSelectedUnit(null);
-                
-                // Optional: Reset in parent component
-                onProductChange({
-                  product: null,
-                  measurement_unit_id: null,
-                  unit_symbol: null,
-                  conversion_factor: 1
-                });
-              }
-            }}
-            sx={{
-              '& .MInputBase-root': { 
-                paddingRight: '8px',
-              },
-            }}
-          />
+         <ProductSelect
+          key={`product-select-${item.product?.id || 'empty'}`}
+          label={isAlternative ? "Alternative Product" : "Input Product"}
+          value={product}
+          onChange={(newProduct: Product | null) => {
+            if (newProduct) {
+              const primaryUnit = newProduct.primary_unit;
+              const defaultUnit = primaryUnit ?? (newProduct.measurement_unit ? {
+                id: newProduct.measurement_unit.id,
+                symbol: newProduct.measurement_unit.unit_symbol,
+                name: newProduct.measurement_unit.name,
+              } : null);
+
+              const unitId = defaultUnit?.id ?? null;
+              const conversionFactor = primaryUnit?.conversion_factor ?? 1;
+
+              // Update local state
+              setProduct(newProduct);
+              setSelectedUnit(unitId);
+
+              // Update parent with structured measurement_unit
+              onProductChange({
+                product: newProduct,
+                measurement_unit_id: unitId,
+                measurement_unit: defaultUnit
+                  ? { id: defaultUnit.id, symbol: defaultUnit.symbol, name: defaultUnit.name ?? '' }
+                  : null,
+                conversion_factor: conversionFactor,
+              });
+            } else {
+              setProduct(null);
+              setSelectedUnit(null);
+
+              onProductChange({
+                product: null,
+                measurement_unit_id: null,
+                measurement_unit: null,
+                conversion_factor: 1,
+              });
+            }
+          }}
+          sx={{
+            '& .MuiInputBase-root': { 
+              paddingRight: '8px',
+            },
+          }}
+        />
+
         </Grid>
 
         <Grid size={{xs: 12, md: isAlternative ? 4 : 4}}>
