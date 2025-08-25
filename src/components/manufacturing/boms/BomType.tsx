@@ -1,5 +1,12 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
+export interface MeasurementUnit {
+  id: number;
+  name: string;
+  symbol: string;
+}
+
+
 export interface BOM {
   id: number;
   product?: Product | null;
@@ -7,9 +14,12 @@ export interface BOM {
   quantity: number;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  unit_symbol?: string | null;
   items: BOMItem[];
-  alternatives?: BOMItem[]
+  alternatives?: BOMItem[];
 }
+
 
 export interface BomsFormValues {
   output_product_id?: number;

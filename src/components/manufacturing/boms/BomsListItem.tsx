@@ -9,6 +9,12 @@ import {
 import { BOM } from './BomType';
 import BomsListItemAction from './BomListItemAction';
 
+export interface MeasurementUnit {
+  id: number;
+  name: string;
+  symbol: string;
+}
+
 interface BomsListItemProps {
   bom: BOM;
 }
@@ -44,8 +50,10 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Quantity & Unit">
             <Typography>
-              {bom.quantity} 
-            </Typography>
+            {bom.quantity} {bom.measurement_unit?.symbol ?? "—"}
+          </Typography>
+
+
           </Tooltip>
         </Grid>
          {/* Actions */}
