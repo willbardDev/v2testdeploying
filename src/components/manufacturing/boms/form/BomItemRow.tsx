@@ -38,6 +38,10 @@ export interface BomFormRowProps {
   setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+/**
+ * ✅ Unified editor for BOM row (main or alternative).
+ * Matches the behavior of AlternativeItemEditor for consistency.
+ */
 const BomsFormItemEditor: React.FC<{
   item: BOMItem;
   onUpdate: (item: BOMItem) => void;
@@ -45,9 +49,9 @@ const BomsFormItemEditor: React.FC<{
   isAlternative?: boolean;
   showAlternatives?: boolean;
   children?: React.ReactNode;
-}> = ({ 
-  item, 
-  onUpdate, 
+}> = ({
+  item,
+  onUpdate,
   onCancel,
   isAlternative = false,
   showAlternatives = false,
@@ -56,129 +60,69 @@ const BomsFormItemEditor: React.FC<{
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
-    item.measurement_unit ?? item.product?.primary_unit?.id ?? null
+    item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
 
-  // Sync state with props
-  React.useEffect(() => {
-    setProduct(item.product ?? null);
-    setQuantity(item.quantity ?? null);
-    setSelectedUnit(item.measurement_unit ?? item.product?.primary_unit?.id ?? null);
-  }, [item]);
-
-  const combinedUnits: MeasurementUnit[] = [
-    ...(product?.secondary_units || []),
-    ...(product?.primary_unit ? [product.primary_unit] : [])
-  ];
-
-  const handleProductSelectChange = React.useCallback((newProduct: Product | null) => {
-    if (newProduct) {
-      const primaryUnit = newProduct.primary_unit;
-      const defaultUnit = primaryUnit ?? (newProduct.measurement_unit ? {
-        id: newProduct.measurement_unit.id,
-        symbol: newProduct.measurement_unit.symbol,
-        name: newProduct.measurement_unit.name,
-      } : null);
-
-      const unitId = defaultUnit?.id ?? null;
-      const conversionFactor = primaryUnit?.conversion_factor ?? 1;
-
-      setProduct(newProduct);
-      setSelectedUnit(unitId);
-      
-      // Update parent immediately
-      onUpdate({
-        ...item,
-        product: newProduct,
-        measurement_unit_id: unitId,
-        measurement_unit: defaultUnit,
-        conversion_factor: conversionFactor,
-      });
-    }
-  }, [item, onUpdate]);
+  // Combine primary + secondary units of product
+  const combinedUnits: MeasurementUnit[] = React.useMemo(() => {
+    const primary = product?.primary_unit ? [product.primary_unit] : [];
+    const secondary = product?.secondary_units || [];
+    return [...primary, ...secondary];
+  }, [product]);
 
   const handleDone = () => {
     const selectedUnitData = combinedUnits.find((u) => u.id === selectedUnit);
 
-    if (!selectedUnitData) {
-      console.error('Selected unit data not found');
+    if (!product || quantity === null || quantity <= 0) {
+      console.error('Please fill all required fields');
       return;
     }
 
     onUpdate({
       ...item,
       product,
+      product_id: product.id,
       quantity,
       measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
-      measurement_unit: {
-        id: selectedUnitData.id,
-        symbol: selectedUnitData.symbol,
-        name: selectedUnitData.name ?? '',
-      },
-      conversion_factor: selectedUnitData.conversion_factor ?? item.conversion_factor ?? 1,
+      unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
+      conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1,
     });
   };
+
   return (
-    <Box sx={{ 
-      mb: 2, 
-      border: '1px solid #e0e0e0', 
-      borderRadius: '4px',
-      backgroundColor: 'white',
-      boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-      overflow: 'hidden'
-    }}>
+    <Box
+      sx={{
+        mb: 2,
+        border: '1px solid #e0e0e0',
+        borderRadius: '4px',
+        backgroundColor: 'white',
+        boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+      }}
+    >
       <Box sx={{ p: 2, borderBottom: showAlternatives ? '1px solid #e0e0e0' : 'none' }}>
         <Grid container spacing={2} alignItems="flex-end">
-          <Grid size={{ xs: 12, md: isAlternative ? 6 : 5.5 }}>
+          {/* Product */}
+          <Grid size={{xs:12, md:isAlternative ? 6 : 5.5}}>
             <ProductSelect
               key={`product-select-${item.product?.id || 'new'}`}
-              label={isAlternative ? "Alternative Product" : "Input Product"}
+              label={isAlternative ? 'Alternative Product' : 'Input Product'}
               value={product}
               onChange={(newProduct: Product | null) => {
                 if (newProduct) {
-                  const primaryUnit = newProduct.primary_unit;
-                  const defaultUnit = primaryUnit ?? (newProduct.measurement_unit ? {
-                    id: newProduct.measurement_unit.id,
-                    symbol: newProduct.measurement_unit.symbol,
-                    name: newProduct.measurement_unit.name,
-                  } : null);
-
-                  const unitId = defaultUnit?.id ?? null;
-                  const conversionFactor = primaryUnit?.conversion_factor ?? 1;
-
                   setProduct(newProduct);
+                  const unitId =
+                    newProduct.primary_unit?.id ??
+                    newProduct.measurement_unit?.id ??
+                    null;
                   setSelectedUnit(unitId);
-                  const onProductChange = ({
-                    product: newProduct,
-                    measurement_unit_id,
-                    measurement_unit,
-                    conversion_factor
-                  }: {
-                    product: Product | null;
-                    measurement_unit_id: number | null;
-                    measurement_unit: { id: number; symbol: string; name: string } | null;
-                    conversion_factor: number;
-                  }) => {
-                    setProduct(newProduct);
-                    setSelectedUnit(measurement_unit_id);
-                  };
-                  onProductChange({
-                    product: null,
-                    measurement_unit_id: null,
-                    measurement_unit: null,
-                    conversion_factor: 1,
-                  });
                 }
-              }}
-              sx={{
-                '& .MuiInputBase-root': { 
-                  paddingRight: '8px',
-                },
               }}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, md: isAlternative ? 4 : 4 }}>
+          {/* Quantity + Unit */}
+          <Grid size={{xs:12, md:isAlternative ? 4 : 4}}>
             <TextField
               label="Quantity"
               size="small"
@@ -187,50 +131,28 @@ const BomsFormItemEditor: React.FC<{
               value={quantity ?? ''}
               onChange={(e) => setQuantity(Number(e.target.value))}
               InputProps={{
-                inputComponent: CommaSeparatedField,
-                endAdornment: product && selectedUnit ? (
-                  <FormControl variant="standard" sx={{ minWidth: 100, ml: 1, mr: -1 }}>
-                    <Select
-                      value={selectedUnit ?? ''}
-                      onChange={(e) => {
-                        const unitId = e.target.value as number;
-                        setSelectedUnit(unitId);
-                      }}
-                      sx={{
-                        '& .MuiSelect-select': {
-                          paddingRight: '28px',
-                          paddingLeft: '8px',
-                        }
-                      }}
-                    >
-                      {combinedUnits.map((unit) => (
-                        <MenuItem key={unit.id} value={unit.id}>
-                          {unit.symbol}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                ) : null,
-              }}
-              sx={{
-                '& .MuiInputBase-root': {
-                  paddingRight: product && selectedUnit ? '100px' : '14px',
-                },
-                '& input[type=number]': {
-                  MozAppearance: 'textfield',
-                },
-                '& input[type=number]::-webkit-outer-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-                '& input[type=number]::-webkit-inner-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
+                inputComponent: CommaSeparatedField as any,
+                endAdornment:
+                  product && selectedUnit ? (
+                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                      <Select
+                        value={selectedUnit ?? ''}
+                        onChange={(e) => setSelectedUnit(Number(e.target.value))}
+                      >
+                        {combinedUnits.map((unit) => (
+                          <MenuItem key={unit.id} value={unit.id}>
+                            {unit.unit_symbol}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : null,
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12, md: isAlternative ? 2 : 2.5 }}>
+
+          {/* Actions */}
+          <Grid size={{xs:12, md:isAlternative ? 2 : 2.5}}>
             <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
               <Button
                 variant="contained"
@@ -240,23 +162,15 @@ const BomsFormItemEditor: React.FC<{
               >
                 Done
               </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={onCancel}
-              >
+              <Button variant="outlined" size="small" onClick={onCancel}>
                 Cancel
               </Button>
             </Box>
           </Grid>
         </Grid>
       </Box>
-      
-      {showAlternatives && children && (
-        <Box sx={{ p: 2 }}>
-          {children}
-        </Box>
-      )}
+
+      {showAlternatives && children && <Box sx={{ p: 2 }}>{children}</Box>}
     </Box>
   );
 };
@@ -277,7 +191,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   };
 
   const handleUpdate = (updatedItem: BOMItem) => {
-    setItems(prev => {
+    setItems((prev) => {
       const updated = [...prev];
       updated[index] = { ...updatedItem, alternatives };
       return updated;
@@ -290,7 +204,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
     const updatedAlternatives = [...alternatives];
     updatedAlternatives[altIndex] = updatedAlt;
     setAlternatives(updatedAlternatives);
-    setItems(prev => {
+    setItems((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], alternatives: updatedAlternatives };
       return updated;
@@ -298,20 +212,9 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
     setEditingAlternativeIndex(null);
   };
 
-  const handleAddAlternative = (newAlternative: BOMItem) => {
-    const updatedAlternatives = [...alternatives, newAlternative];
-    setAlternatives(updatedAlternatives);
-    setItems(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], alternatives: updatedAlternatives };
-      return updated;
-    });
-  };
-
   return (
     <>
       {isEditingMain ? (
-        // Edit mode - show the form with alternatives
         <BomsFormItemEditor
           item={item}
           onUpdate={handleUpdate}
@@ -331,7 +234,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 />
               </Box>
             )}
-            {/* ADD THIS AlternativesForm COMPONENT */}
             <AlternativesForm
               item={item}
               alternatives={alternatives}
@@ -341,127 +243,113 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           </Box>
         </BomsFormItemEditor>
       ) : (
-        // View mode - show the regular row
-       <Accordion 
-        expanded={expanded} 
-        onChange={(_, exp) => setExpanded(exp)}
-        sx={{ 
-          mb: 1,
-          '&.Mui-expanded': {
-            margin: '8px 0'
-          }
-        }}
-      >
-        <AccordionSummary
-          aria-controls={`bom-item-${index}-content`}
-          id={`bom-item-${index}-header`}
+        <Accordion
+          expanded={expanded}
+          onChange={(_, exp) => setExpanded(exp)}
           sx={{
-            minHeight: '48px',
-            py: 0,
-            '& .MuiAccordionSummary-content': {
-              alignItems: 'center',
-              gap: 15,
-              m: 0,
+            mb: 1,
+            '&.Mui-expanded': {
+              margin: '8px 0',
             },
           }}
         >
-          {/* ✅ Custom +/- box */}
-          <Box
+          <AccordionSummary
+            aria-controls={`bom-item-${index}-content`}
+            id={`bom-item-${index}-header`}
             sx={{
-              width: 20,
-              height: 20,
-              border: '1px solid',
-              borderColor: 'grey.500',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 14,
-              fontWeight: 'bold',
-              flexShrink: 0,
+              minHeight: '48px',
+              py: 0,
+              '& .MuiAccordionSummary-content': {
+                alignItems: 'center',
+                gap: 15,
+                m: 0,
+              },
             }}
           >
-            {expanded ? "−" : "+"}
-          </Box>
+            <Box
+              sx={{
+                width: 20,
+                height: 20,
+                border: '1px solid',
+                borderColor: 'grey.500',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 14,
+                fontWeight: 'bold',
+                flexShrink: 0,
+              }}
+            >
+              {expanded ? '−' : '+'}
+            </Box>
 
-          {/* Product name */}
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              fontWeight: 500,
-              minWidth: 120,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              flex: 1,
-              alignItems:'center',
-              justifyContent:'left'
-            }}
-          >
-            {item.product?.name}
-          </Typography>
-
-          {/* Quantity + Unit */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            gap: 0.5,
-            minWidth: 80,
-            flexShrink: 0,
-          }}>
-            <Typography variant="body2" fontWeight="medium">
-              {item.quantity}
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 500,
+                minWidth: 120,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+              }}
+            >
+              {item.product?.name}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.symbol}
-            </Typography>
-          </Box>
 
-          {/* Actions (edit/delete) */}
-          <Box 
-            component="div"
-            onClick={(e) => e.stopPropagation()} 
-            sx={{ 
-              display: 'flex', 
-              gap: 1,
-              ml: 1
-            }}
-          >
-            <Tooltip title="Edit">
-              <IconButton
-                aria-label="Edit item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingMain(true);
-                  setExpanded(true);
-                }}
-                sx={{
-                  '&:hover': { 
-                    backgroundColor: 'primary.light',
-                    color: 'primary.main'
-                  }
-                }}
-              >
-                <EditOutlined fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                minWidth: 80,
+                flexShrink: 0,
+              }}
+            >
+              <Typography variant="body2" fontWeight="medium">
+                {item.quantity}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {item.unit_symbol}
+              </Typography>
+            </Box>
 
-            <Tooltip title="Delete">
-              <IconButton
-                aria-label="Delete item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemove();
-                }}
-                sx={{
-                  '&:hover': { bgcolor: 'action.hover' },
-                }}
-              >
-                <DeleteOutlined fontSize="small" color="error" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </AccordionSummary>
+            <Box
+              component="div"
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                display: 'flex',
+                gap: 1,
+                ml: 1,
+              }}
+            >
+              <Tooltip title="Edit">
+                <IconButton
+                  aria-label="Edit item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingMain(true);
+                    setExpanded(true);
+                  }}
+                >
+                  <EditOutlined fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Delete">
+                <IconButton
+                  aria-label="Delete item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove();
+                  }}
+                >
+                  <DeleteOutlined fontSize="small" color="error" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </AccordionSummary>
 
           <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
             {editingAlternativeIndex !== null && (
