@@ -105,7 +105,6 @@ const BomsFormItemEditor: React.FC<{
           {/* Product */}
           <Grid size={{xs:12, md:isAlternative ? 6 : 5.5}}>
             <ProductSelect
-              key={`product-select-${item.product?.id || 'new'}`}
               label={isAlternative ? 'Alternative Product' : 'Input Product'}
               value={product}
               onChange={(newProduct: Product | null) => {

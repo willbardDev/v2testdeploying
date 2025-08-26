@@ -258,12 +258,6 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
           const value = e.target.value;
           const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;
           field.onChange(numValue);
-
-          // Keep formData in sync if you're still tracking it separately
-          setFormData((prev) => ({
-            ...prev,
-            output_quantity: numValue,
-          }));
         }}
         InputProps={{
           inputComponent: CommaSeparatedField,
