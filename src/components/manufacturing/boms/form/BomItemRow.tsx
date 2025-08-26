@@ -325,103 +325,126 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
         </BomsFormItemEditor>
       ) : (
         // View mode - show the regular row
-        <Accordion 
-          expanded={expanded} 
-          onChange={(_, exp) => setExpanded(exp)}
-          sx={{ 
-            mb: 1,
-            '&.Mui-expanded': {
-              margin: '8px 0'
-            }
+       <Accordion 
+        expanded={expanded} 
+        onChange={(_, exp) => setExpanded(exp)}
+        sx={{ 
+          mb: 1,
+          '&.Mui-expanded': {
+            margin: '8px 0'
+          }
+        }}
+      >
+        <AccordionSummary
+          aria-controls={`bom-item-${index}-content`}
+          id={`bom-item-${index}-header`}
+          sx={{
+            minHeight: '48px',
+            py: 0,
+            '& .MuiAccordionSummary-content': {
+              alignItems: 'center',
+              gap: 15,
+              m: 0,
+            },
           }}
         >
-          <AccordionSummary
-            expandIcon={<ArrowDropDownIcon />}
-            aria-controls={`bom-item-${index}-content`}
-            id={`bom-item-${index}-header`}
+          {/* ✅ Custom +/- box */}
+          <Box
             sx={{
-              minHeight: '48px',
-              py: 0,
-              '& .MuiAccordionSummary-content': {
-                alignItems: 'center',
-                gap: 15,
-                m: 0,
-              },
+              width: 20,
+              height: 20,
+              border: '1px solid',
+              borderColor: 'grey.500',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 14,
+              fontWeight: 'bold',
+              flexShrink: 0,
             }}
           >
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontWeight: 500,
-                minWidth: 120,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1,
-              }}
-            >
-              {item.product?.name}
+            {expanded ? "−" : "+"}
+          </Box>
+
+          {/* Product name */}
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontWeight: 500,
+              minWidth: 120,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1,
+              alignItems:'center',
+              justifyContent:'left'
+            }}
+          >
+            {item.product?.name}
+          </Typography>
+
+          {/* Quantity + Unit */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: 0.5,
+            minWidth: 80,
+            flexShrink: 0,
+          }}>
+            <Typography variant="body2" fontWeight="medium">
+              {item.quantity}
             </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {item.symbol}
+            </Typography>
+          </Box>
 
-            <Box sx={{ 
+          {/* Actions (edit/delete) */}
+          <Box 
+            component="div"
+            onClick={(e) => e.stopPropagation()} 
+            sx={{ 
               display: 'flex', 
-              alignItems: 'center',
-              gap: 0.5,
-              minWidth: 80,
-              flexShrink: 0,
-            }}>
-              <Typography variant="body2" fontWeight="medium">
-                {item.quantity}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.symbol}
-              </Typography>
-            </Box>
+              gap: 1,
+              ml: 1
+            }}
+          >
+            <Tooltip title="Edit">
+              <IconButton
+                aria-label="Edit item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingMain(true);
+                  setExpanded(true);
+                }}
+                sx={{
+                  '&:hover': { 
+                    backgroundColor: 'primary.light',
+                    color: 'primary.main'
+                  }
+                }}
+              >
+                <EditOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-            <Box 
-              component="div"
-              onClick={(e) => e.stopPropagation()} 
-              sx={{ 
-                display: 'flex', 
-                gap: 1,
-                ml: 1
-              }}
-            >
-              <Tooltip title="Edit">
-                <IconButton
-                  aria-label="Edit item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditingMain(true);
-                    setExpanded(true);
-                  }}
-                  sx={{
-                    '&:hover': { 
-                      backgroundColor: 'primary.light',
-                      color: 'primary.main'
-                    }
-                  }}
-                >
-                  <EditOutlined fontSize="small" />
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title="Delete">
-                <IconButton
-                  aria-label="Delete item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove();
-                  }}
-                  sx={{
-                    '&:hover': { bgcolor: 'action.hover' },
-                  }}
-                >
-                  <DeleteOutlined fontSize="small" color="error" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </AccordionSummary>
+            <Tooltip title="Delete">
+              <IconButton
+                aria-label="Delete item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove();
+                }}
+                sx={{
+                  '&:hover': { bgcolor: 'action.hover' },
+                }}
+              >
+                <DeleteOutlined fontSize="small" color="error" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </AccordionSummary>
 
           <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
             {editingAlternativeIndex !== null && (

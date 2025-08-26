@@ -279,7 +279,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                 setValue('product_id', newValue.id);
                 setValue('measurement_unit_id', unitId ?? undefined);
                 setValue('measurement_unit', unitObj ?? undefined);
-                setValue('symbol', symbol ?? undefined);
+                setValue('symbol', symbol ?? null);
                 setValue('conversion_factor', conversionFactor);
               } else {
                 setOutputProduct(null);
