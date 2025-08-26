@@ -19,7 +19,6 @@ import {
   DeleteOutlined,
   CheckOutlined
 } from '@mui/icons-material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
@@ -132,7 +131,7 @@ const BomsFormItemEditor: React.FC<{
         <Grid container spacing={2} alignItems="flex-end">
           <Grid size={{ xs: 12, md: isAlternative ? 6 : 5.5 }}>
             <ProductSelect
-              key={`product-select-${item.product?.id || 'empty'}`}
+              key={`product-select-${item.product?.id || 'new'}`}
               label={isAlternative ? "Alternative Product" : "Input Product"}
               value={product}
               onChange={(newProduct: Product | null) => {

@@ -73,7 +73,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       quantity: null,
       measurement_unit_id: null,
       conversion_factor: 1,
-      symbol: undefined
+      symbol: null,
     });
     setSelectedUnit(null);
     setWarning(null);
@@ -121,14 +121,14 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 onChange={(product: Product | null) => {
                   if (product) {
                     const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                    const unitSymbol = product.primary_unit?.symbol ?? product.measurement_unit?.symbol ?? null;
+                    const Symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? null;
                     const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
                     setNewAlternative((prev) => ({
                       ...prev,
                       product,
                       measurement_unit_id: unitId,
-                      symbol: unitSymbol,
+                      symbol: Symbol,
                       conversion_factor: conversionFactor
                     }));
                     setSelectedUnit(unitId);
