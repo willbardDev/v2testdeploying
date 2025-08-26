@@ -85,7 +85,7 @@ const BomsFormItemEditor: React.FC<{
     <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
       <Grid container spacing={2} alignItems="flex-end">
         {/* Product */}
-        <Grid size={{xs:12, md:isAlternative ? 6 : 5.5}}>
+        <Grid size={{xs:12, md:isAlternative ? 5 : 5.5}}>
           <ProductSelect
             label={isAlternative ? 'Alternative Product' : 'Input Product'}
             value={product}
@@ -98,7 +98,7 @@ const BomsFormItemEditor: React.FC<{
         </Grid>
 
         {/* Quantity + Unit */}
-        <Grid size={{xs:12, md:isAlternative ? 4 : 4}}>
+        <Grid size={{xs:12, md:isAlternative ? 3 : 4}}>
           <TextField
             label="Quantity"
             size="small"
