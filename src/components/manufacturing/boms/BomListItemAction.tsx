@@ -11,16 +11,19 @@ import bomsServices from './boms-services';
 import BomsForm from './form/BomForm';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { BOMItem } from './BomType';
+import { MeasurementUnit } from './BomsListItem';
 
-export interface BOM {
+interface BOM {
   id: number;
   product?: Product | null;
-  product_id: number;
+  product_id: number | undefined;
   quantity: number;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?: string | null;
   items: BOMItem[];
-  alternatives?: BOMItem[]
+  alternatives?: BOMItem[];
 }
 
 const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
