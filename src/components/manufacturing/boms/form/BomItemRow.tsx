@@ -209,14 +209,12 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           </Box>
         </BomsFormItemEditor>
       ) : (
-        <Accordion
-          expanded={expanded}
+        <Accordion 
+          expanded={expanded} 
           onChange={(_, exp) => setExpanded(exp)}
-          sx={{
+          sx={{ 
             mb: 1,
-            '&.Mui-expanded': {
-              margin: '8px 0',
-            },
+            '&.Mui-expanded': { margin: '8px 0' }
           }}
         >
           <AccordionSummary
@@ -225,13 +223,17 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
             sx={{
               minHeight: '48px',
               py: 0,
+              display: 'flex',
+              alignItems: 'center',
               '& .MuiAccordionSummary-content': {
-                alignItems: 'center',
-                gap: 15,
                 m: 0,
+                p: 0,
+                display: 'flex',
+                alignItems: 'center',
               },
             }}
           >
+            {/* +/- box */}
             <Box
               sx={{
                 width: 20,
@@ -245,11 +247,13 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 fontSize: 14,
                 fontWeight: 'bold',
                 flexShrink: 0,
+                mr: 0.5,   // 👈 box iko karibu sana na product name
               }}
             >
               {expanded ? '−' : '+'}
             </Box>
 
+            {/* Product name */}
             <Typography
               variant="body2"
               sx={{
@@ -259,28 +263,30 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
                 flex: 1,
+                mr: 2,  // 👈 spacing ya kudumu kati ya product name na quantity/unit
               }}
             >
               {item.product?.name}
             </Typography>
 
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
-                minWidth: 80,
-                flexShrink: 0,
+            {/* Quantity + Unit */}
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5, 
+                minWidth: 80, 
+                flexShrink: 0, 
+                mr:18,
               }}
             >
               <Typography variant="body2" fontWeight="medium">
                 {item.quantity}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.unit_symbol}
+                {item.symbol}
               </Typography>
             </Box>
-
             <Box
               component="div"
               onClick={(e) => e.stopPropagation()}
