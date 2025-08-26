@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol: string | undefined; 
+  unit_symbol: string | undefined | null; 
   conversion_factor?: number;
 }
 
@@ -65,6 +65,8 @@ export interface PaginatedBOMResponse {
 
 export interface BOMItem {
   [x: string]: any;
+  id?: number;
+  bom_id?: number;
   product_id: number | undefined;
   quantity: number | null;
   measurement_unit_id: number | null;
@@ -83,4 +85,6 @@ export interface BOMPayload {
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]
+  bomNo?: string;
 }
+

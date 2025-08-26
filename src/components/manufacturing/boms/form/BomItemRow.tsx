@@ -49,21 +49,13 @@ const BomsFormItemEditor: React.FC<{
   isAlternative?: boolean;
   showAlternatives?: boolean;
   children?: React.ReactNode;
-}> = ({
-  item,
-  onUpdate,
-  onCancel,
-  isAlternative = false,
-  showAlternatives = false,
-  children
-}) => {
+}> = ({ item, onUpdate, onCancel, isAlternative = false, showAlternatives = false, children }) => {
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
 
-  // Combine primary + secondary units of product
   const combinedUnits: MeasurementUnit[] = React.useMemo(() => {
     const primary = product?.primary_unit ? [product.primary_unit] : [];
     const secondary = product?.secondary_units || [];
@@ -71,12 +63,12 @@ const BomsFormItemEditor: React.FC<{
   }, [product]);
 
   const handleDone = () => {
-    const selectedUnitData = combinedUnits.find((u) => u.id === selectedUnit);
-
-    if (!product || quantity === null || quantity <= 0) {
+    if (!product || !quantity || quantity <= 0) {
       console.error('Please fill all required fields');
       return;
     }
+
+    const selectedUnitData = combinedUnits.find(u => u.id === selectedUnit);
 
     onUpdate({
       ...item,
@@ -90,86 +82,63 @@ const BomsFormItemEditor: React.FC<{
   };
 
   return (
-    <Box
-      sx={{
-        mb: 2,
-        border: '1px solid #e0e0e0',
-        borderRadius: '4px',
-        backgroundColor: 'white',
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{ p: 2, borderBottom: showAlternatives ? '1px solid #e0e0e0' : 'none' }}>
-        <Grid container spacing={2} alignItems="flex-end">
-          {/* Product */}
-          <Grid size={{xs:12, md:isAlternative ? 6 : 5.5}}>
-            <ProductSelect
-              label={isAlternative ? 'Alternative Product' : 'Input Product'}
-              value={product}
-              onChange={(newProduct: Product | null) => {
-                if (newProduct) {
-                  setProduct(newProduct);
-                  const unitId =
-                    newProduct.primary_unit?.id ??
-                    newProduct.measurement_unit?.id ??
-                    null;
-                  setSelectedUnit(unitId);
-                }
-              }}
-            />
-          </Grid>
-
-          {/* Quantity + Unit */}
-          <Grid size={{xs:12, md:isAlternative ? 4 : 4}}>
-            <TextField
-              label="Quantity"
-              size="small"
-              fullWidth
-              type="number"
-              value={quantity ?? ''}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              InputProps={{
-                inputComponent: CommaSeparatedField as any,
-                endAdornment:
-                  product && selectedUnit ? (
-                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                      <Select
-                        value={selectedUnit ?? ''}
-                        onChange={(e) => setSelectedUnit(Number(e.target.value))}
-                      >
-                        {combinedUnits.map((unit) => (
-                          <MenuItem key={unit.id} value={unit.id}>
-                            {unit.unit_symbol}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ) : null,
-              }}
-            />
-          </Grid>
-
-          {/* Actions */}
-          <Grid size={{xs:12, md:isAlternative ? 2 : 2.5}}>
-            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleDone}
-                startIcon={<CheckOutlined />}
-              >
-                Done
-              </Button>
-              <Button variant="outlined" size="small" onClick={onCancel}>
-                Cancel
-              </Button>
-            </Box>
-          </Grid>
+    <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
+      <Grid container spacing={2} alignItems="flex-end">
+        {/* Product */}
+        <Grid size={{xs:12, md:isAlternative ? 6 : 5.5}}>
+          <ProductSelect
+            label={isAlternative ? 'Alternative Product' : 'Input Product'}
+            value={product}
+            onChange={(newProduct:Product | null) => {
+              setProduct(newProduct);
+              const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit?.id ?? null;
+              setSelectedUnit(unitId);
+            }}
+          />
         </Grid>
-      </Box>
 
-      {showAlternatives && children && <Box sx={{ p: 2 }}>{children}</Box>}
+        {/* Quantity + Unit */}
+        <Grid size={{xs:12, md:isAlternative ? 4 : 4}}>
+          <TextField
+            label="Quantity"
+            size="small"
+            fullWidth
+            type="number"
+            value={quantity ?? ''}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            InputProps={{
+              inputComponent: CommaSeparatedField as any,
+              endAdornment: product && selectedUnit ? (
+                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                  <Select
+                    value={selectedUnit ?? ''}
+                    onChange={(e) => setSelectedUnit(Number(e.target.value))}
+                  >
+                    {combinedUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.unit_symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : null,
+            }}
+          />
+        </Grid>
+        {/* Actions */}
+        <Grid size={{xs:12, md:isAlternative ? 2 : 2.5}}>
+          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+            <Button variant="contained" size="small" onClick={handleDone} startIcon={<CheckOutlined />}>
+              Done
+            </Button>
+            <Button variant="outlined" size="small" onClick={onCancel}>
+              Cancel
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
+
+      {showAlternatives && children && <Box sx={{ mt: 2 }}>{children}</Box>}
     </Box>
   );
 };
@@ -219,7 +188,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           onUpdate={handleUpdate}
           onCancel={() => setIsEditingMain(false)}
           showAlternatives={true}
-          key={`main-edit-${item.product?.id || 'new'}`}
         >
           <Box sx={{ mt: 2 }}>
             {editingAlternativeIndex !== null && (
@@ -229,7 +197,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                   onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
                   onCancel={() => setEditingAlternativeIndex(null)}
                   isAlternative={true}
-                  key={`alt-edit-${editingAlternativeIndex}-${alternatives[editingAlternativeIndex]?.product?.id || 'new'}`}
                 />
               </Box>
             )}
@@ -358,7 +325,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                   onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
                   onCancel={() => setEditingAlternativeIndex(null)}
                   isAlternative={true}
-                  key={`alt-edit-${editingAlternativeIndex}-${alternatives[editingAlternativeIndex]?.product?.id || 'new'}`}
                 />
               </Box>
             )}
