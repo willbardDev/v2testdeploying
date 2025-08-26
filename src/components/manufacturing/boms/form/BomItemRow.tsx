@@ -60,45 +60,65 @@ const BomsFormItemEditor: React.FC<{
     item.measurement_unit ?? item.product?.primary_unit?.id ?? null
   );
 
+  // Sync state with props
+  React.useEffect(() => {
+    setProduct(item.product ?? null);
+    setQuantity(item.quantity ?? null);
+    setSelectedUnit(item.measurement_unit ?? item.product?.primary_unit?.id ?? null);
+  }, [item]);
+
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
     ...(product?.primary_unit ? [product.primary_unit] : [])
   ];
 
+  const handleProductSelectChange = React.useCallback((newProduct: Product | null) => {
+    if (newProduct) {
+      const primaryUnit = newProduct.primary_unit;
+      const defaultUnit = primaryUnit ?? (newProduct.measurement_unit ? {
+        id: newProduct.measurement_unit.id,
+        symbol: newProduct.measurement_unit.symbol,
+        name: newProduct.measurement_unit.name,
+      } : null);
+
+      const unitId = defaultUnit?.id ?? null;
+      const conversionFactor = primaryUnit?.conversion_factor ?? 1;
+
+      setProduct(newProduct);
+      setSelectedUnit(unitId);
+      
+      // Update parent immediately
+      onUpdate({
+        ...item,
+        product: newProduct,
+        measurement_unit_id: unitId,
+        measurement_unit: defaultUnit,
+        conversion_factor: conversionFactor,
+      });
+    }
+  }, [item, onUpdate]);
+
   const handleDone = () => {
     const selectedUnitData = combinedUnits.find((u) => u.id === selectedUnit);
-    
+
     if (!selectedUnitData) {
       console.error('Selected unit data not found');
       return;
     }
-    
+
     onUpdate({
       ...item,
       product,
       quantity,
-      measurement_unit_id: selectedUnit !== null ? selectedUnit : item.measurement_unit_id,
-      symbol: selectedUnitData?.symbol ?? item.symbol,
-      conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1
+      measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
+      measurement_unit: {
+        id: selectedUnitData.id,
+        symbol: selectedUnitData.symbol,
+        name: selectedUnitData.name ?? '',
+      },
+      conversion_factor: selectedUnitData.conversion_factor ?? item.conversion_factor ?? 1,
     });
   };
-
-  const onProductChange = ({
-    product: newProduct,
-    measurement_unit_id,
-    measurement_unit,
-    conversion_factor
-  }: {
-    product: Product | null;
-    measurement_unit_id: number | null;
-    measurement_unit: { id: number; symbol: string; name: string } | null;
-    conversion_factor: number;
-  }) => {
-    setProduct(newProduct);
-    setSelectedUnit(measurement_unit_id);
-    // Optionally update parent state immediately if needed
-  };
-
   return (
     <Box sx={{ 
       mb: 2, 
@@ -241,8 +261,6 @@ const BomsFormItemEditor: React.FC<{
     </Box>
   );
 };
-
-// ... (other imports and interfaces remain the same)
 
 const BomItemRow: React.FC<BomFormRowProps> = ({
   item,
