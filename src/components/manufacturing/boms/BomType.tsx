@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol: string; 
+  symbol: string ; 
   conversion_factor?: number;
 }
 
@@ -24,6 +24,8 @@ export interface BOM {
 export interface BomsFormValues {
   output_product_id?: number | null;
   output_quantity?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  unit_symbol:string | null;
 
   items: BomItem[];
   alternatives?: BOMItem[]

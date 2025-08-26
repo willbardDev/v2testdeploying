@@ -31,6 +31,7 @@ interface FormValues {
   quantity: number | null;
   measurement_unit_id?: number | null;
   measurement_unit:MeasurementUnit | null;
+  symbol:string | null;
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]
@@ -46,9 +47,9 @@ interface BomItemFormProps {
     product?: Product;
     quantity: number;
     measurement_unit_id?: number;
-    measurement_unit?: MeasurementUnit;
+    measurement_unit?: MeasurementUnit |null|undefined;
     conversion_factor?: number | null;
-    unit_symbol?: string |null ;
+    symbol?: string |null |undefined;
   };
   index?: number;
   setItems: React.Dispatch<React.SetStateAction<any[]>>;
@@ -117,7 +118,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
   product_id: data.product?.id,
   measurement_unit_id: selectedUnit,
   measurement_unit: data.measurement_unit,
-  unit_symbol: data.unit_symbol,
+  symbol: data.symbol,
   conversion_factor: data.conversion_factor ?? 1,
 };
 
@@ -161,7 +162,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
       setValue('product', addedProduct);
       setValue('product_id', addedProduct.id);
       setValue('measurement_unit_id', unitId);
-      setValue('unit_symbol', unitSymbol);
+      setValue('symbol', unitSymbol);
       setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
       setSelectedUnit(unitId);
       setOpenProductQuickAdd(false);
@@ -190,7 +191,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
               setValue('product_id', newValue.id);
               setValue('measurement_unit_id', unitId);
               setValue('measurement_unit', unitObj);
-              setValue('unit_symbol', symbol);
+              setValue('symbol', symbol);
               setValue('conversion_factor', unitObj?.conversion_factor ?? 1);
               setSelectedUnit(unitId);
             } else {
@@ -198,7 +199,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
               setValue('product_id', undefined);
               setValue('measurement_unit_id', undefined);
               setValue('measurement_unit', null);
-              setValue('unit_symbol', undefined);
+              setValue('symbol', null);
               setValue('conversion_factor', 1);
               setSelectedUnit(null);
             }
@@ -264,7 +265,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
                     if (selectedUnitObj) {
                       setValue('measurement_unit_id', selectedUnitObj.id);
                       setValue('measurement_unit', selectedUnitObj);
-                      setValue('unit_symbol', selectedUnitObj.symbol);
+                      setValue('symbol', selectedUnitObj.symbol);
                       setValue('conversion_factor', selectedUnitObj.conversion_factor ?? 1);
                     }
                   }}
