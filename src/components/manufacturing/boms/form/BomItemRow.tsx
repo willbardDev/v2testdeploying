@@ -19,6 +19,8 @@ import {
   DeleteOutlined,
   CheckOutlined
 } from '@mui/icons-material';
+import { green } from '@mui/material/colors';
+import CloseIcon from '@mui/icons-material/Close'
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
@@ -137,9 +139,22 @@ const BomsFormItemEditor: React.FC<{
             <Button variant="contained" size="small" onClick={handleDone} startIcon={<CheckOutlined />}>
               Done
             </Button>
-            <Button variant="outlined" size="small" onClick={onCancel}>
-              Cancel
-            </Button>
+            <IconButton
+            size="small"
+            onClick={onCancel}
+            sx={{
+              backgroundColor: green[500],    // green background
+              color: '#fff',                   // white icon
+              width: 32,                       // square width
+              height: 32,                      // square height
+              borderRadius: 1,                 // slightly rounded corners
+              '&:hover': {
+                backgroundColor: green[700],   // darker green on hover
+              },
+            }}
+          >
+           <CloseIcon fontSize="small" />
+           </IconButton>
           </Box>
         </Grid>
       </Grid>

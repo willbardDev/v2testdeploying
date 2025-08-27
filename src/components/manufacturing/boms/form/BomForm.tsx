@@ -457,7 +457,7 @@ const prevItemsRef = useRef<any[]>([]);
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {bomId ? 'Update' : 'Submit'}
+          {bomId ? 'Submit' : 'Submit'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -185,7 +185,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                             setNewAlternative((prev) => ({
                               ...prev,
                               measurement_unit_id: unit.id,
-                              symbol: unit.symbol,
+                              symbol:unit.unit_symbol,
                               conversion_factor: unit.conversion_factor ?? 1
                             }));
                           }
@@ -197,7 +197,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                           ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
                         ].map((unit) => (
                           <MenuItem key={unit.id} value={unit.id}>
-                            {unit.symbol}
+                            {unit.unit_symbol}
                           </MenuItem>
                         ))}
                       </Select>
