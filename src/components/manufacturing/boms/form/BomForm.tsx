@@ -95,24 +95,33 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
   useEffect(() => {
   if (bomData) {
+    // local states
     setOutputProduct(bomData.product || null);
     setFormData({ output_quantity: bomData.quantity || null });
     setItems(bomData.items || []);
 
+    // populate form values
     reset({
       product_id: bomData.product_id ?? bomData.product?.id ?? undefined,
       quantity: bomData.quantity ?? 0,
-      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
+      measurement_unit_id:
+        bomData.measurement_unit_id ??
+        bomData.measurement_unit?.id ??
+        undefined,
       measurement_unit: bomData.measurement_unit ?? undefined,
-      symbol: bomData.measurement_unit?.symbol ?? null,   // ✅ fixed
-      conversion_factor: bomData.conversion_factor
-        ?? bomData.product?.primary_unit?.conversion_factor
-        ?? 1,
+      symbol:
+        bomData.measurement_unit?.symbol ??
+        "", // ✅ proper fallback for symbol
+      conversion_factor:
+        bomData.conversion_factor ??
+        bomData.product?.primary_unit?.conversion_factor ??
+        1,
       items: bomData.items ?? [],
       alternatives: bomData.alternatives ?? [],
     });
   }
 }, [bomData, reset]);
+
 
 
  // Replace the problematic useEffect with this:
@@ -283,9 +292,9 @@ const prevItemsRef = useRef<any[]>([]);
               if (newValue) {
                 const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
                 const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
-                const symbol = unitObj?.unit_symbol ?? '';
+                const symbol = unitObj?.unit_symbol ?? unitObj?.symbol ?? ''; // ✅ fallback to symbol
                 const conversionFactor = unitObj?.conversion_factor ?? 1;
-
+                
                 setOutputProduct(newValue);
                 setValue('product_id', newValue.id);
                 setValue('measurement_unit_id', unitId ?? undefined);
@@ -349,8 +358,10 @@ const prevItemsRef = useRef<any[]>([]);
                       const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
                       
                       if (selectedUnit) {
-                        setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                      }
+                          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+                          setValue('symbol', selectedUnit.unit_symbol ?? selectedUnit.unit_symbol ?? ''); // ✅ add this
+                        }
+
                     }}
                     size="small"
                     MenuProps={{

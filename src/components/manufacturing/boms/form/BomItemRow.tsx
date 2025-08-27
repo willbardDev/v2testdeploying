@@ -288,7 +288,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
               </Typography>
             </Box>
             <Box
-              component="div"
+              component="span"
               onClick={(e) => e.stopPropagation()}
               sx={{
                 display: 'flex',
