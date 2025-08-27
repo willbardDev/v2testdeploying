@@ -28,8 +28,6 @@ import { BOMPayload } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 
-
-
 interface BomFormProps {
   open: boolean;
   toggleOpen: (open: boolean) => void;
@@ -96,7 +94,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   useEffect(() => {
   if (bomData) {
     // Extract symbol from nested measurement unit
-    const symbol = bomData.measurement_unit?.symbol || 
+    const symbol = bomData.measurement_unit?.unit_symbol || 
                   bomData.measurement_unit?.symbol || 
                   bomData.symbol || 
                   '';
@@ -112,15 +110,13 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       quantity: bomData.quantity ?? 0,
       measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
       measurement_unit: bomData.measurement_unit ?? undefined,
-      symbol: symbol, // ✅ Properly set symbol
+      symbol: symbol,
       conversion_factor: bomData.conversion_factor ?? bomData.product?.primary_unit?.conversion_factor ?? 1,
       items: bomData.items ?? [],
       alternatives: bomData.alternatives ?? [],
     });
   }
 }, [bomData, reset]);
-
-
 
  // Replace the problematic useEffect with this:
 useEffect(() => {
@@ -159,7 +155,6 @@ const prevItemsRef = useRef<any[]>([]);
 
   setSubmitItemForm(false);
 };
-
 
   const handleClose = () => {
     handleReset();

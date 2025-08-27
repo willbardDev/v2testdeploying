@@ -4,6 +4,7 @@ export interface MeasurementUnit {
   id: number;
   name: string;
   symbol?: string | undefined | null; 
+  unit_symbol: string;
   conversion_factor?: number;
 }
 
@@ -16,6 +17,7 @@ export interface BOM {
   conversion_factor?: number | null;
   measurement_unit?: MeasurementUnit | null;
   symbol?: string | null |undefined;
+  unit_symbol:string;
   items: BOMItem[];
   alternatives?: BOMItem[];
   bomNo?: string;

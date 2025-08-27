@@ -10,8 +10,7 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import bomsServices from './boms-services';
 import BomsForm from './form/BomForm';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import { BOMItem } from './BomType';
-import { MeasurementUnit } from './BomsListItem';
+import { BOMItem, MeasurementUnit } from './BomType';
 
 interface BOM {
   id: number;

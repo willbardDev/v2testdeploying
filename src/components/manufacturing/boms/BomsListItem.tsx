@@ -9,12 +9,6 @@ import {
 import { BOM } from './BomType';
 import BomsListItemAction from './BomListItemAction';
 
-export interface MeasurementUnit {
-  id: number;
-  name: string;
-  symbol: string;
-}
-
 interface BomsListItemProps {
   bom: BOM;
 }
