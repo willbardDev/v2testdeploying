@@ -64,14 +64,14 @@ export interface PaginatedBOMResponse {
 }
 
 export interface BOMItem {
-  [x: string]: any;
   id?: number;
+  product?: Product | null;
   bom_id?: number;
   product_id: number | undefined;
   quantity: number | null;
   measurement_unit_id: number | null;
   measurement_unit?: MeasurementUnit | null;
-  symbol:string | null;
+  symbol?:string | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
 }

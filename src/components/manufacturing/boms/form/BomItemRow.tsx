@@ -82,7 +82,7 @@ const BomsFormItemEditor: React.FC<{
       product_id: product.id,
       quantity,
       measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
-      unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
+      symbol: selectedUnitData?.unit_symbol ?? item.symbol,
       conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1,
     });
   }, [product, quantity, selectedUnit, combinedUnits, onUpdate, item]);
