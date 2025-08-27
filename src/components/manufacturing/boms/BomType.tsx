@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  unit_symbol: string | undefined | null; 
+  symbol: string | undefined | null; 
   conversion_factor?: number;
 }
 
@@ -18,6 +18,7 @@ export interface BOM {
   symbol?: string | null;
   items: BOMItem[];
   alternatives?: BOMItem[];
+  bomNo?: string;
 }
 
 

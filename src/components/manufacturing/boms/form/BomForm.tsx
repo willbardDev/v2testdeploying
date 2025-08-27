@@ -84,7 +84,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       quantity: 0,
       measurement_unit_id: undefined,
       measurement_unit: undefined, 
-      symbol: undefined,        
+      symbol: null,        
       conversion_factor: 1,
       items: [],
       alternatives: [],
@@ -104,7 +104,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       quantity: bomData.quantity ?? 0,
       measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
       measurement_unit: bomData.measurement_unit ?? undefined,
-      symbol: bomData.measurement_unit?.unit_symbol ?? undefined,
+      symbol: bomData.measurement_unit?.symbol ?? null,   // ✅ fixed
       conversion_factor: bomData.conversion_factor
         ?? bomData.product?.primary_unit?.conversion_factor
         ?? 1,
@@ -144,7 +144,7 @@ const prevItemsRef = useRef<any[]>([]);
     quantity: 0,
     measurement_unit_id: undefined,
     measurement_unit: undefined,
-    symbol: undefined,
+    symbol: null,
     conversion_factor: 1,
     items: [],
     alternatives: [],
@@ -267,7 +267,7 @@ const prevItemsRef = useRef<any[]>([]);
       fullWidth
     >
       <DialogTitle component="div"> <Typography variant="h4" component="h2" textAlign="center" mb={2}>
-          {!bomId ? 'New Bill of Material' : `Edit BOM #${bomId}`}
+          {!bomId ? 'New Bill of Material' : `Edit ${bomData?.bomNo ?? ''}`}
         </Typography>
       </DialogTitle>
 
