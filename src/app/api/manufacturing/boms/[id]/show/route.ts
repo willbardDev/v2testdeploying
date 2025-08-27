@@ -13,7 +13,7 @@ export async function GET(request: NextRequest, context: any) {
     if (response) return response;
 
     // Forward to your Laravel backend
-    const res = await fetch(`${API_BASE}/boms/${bomId}`, {
+    const res = await fetch(`${API_BASE}/boms/${params.id}`, {
       headers,
       credentials: 'include',
     });

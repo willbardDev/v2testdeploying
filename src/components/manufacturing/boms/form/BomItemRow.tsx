@@ -295,7 +295,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 {item.quantity}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.unit_symbol}
+                {item.symbol}
               </Typography>
             </Box>
             
