@@ -56,13 +56,19 @@ const BomsFormItemEditor: React.FC<{
     item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
   );
 
+  // Only reset state when the component first mounts or when explicitly needed
+  React.useEffect(() => {
+    setProduct(item.product ?? null);
+    setQuantity(item.quantity ?? null);
+    setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
+  }, []);
   const combinedUnits: MeasurementUnit[] = React.useMemo(() => {
     const primary = product?.primary_unit ? [product.primary_unit] : [];
     const secondary = product?.secondary_units || [];
     return [...primary, ...secondary];
   }, [product]);
 
-  const handleDone = () => {
+  const handleDone = React.useCallback(() => {
     if (!product || !quantity || quantity <= 0) {
       console.error('Please fill all required fields');
       return;
@@ -79,7 +85,7 @@ const BomsFormItemEditor: React.FC<{
       unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
       conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1,
     });
-  };
+  }, [product, quantity, selectedUnit, combinedUnits, onUpdate, item]);
 
   return (
     <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
@@ -154,11 +160,16 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   const [expanded, setExpanded] = React.useState(false);
   const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
 
-  const handleRemove = () => {
-    setItems(items.filter((_, i) => i !== index));
-  };
+  // Update alternatives when item changes
+  React.useEffect(() => {
+    setAlternatives(item.alternatives || []);
+  }, [item.alternatives]);
 
-  const handleUpdate = (updatedItem: BOMItem) => {
+  const handleRemove = React.useCallback(() => {
+    setItems(items.filter((_, i) => i !== index));
+  }, [items, setItems, index]);
+
+  const handleUpdate = React.useCallback((updatedItem: BOMItem) => {
     setItems((prev) => {
       const updated = [...prev];
       updated[index] = { ...updatedItem, alternatives };
@@ -166,9 +177,9 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
     });
     setIsEditingMain(false);
     setExpanded(true);
-  };
+  }, [setItems, index, alternatives]);
 
-  const handleUpdateAlternative = (updatedAlt: BOMItem, altIndex: number) => {
+  const handleUpdateAlternative = React.useCallback((updatedAlt: BOMItem, altIndex: number) => {
     const updatedAlternatives = [...alternatives];
     updatedAlternatives[altIndex] = updatedAlt;
     setAlternatives(updatedAlternatives);
@@ -178,7 +189,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
       return updated;
     });
     setEditingAlternativeIndex(null);
-  };
+  }, [alternatives, setItems, index]);
 
   return (
     <>
@@ -247,7 +258,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 fontSize: 14,
                 fontWeight: 'bold',
                 flexShrink: 0,
-                mr: 0.5,   // 👈 box iko karibu sana na product name
+                mr: 0.5,
               }}
             >
               {expanded ? '−' : '+'}
@@ -263,7 +274,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
                 flex: 1,
-                mr: 2,  // 👈 spacing ya kudumu kati ya product name na quantity/unit
+                mr: 2,
               }}
             >
               {item.product?.name}
@@ -277,19 +288,22 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                 gap: 0.5, 
                 minWidth: 80, 
                 flexShrink: 0, 
-                mr:18,
+                mr: 18,
               }}
             >
               <Typography variant="body2" fontWeight="medium">
                 {item.quantity}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.symbol}
+                {item.unit_symbol}
               </Typography>
             </Box>
+            
+            {/* Action buttons - WRAPPED IN A DIV TO PREVENT NESTED BUTTONS */}
             <Box
-              component="span"
-              onClick={(e) => e.stopPropagation()}
+              component="div" // Changed from span to div for better semantics
+              onClick={(e) => e.stopPropagation()} // Prevent accordion toggle when clicking buttons
+              onFocus={(e) => e.stopPropagation()} // Also stop focus propagation
               sx={{
                 display: 'flex',
                 gap: 1,
@@ -297,12 +311,23 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
               }}
             >
               <Tooltip title="Edit">
+                {/* Use IconButton but prevent it from being a nested button */}
                 <IconButton
                   aria-label="Edit item"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsEditingMain(true);
                     setExpanded(true);
+                  }}
+                  component="div" // Render as div instead of button
+                  role="button" // Still maintain accessibility
+                  tabIndex={0} // Make it focusable
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                      setIsEditingMain(true);
+                      setExpanded(true);
+                    }
                   }}
                 >
                   <EditOutlined fontSize="small" />
@@ -315,6 +340,15 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemove();
+                  }}
+                  component="div" // Render as div instead of button
+                  role="button" // Still maintain accessibility
+                  tabIndex={0} // Make it focusable
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                      handleRemove();
+                    }
                   }}
                 >
                   <DeleteOutlined fontSize="small" color="error" />
