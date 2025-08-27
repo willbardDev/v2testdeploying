@@ -74,6 +74,7 @@ export interface BOMItem {
   symbol?:string | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
+  unit_symbol?: string | null;
 }
 
 export interface BOMPayload {

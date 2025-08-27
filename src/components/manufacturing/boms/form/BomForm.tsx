@@ -95,6 +95,12 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
   useEffect(() => {
   if (bomData) {
+    // Extract symbol from nested measurement unit
+    const symbol = bomData.measurement_unit?.symbol || 
+                  bomData.measurement_unit?.symbol || 
+                  bomData.symbol || 
+                  '';
+
     // local states
     setOutputProduct(bomData.product || null);
     setFormData({ output_quantity: bomData.quantity || null });
@@ -104,18 +110,10 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     reset({
       product_id: bomData.product_id ?? bomData.product?.id ?? undefined,
       quantity: bomData.quantity ?? 0,
-      measurement_unit_id:
-        bomData.measurement_unit_id ??
-        bomData.measurement_unit?.id ??
-        undefined,
+      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
       measurement_unit: bomData.measurement_unit ?? undefined,
-      symbol:
-        bomData.measurement_unit?.symbol ??
-        "", // ✅ proper fallback for symbol
-      conversion_factor:
-        bomData.conversion_factor ??
-        bomData.product?.primary_unit?.conversion_factor ??
-        1,
+      symbol: symbol, // ✅ Properly set symbol
+      conversion_factor: bomData.conversion_factor ?? bomData.product?.primary_unit?.conversion_factor ?? 1,
       items: bomData.items ?? [],
       alternatives: bomData.alternatives ?? [],
     });
