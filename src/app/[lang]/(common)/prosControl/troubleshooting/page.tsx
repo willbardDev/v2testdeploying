@@ -1,8 +1,9 @@
+import Troubleshooting from '@/components/prosControl/support/troubleshooting/Troubleshooting'
 import React from 'react'
 
 function page() {
   return (
-    <div>Troubleshooting will go here</div>
+    <Troubleshooting/>
   )
 }
 

@@ -17,7 +17,6 @@ import {
 } from "./utils/constants";
 import { getUpdatedSelectedItems } from "./utils/listHelpers";
 import JumboListPagination from './components/JumboListPagination';
-import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import Image from 'next/image';
 import { keyframes } from "@emotion/react";
 
@@ -124,7 +123,6 @@ const jumboListReducer = (state: JumboListState, action: JumboListAction): Jumbo
 };
 
 const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProps>((props, ref) => {
-    const dictionary = useDictionary();
 
     const {
         header,
