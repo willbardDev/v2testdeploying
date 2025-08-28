@@ -20,7 +20,7 @@ import {
   CheckOutlined
 } from '@mui/icons-material';
 import { green } from '@mui/material/colors';
-import CloseIcon from '@mui/icons-material/Close'
+import CloseIcon from '@mui/icons-material/Close';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
@@ -44,7 +44,7 @@ export interface BomFormRowProps {
  * ✅ Unified editor for BOM row (main or alternative).
  * Matches the behavior of AlternativeItemEditor for consistency.
  */
-const BomsFormItemEditor: React.FC<{
+const BomFormItemEditor: React.FC<{
   item: BOMItem;
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
@@ -64,6 +64,7 @@ const BomsFormItemEditor: React.FC<{
     setQuantity(item.quantity ?? null);
     setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
   }, []);
+  
   const combinedUnits: MeasurementUnit[] = React.useMemo(() => {
     const primary = product?.primary_unit ? [product.primary_unit] : [];
     const secondary = product?.secondary_units || [];
@@ -76,16 +77,25 @@ const BomsFormItemEditor: React.FC<{
       return;
     }
 
-    const selectedUnitData = combinedUnits.find(u => u.id === selectedUnit);
+    const selectedUnitData =
+      combinedUnits.find((u) => u.id === selectedUnit) ??
+      product?.primary_unit ??
+      null;
 
     onUpdate({
       ...item,
       product,
-      product_id: product.id,
       quantity,
-      measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
-      symbol: selectedUnitData?.unit_symbol ?? item.symbol,
-      conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1,
+      measurement_unit_id: selectedUnit ?? product?.primary_unit?.id ?? item.measurement_unit_id,
+      symbol:
+        selectedUnitData?.unit_symbol ??
+        item.symbol ??
+        product?.primary_unit?.unit_symbol ??
+        '',
+      conversion_factor:
+        selectedUnitData?.conversion_factor ??
+        item.conversion_factor ??
+        1,
     });
   }, [product, quantity, selectedUnit, combinedUnits, onUpdate, item]);
 
@@ -97,7 +107,7 @@ const BomsFormItemEditor: React.FC<{
           <ProductSelect
             label={isAlternative ? 'Alternative Product' : 'Input Product'}
             value={product}
-            onChange={(newProduct:Product | null) => {
+            onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
               const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit?.id ?? null;
               setSelectedUnit(unitId);
@@ -140,21 +150,21 @@ const BomsFormItemEditor: React.FC<{
               Done
             </Button>
             <IconButton
-            size="small"
-            onClick={onCancel}
-            sx={{
-              backgroundColor: green[500],    // green background
-              color: '#fff',                   // white icon
-              width: 32,                       // square width
-              height: 32,                      // square height
-              borderRadius: 1,                 // slightly rounded corners
-              '&:hover': {
-                backgroundColor: green[700],   // darker green on hover
-              },
-            }}
-          >
-           <CloseIcon fontSize="small" />
-           </IconButton>
+              size="small"
+              onClick={onCancel}
+              sx={{
+                backgroundColor: green[500],
+                color: '#fff',
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: green[700],
+                },
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
           </Box>
         </Grid>
       </Grid>
@@ -175,9 +185,16 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   const [expanded, setExpanded] = React.useState(false);
   const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
 
-  // Update alternatives when item changes
   React.useEffect(() => {
-    setAlternatives(item.alternatives || []);
+    const newAlts = item.alternatives || [];
+
+    const same =
+      alternatives.length === newAlts.length &&
+      alternatives.every((alt, i) => alt.id === newAlts[i]?.id);
+
+    if (!same) {
+      setAlternatives(newAlts);
+    }
   }, [item.alternatives]);
 
   const handleRemove = React.useCallback(() => {
@@ -209,7 +226,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   return (
     <>
       {isEditingMain ? (
-        <BomsFormItemEditor
+        <BomFormItemEditor
           item={item}
           onUpdate={handleUpdate}
           onCancel={() => setIsEditingMain(false)}
@@ -218,7 +235,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           <Box sx={{ mt: 2 }}>
             {editingAlternativeIndex !== null && (
               <Box sx={{ mb: 2 }}>
-                <BomsFormItemEditor
+                <BomFormItemEditor
                   item={alternatives[editingAlternativeIndex]}
                   onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
                   onCancel={() => setEditingAlternativeIndex(null)}
@@ -233,7 +250,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
               onEditAlternative={setEditingAlternativeIndex}
             />
           </Box>
-        </BomsFormItemEditor>
+        </BomFormItemEditor>
       ) : (
         <Accordion 
           expanded={expanded} 
@@ -316,9 +333,9 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
             
             {/* Action buttons - WRAPPED IN A DIV TO PREVENT NESTED BUTTONS */}
             <Box
-              component="div" // Changed from span to div for better semantics
-              onClick={(e) => e.stopPropagation()} // Prevent accordion toggle when clicking buttons
-              onFocus={(e) => e.stopPropagation()} // Also stop focus propagation
+              component="div"
+              onClick={(e) => e.stopPropagation()}
+              onFocus={(e) => e.stopPropagation()}
               sx={{
                 display: 'flex',
                 gap: 1,
@@ -326,7 +343,6 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
               }}
             >
               <Tooltip title="Edit">
-                {/* Use IconButton but prevent it from being a nested button */}
                 <IconButton
                   aria-label="Edit item"
                   onClick={(e) => {
@@ -334,9 +350,9 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                     setIsEditingMain(true);
                     setExpanded(true);
                   }}
-                  component="div" // Render as div instead of button
-                  role="button" // Still maintain accessibility
-                  tabIndex={0} // Make it focusable
+                  component="div"
+                  role="button"
+                  tabIndex={0}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.stopPropagation();
@@ -356,9 +372,9 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
                     e.stopPropagation();
                     handleRemove();
                   }}
-                  component="div" // Render as div instead of button
-                  role="button" // Still maintain accessibility
-                  tabIndex={0} // Make it focusable
+                  component="div"
+                  role="button"
+                  tabIndex={0}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.stopPropagation();
@@ -375,7 +391,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
             {editingAlternativeIndex !== null && (
               <Box sx={{ mb: 2 }}>
-                <BomsFormItemEditor
+                <BomFormItemEditor
                   item={alternatives[editingAlternativeIndex]}
                   onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
                   onCancel={() => setEditingAlternativeIndex(null)}

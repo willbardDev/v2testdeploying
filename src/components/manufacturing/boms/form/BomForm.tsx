@@ -22,11 +22,11 @@ import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
-import BomItemRow from './BomItemRow';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { BOMPayload } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
+import BomItemRow from './BomItemRow';
 
 interface BomFormProps {
   open: boolean;

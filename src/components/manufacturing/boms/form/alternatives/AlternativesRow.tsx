@@ -57,7 +57,7 @@ const AlternativeItemEditor: React.FC<{
       product,
       quantity,
       measurement_unit_id: selectedUnit ?? item.measurement_unit_id,
-      symbol: selectedUnitData?.symbol ?? item.symbol,
+      symbol: selectedUnitData?.unit_symbol ?? item.symbol,
       conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1
     });
   };
@@ -135,7 +135,7 @@ const AlternativeItemEditor: React.FC<{
   );
 };
 
-const AlternativeRow: React.FC<AlternativeRowProps> = ({
+const AlternativesRow: React.FC<AlternativeRowProps> = ({
   alternative,
   index,
   onEdit,
@@ -193,7 +193,7 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
           <Typography variant="body2">{alternative.quantity}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.symbol}</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.symbol || alternative.unit_symbol || alternative.measurement_unit?.symbol || ''}</Typography>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
@@ -209,4 +209,4 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
   );
 };
 
-export default AlternativeRow;
+export default AlternativesRow;

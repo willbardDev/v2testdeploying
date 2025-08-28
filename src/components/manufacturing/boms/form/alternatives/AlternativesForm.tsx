@@ -14,8 +14,8 @@ import { AddOutlined } from '@mui/icons-material';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import AlternativesRow from './AlternativesRow';
 import { BOMItem } from '../../BomType';
+import AlternativesRow from './AlternativesRow';
 
 interface AlternativesFormProps {
   item: BOMItem;
@@ -39,6 +39,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     measurement_unit_id: null,
     conversion_factor: 1,
     symbol: null,
+    unit_symbol: undefined,
   });
   const [warning, setWarning] = React.useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
