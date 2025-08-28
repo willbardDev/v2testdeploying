@@ -82,7 +82,6 @@ const AlternativeItemEditor: React.FC<{
             }}
           />
         </Grid>
-
          <Grid size={{xs:12, md:4}}>
           <TextField
             size="small"
@@ -112,7 +111,6 @@ const AlternativeItemEditor: React.FC<{
             }}
           />
         </Grid>
-
         <Grid size={{xs:12, md:2}}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
@@ -146,39 +144,39 @@ const AlternativeItemEditor: React.FC<{
   );
 };
 
-const AlternativesRow: React.FC<AlternativeRowProps> = ({
-  alternative,
-  index,
-  onEdit,
-  onRemove,
-  isEditing = false,
-  onCancelEdit = () => {}
-}) => {
-  const [localIsEditing, setLocalIsEditing] = React.useState(false);
+  const AlternativesRow: React.FC<AlternativeRowProps> = ({
+    alternative,
+    index,
+    onEdit,
+    onRemove,
+    isEditing = false,
+    onCancelEdit = () => {}
+  }) => {
+    const [localIsEditing, setLocalIsEditing] = React.useState(false);
 
-  React.useEffect(() => {
-    setLocalIsEditing(isEditing);
-  }, [isEditing]);
+    React.useEffect(() => {
+      setLocalIsEditing(isEditing);
+    }, [isEditing]);
 
-  const handleEditClick = () => setLocalIsEditing(true);
+    const handleEditClick = () => setLocalIsEditing(true);
 
-  const handleUpdate = (updatedItem: BOMItem) => {
-    onEdit(updatedItem);
-    setLocalIsEditing(false);
-  };
+    const handleUpdate = (updatedItem: BOMItem) => {
+      onEdit(updatedItem);
+      setLocalIsEditing(false);
+    };
 
-  const handleCancel = () => {
-    setLocalIsEditing(false);
-    onCancelEdit();
-  };
+    const handleCancel = () => {
+      setLocalIsEditing(false);
+      onCancelEdit();
+    };
 
-  if (localIsEditing) {
-    return (
-      <Box sx={{ p: 2, borderRadius: 1, border: '1px solid', borderColor: 'primary.main' }}>
-        <AlternativeItemEditor item={alternative} onUpdate={handleUpdate} onCancel={handleCancel} />
-      </Box>
-    );
-  }
+    if (localIsEditing) {
+      return (
+        <Box sx={{ p: 2, borderRadius: 1, border: '1px solid', borderColor: 'primary.main' }}>
+          <AlternativeItemEditor item={alternative} onUpdate={handleUpdate} onCancel={handleCancel} />
+        </Box>
+      );
+    }
 
   return (
     <Box 

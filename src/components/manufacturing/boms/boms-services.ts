@@ -7,7 +7,7 @@ const bomsServices = {
     params: { keyword?: string; page?: number; limit?: number } = {}
   ): Promise<PaginatedBOMResponse> => {
     const { page = 1, limit = 10, ...queryParams } = params;
-    const { data } = await axios.get('/api/manufacturing/boms', { // Keep this as is for listing
+    const { data } = await axios.get('/api/manufacturing/boms', { 
       params: { page, limit, ...queryParams },
     });
     return data;
@@ -19,7 +19,7 @@ const bomsServices = {
 },
   add: async (bom: BOMPayload): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.post('/api/manufacturing/boms/add', bom); // Keep this as is
+    const { data } = await axios.post('/api/manufacturing/boms/add', bom); 
     return data;
   },
 
@@ -34,7 +34,7 @@ const bomsServices = {
 
   delete: async (params: { id: number }): Promise<DeleteBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
-    const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`); // Keep this as is
+    const { data } = await axios.delete(`/api/manufacturing/boms/${params.id}/delete`);
     return data;
   },
 };

@@ -17,89 +17,89 @@ import { Product } from '@/components/productAndServices/products/ProductType';
 import { BOMItem } from '../../BomType';
 import AlternativesRow from './AlternativesRow';
 
-interface AlternativesFormProps {
-  item: BOMItem;
-  alternatives: BOMItem[];
-  setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
-  onEditAlternative: (index: number) => void;
-  isEditing: boolean; 
-}
-
-const AlternativesForm: React.FC<AlternativesFormProps> = ({
-  item,
-  alternatives,
-  setAlternatives,
-  onEditAlternative,
-  isEditing = false
-}) => {
-  const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
-    product_id: undefined,
-    product: null,
-    quantity: null,
-    measurement_unit_id: null,
-    conversion_factor: 1,
-    symbol: null,
-    unit_symbol: undefined,
-  });
-  const [warning, setWarning] = React.useState<string | null>(null);
-  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
-  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
-
-  const handleAddAlternative = () => {
-    if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
-      setWarning("Please select a product and enter a valid quantity.");
-      return;
+    interface AlternativesFormProps {
+      item: BOMItem;
+      alternatives: BOMItem[];
+      setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+      onEditAlternative: (index: number) => void;
+      isEditing: boolean; 
     }
 
-    if (newAlternative.product.id === item.product?.id) {
-      setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
-      return;
-    }
+    const AlternativesForm: React.FC<AlternativesFormProps> = ({
+      item,
+      alternatives,
+      setAlternatives,
+      onEditAlternative,
+      isEditing = false
+    }) => {
+      const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
+        product_id: undefined,
+        product: null,
+        quantity: null,
+        measurement_unit_id: null,
+        conversion_factor: 1,
+        symbol: null,
+        unit_symbol: undefined,
+      });
+      const [warning, setWarning] = React.useState<string | null>(null);
+      const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
+      const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
 
-    if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
-      setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-      return;
-    }
+      const handleAddAlternative = () => {
+        if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+          setWarning("Please select a product and enter a valid quantity.");
+          return;
+        }
 
-    if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
-      setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
-      return;
-    }
+        if (newAlternative.product.id === item.product?.id) {
+          setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+          return;
+        }
 
-    setAlternatives((prev) => [...prev, { ...newAlternative }]);
+        if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
+          setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+          return;
+        }
 
-    setNewAlternative({
-      product_id: undefined,
-      product: null,
-      quantity: null,
-      measurement_unit_id: null,
-      conversion_factor: 1,
-      symbol: null,
-    });
-    setSelectedUnit(null);
-    setWarning(null);
-  };
+        if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
+          setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
+          return;
+        }
 
-  const handleRemoveAlternative = (altIndex: number) => {
-    setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
-    if (editingIndex === altIndex) setEditingIndex(null);
-  };
+        setAlternatives((prev) => [...prev, { ...newAlternative }]);
 
-  const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
-    setAlternatives(prev => {
-      const updated = [...prev];
-      updated[altIndex] = updatedItem;
-      return updated;
-    });
-    setEditingIndex(null);
-  };
+        setNewAlternative({
+          product_id: undefined,
+          product: null,
+          quantity: null,
+          measurement_unit_id: null,
+          conversion_factor: 1,
+          symbol: null,
+        });
+        setSelectedUnit(null);
+        setWarning(null);
+      };
 
-  const handleStartEdit = (index: number) => {
-    setEditingIndex(index);
-    onEditAlternative(index);
-  };
+      const handleRemoveAlternative = (altIndex: number) => {
+        setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
+        if (editingIndex === altIndex) setEditingIndex(null);
+      };
 
-  const handleCancelEdit = () => setEditingIndex(null);
+      const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
+        setAlternatives(prev => {
+          const updated = [...prev];
+          updated[altIndex] = updatedItem;
+          return updated;
+        });
+        setEditingIndex(null);
+      };
+
+      const handleStartEdit = (index: number) => {
+        setEditingIndex(index);
+        onEditAlternative(index);
+      };
+
+      const handleCancelEdit = () => setEditingIndex(null);
 
   return (
     <>
@@ -152,7 +152,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 </Typography>
               )}
             </Grid>
-
             <Grid size={{xs:12, md:4}}>
               <TextField
                 label="Quantity"
@@ -207,7 +206,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 }}
               />
             </Grid>
-
             <Grid size={12} container justifyContent="flex-end">
               <Button
                 variant="contained"
@@ -221,7 +219,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
           </Grid>
         </>
       )}
-
       {alternatives.length > 0 && (
         <Stack spacing={1}>
           {alternatives.map((alt, idx) => (

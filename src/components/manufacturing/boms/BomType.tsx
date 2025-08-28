@@ -11,7 +11,7 @@ export interface BOM {
   id: number;
   product?: Product | null;
   product_id: number | undefined;
-  quantity: number | null;
+  quantity: number ;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   measurement_unit?: MeasurementUnit | null;
@@ -20,7 +20,6 @@ export interface BOM {
   alternatives?: BOMItem[];
   bomNo?: string;
 }
-
 
 export interface BomsFormValues {
   output_product_id?: number | null;
