@@ -15,6 +15,8 @@ import {
   DeleteOutlined,
   CheckOutlined
 } from '@mui/icons-material';
+import { green } from '@mui/material/colors';
+import CloseIcon from '@mui/icons-material/Close';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
@@ -121,13 +123,22 @@ const AlternativeItemEditor: React.FC<{
             >
               Done
             </Button>
-            <Button
-              variant="outlined"
+            <IconButton
               size="small"
               onClick={onCancel}
+              sx={{
+                backgroundColor: green[500],
+                color: '#fff',
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: green[700],
+                },
+              }}
             >
-              Cancel
-            </Button>
+              <CloseIcon fontSize="small" />
+            </IconButton>
           </Box>
         </Grid>
       </Grid>

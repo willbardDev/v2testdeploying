@@ -28,6 +28,10 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
 
+interface FormData {
+  output_quantity: number | null;
+  symbol?: string | null;
+}
 
 interface BomFormProps {
   open: boolean;
@@ -64,8 +68,10 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
-   const [formData, setFormData] = useState<{ output_quantity: number | null }>({
+
+  const [formData, setFormData] = useState<FormData>({
     output_quantity: null,
+    symbol: null,
   });
 
     const {
@@ -94,23 +100,35 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
   useEffect(() => {
   if (bomData) {
-    // Extract symbol from nested measurement unit
-    const symbol = bomData.measurement_unit?.unit_symbol || 
-                  bomData.measurement_unit?.symbol || 
-                  bomData.symbol || 
-                  '';
+    const symbol = bomData.measurement_unit?.symbol 
+                || bomData.measurement_unit?.symbol 
+                || bomData.symbol 
+                || '';
 
-    // local states
     setOutputProduct(bomData.product || null);
-    setFormData({ output_quantity: bomData.quantity || null });
-    setItems(bomData.items || []);
 
-    // populate form values
+    // 👇 Update formData properly
+    setFormData({ 
+  output_quantity: bomData.quantity || null,
+  symbol: bomData.symbol || null 
+});
+
+    setItems(
+      (bomData.items || []).map((item) => ({
+        ...item,
+        symbol: item.measurement_unit?.symbol || item.symbol || '',
+        alternatives: (item.alternatives || []).map((alt) => ({
+          ...alt,
+          symbol: alt.measurement_unit?.symbol || alt.symbol || ''
+        }))
+      }))
+    );
+
     reset({
-      product_id: bomData.product_id ?? bomData.product?.id ?? undefined,
+      product_id: bomData.product_id ?? bomData.product?.id,
       quantity: bomData.quantity ?? 0,
-      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id ?? undefined,
-      measurement_unit: bomData.measurement_unit ?? undefined,
+      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
+      measurement_unit: bomData.measurement_unit,
       symbol: symbol,
       conversion_factor: bomData.conversion_factor ?? bomData.product?.primary_unit?.conversion_factor ?? 1,
       items: bomData.items ?? [],
@@ -118,6 +136,8 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     });
   }
 }, [bomData, reset]);
+
+
 
  // Replace the problematic useEffect with this:
 useEffect(() => {
@@ -141,11 +161,11 @@ const prevItemsRef = useRef<any[]>([]);
   setItems([]);
   setOutputProduct(null);
   setClearFormKey((prev) => prev + 1);
-  setFormData({ output_quantity: null });
+  setFormData({output_quantity: null });
 
   reset({
     product_id: undefined,
-    quantity: 0,
+    quantity:0,
     measurement_unit_id: undefined,
     measurement_unit: undefined,
     symbol: null,
@@ -286,14 +306,12 @@ const prevItemsRef = useRef<any[]>([]);
               if (newValue) {
                 const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
                 const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
-                const symbol = unitObj?.unit_symbol ?? unitObj?.symbol ?? ''; // ✅ fallback to symbol
                 const conversionFactor = unitObj?.conversion_factor ?? 1;
                 
                 setOutputProduct(newValue);
                 setValue('product_id', newValue.id);
                 setValue('measurement_unit_id', unitId ?? undefined);
-                setValue('measurement_unit', unitObj); // Fixed this line
-                setValue('symbol', symbol);
+                setValue('measurement_unit', null);
                 setValue('conversion_factor', conversionFactor);
               } else {
                 setOutputProduct(null);
@@ -330,54 +348,40 @@ const prevItemsRef = useRef<any[]>([]);
             helperText={errors.quantity?.message as string}
             InputProps={{
               inputComponent: CommaSeparatedField,
-              endAdornment: outputProduct ? (
-                <FormControl 
-                  variant="standard" 
-                  sx={{ 
-                    minWidth: 80,
-                    ml: 1 
-                  }}
-                >
-                  <Select
-                    value={watch('measurement_unit_id') ?? ''}
-                    onChange={(e) => {
-                      const selectedUnitId = e.target.value as number;
-                      setValue('measurement_unit_id', selectedUnitId);
-                      
-                      // Find the selected unit and update conversion factor
-                      const combinedUnits = [
-                        ...(outputProduct?.secondary_units || []),
-                        ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                      ];
-                      const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                      
-                      if (selectedUnit) {
-                          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                          setValue('symbol', selectedUnit.unit_symbol ?? selectedUnit.unit_symbol ?? ''); // ✅ add this
-                        }
+             endAdornment: outputProduct ? (
+  <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+    <Select
+      value={watch('measurement_unit_id') ?? ''}
+      onChange={(e) => {
+        const selectedUnitId = e.target.value as number;
+        setValue('measurement_unit_id', selectedUnitId);
+        
+        const combinedUnits = [
+          ...(outputProduct?.secondary_units || []),
+          ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
+        ];
+        const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
+        
+        if (selectedUnit) {
+          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+          setValue('symbol', selectedUnit.unit_symbol ?? '');
+          // update pia formData ili icon symbol ibaki visible
+          setFormData(prev => ({ ...prev, symbol: selectedUnit.unit_symbol ?? '' }));
+        }
+      }}
+      size="small"
+    >
+      {[...(outputProduct?.secondary_units || []),
+        ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
+      ].map((unit) => (
+        <MenuItem key={unit.id} value={unit.id}>
+          {unit.unit_symbol}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+) : null
 
-                    }}
-                    size="small"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 300,
-                          borderRadius: 1
-                        }
-                      }
-                    }}
-                  >
-                    {[
-                      ...(outputProduct?.secondary_units || []),
-                      ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                    ].map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : null
             }}
             sx={{
               '& input[type=number]': {
