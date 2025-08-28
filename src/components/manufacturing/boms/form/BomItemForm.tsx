@@ -194,6 +194,8 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
                 const conversionFactor = unitObj?.conversion_factor ?? 1;
 
                 setAddedProduct(newValue);
+      setValue('product', newValue);
+
                 setValue('product_id', newValue.id);
                 setValue('measurement_unit_id', unitId ?? undefined);
                 setValue('measurement_unit', unitObj ?? undefined);

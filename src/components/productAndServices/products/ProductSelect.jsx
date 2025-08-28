@@ -8,36 +8,36 @@ function ProductSelect(props) {
     frontError = null,
     label = 'Select Product',
     excludeIds = [],
-    multiple = false,
+    multiple = false, // Add a new prop for multiple selection
     startAdornment,
     requiredProducts,
-    addedProduct = null,
-    value, // This is the controlled value from parent
-    onChange, // This is the onChange handler from parent
+    addedProduct=null,
+
+
   } = props;
-  
+
   const { productOptions } = useProductsSelect();
-  
-  // Use the value from props as the source of truth
+
+
   const [selectedItems, setSelectedItems] = useState(
-    value !== undefined ? value : (multiple ? [] : null)
+    props?.defaultValue ? props.defaultValue : (multiple ? [] : null)
   );
 
-  // Update internal state when the value prop changes
-  useEffect(() => {
-    if (value !== undefined) {
-      setSelectedItems(value);
-    }
-  }, [value]);
 
   useEffect(() => {
-    if (addedProduct !== null) {
+    if(addedProduct !==null){
+
+
+
+
+
+
       setSelectedItems(addedProduct);
-      if (onChange) {
-        onChange(addedProduct);
-      }
+
+
+
     }
-  }, [addedProduct, onChange]);
+  }, [addedProduct])
 
   const options = [
     ...productOptions.filter(productOption => 
@@ -48,17 +48,17 @@ function ProductSelect(props) {
 
   const handleOnChange = (event, newValue) => {
     setSelectedItems(newValue);
-    if (onChange) {
-      onChange(newValue);
-    }
+    props.onChange(newValue);
+
+
   };
 
   // Filter options based on requiredProducts
   const filteredOptions = options?.filter(option => requiredProducts?.some(product => product.id === option.id));
 
-  return (
+    return (
     <Autocomplete
-      multiple={multiple}
+      multiple={multiple} // Specify whether multiple selections are allowed
       disabled={props?.disabled}
       options={!!requiredProducts ? filteredOptions : options}
       disableCloseOnSelect={multiple}
@@ -84,31 +84,37 @@ function ProductSelect(props) {
               </>
             ),
           }}
+          value={
+            props?.multiple
+              ? selectedItems?.map((item) => `${item.name} - (${item.type})`).join(", ")
+              : selectedItems
+          }
         />
       )}
       
-      renderTags={(tagValue, getTagProps) => {
-        return tagValue.map((option, index) => {
-          const {key, ...restProps} = getTagProps({index});
-          return <Chip {...restProps} key={option.id+"-"+key} label={option.name} />
-        })
+      renderTags={(tagValue, getTagProps)=> {
+        return tagValue.map((option, index)=>{
+            const {key, ...restProps} = getTagProps({index});
+            return <Chip {...restProps} key={option.id+"-"+key} label={option.name} />
+         })
       }}
 
+      // Conditionally render the renderOption property
       {...(multiple && { renderOption: (props, option, { selected }) => {
-        const { key, ...restProps} = props
-        return (
-          <li {...restProps} key={option.id+"-"+key}>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option.name}
-          </li>
+      const { key, ...restProps} = props
+        return  (
+        <li {...restProps} key={option.id+"-"+key}>
+          <Checkbox
+            icon={<CheckBoxOutlineBlank fontSize="small" />}
+            checkedIcon={<CheckBox fontSize="small" />}
+            style={{ marginRight: 8 }}
+            checked={selected}
+          />
+          {option.name}
+        </li>
         )
-      }})}
-      
+    }})}
+
       value={selectedItems}
       onChange={handleOnChange}
     />
