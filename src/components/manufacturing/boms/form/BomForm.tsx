@@ -13,9 +13,13 @@ import {
   Select,
   TextField,
   Typography,
+  Box,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
+import { AddOutlined } from '@mui/icons-material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
@@ -27,11 +31,8 @@ import { BOMPayload, BOMItem } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
-
-interface FormData {
-  output_quantity: number | null;
-  symbol?: string | null;
-}
+import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 interface BomFormProps {
   open: boolean;
@@ -58,33 +59,33 @@ const schema = yup.object().shape({
 function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { checkOrganizationPermission } = useJumboAuth();
   const { data: bomData, isLoading, isError } = useQuery({
     queryKey: ['bom', bomId],
     queryFn: () => bomsServices.show(bomId!),
     enabled: !!bomId && open,
   });
+  
   const [items, setItems] = useState<BOMItem[]>([]);
-  const [outputProduct, setOutputProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
-  const [formData, setFormData] = useState<FormData>({
-    output_quantity: null,
-    symbol: null,
-  });
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
+  const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
+  const [addedProduct, setAddedProduct] = useState<Product | null>(null);
 
   const {
-    register,
+    control,
     handleSubmit,
     setValue,
     reset,
     watch,
-    formState: { errors, isSubmitted },
-    trigger,
+    formState: { errors },
   } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       product_id: undefined,
+      product: null,
       quantity: 0,
       measurement_unit_id: undefined,
       measurement_unit: undefined,
@@ -96,8 +97,9 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     mode: 'onChange',
   });
 
-  // Add this near your state declarations
   const prevItemsRef = useRef<any[]>([]);
+  const product = watch('product');
+  const quantity = watch('quantity');
 
   // Helper function to get combined units from a product
   const getCombinedUnits = (product: Product | null) => {
@@ -116,11 +118,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
         unit.id === (bomData.measurement_unit_id || bomData.measurement_unit?.id)
       );
 
-      setOutputProduct(bomData.product || null);
-      setFormData({ 
-        output_quantity: bomData.quantity || null,
-        symbol: symbol
-      });
+      setSelectedUnit(bomData.measurement_unit_id || bomData.measurement_unit?.id || null);
 
       setItems(
         (bomData.items || []).map((item) => ({
@@ -135,6 +133,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
       reset({
         product_id: bomData.product_id ?? bomData.product?.id,
+        product: bomData.product || null,
         quantity: bomData.quantity ?? 0,
         measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
         measurement_unit: bomData.measurement_unit,
@@ -154,20 +153,30 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     }
   }, [items, setValue]);
 
-  const validateItems = useCallback(() => {
-    if (isSubmitted) {
-      trigger('items');
+  useEffect(() => {
+    if (addedProduct) {
+      const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
+      const unitSymbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.symbol ?? '';
+
+      setValue('product', addedProduct);
+      setValue('product_id', addedProduct.id);
+      setValue('measurement_unit_id', unitId);
+      setValue('symbol', unitSymbol);
+      setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
+      setSelectedUnit(unitId);
+      setOpenProductQuickAdd(false);
     }
-  }, [isSubmitted, trigger]);
+  }, [addedProduct, setValue]);
 
   const handleReset = () => {
     setItems([]);
-    setOutputProduct(null);
     setClearFormKey((prev) => prev + 1);
-    setFormData({ output_quantity: null });
+    setSelectedUnit(null);
+    setAddedProduct(null);
 
     reset({
       product_id: undefined,
+      product: null,
       quantity: 0,
       measurement_unit_id: undefined,
       measurement_unit: undefined,
@@ -219,7 +228,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   });
 
   const onSubmit = async (data: BOMPayload) => {
-    if (!outputProduct?.id) {
+    if (!data.product_id) {
       enqueueSnackbar('Output product is required', { variant: 'error' });
       return;
     }
@@ -230,7 +239,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     }
 
     const payload: BOMPayload = {
-      product_id: Number(outputProduct.id),
+      product_id: Number(data.product_id),
       quantity: Number(data.quantity),
       measurement_unit_id: Number(data.measurement_unit_id),
       symbol: String(data.symbol),
@@ -240,13 +249,13 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
         quantity: Number(item.quantity),
         measurement_unit_id: Number(item.measurement_unit_id),
         conversion_factor: Number(item.conversion_factor) || 1,
-        symbol: item.unit_symbol || item.symbol || '',
+        symbol: item.symbol || '',
         alternatives: item.alternatives?.map((alt: any) => ({
           product_id: Number(alt.product?.id || alt.product_id),
           quantity: Number(alt.quantity),
           measurement_unit_id: Number(alt.measurement_unit_id),
           conversion_factor: Number(alt.conversion_factor) || 1,
-          symbol: alt.unit_symbol || alt.symbol || '',
+          symbol: alt.symbol || '',
         })) || []
       }))
     };
@@ -296,98 +305,138 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
       <DialogContent>
         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <ProductSelect
-              label="Output Product"
-              frontError={errors.product_id}
-              value={outputProduct}
-              onChange={(newValue: Product | null) => {
-                if (newValue) {
-                  const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                  const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
-                  const conversionFactor = unitObj?.conversion_factor ?? 1;
-                  
-                  setOutputProduct(newValue);
-                  setValue('product_id', newValue.id);
-                  setValue('measurement_unit_id', unitId ?? undefined);
-                  setValue('measurement_unit', null);
-                  setValue('conversion_factor', conversionFactor);
-                } else {
-                  setOutputProduct(null);
-                  reset({
-                    product_id: undefined,
-                    quantity: 0,
-                    measurement_unit_id: undefined,
-                    measurement_unit: undefined,
-                    symbol: undefined,
-                    conversion_factor: 1,
-                    items: [],
-                    alternatives: [],
-                  });
-                }
-              }}
+          <Grid size={{xs:12, md:8}}>
+            <Controller
+              name="product"
+              control={control}
+              render={({ field }) => (
+                <ProductSelect
+                  label="Output Product"
+                  frontError={errors.product_id}
+                  value={field.value}
+                  onChange={(newValue: Product | null) => {
+                    if (newValue) {
+                      const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                      const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? undefined ;
+                      const symbol = unitObj?.unit_symbol ?? '';
+                      const conversionFactor = unitObj?.conversion_factor ?? 1;
+                      
+
+                      field.onChange(newValue);
+                      setValue('product_id', newValue.id);
+                      setValue('measurement_unit_id', unitId ?? undefined);
+                      setValue('measurement_unit', unitObj ?? undefined );
+                      setValue('symbol', symbol ?? undefined);
+                      setValue('conversion_factor', conversionFactor);
+                      setSelectedUnit(unitId ?? null);
+                    } else {
+                      field.onChange(null);
+                      setValue('product_id', undefined);
+                      setValue('measurement_unit_id', undefined);
+                      setValue('measurement_unit', undefined);
+                      setValue('symbol', null);
+                      setValue('conversion_factor', 1);
+                      setSelectedUnit(null);
+                    }
+                  }}
+                  startAdornment={
+                    checkOrganizationPermission(['products_create']) && (
+                      <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Tooltip title="Add New Product">
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenProductQuickAdd(true);
+                            }}
+                            size="small"
+                            sx={{ p: 0.5 }}
+                          >
+                            <AddOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    )
+                  }
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      paddingRight: '8px',
+                    },
+                  }}
+                />
+              )}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              label="Quantity"
-              size="small"
-              fullWidth
-              value={formData.output_quantity ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFormData((prev) => ({
-                  ...prev,
-                  output_quantity: value === '' ? null : Number(value),
-                }));
-                setValue('quantity', value === '' ? 0 : Number(value));
-              }}
-              error={!!errors.quantity}
-              helperText={errors.quantity?.message as string}
-              InputProps={{
-                inputComponent: CommaSeparatedField,
-                endAdornment: outputProduct ? (
-                  <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                    <Select
-                      value={watch('measurement_unit_id') ?? ''}
-                      onChange={(e) => {
-                        const selectedUnitId = e.target.value as number;
-                        setValue('measurement_unit_id', selectedUnitId);
-                        
-                        const combinedUnits = getCombinedUnits(outputProduct);
-                        const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                        
-                        if (selectedUnit) {
-                          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                          setValue('symbol', selectedUnit.unit_symbol ?? '');
-                          setFormData(prev => ({ ...prev, symbol: selectedUnit.unit_symbol ?? '' }));
-                        }
-                      }}
-                      size="small"
-                    >
-                      {getCombinedUnits(outputProduct).map((unit) => (
-                        <MenuItem key={unit.id} value={unit.id}>
-                          {unit.unit_symbol}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                ) : null
-              }}
-              sx={{
-                '& input[type=number]': {
-                  MozAppearance: 'textfield',
-                },
-                '& input[type=number]::-webkit-outer-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-                '& input[type=number]::-webkit-inner-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-              }}
+          <Grid size={{xs:12, md:4}}>
+            <Controller
+              name="quantity"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Quantity"
+                  fullWidth
+                  size="small"
+                  value={field.value ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;
+                    field.onChange(numValue);
+                  }}
+                  InputProps={{
+                    inputComponent: CommaSeparatedField,
+                    endAdornment: product ? (
+                      <FormControl
+                        variant="standard"
+                        sx={{ minWidth: 80, ml: 1 }}
+                      >
+                        <Select
+                          size="small"
+                          value={watch('measurement_unit_id') ?? ''}
+                          onChange={(e) => {
+                            const selectedUnitId = e.target.value as number;
+                            setValue('measurement_unit_id', selectedUnitId);
+                            setSelectedUnit(selectedUnitId);
+
+                            const combinedUnits = getCombinedUnits(product);
+                            const selectedUnit = combinedUnits.find(
+                              (unit) => unit.id === selectedUnitId
+                            );
+
+                            if (selectedUnit) {
+                              setValue('measurement_unit', selectedUnit);
+                              setValue('symbol', selectedUnit.unit_symbol ?? '');
+                              setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+                            }
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: { maxHeight: 300, borderRadius: 1 },
+                            },
+                          }}
+                        >
+                          {getCombinedUnits(product).map((unit) => (
+                            <MenuItem key={unit.id} value={unit.id}>
+                              {unit.unit_symbol}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    ) : null,
+                  }}
+                  error={!!errors.quantity}
+                  helperText={errors.quantity?.message as string}
+                  inputProps={{
+                    step: 'any',
+                    min: 0.01,
+                  }}
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      paddingRight: product ? 0 : '14px',
+                    },
+                  }}
+                />
+              )}
             />
           </Grid>
         </Grid>
@@ -431,6 +480,11 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
             ))}
           </Grid>
         </Grid>
+
+        {/* Quick Add Dialog */}
+        {openProductQuickAdd && (
+          <ProductQuickAdd setOpen={setOpenProductQuickAdd} setAddedProduct={setAddedProduct} />
+        )}
       </DialogContent>
 
       <DialogActions>
@@ -446,7 +500,6 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
           variant="contained"
           size="small"
           onClick={handleSubmit(onSubmit)}
-          loading={isSubmitting}
           disabled={isSubmitting}
         >
           {bomId ? 'Update' : 'Create'}

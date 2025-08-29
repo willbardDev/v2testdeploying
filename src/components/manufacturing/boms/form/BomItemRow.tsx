@@ -26,7 +26,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { BOMItem } from '../BomType';
-import AlternativesForm from './boms/form/alternatives/AlternativesForm';
+import AlternativesForm from './alternatives/AlternativesForm';
 
 export interface BomFormRowProps {
   item: BOMItem;
@@ -184,12 +184,12 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   React.useEffect(() => {
     const newAlts = item.alternatives || [];
     const same =
-        alternatives.length === newAlts.length &&
-        alternatives.every((alt, i) => alt.id === newAlts[i]?.id);
+      alternatives.length === newAlts.length &&
+      alternatives.every((alt, i) => alt.id === newAlts[i]?.id);
 
-      if (!same) {
-        setAlternatives(newAlts);
-      }
+    if (!same) {
+      setAlternatives(newAlts);
+    }
   }, [item.alternatives]);
 
   const handleRemove = React.useCallback(() => {
@@ -206,17 +206,17 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
     setExpanded(true);
   }, [setItems, index, alternatives]);
 
-  const handleUpdateAlternative = React.useCallback((updatedAlt: BOMItem, altIndex: number) => {
-    const updatedAlternatives = [...alternatives];
-    updatedAlternatives[altIndex] = updatedAlt;
-    setAlternatives(updatedAlternatives);
-    setItems((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], alternatives: updatedAlternatives };
-      return updated;
-    });
-    setEditingAlternativeIndex(null);
-  }, [alternatives, setItems, index]);
+  const handleUpdateAlternatives = React.useCallback(
+    (newAlts: BOMItem[]) => {
+      setAlternatives(newAlts);
+      setItems((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], alternatives: newAlts };
+        return updated;
+      });
+    },
+    [setItems, index]
+  );
 
   return (
     <>
@@ -227,173 +227,192 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           onCancel={() => setIsEditingMain(false)}
           showAlternatives={true}
         >
-          <Box sx={{ mt: 2 }}>
-            {editingAlternativeIndex !== null && (
-              <Box sx={{ mb: 2 }}>
-                <BomFormItemEditor
-                  item={alternatives[editingAlternativeIndex]}
-                  onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
-                  onCancel={() => setEditingAlternativeIndex(null)}
-                  isAlternative={true}
-                />
-              </Box>
-            )}
-            <AlternativesForm
+          {/* Integrate AlternativesForm here */}
+          <AlternativesForm
               item={item}
               alternatives={alternatives}
-              setAlternatives={setAlternatives}
-              onEditAlternative={setEditingAlternativeIndex}
+              setAlternatives={(updater) => {
+                // updater can be array or function
+                setAlternatives((prev) => {
+                  const newAlts =
+                    typeof updater === 'function' ? updater(prev) : updater;
+
+                  // sync with parent items
+                  setItems((prevItems) => {
+                    const updated = [...prevItems];
+                    updated[index] = { ...updated[index], alternatives: newAlts };
+                    return updated;
+                  });
+
+                  return newAlts;
+                });
+              }}
+              onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
+              isEditing={editingAlternativeIndex !== null}
             />
-          </Box>
         </BomFormItemEditor>
       ) : (
         <Accordion 
-          expanded={expanded} 
-          onChange={(_, exp) => setExpanded(exp)}
-          sx={{ 
-            mb: 1,
-            '&.Mui-expanded': { margin: '8px 0' }
-          }}
-        >
-          <AccordionSummary
-            aria-controls={`bom-item-${index}-content`}
-            id={`bom-item-${index}-header`}
-            sx={{
-              minHeight: '48px',
-              py: 0,
-              display: 'flex',
-              alignItems: 'center',
-              '& .MuiAccordionSummary-content': {
-                m: 0,
-                p: 0,
-                display: 'flex',
-                alignItems: 'center',
-              },
+            expanded={expanded} 
+            onChange={(_, exp) => setExpanded(exp)}
+            sx={{ 
+              mb: 1,
+              '&.Mui-expanded': { margin: '8px 0' }
             }}
           >
-            {/* +/- box */}
-            <Box
+            <AccordionSummary
+              aria-controls={`bom-item-${index}-content`}
+              id={`bom-item-${index}-header`}
               sx={{
-                width: 20,
-                height: 20,
-                border: '1px solid',
-                borderColor: 'grey.500',
-                borderRadius: '4px',
+                minHeight: '48px',
+                py: 0,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 14,
-                fontWeight: 'bold',
-                flexShrink: 0,
-                mr: 0.5,
+                '& .MuiAccordionSummary-content': {
+                  m: 0,
+                  p: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                },
               }}
             >
-              {expanded ? '−' : '+'}
-            </Box>
+              {/* +/- box */}
+              <Box
+                sx={{
+                  width: 20,
+                  height: 20,
+                  border: '1px solid',
+                  borderColor: 'grey.500',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  flexShrink: 0,
+                  mr: 0.5,
+                }}
+              >
+                {expanded ? '−' : '+'}
+              </Box>
 
-            {/* Product name */}
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 500,
-                minWidth: 120,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1,
-                mr: 2,
-              }}
-            >
-              {item.product?.name}
-            </Typography>
+              {/* Product name */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 500,
+                  minWidth: 120,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  flex: 1,
+                  mr: 2,
+                }}
+              >
+                {item.product?.name}
+              </Typography>
 
-            {/* Quantity + Unit */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 0.5, 
-                minWidth: 80, 
-                flexShrink: 0, 
-                mr: 18,
-              }}
-            >
-              <Typography variant="body2" fontWeight="medium">
-                {item.quantity}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.symbol || item.unit_symbol || item.measurement_unit?.symbol || ''}
-              </Typography>
-            </Box>
-            
-            {/* Action buttons */}
-            <Box
-              component="div"
-              onClick={(e) => e.stopPropagation()}
-              onFocus={(e) => e.stopPropagation()}
-              sx={{
-                display: 'flex',
-                gap: 1,
-                ml: 1,
-              }}
-            >
-              <Tooltip title="Edit">
-                <IconButton
-                  aria-label="Edit item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditingMain(true);
-                    setExpanded(true);
-                  }}
-                  component="div"
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+              {/* Quantity + Unit */}
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 0.5, 
+                  minWidth: 80, 
+                  flexShrink: 0, 
+                  mr: 18,
+                }}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  {item.quantity}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {item.symbol || item.symbol || item.measurement_unit?.symbol || ''}
+                </Typography>
+              </Box>
+              
+              {/* Action buttons - WRAPPED IN A DIV TO PREVENT NESTED BUTTONS */}
+              <Box
+                component="div"
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                sx={{
+                  display: 'flex',
+                  gap: 1,
+                  ml: 1,
+                }}
+              >
+                <Tooltip title="Edit">
+                  <IconButton
+                    aria-label="Edit item"
+                    onClick={(e) => {
                       e.stopPropagation();
                       setIsEditingMain(true);
                       setExpanded(true);
-                    }
-                  }}
-                >
-                  <EditOutlined fontSize="small" />
-                </IconButton>
-              </Tooltip>
+                    }}
+                    component="div"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        setIsEditingMain(true);
+                        setExpanded(true);
+                      }
+                    }}
+                  >
+                    <EditOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
 
-              <Tooltip title="Delete">
-                <IconButton
-                  aria-label="Delete item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove();
-                  }}
-                  component="div"
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                <Tooltip title="Delete">
+                  <IconButton
+                    aria-label="Delete item"
+                    onClick={(e) => {
                       e.stopPropagation();
                       handleRemove();
-                    }
-                  }}
-                >
-                  <DeleteOutlined fontSize="small" color="error" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </AccordionSummary>
-
-          <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
-            {editingAlternativeIndex !== null && (
-              <Box sx={{ mb: 2 }}>
-                <BomFormItemEditor
-                  item={alternatives[editingAlternativeIndex]}
-                  onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
-                  onCancel={() => setEditingAlternativeIndex(null)}
-                  isAlternative={true}
-                />
+                    }}
+                    component="div"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        handleRemove();
+                      }
+                    }}
+                  >
+                    <DeleteOutlined fontSize="small" color="error" />
+                  </IconButton>
+                </Tooltip>
               </Box>
-            )}
+            </AccordionSummary>
+
+          <AccordionDetails sx={{ pt: 1, pb: 2 }}>
+            {/* Alternatives inside accordion details */}
+            <AlternativesForm
+              item={item}
+              alternatives={alternatives}
+              setAlternatives={(updater) => {
+                // updater can be array or function
+                setAlternatives((prev) => {
+                  const newAlts =
+                    typeof updater === 'function' ? updater(prev) : updater;
+
+                  // sync with parent items
+                  setItems((prevItems) => {
+                    const updated = [...prevItems];
+                    updated[index] = { ...updated[index], alternatives: newAlts };
+                    return updated;
+                  });
+
+                  return newAlts;
+                });
+              }}
+              onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
+              isEditing={editingAlternativeIndex !== null}
+            />
+
           </AccordionDetails>
         </Accordion>
       )}

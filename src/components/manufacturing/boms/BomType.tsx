@@ -73,12 +73,12 @@ export interface BOMItem {
   symbol?:string | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
-  unit_symbol?: string | null;
 }
 
 export interface BOMPayload {
   id?:number;
   product_id: number | undefined;
+  product?: Product | null;
   quantity: number;
   measurement_unit?: MeasurementUnit | null;
   measurement_unit_id?: number | null;

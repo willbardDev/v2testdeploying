@@ -39,7 +39,6 @@ import AlternativesRow from './AlternativesRow';
         measurement_unit_id: null,
         conversion_factor: 1,
         symbol: null,
-        unit_symbol: undefined,
       });
       const [warning, setWarning] = React.useState<string | null>(null);
       const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);

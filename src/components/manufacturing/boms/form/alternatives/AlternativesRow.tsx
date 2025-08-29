@@ -202,7 +202,7 @@ const AlternativeItemEditor: React.FC<{
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
           <Typography variant="body2">{alternative.quantity}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.symbol || alternative.unit_symbol || alternative.measurement_unit?.symbol || ''}</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{alternative.symbol || alternative.symbol || alternative.measurement_unit?.symbol || ''}</Typography>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
