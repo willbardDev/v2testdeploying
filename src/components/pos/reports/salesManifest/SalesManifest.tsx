@@ -411,341 +411,86 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
 
         {reportData.transactions.map((sale, index) => {
           const vat_percentage = sale.vat_percentage;
-          const totalProfit = sale.items.reduce(
-            (total, item) => total + ((item.quantity * item.rate) - (item.cost)), 
-            0
-          );
 
           return (
             <React.Fragment key={index}>
-              <View style={{ ...pdfStyles.tableRow, marginTop: 20 }}>
-                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>
-                  {readableDate(sale.transaction_date)}
-                </Text>
-                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>
-                  {sale.transaction_no}
-                </Text>
-                <Text style={{ ...pdfStyles.midInfo, flex: 2 }}>
-                  {sale.stakeholder.name}
-                </Text>
-                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>
-                  {sale.reference && sale.reference}
-                </Text>
+              <View style={{ ...pdfStyles.tableRow, marginTop:20 }}>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{readableDate(sale.transaction_date)}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{sale.transaction_no}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 2 }}>{sale.stakeholder.name}</Text>
+                <Text style={{ ...pdfStyles.midInfo, flex: 1 }}>{sale.reference && sale.reference}</Text>
+              </View>
+              <View style={{ ...pdfStyles.tableRow}}>
+                <Text style={{ ...pdfStyles.midInfo, textAlign:'right' }}>{sale.counter}</Text>
               </View>
               
-              <View style={{ ...pdfStyles.tableRow }}>
-                <Text style={{ ...pdfStyles.midInfo, textAlign: 'right' }}>
-                  {sale.counter}
-                </Text>
-              </View>
-              
-              <View style={{ 
-                ...pdfStyles.table,
-                backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, 
-                padding: 2 
-              }}>
+              <View style={{ ...pdfStyles.table, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, padding: 2}}>
                 {/* Table Header */}
                 <View style={pdfStyles.tableRow}>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 0.5 
-                  }}>
-                    S/N
-                  </Text>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 4 
-                  }}>
-                    Product
-                  </Text>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 1.5 
-                  }}>
-                    Quantity
-                  </Text>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 2 
-                  }}>
-                    Price
-                  </Text>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 2 
-                  }}>
-                    Amount
-                  </Text>
-                  {separateVAT && sale.vat_percentage && (
-                    <Text style={{ 
-                      ...pdfStyles.tableHeader, 
-                      backgroundColor: mainColor, 
-                      color: contrastText, 
-                      flex: 2 
-                    }}>
-                      VAT
-                    </Text>
-                  )}
-                  {financePersonnel && (
-                    <>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2 
-                      }}>
-                        P.U Cost
-                      </Text>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2 
-                      }}>
-                        CoGS
-                      </Text>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2 
-                      }}>
-                        Profit
-                      </Text>
-                    </>
-                  )}
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex:0.5 }}>S/N</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4 }}>Product</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Quantity</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Price</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Amount</Text>
+                  {
+                    !!separateVAT && !!sale.vat_percentage &&
+                    <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>VAT</Text>
+                  }
+                  {
+                    financePersonnel &&
+                    <React.Fragment>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>P.U Cost</Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>CoGS</Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Profit</Text>
+                    </React.Fragment>
+                  }
                 </View>
 
                 {/* Table Rows */}
-                {sale.items.map((saleItem, itemIndex) => (
-                  <View key={itemIndex} style={pdfStyles.tableRow}>
-                    <Text style={{ 
-                      ...pdfStyles.tableCell,
-                      backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                      flex: 0.5 
-                    }}>
-                      {itemIndex + 1}
-                    </Text>
-                    <Text style={{ 
-                      ...pdfStyles.tableCell,
-                      backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                      flex: 4 
-                    }}>
-                      {saleItem.product.name}
-                    </Text>
-                    <Text style={{ 
-                      ...pdfStyles.tableCell,
-                      backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                      flex: 1.5,
-                      textAlign: 'right' 
-                    }}>
-                      {`${saleItem.quantity} ${saleItem.measurement_unit.symbol}`}
-                    </Text>
-                    <Text style={{ 
-                      ...pdfStyles.tableCell,
-                      backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                      flex: 2,
-                      textAlign: 'right'  
-                    }}>
-                      {separateVAT 
-                        ? saleItem.rate.toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })
-                        : (saleItem.rate + (saleItem.product.vat_exempted 
-                            ? 0 
-                            : saleItem.rate * vat_percentage * 0.01
-                          )).toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })
+                {
+                  sale.items.map((saleItem,itemIndex) => (
+                    <View key={itemIndex} style={pdfStyles.tableRow}>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,flex:0.5 }}>{itemIndex+1}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,flex:4 }}>{saleItem.product.name}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign:'right' }}>{`${saleItem.quantity} ${saleItem.measurement_unit.symbol}`}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!separateVAT ? saleItem.rate.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}) : (saleItem.rate + (!!saleItem.product.vat_exempted ? 0 : saleItem.rate * vat_percentage * 0.01)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                      <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!separateVAT ? (saleItem.quantity*saleItem.rate).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}) : ((saleItem.quantity*saleItem.rate) + (!!saleItem.product.vat_exempted ? 0 : (saleItem.quantity*saleItem.rate)*vat_percentage*0.01)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                      {
+                        !!separateVAT && !!sale.vat_percentage &&
+                        <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{!!saleItem.product.vat_exempted ? 0 : (saleItem.quantity*saleItem.rate*vat_percentage*0.01).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                       }
-                    </Text>
-                    <Text style={{ 
-                      ...pdfStyles.tableCell,
-                      backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                      flex: 2,
-                      textAlign: 'right'  
-                    }}>
-                      {separateVAT 
-                        ? (saleItem.quantity * saleItem.rate).toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })
-                        : ((saleItem.quantity * saleItem.rate) + 
-                          (saleItem.product.vat_exempted 
-                            ? 0 
-                            : (saleItem.quantity * saleItem.rate) * vat_percentage * 0.01
-                          )).toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })
+                      {
+                        financePersonnel &&
+                        <React.Fragment>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{(saleItem.cost/saleItem.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{saleItem.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                          <Text style={{ ...pdfStyles.tableCell,backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign:'right'  }}>{((!!separateVAT ? (saleItem.quantity*saleItem.rate) : ((saleItem.quantity*saleItem.rate) + (!!saleItem.product.vat_exempted ? 0 : (saleItem.quantity*saleItem.rate)*vat_percentage*0.01))) - (saleItem.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                        </React.Fragment>
                       }
-                    </Text>
-                    {separateVAT && sale.vat_percentage && (
-                      <Text style={{ 
-                        ...pdfStyles.tableCell,
-                        backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                        flex: 2,
-                        textAlign: 'right'  
-                      }}>
-                        {saleItem.product.vat_exempted 
-                          ? 0 
-                          : (saleItem.quantity * saleItem.rate * vat_percentage * 0.01)
-                              .toLocaleString('en-US', {
-                                maximumFractionDigits: 2,
-                                minimumFractionDigits: 2
-                              })
-                        }
-                      </Text>
-                    )}
-                    {financePersonnel && (
-                      <>
-                        <Text style={{ 
-                          ...pdfStyles.tableCell,
-                          backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                          flex: 2,
-                          textAlign: 'right'  
-                        }}>
-                          {(saleItem.cost / saleItem.quantity).toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })}
-                        </Text>
-                        <Text style={{ 
-                          ...pdfStyles.tableCell,
-                          backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                          flex: 2,
-                          textAlign: 'right'  
-                        }}>
-                          {saleItem.cost.toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })}
-                        </Text>
-                        <Text style={{ 
-                          ...pdfStyles.tableCell,
-                          backgroundColor: itemIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                          flex: 2,
-                          textAlign: 'right'  
-                        }}>
-                          {((saleItem.quantity * saleItem.rate) - (saleItem.cost))
-                            .toLocaleString('en-US', {
-                              maximumFractionDigits: 2,
-                              minimumFractionDigits: 2
-                            })}
-                        </Text>
-                      </>
-                    )}
-                  </View>
-                ))}
+                    </View>
+                  ))
+                }
 
                 {/* Table Footer */}
                 <View style={pdfStyles.tableRow}>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 8.6, 
-                    textAlign: 'right' 
-                  }}>
-                    Total
-                  </Text>
-                  <Text style={{ 
-                    ...pdfStyles.tableHeader, 
-                    backgroundColor: mainColor, 
-                    color: contrastText, 
-                    flex: 2, 
-                    textAlign: 'right' 
-                  }}>
-                    {sale.items.reduce((total, currentItem) => 
-                      total + (
-                        separateVAT 
-                          ? (currentItem.quantity * currentItem.rate) 
-                          : (
-                              (currentItem.quantity * currentItem.rate) + 
-                              (currentItem.product.vat_exempted 
-                                ? 0 
-                                : (currentItem.quantity * currentItem.rate) * vat_percentage * 0.01
-                              )
-                            )
-                      ), 
-                      0
-                    ).toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2
-                    })}
-                  </Text>
-                  {separateVAT && vat_percentage && (
-                    <Text style={{ 
-                      ...pdfStyles.tableHeader, 
-                      backgroundColor: mainColor, 
-                      color: contrastText, 
-                      flex: 2, 
-                      textAlign: 'right' 
-                    }}>
-                      {sale.items.reduce((total, currentItem) => 
-                        total + (currentItem.product.vat_exempted 
-                          ? 0 
-                          : (currentItem.quantity * currentItem.rate * vat_percentage * 0.01)
-                        ), 0).toLocaleString('en-US', {
-                          maximumFractionDigits: 2,
-                          minimumFractionDigits: 2
-                        })
-                      }
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 8.6, textAlign: 'right' }}>Total</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>{sale.items.reduce((total, currentItem) => total + (!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                  {
+                    !!separateVAT && !!vat_percentage &&
+                    <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>
+                      {sale.items.reduce((total, currentItem) => total + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate*vat_percentage*0.01)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
                     </Text>
-                  )}
-                  {financePersonnel && (
-                    <>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2, 
-                        textAlign: 'right' 
-                      }}>
+                  }
+                  {
+                    financePersonnel &&
+                    <React.Fragment>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}></Text>
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>
+                        {sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}
                       </Text>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2, 
-                        textAlign: 'right' 
-                      }}>
-                        {sale.items.reduce((total, currentItem) => 
-                          total + currentItem.cost, 0).toLocaleString('en-US', {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 2
-                          })
-                        }
-                      </Text>
-                      <Text style={{ 
-                        ...pdfStyles.tableHeader, 
-                        backgroundColor: mainColor, 
-                        color: contrastText, 
-                        flex: 2, 
-                        textAlign: 'right' 
-                      }}>
-                        {sale.items.reduce((total, currentItem) => 
-                          total + ((currentItem.quantity * currentItem.rate) - (currentItem.cost)), 0)
-                            .toLocaleString('en-US', {
-                              maximumFractionDigits: 2,
-                              minimumFractionDigits: 2
-                            })
-                        }
-                      </Text>
-                    </>
-                  )}
+                      <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>{sale.items.reduce((total, currentItem) => total + (((!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01)))) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                    </React.Fragment>
+                  }
                 </View>
               </View>
             </React.Fragment>

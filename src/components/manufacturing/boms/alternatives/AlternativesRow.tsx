@@ -72,9 +72,9 @@ const AlternativeItemEditor: React.FC<{
   return (
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid size={{xs: 12, md: 5.5}}>
           <ProductSelect
-            key={`alt-product-select-${item.product?.id || 'empty'}`}
+            key={`alt-product-select-${item.product?.id || 'new'}`}
             label="Alternative Product"
             value={product}
             onChange={(newProduct: Product | null) => {
@@ -203,7 +203,7 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
         <Typography 
           variant="body2" 
           sx={{ 
-            fontWeight: 600,
+            fontWeight: 500,
             minWidth: 24,
             textAlign: 'center',
             color: 'text.secondary'
@@ -217,7 +217,7 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             width: '100%',
-            gap: 22
+            gap: 22,
           }}
         >
           <Typography 
@@ -228,7 +228,7 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               flex: 1,
-              mr: 2
+              mr: 1
             }}
           >
             {alternative.product?.name}
@@ -291,8 +291,6 @@ const AlternativeRow: React.FC<AlternativeRowProps> = ({
           gap: 1
         }}
       >
-        <CheckOutlined fontSize="small" />
-        Editing Alternative #{index + 1}
       </Typography>
       
       <AlternativeItemEditor

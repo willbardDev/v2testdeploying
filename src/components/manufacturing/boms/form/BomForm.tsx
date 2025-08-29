@@ -14,8 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab'; 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -23,12 +22,16 @@ import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
-import BomsItemForm from './BomItemForm';
-import BomItemRow from './BomItemRow';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { BOMPayload } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
+import BomItemRow from './BomItemRow';
+
+interface FormData {
+  output_quantity: number | null;
+  symbol?: string | null;
+}
 
 interface BomFormProps {
   open: boolean;
@@ -65,8 +68,10 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
-   const [formData, setFormData] = useState<{ output_quantity: number | null }>({
+
+  const [formData, setFormData] = useState<FormData>({
     output_quantity: null,
+    symbol: null,
   });
 
     const {
@@ -83,59 +88,94 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       product_id: undefined,
       quantity: 0,
       measurement_unit_id: undefined,
+      measurement_unit: undefined, 
+      symbol: null,        
       conversion_factor: 1,
       items: [],
+      alternatives: [],
     },
     mode: 'onChange',
   });
 
-  // Initialize form with bomData when available
-  useEffect(() => {
-    if (bomData) {
-      // Set output product
-      setOutputProduct(bomData.product || null);
-      
-      // Set output quantity
-      setFormData({ output_quantity: bomData.quantity || null });
-      
-      // Set items
-      setItems(bomData.items || []);
-      
-      // Set form values
-      reset({
-        product_id: bomData.product_id,
-        quantity: bomData.quantity || 0,
-        measurement_unit_id: bomData.measurement_unit_id || undefined,
-        conversion_factor: bomData.conversion_factor || 1,
-        items: bomData.items || [],
-      });
-    }
-  }, [bomData, reset]);
 
   useEffect(() => {
+  if (bomData) {
+    const symbol = bomData.measurement_unit?.symbol 
+                || bomData.measurement_unit?.symbol 
+                || bomData.symbol 
+                || '';
+
+    setOutputProduct(bomData.product || null);
+
+    // 👇 Update formData properly
+    setFormData({ 
+  output_quantity: bomData.quantity || null,
+  symbol: bomData.symbol || null 
+});
+
+    setItems(
+      (bomData.items || []).map((item) => ({
+        ...item,
+        symbol: item.measurement_unit?.symbol || item.symbol || '',
+        alternatives: (item.alternatives || []).map((alt) => ({
+          ...alt,
+          symbol: alt.measurement_unit?.symbol || alt.symbol || ''
+        }))
+      }))
+    );
+
+    reset({
+      product_id: bomData.product_id ?? bomData.product?.id,
+      quantity: bomData.quantity ?? 0,
+      measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
+      measurement_unit: bomData.measurement_unit,
+      symbol: symbol,
+      conversion_factor: bomData.conversion_factor ?? bomData.product?.primary_unit?.conversion_factor ?? 1,
+      items: bomData.items ?? [],
+      alternatives: bomData.alternatives ?? [],
+    });
+  }
+}, [bomData, reset]);
+
+
+
+ // Replace the problematic useEffect with this:
+useEffect(() => {
+  // Only update form value if items actually changed
+  if (JSON.stringify(prevItemsRef.current) !== JSON.stringify(items)) {
     setValue('items', items, { shouldValidate: false });
-  }, [items, setValue]);
+    prevItemsRef.current = items;
+  }
+}, [items, setValue]);
 
-  useEffect(() => {
-    if (isSubmitted) {
-      trigger('items');
-    }
-  }, [items, isSubmitted, trigger]);
+// Add this near your state declarations
+const prevItemsRef = useRef<any[]>([]);
+
+ const validateItems = useCallback(() => {
+  if (isSubmitted) {
+    trigger('items');
+  }
+}, [isSubmitted, trigger]);
 
   const handleReset = () => {
-    setItems([]);
-    setOutputProduct(null);
-    setClearFormKey((prev) => prev + 1);
-    setFormData({ output_quantity: null });
-    reset({
-      product_id: undefined,
-      quantity: 0,
-      measurement_unit_id: undefined,
-      conversion_factor: 1,
-      items: [],
-    });
-    setSubmitItemForm(false);
-  };
+  setItems([]);
+  setOutputProduct(null);
+  setClearFormKey((prev) => prev + 1);
+  setFormData({output_quantity: null });
+
+  reset({
+    product_id: undefined,
+    quantity:0,
+    measurement_unit_id: undefined,
+    measurement_unit: undefined,
+    symbol: null,
+    conversion_factor: 1,
+    items: [],
+    alternatives: [],
+  });
+
+  setSubmitItemForm(false);
+};
 
   const handleClose = () => {
     handleReset();
@@ -176,48 +216,51 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   });
 
   const onSubmit = async (data: BOMPayload) => {
-    if (!outputProduct?.id) {
-      enqueueSnackbar('Output product is required', { variant: 'error' });
-      return;
-    }
+  if (!outputProduct?.id) {
+    enqueueSnackbar('Output product is required', { variant: 'error' });
+    return;
+  }
 
-    if (items.length === 0) {
-      enqueueSnackbar('Please add at least one item', { variant: 'error' });
-      return;
-    }
+  if (items.length === 0) {
+    enqueueSnackbar('Please add at least one item', { variant: 'error' });
+    return;
+  }
 
-    const payload: BOMPayload = {
-      product_id: Number(outputProduct.id),
-      quantity: Number(data.quantity),
-      measurement_unit_id: Number(data.measurement_unit_id),
-      conversion_factor: Number(data.conversion_factor),
-      items: items.map((item) => ({
-        product_id: Number(item.product?.id || item.product_id),
-        quantity: Number(item.quantity),
-        measurement_unit_id: Number(item.measurement_unit_id),
-        conversion_factor: Number(item.conversion_factor) || 1,
-        alternatives: item.alternatives?.map((alt: any) => ({
-          product_id: Number(alt.product?.id || alt.product_id),
-          quantity: Number(alt.quantity),
-          measurement_unit_id: Number(alt.measurement_unit_id),
-          conversion_factor: Number(alt.conversion_factor) || 1
-        })) || []
-      }))
-    };
-
-    try {
-      setIsSubmitting(true);
-      if (bomId) {
-        await updateBomMutation.mutateAsync({ id: bomId, bom: payload });
-      } else {
-        await addBomMutation.mutateAsync(payload);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const payload: BOMPayload = {
+    product_id: Number(outputProduct.id),
+    quantity: Number(data.quantity),
+    measurement_unit_id: Number(data.measurement_unit_id),
+    symbol: String(data.symbol), 
+    conversion_factor: Number(data.conversion_factor),
+    items: items.map((item) => ({
+      product_id: Number(item.product?.id || item.product_id),
+      quantity: Number(item.quantity),
+      measurement_unit_id: Number(item.measurement_unit_id),
+      conversion_factor: Number(item.conversion_factor) || 1,
+      symbol: item.unit_symbol || item.symbol || '', 
+      alternatives: item.alternatives?.map((alt: any) => ({
+        product_id: Number(alt.product?.id || alt.product_id),
+        quantity: Number(alt.quantity),
+        measurement_unit_id: Number(alt.measurement_unit_id),
+        conversion_factor: Number(alt.conversion_factor) || 1,
+        symbol: alt.unit_symbol || alt.symbol || '', 
+      })) || []
+    }))
   };
+
+  try {
+    setIsSubmitting(true);
+    if (bomId) {
+      await updateBomMutation.mutateAsync({ id: bomId, bom: payload });
+    } else {
+      await addBomMutation.mutateAsync(payload);
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (isLoading) {
     return (
@@ -247,7 +290,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       fullWidth
     >
       <DialogTitle component="div"> <Typography variant="h4" component="h2" textAlign="center" mb={2}>
-          {!bomId ? 'New Bill of Material' : `Edit BOM #${bomId}`}
+          {!bomId ? 'New Bill of Material' : `Edit ${bomData?.bomNo ?? ''}`}
         </Typography>
       </DialogTitle>
 
@@ -255,30 +298,36 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
         {/* Top Fields */}
         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
           <Grid size={{ xs: 12, md: 8 }}>
-            <ProductSelect
-              label="Output Product"
-              frontError={errors.product_id}
-              value={outputProduct}
-              onChange={(newValue: Product | null) => {
-                if (newValue) {
-                  const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                  const unitSymbol = newValue.primary_unit?.unit_symbol ?? newValue.measurement_unit?.unit_symbol ?? '';
-                  
-                  setOutputProduct(newValue);
-                  setValue('product_id', newValue.id);
-                  setValue('measurement_unit_id', unitId);
-                  setValue('conversion_factor', newValue.primary_unit?.conversion_factor ?? 1);
-                } else {
-                  setOutputProduct(null);
-                  setValue('product_id', 0);
-                  setValue('measurement_unit_id', undefined);
-                  setValue('conversion_factor', 1);
-                }
-              }}
-              sx={{
-                '& .MuiInputBase-root': { paddingRight: '8px' },
-              }}
-            />
+           <ProductSelect
+            label="Output Product"
+            frontError={errors.product_id}
+            value={outputProduct}
+            onChange={(newValue: Product | null) => {
+              if (newValue) {
+                const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
+                const conversionFactor = unitObj?.conversion_factor ?? 1;
+                
+                setOutputProduct(newValue);
+                setValue('product_id', newValue.id);
+                setValue('measurement_unit_id', unitId ?? undefined);
+                setValue('measurement_unit', null);
+                setValue('conversion_factor', conversionFactor);
+              } else {
+                setOutputProduct(null);
+                reset({
+                  product_id: undefined,
+                  quantity: 0,
+                  measurement_unit_id: undefined,
+                  measurement_unit: undefined,
+                  symbol: undefined,
+                  conversion_factor: 1,
+                  items: [],
+                  alternatives: [],
+                });
+              }
+            }}
+          />
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
@@ -299,52 +348,40 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
             helperText={errors.quantity?.message as string}
             InputProps={{
               inputComponent: CommaSeparatedField,
-              endAdornment: outputProduct ? (
-                <FormControl 
-                  variant="standard" 
-                  sx={{ 
-                    minWidth: 80,
-                    ml: 1 
-                  }}
-                >
-                  <Select
-                    value={watch('measurement_unit_id') ?? ''}
-                    onChange={(e) => {
-                      const selectedUnitId = e.target.value as number;
-                      setValue('measurement_unit_id', selectedUnitId);
-                      
-                      // Find the selected unit and update conversion factor
-                      const combinedUnits = [
-                        ...(outputProduct?.secondary_units || []),
-                        ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                      ];
-                      const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                      
-                      if (selectedUnit) {
-                        setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                      }
-                    }}
-                    size="small"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 300,
-                          borderRadius: 1
-                        }
-                      }
-                    }}
-                  >
-                    {[
-                      ...(outputProduct?.secondary_units || []),
-                      ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                    ].map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.unit_symbol}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : null
+             endAdornment: outputProduct ? (
+  <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+    <Select
+      value={watch('measurement_unit_id') ?? ''}
+      onChange={(e) => {
+        const selectedUnitId = e.target.value as number;
+        setValue('measurement_unit_id', selectedUnitId);
+        
+        const combinedUnits = [
+          ...(outputProduct?.secondary_units || []),
+          ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
+        ];
+        const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
+        
+        if (selectedUnit) {
+          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+          setValue('symbol', selectedUnit.unit_symbol ?? '');
+          // update pia formData ili icon symbol ibaki visible
+          setFormData(prev => ({ ...prev, symbol: selectedUnit.unit_symbol ?? '' }));
+        }
+      }}
+      size="small"
+    >
+      {[...(outputProduct?.secondary_units || []),
+        ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
+      ].map((unit) => (
+        <MenuItem key={unit.id} value={unit.id}>
+          {unit.unit_symbol}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+) : null
+
             }}
             sx={{
               '& input[type=number]': {
@@ -420,7 +457,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {bomId ? 'Update' : 'Submit'}
+          {bomId ? 'Submit' : 'Submit'}
         </Button>
       </DialogActions>
     </Dialog>

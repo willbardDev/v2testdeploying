@@ -1,30 +1,43 @@
 import { Product } from "@/components/productAndServices/products/ProductType";
 
+export interface MeasurementUnit {
+  id: number;
+  name: string;
+  symbol?: string | undefined | null; 
+  conversion_factor?: number;
+}
+
 export interface BOM {
   id: number;
   product?: Product | null;
-  product_id: number;
-  quantity: number;
+  product_id: number | undefined;
+  quantity: number | null;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?: string | null ;
   items: BOMItem[];
-  alternatives?: BOMItem[]
+  alternatives?: BOMItem[];
+  bomNo?: string;
 }
 
+
 export interface BomsFormValues {
-  output_product_id?: number;
+  output_product_id?: number | null;
   output_quantity?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol:string | null;
   items: BomItem[];
   alternatives?: BOMItem[]
 }
 
 export interface BomAlternative {
-  product_id?: number;
+  product_id?: number | undefined;
   quantity: number;
 }
 
 export interface BomItem {
-  product_id?: number;
+  product_id?: number | undefined;
   quantity?: number;
   measurement_unit_id?: number;
   conversion_factor?: number;
@@ -51,19 +64,29 @@ export interface PaginatedBOMResponse {
 }
 
 export interface BOMItem {
-  [x: string]: any;
-  product_id: number | null;
+  id?: number;
+  product?: Product | null;
+  bom_id?: number;
+  product_id: number | undefined;
   quantity: number | null;
   measurement_unit_id: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?:string | null;
   conversion_factor: number;
   alternatives?: BOMItem[]
+  unit_symbol?: string | null;
 }
 
 export interface BOMPayload {
-  product_id: number;
+  id?:number;
+  product_id: number | undefined;
   quantity: number;
+  measurement_unit?: MeasurementUnit | null;
   measurement_unit_id?: number | null;
+  symbol?:string | null|undefined;
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]
+  bomNo?: string;
 }
+

@@ -6,7 +6,7 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
-import projectServices from './project-services';
+import projectsServices from './project-services';
 import { Project } from './ProjectTypes';
 
 const ProjectListItemAction = ({ project }: { project: Project }) => {
@@ -15,7 +15,7 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
     const queryClient = useQueryClient();
 
     const { mutate: deleteProject } = useMutation({
-   mutationFn: (params: { id: number }) => projectServices.delete(params),
+   mutationFn: (params: { id: number }) => projectsServices.delete(params),
     onSuccess: (data: { message: string }) => {
     enqueueSnackbar(data.message, { variant: 'success' });
     queryClient.invalidateQueries({ queryKey: ['projects'] });
