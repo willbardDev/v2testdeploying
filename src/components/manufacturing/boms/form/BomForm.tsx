@@ -23,376 +23,372 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
-import { BOMPayload } from '../BomType';
+import { BOMPayload, BOMItem } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
 
-    interface FormData {
-      output_quantity: number | null;
-      symbol?: string | null;
-    }
+interface FormData {
+  output_quantity: number | null;
+  symbol?: string | null;
+}
 
-    interface BomFormProps {
-      open: boolean;
-      toggleOpen: (open: boolean) => void;
-      bomId?: number;
-      onSuccess?: () => void;
-    }
+interface BomFormProps {
+  open: boolean;
+  toggleOpen: (open: boolean) => void;
+  bomId?: number;
+  onSuccess?: () => void;
+}
 
-    const schema = yup.object().shape({
+const schema = yup.object().shape({
+  product_id: yup.number().required().positive(),
+  quantity: yup.number().required().min(0),
+  measurement_unit_id: yup.number().required().positive(),
+  conversion_factor: yup.number().required().min(1),
+  items: yup.array().of(
+    yup.object().shape({
       product_id: yup.number().required().positive(),
       quantity: yup.number().required().min(0),
       measurement_unit_id: yup.number().required().positive(),
       conversion_factor: yup.number().required().min(1),
-      items: yup.array().of(
-            yup.object().shape({
-            product_id: yup.number().required().positive(),
-            quantity: yup.number().required().min(0),
-            measurement_unit_id: yup.number().required().positive(),
-            conversion_factor: yup.number().required().min(1),
-        })
-      ),
-    });
+    })
+  ),
+});
 
-    function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
-      const { enqueueSnackbar } = useSnackbar();
-      const queryClient = useQueryClient();
-      const { data: bomData, isLoading, isError } = useQuery({
-          queryKey: ['bom', bomId],
-          queryFn: () => bomsServices.show(bomId!),
-          enabled: !!bomId && open,
-        });
-      const [items, setItems] = useState<any[]>([])
-      const [outputProduct, setOutputProduct] = useState<Product | null>(null);
-      const [isSubmitting, setIsSubmitting] = useState(false);
-      const [submitItemForm, setSubmitItemForm] = useState(false);
-      const [clearFormKey, setClearFormKey] = useState(0);
+function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+  const { data: bomData, isLoading, isError } = useQuery({
+    queryKey: ['bom', bomId],
+    queryFn: () => bomsServices.show(bomId!),
+    enabled: !!bomId && open,
+  });
+  const [items, setItems] = useState<BOMItem[]>([]);
+  const [outputProduct, setOutputProduct] = useState<Product | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [clearFormKey, setClearFormKey] = useState(0);
+  const [formData, setFormData] = useState<FormData>({
+    output_quantity: null,
+    symbol: null,
+  });
 
-      const [formData, setFormData] = useState<FormData>({
-        output_quantity: null,
-        symbol: null,
-      });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors, isSubmitted },
+    trigger,
+  } = useForm<BOMPayload>({
+    resolver: yupResolver(schema) as any,
+    defaultValues: {
+      product_id: undefined,
+      quantity: 0,
+      measurement_unit_id: undefined,
+      measurement_unit: undefined,
+      symbol: null,
+      conversion_factor: 1,
+      items: [],
+      alternatives: [],
+    },
+    mode: 'onChange',
+  });
 
-        const {
-        register,
-        handleSubmit,
-        setValue,
-        reset,
-        watch,
-        formState: { errors, isSubmitted },
-        trigger,
-      } = useForm<BOMPayload>({
-        resolver: yupResolver(schema) as any,
-        defaultValues: {
-          product_id: undefined,
-          quantity: 0,
-          measurement_unit_id: undefined,
-          measurement_unit: undefined, 
-          symbol: null,        
-          conversion_factor: 1,
-          items: [],
-          alternatives: [],
-        },
-        mode: 'onChange',
-      });
+  // Add this near your state declarations
+  const prevItemsRef = useRef<any[]>([]);
 
-      useEffect(() => {
-      if (bomData) {
-        const symbol = bomData.measurement_unit?.symbol 
-                    || bomData.measurement_unit?.symbol 
-                    || bomData.symbol 
-                    || '';
+  // Helper function to get combined units from a product
+  const getCombinedUnits = (product: Product | null) => {
+    if (!product) return [];
+    return [
+      ...(product.secondary_units || []),
+      ...(product.primary_unit ? [product.primary_unit] : [])
+    ];
+  };
 
-        setOutputProduct(bomData.product || null);
+  useEffect(() => {
+    if (bomData) {
+      const symbol = bomData.measurement_unit?.symbol || bomData.symbol || '';
+      const combinedUnits = getCombinedUnits(bomData.product || null);
+      const selectedUnit = combinedUnits.find(unit => 
+        unit.id === (bomData.measurement_unit_id || bomData.measurement_unit?.id)
+      );
 
-        // 👇 Update formData properly
-        setFormData({ 
+      setOutputProduct(bomData.product || null);
+      setFormData({ 
         output_quantity: bomData.quantity || null,
-        symbol: bomData.symbol || null 
-    });
+        symbol: symbol
+      });
 
-        setItems(
-          (bomData.items || []).map((item) => ({
-            ...item,
-            symbol: item.measurement_unit?.symbol || item.symbol || '',
-            alternatives: (item.alternatives || []).map((alt) => ({
-              ...alt,
-              symbol: alt.measurement_unit?.symbol || alt.symbol || ''
-            }))
+      setItems(
+        (bomData.items || []).map((item) => ({
+          ...item,
+          symbol: item.measurement_unit?.symbol || item.symbol || '',
+          alternatives: (item.alternatives || []).map((alt) => ({
+            ...alt,
+            symbol: alt.measurement_unit?.symbol || alt.symbol || ''
           }))
-        );
-
-        reset({
-          product_id: bomData.product_id ?? bomData.product?.id,
-          quantity: bomData.quantity ?? 0,
-          measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
-          measurement_unit: bomData.measurement_unit,
-          symbol: symbol,
-          conversion_factor: bomData.conversion_factor ?? bomData.product?.primary_unit?.conversion_factor ?? 1,
-          items: bomData.items ?? [],
-          alternatives: bomData.alternatives ?? [],
-        });
-      }
-    }, [bomData, reset]);
-
-    useEffect(() => {
-      // Only update form value if items actually changed
-      if (JSON.stringify(prevItemsRef.current) !== JSON.stringify(items)) {
-        setValue('items', items, { shouldValidate: false });
-        prevItemsRef.current = items;
-      }
-    }, [items, setValue]);
-
-    // Add this near your state declarations
-    const prevItemsRef = useRef<any[]>([]);
-
-    const validateItems = useCallback(() => {
-      if (isSubmitted) {
-        trigger('items');
-      }
-    }, [isSubmitted, trigger]);
-
-      const handleReset = () => {
-      setItems([]);
-      setOutputProduct(null);
-      setClearFormKey((prev) => prev + 1);
-      setFormData({output_quantity: null });
+        }))
+      );
 
       reset({
-        product_id: undefined,
-        quantity:0,
-        measurement_unit_id: undefined,
-        measurement_unit: undefined,
-        symbol: null,
-        conversion_factor: 1,
-        items: [],
-        alternatives: [],
+        product_id: bomData.product_id ?? bomData.product?.id,
+        quantity: bomData.quantity ?? 0,
+        measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
+        measurement_unit: bomData.measurement_unit,
+        symbol: symbol,
+        conversion_factor: selectedUnit?.conversion_factor ?? bomData.conversion_factor ?? 1,
+        items: bomData.items ?? [],
+        alternatives: bomData.alternatives ?? [],
       });
+    }
+  }, [bomData, reset]);
 
-      setSubmitItemForm(false);
+  useEffect(() => {
+    // Only update form value if items actually changed
+    if (JSON.stringify(prevItemsRef.current) !== JSON.stringify(items)) {
+      setValue('items', items, { shouldValidate: false });
+      prevItemsRef.current = items;
+    }
+  }, [items, setValue]);
+
+  const validateItems = useCallback(() => {
+    if (isSubmitted) {
+      trigger('items');
+    }
+  }, [isSubmitted, trigger]);
+
+  const handleReset = () => {
+    setItems([]);
+    setOutputProduct(null);
+    setClearFormKey((prev) => prev + 1);
+    setFormData({ output_quantity: null });
+
+    reset({
+      product_id: undefined,
+      quantity: 0,
+      measurement_unit_id: undefined,
+      measurement_unit: undefined,
+      symbol: null,
+      conversion_factor: 1,
+      items: [],
+      alternatives: [],
+    });
+
+    setSubmitItemForm(false);
+  };
+
+  const handleClose = () => {
+    handleReset();
+    toggleOpen(false);
+  };
+
+  const addBomMutation = useMutation({
+    mutationFn: bomsServices.add,
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      handleClose();
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to create BOM',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const updateBomMutation = useMutation({
+    mutationFn: ({ id, bom }: { id: number; bom: BOMPayload }) =>
+      bomsServices.update(id, bom),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      handleClose();
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to update BOM',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const onSubmit = async (data: BOMPayload) => {
+    if (!outputProduct?.id) {
+      enqueueSnackbar('Output product is required', { variant: 'error' });
+      return;
+    }
+
+    if (items.length === 0) {
+      enqueueSnackbar('Please add at least one item', { variant: 'error' });
+      return;
+    }
+
+    const payload: BOMPayload = {
+      product_id: Number(outputProduct.id),
+      quantity: Number(data.quantity),
+      measurement_unit_id: Number(data.measurement_unit_id),
+      symbol: String(data.symbol),
+      conversion_factor: Number(data.conversion_factor),
+      items: items.map((item) => ({
+        product_id: Number(item.product?.id || item.product_id),
+        quantity: Number(item.quantity),
+        measurement_unit_id: Number(item.measurement_unit_id),
+        conversion_factor: Number(item.conversion_factor) || 1,
+        symbol: item.unit_symbol || item.symbol || '',
+        alternatives: item.alternatives?.map((alt: any) => ({
+          product_id: Number(alt.product?.id || alt.product_id),
+          quantity: Number(alt.quantity),
+          measurement_unit_id: Number(alt.measurement_unit_id),
+          conversion_factor: Number(alt.conversion_factor) || 1,
+          symbol: alt.unit_symbol || alt.symbol || '',
+        })) || []
+      }))
     };
 
-        const handleClose = () => {
-        handleReset();
-        toggleOpen(false);
-      };
-
-        const addBomMutation = useMutation({
-        mutationFn: bomsServices.add,
-        onSuccess: (data) => {
-          enqueueSnackbar(data.message, { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['boms'] });
-          handleClose();
-          onSuccess?.();
-        },
-        onError: (error: any) => {
-          enqueueSnackbar(
-            error?.response?.data?.message || 'Failed to create BOM',
-            { variant: 'error' }
-          );
-        },
-      });
-
-        const updateBomMutation = useMutation({
-        mutationFn: ({ id, bom }: { id: number; bom: BOMPayload }) =>
-          bomsServices.update(id, bom),
-          onSuccess: (data) => {
-          enqueueSnackbar(data.message, { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['boms'] });
-          handleClose();
-          onSuccess?.();
-        },
-        onError: (error: any) => {
-          enqueueSnackbar(
-            error?.response?.data?.message || 'Failed to update BOM',
-            { variant: 'error' }
-          );
-        },
-      });
-
-      const onSubmit = async (data: BOMPayload) => {
-      if (!outputProduct?.id) {
-        enqueueSnackbar('Output product is required', { variant: 'error' });
-        return;
+    try {
+      setIsSubmitting(true);
+      if (bomId) {
+        await updateBomMutation.mutateAsync({ id: bomId, bom: payload });
+      } else {
+        await addBomMutation.mutateAsync(payload);
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-      if (items.length === 0) {
-        enqueueSnackbar('Please add at least one item', { variant: 'error' });
-        return;
-      }
+  if (isLoading) {
+    return (
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogContent>
+          <Typography>Loading BOM data...</Typography>
+          <LinearProgress />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-      const payload: BOMPayload = {
-        product_id: Number(outputProduct.id),
-        quantity: Number(data.quantity),
-        measurement_unit_id: Number(data.measurement_unit_id),
-        symbol: String(data.symbol), 
-        conversion_factor: Number(data.conversion_factor),
-        items: items.map((item) => ({
-          product_id: Number(item.product?.id || item.product_id),
-          quantity: Number(item.quantity),
-          measurement_unit_id: Number(item.measurement_unit_id),
-          conversion_factor: Number(item.conversion_factor) || 1,
-          symbol: item.unit_symbol || item.symbol || '', 
-          alternatives: item.alternatives?.map((alt: any) => ({
-            product_id: Number(alt.product?.id || alt.product_id),
-            quantity: Number(alt.quantity),
-            measurement_unit_id: Number(alt.measurement_unit_id),
-            conversion_factor: Number(alt.conversion_factor) || 1,
-            symbol: alt.unit_symbol || alt.symbol || '', 
-          })) || []
-        }))
-      };
+  if (isError) {
+    return (
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogContent>
+          <Alert severity="error">Error loading BOM data</Alert>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-      try {
-        setIsSubmitting(true);
-        if (bomId) {
-          await updateBomMutation.mutateAsync({ id: bomId, bom: payload });
-        } else {
-          await addBomMutation.mutateAsync(payload);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-      if (isLoading) {
-        return (
-          <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-            <DialogContent>
-              <Typography>Loading BOM data...</Typography>
-              <LinearProgress />
-            </DialogContent>
-          </Dialog>
-        );
-      }
-
-      if (isError) {
-        return (
-          <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-            <DialogContent>
-              <Alert severity="error">Error loading BOM data</Alert>
-            </DialogContent>
-          </Dialog>
-        );
-      }
-      
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="md"
-      fullWidth
-    >
-      <DialogTitle component="div"> <Typography variant="h4" component="h2" textAlign="center" mb={2}>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <DialogTitle component="div">
+        <Typography variant="h4" component="h2" textAlign="center" mb={2}>
           {!bomId ? 'New Bill of Material' : `Edit ${bomData?.bomNo ?? ''}`}
         </Typography>
       </DialogTitle>
 
       <DialogContent>
-        {/* Top Fields */}
         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
           <Grid size={{ xs: 12, md: 8 }}>
-           <ProductSelect
-            label="Output Product"
-            frontError={errors.product_id}
-            value={outputProduct}
-            onChange={(newValue: Product | null) => {
-              if (newValue) {
-                const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
-                const conversionFactor = unitObj?.conversion_factor ?? 1;
-                
-                setOutputProduct(newValue);
-                setValue('product_id', newValue.id);
-                setValue('measurement_unit_id', unitId ?? undefined);
-                setValue('measurement_unit', null);
-                setValue('conversion_factor', conversionFactor);
-              } else {
-                setOutputProduct(null);
-                reset({
-                  product_id: undefined,
-                  quantity: 0,
-                  measurement_unit_id: undefined,
-                  measurement_unit: undefined,
-                  symbol: undefined,
-                  conversion_factor: 1,
-                  items: [],
-                  alternatives: [],
-                });
-              }
-            }}
-          />
+            <ProductSelect
+              label="Output Product"
+              frontError={errors.product_id}
+              value={outputProduct}
+              onChange={(newValue: Product | null) => {
+                if (newValue) {
+                  const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                  const unitObj = (newValue.primary_unit ?? newValue.measurement_unit) as any;
+                  const conversionFactor = unitObj?.conversion_factor ?? 1;
+                  
+                  setOutputProduct(newValue);
+                  setValue('product_id', newValue.id);
+                  setValue('measurement_unit_id', unitId ?? undefined);
+                  setValue('measurement_unit', null);
+                  setValue('conversion_factor', conversionFactor);
+                } else {
+                  setOutputProduct(null);
+                  reset({
+                    product_id: undefined,
+                    quantity: 0,
+                    measurement_unit_id: undefined,
+                    measurement_unit: undefined,
+                    symbol: undefined,
+                    conversion_factor: 1,
+                    items: [],
+                    alternatives: [],
+                  });
+                }
+              }}
+            />
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-           <TextField
-            label="Quantity"
-            size="small"
-            fullWidth
-            value={formData.output_quantity ?? ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormData((prev) => ({
-                ...prev,
-                output_quantity: value === '' ? null : Number(value),
-              }));
-              setValue('quantity', value === '' ? 0 : Number(value));
-            }}
-            error={!!errors.quantity}
-            helperText={errors.quantity?.message as string}
-            InputProps={{
-              inputComponent: CommaSeparatedField,
-             endAdornment: outputProduct ? (
-              <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                <Select
-                  value={watch('measurement_unit_id') ?? ''}
-                  onChange={(e) => {
-                    const selectedUnitId = e.target.value as number;
-                    setValue('measurement_unit_id', selectedUnitId);
-                    
-                    const combinedUnits = [
-                      ...(outputProduct?.secondary_units || []),
-                      ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                    ];
-                    const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-                    
-                    if (selectedUnit) {
-                      setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
-                      setValue('symbol', selectedUnit.unit_symbol ?? '');
-                      // update pia formData ili icon symbol ibaki visible
-                      setFormData(prev => ({ ...prev, symbol: selectedUnit.unit_symbol ?? '' }));
-                    }
-                  }}
-                  size="small"
-                >
-                  {[...(outputProduct?.secondary_units || []),
-                    ...(outputProduct?.primary_unit ? [outputProduct.primary_unit] : [])
-                  ].map((unit) => (
-                    <MenuItem key={unit.id} value={unit.id}>
-                      {unit.unit_symbol}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            ) : null
-            }}
-            sx={{
-              '& input[type=number]': {
-                MozAppearance: 'textfield',
-              },
-              '& input[type=number]::-webkit-outer-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-              '& input[type=number]::-webkit-inner-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-            }}
-          />
+            <TextField
+              label="Quantity"
+              size="small"
+              fullWidth
+              value={formData.output_quantity ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData((prev) => ({
+                  ...prev,
+                  output_quantity: value === '' ? null : Number(value),
+                }));
+                setValue('quantity', value === '' ? 0 : Number(value));
+              }}
+              error={!!errors.quantity}
+              helperText={errors.quantity?.message as string}
+              InputProps={{
+                inputComponent: CommaSeparatedField,
+                endAdornment: outputProduct ? (
+                  <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                    <Select
+                      value={watch('measurement_unit_id') ?? ''}
+                      onChange={(e) => {
+                        const selectedUnitId = e.target.value as number;
+                        setValue('measurement_unit_id', selectedUnitId);
+                        
+                        const combinedUnits = getCombinedUnits(outputProduct);
+                        const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
+                        
+                        if (selectedUnit) {
+                          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+                          setValue('symbol', selectedUnit.unit_symbol ?? '');
+                          setFormData(prev => ({ ...prev, symbol: selectedUnit.unit_symbol ?? '' }));
+                        }
+                      }}
+                      size="small"
+                    >
+                      {getCombinedUnits(outputProduct).map((unit) => (
+                        <MenuItem key={unit.id} value={unit.id}>
+                          {unit.unit_symbol}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                ) : null
+              }}
+              sx={{
+                '& input[type=number]': {
+                  MozAppearance: 'textfield',
+                },
+                '& input[type=number]::-webkit-outer-spin-button': {
+                  WebkitAppearance: 'none',
+                  margin: 0,
+                },
+                '& input[type=number]::-webkit-inner-spin-button': {
+                  WebkitAppearance: 'none',
+                  margin: 0,
+                },
+              }}
+            />
           </Grid>
         </Grid>
 
@@ -453,7 +449,7 @@ import BomItemRow from './BomItemRow';
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {bomId ? 'Submit' : 'Submit'}
+          {bomId ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
