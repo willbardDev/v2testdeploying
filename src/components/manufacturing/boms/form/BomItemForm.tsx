@@ -81,21 +81,21 @@ import { BOMItem } from '../BomType';
       const [isAdding, setIsAdding] = useState(false);
 
       const { register, handleSubmit, watch, reset, setValue, control, formState: { errors } } = useForm<FormValues>({
-  resolver: yupResolver(validationSchema) as any,
-  defaultValues: {
-    product: item?.product ?? null,
-    product_id: item?.product_id ?? item?.product?.id ?? null,
-    quantity: item?.quantity ?? null,
-    measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
-    measurement_unit: item?.measurement_unit ?? null,
-    symbol: item?.measurement_unit?.symbol ?? item?.symbol ?? null,
-    conversion_factor: item?.conversion_factor 
-      ?? item?.measurement_unit?.conversion_factor 
-      ?? item?.product?.primary_unit?.conversion_factor 
-      ?? 1,
-  },
-  mode: 'onChange',
-});
+      resolver: yupResolver(validationSchema) as any,
+      defaultValues: {
+        product: item?.product ?? null,
+        product_id: item?.product_id ?? item?.product?.id ?? null,
+        quantity: item?.quantity ?? null,
+        measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
+        measurement_unit: item?.measurement_unit ?? null,
+        symbol: item?.measurement_unit?.symbol ?? item?.symbol ?? null,
+        conversion_factor: item?.conversion_factor 
+          ?? item?.measurement_unit?.conversion_factor 
+          ?? item?.product?.primary_unit?.conversion_factor 
+          ?? 1,
+      },
+      mode: 'onChange',
+    });
 
 const product = watch('product') as Product | undefined;
 const combinedUnits: MeasurementUnit[] = [

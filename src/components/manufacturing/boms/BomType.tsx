@@ -1,11 +1,5 @@
+import { MeasurementUnit } from "@/components/masters/measurementUnits/MeasurementUnitType";
 import { Product } from "@/components/productAndServices/products/ProductType";
-
-export interface MeasurementUnit {
-  id: number;
-  name: string;
-  symbol?: string | null; 
-  conversion_factor?: number;
-}
 
 export interface BOM {
   id: number;
