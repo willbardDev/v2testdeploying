@@ -181,16 +181,14 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
   const [expanded, setExpanded] = React.useState(false);
   const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
 
+  // ✅ Use useEffect to sync alternatives with parent items
   React.useEffect(() => {
-    const newAlts = item.alternatives || [];
-    const same =
-      alternatives.length === newAlts.length &&
-      alternatives.every((alt, i) => alt.id === newAlts[i]?.id);
-
-    if (!same) {
-      setAlternatives(newAlts);
-    }
-  }, [item.alternatives]);
+    setItems((prevItems) => {
+      const updated = [...prevItems];
+      updated[index] = { ...updated[index], alternatives };
+      return updated;
+    });
+  }, [alternatives, setItems, index]);
 
   const handleRemove = React.useCallback(() => {
     setItems(items.filter((_, i) => i !== index));
@@ -228,28 +226,13 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
           showAlternatives={true}
         >
           {/* Integrate AlternativesForm here */}
-          <AlternativesForm
-              item={item}
-              alternatives={alternatives}
-              setAlternatives={(updater) => {
-                // updater can be array or function
-                setAlternatives((prev) => {
-                  const newAlts =
-                    typeof updater === 'function' ? updater(prev) : updater;
-
-                  // sync with parent items
-                  setItems((prevItems) => {
-                    const updated = [...prevItems];
-                    updated[index] = { ...updated[index], alternatives: newAlts };
-                    return updated;
-                  });
-
-                  return newAlts;
-                });
-              }}
-              onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
-              isEditing={editingAlternativeIndex !== null}
-            />
+           <AlternativesForm
+            item={item}
+            alternatives={alternatives}
+            setAlternatives={setAlternatives} // ✅ Just pass setter directly
+            onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
+            isEditing={editingAlternativeIndex !== null}
+          />
         </BomFormItemEditor>
       ) : (
         <Accordion 
@@ -390,25 +373,10 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
 
           <AccordionDetails sx={{ pt: 1, pb: 2 }}>
             {/* Alternatives inside accordion details */}
-            <AlternativesForm
+             <AlternativesForm
               item={item}
               alternatives={alternatives}
-              setAlternatives={(updater) => {
-                // updater can be array or function
-                setAlternatives((prev) => {
-                  const newAlts =
-                    typeof updater === 'function' ? updater(prev) : updater;
-
-                  // sync with parent items
-                  setItems((prevItems) => {
-                    const updated = [...prevItems];
-                    updated[index] = { ...updated[index], alternatives: newAlts };
-                    return updated;
-                  });
-
-                  return newAlts;
-                });
-              }}
+              setAlternatives={setAlternatives} // ✅ Just pass setter directly
               onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
               isEditing={editingAlternativeIndex !== null}
             />

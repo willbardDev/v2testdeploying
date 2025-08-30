@@ -3,15 +3,15 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol?: string | undefined | null; 
+  symbol?: string | null; 
   conversion_factor?: number;
 }
 
 export interface BOM {
   id: number;
   product?: Product | null;
-  product_id: number | undefined;
-  quantity: number ;
+  product_id: number | null;
+  quantity: number | null ;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   measurement_unit?: MeasurementUnit | null;
@@ -24,6 +24,7 @@ export interface BOM {
 export interface BomsFormValues {
   output_product_id?: number | null;
   output_quantity?: number | null;
+  measurement_unit_id?: number;
   measurement_unit?: MeasurementUnit | null;
   symbol:string | null;
   items: BomItem[];
@@ -31,14 +32,15 @@ export interface BomsFormValues {
 }
 
 export interface BomAlternative {
-  product_id?: number | undefined;
+  product_id?: number | null;
   quantity: number;
 }
 
 export interface BomItem {
-  product_id?: number | undefined;
-  quantity?: number;
+  product_id?: number | null;
+  quantity?: number | null;
   measurement_unit_id?: number;
+  measurement_unit?: MeasurementUnit | null;
   conversion_factor?: number;
 }
 
@@ -66,7 +68,7 @@ export interface BOMItem {
   id?: number;
   product?: Product | null;
   bom_id?: number;
-  product_id: number | undefined;
+  product_id: number | null;
   quantity: number | null;
   measurement_unit_id: number | null;
   measurement_unit?: MeasurementUnit | null;
@@ -77,12 +79,12 @@ export interface BOMItem {
 
 export interface BOMPayload {
   id?:number;
-  product_id: number | undefined;
+  product_id: number | null;
   product?: Product | null;
-  quantity: number;
+  quantity: number |null;
   measurement_unit?: MeasurementUnit | null;
   measurement_unit_id?: number | null;
-  symbol?:string | null|undefined;
+  symbol?:string | null;
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]

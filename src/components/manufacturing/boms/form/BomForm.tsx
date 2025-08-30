@@ -84,11 +84,11 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
-      product_id: undefined,
+      product_id: null,
       product: null,
-      quantity: 0,
-      measurement_unit_id: undefined,
-      measurement_unit: undefined,
+      quantity: null,
+      measurement_unit_id: null,
+      measurement_unit: null,
       symbol: null,
       conversion_factor: 1,
       items: [],
@@ -99,7 +99,6 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
 
   const prevItemsRef = useRef<any[]>([]);
   const product = watch('product');
-  const quantity = watch('quantity');
 
   // Helper function to get combined units from a product
   const getCombinedUnits = (product: Product | null) => {
@@ -134,7 +133,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       reset({
         product_id: bomData.product_id ?? bomData.product?.id,
         product: bomData.product || null,
-        quantity: bomData.quantity ?? 0,
+        quantity: bomData.quantity ?? null,
         measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
         measurement_unit: bomData.measurement_unit,
         symbol: symbol,
@@ -175,11 +174,11 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     setAddedProduct(null);
 
     reset({
-      product_id: undefined,
+      product_id: null,
       product: null,
-      quantity: 0,
-      measurement_unit_id: undefined,
-      measurement_unit: undefined,
+      quantity: null,
+      measurement_unit_id: null,
+      measurement_unit: null,
       symbol: null,
       conversion_factor: 1,
       items: [],
@@ -317,7 +316,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                   onChange={(newValue: Product | null) => {
                     if (newValue) {
                       const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                      const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? undefined ;
+                      const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? null ;
                       const symbol = unitObj?.unit_symbol ?? '';
                       const conversionFactor = unitObj?.conversion_factor ?? 1;
                       
@@ -325,13 +324,13 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                       field.onChange(newValue);
                       setValue('product_id', newValue.id);
                       setValue('measurement_unit_id', unitId ?? undefined);
-                      setValue('measurement_unit', unitObj ?? undefined );
+                      setValue('measurement_unit', unitObj ?? null);
                       setValue('symbol', symbol ?? undefined);
                       setValue('conversion_factor', conversionFactor);
                       setSelectedUnit(unitId ?? null);
                     } else {
                       field.onChange(null);
-                      setValue('product_id', undefined);
+                      setValue('product_id', null);
                       setValue('measurement_unit_id', undefined);
                       setValue('measurement_unit', undefined);
                       setValue('symbol', null);
@@ -502,7 +501,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
           onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
         >
-          {bomId ? 'Update' : 'Create'}
+          {bomId ? 'Submit' : 'Submit'}
         </Button>
       </DialogActions>
     </Dialog>
