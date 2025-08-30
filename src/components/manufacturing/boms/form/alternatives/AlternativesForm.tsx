@@ -33,12 +33,12 @@ import AlternativesRow from './AlternativesRow';
       isEditing = false
     }) => {
       const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
-        product_id: undefined,
+        product_id: null,
         product: null,
         quantity: null,
         measurement_unit_id: null,
         conversion_factor: 1,
-        symbol: null,
+        symbol: '',
       });
       const [warning, setWarning] = React.useState<string | null>(null);
       const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
@@ -68,12 +68,12 @@ import AlternativesRow from './AlternativesRow';
         setAlternatives((prev) => [...prev, { ...newAlternative }]);
 
         setNewAlternative({
-          product_id: undefined,
+          product_id: null,
           product: null,
           quantity: null,
           measurement_unit_id: null,
           conversion_factor: 1,
-          symbol: null,
+          symbol: '',
         });
         setSelectedUnit(null);
         setWarning(null);
@@ -117,7 +117,7 @@ import AlternativesRow from './AlternativesRow';
               <ProductSelect
                 key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : "alt-product-empty"}
                 label="Alternative Input Product"
-                value={newAlternative.product}
+                defaultValue={newAlternative.product}
                 onChange={(product: Product | null) => {
                   if (product) {
                     const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
@@ -135,11 +135,11 @@ import AlternativesRow from './AlternativesRow';
                   } else {
                     setNewAlternative({
                       product: null,
-                      product_id: undefined,
+                      product_id: null,
                       quantity: null,
                       measurement_unit_id: null,
                       conversion_factor: 1,
-                      symbol: null,
+                      symbol: '',
                     });
                     setSelectedUnit(null);
                   }

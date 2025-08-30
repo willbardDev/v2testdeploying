@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol?: string ; 
+  symbol?: string | null; 
   conversion_factor?: number;
 }
 
@@ -21,27 +21,20 @@ export interface BOM {
   bomNo?: string;
 }
 
-export interface BomsFormValues {
-  output_product_id?: number | null;
-  output_quantity?: number | null;
-  measurement_unit_id?: number;
+export interface BomFormValues {
+  product_id?: number | null;
+  quantity?: number | null;
+  measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;
   symbol:string | null;
-  items: BomItem[];
-  alternatives?: BOMItem[]
+  conversion_factor: number;
+  items: BOMItem[];
+  alternatives?: BOMItem[];
 }
 
 export interface BomAlternative {
   product_id?: number | null;
   quantity: number;
-}
-
-export interface BomItem {
-  product_id?: number | null;
-  quantity?: number | null;
-  measurement_unit_id?: number;
-  measurement_unit?: MeasurementUnit | null;
-  conversion_factor?: number;
 }
 
 // Response types (optional if you want to type responses)
@@ -74,7 +67,7 @@ export interface BOMItem {
   measurement_unit?: MeasurementUnit | null;
   symbol?:string | null;
   conversion_factor: number;
-  alternatives?: BOMItem[]
+  alternatives?: BOMItem[];
 }
 
 export interface BOMPayload {

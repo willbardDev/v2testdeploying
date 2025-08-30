@@ -49,9 +49,9 @@ const getCombinedUnits = (product: Product | null): MeasurementUnit[] => {
 };
 
 /*
-  Unified editor for BOM row (main or alternative).
+  Independent editor for BOM row (main or alternative).
 */
-const BomFormItemEditor: React.FC<{
+export const BomFormItemEditor: React.FC<{
   item: BOMItem;
   onUpdate: (item: BOMItem) => void;
   onCancel: () => void;
@@ -62,10 +62,17 @@ const BomFormItemEditor: React.FC<{
   const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
   const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
   const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
-    item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
+    item.measurement_unit_id ?? item.measurement_unit?.id ?? null
   );
 
   const combinedUnits = React.useMemo(() => getCombinedUnits(product), [product]);
+
+  // Reset state when item changes
+  React.useEffect(() => {
+    setProduct(item.product ?? null);
+    setQuantity(item.quantity ?? null);
+    setSelectedUnit(item.measurement_unit_id ?? item.measurement_unit?.id ?? null);
+  }, [item]);
 
   const handleDone = React.useCallback(() => {
     if (!product || !quantity || quantity <= 0) {
@@ -83,8 +90,15 @@ const BomFormItemEditor: React.FC<{
       product,
       quantity,
       measurement_unit_id: selectedUnit ?? product?.primary_unit?.id ?? item.measurement_unit_id,
+      measurement_unit: selectedUnitData ? {
+        id: selectedUnitData.id,
+        name: selectedUnitData.name || '',
+        symbol: selectedUnitData.symbol || selectedUnitData.symbol || '',
+        conversion_factor: selectedUnitData.conversion_factor ?? 1
+      } : item.measurement_unit,
       symbol:
         selectedUnitData?.unit_symbol ??
+        selectedUnitData?.symbol ??
         item.symbol ??
         product?.primary_unit?.unit_symbol ??
         '',
@@ -229,7 +243,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
            <AlternativesForm
             item={item}
             alternatives={alternatives}
-            setAlternatives={setAlternatives} // ✅ Just pass setter directly
+            setAlternatives={setAlternatives}
             onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
             isEditing={editingAlternativeIndex !== null}
           />
@@ -376,7 +390,7 @@ const BomItemRow: React.FC<BomFormRowProps> = ({
              <AlternativesForm
               item={item}
               alternatives={alternatives}
-              setAlternatives={setAlternatives} // ✅ Just pass setter directly
+              setAlternatives={setAlternatives}
               onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
               isEditing={editingAlternativeIndex !== null}
             />
