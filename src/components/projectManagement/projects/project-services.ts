@@ -6,10 +6,10 @@ import {
   PaginatedProjectResponse,
 } from './ProjectTypes';
 
-const projectServices: any = {};
+const projectsServices: any = {};
 
 // Get paginated list of projects
-projectServices.getList = async (
+projectsServices.getList = async (
   params: { keyword?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedProjectResponse> => {
   const { page = 1, limit = 10, ...queryParams } = params;
@@ -20,7 +20,7 @@ projectServices.getList = async (
 };
 
 // ✅ Rename to `create`
-projectServices.create = async (project: {
+projectsServices.create = async (project: {
   name: string;
   description?: string;
   category_id?: number;
@@ -33,7 +33,7 @@ projectServices.create = async (project: {
 
 
 // Update an existing project
-projectServices.update = async (
+projectsServices.update = async (
   project: { id: number; name: string; description?: string; category_id?: number; client_id?: number }
 ): Promise<UpdateProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
@@ -44,7 +44,7 @@ projectServices.update = async (
 };
 
 // Delete a project
-projectServices.delete = async (
+projectsServices.delete = async (
   params: { id: number }
 ): Promise<DeleteProjectResponse> => {
   await axios.get('/sanctum/csrf-cookie');
@@ -53,7 +53,7 @@ projectServices.delete = async (
   return data;
 };
 
-export default projectServices;
+export default projectsServices;
 export type {
   AddProjectResponse,
   UpdateProjectResponse,

@@ -12,30 +12,16 @@ function ProductSelect(props) {
     startAdornment,
     requiredProducts,
     addedProduct=null,
-
-
   } = props;
-
   const { productOptions } = useProductsSelect();
-
 
   const [selectedItems, setSelectedItems] = useState(
     props?.defaultValue ? props.defaultValue : (multiple ? [] : null)
   );
 
-
   useEffect(() => {
     if(addedProduct !==null){
-
-
-
-
-
-
       setSelectedItems(addedProduct);
-
-
-
     }
   }, [addedProduct])
 
@@ -49,8 +35,6 @@ function ProductSelect(props) {
   const handleOnChange = (event, newValue) => {
     setSelectedItems(newValue);
     props.onChange(newValue);
-
-
   };
 
   // Filter options based on requiredProducts

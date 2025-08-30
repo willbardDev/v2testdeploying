@@ -16,7 +16,7 @@ import { useSnackbar } from 'notistack';
 import { Div } from '@jumbo/shared';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import projectServices, { AddProjectResponse, UpdateProjectResponse } from './project-services';
+import projectsServices, { AddProjectResponse, UpdateProjectResponse } from './project-services';
 import { Project } from './ProjectTypes';
 import ProjectCategoriesSelector from '../projectCategories/ProjectCategoriesSelector';
 import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
@@ -92,7 +92,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
         });
 
   const { mutate: addProject, isPending: addLoading } = useMutation<AddProjectResponse, unknown, Project>({
-      mutationFn: (data: Project) => projectServices.create(data),
+      mutationFn: (data: Project) => projectsServices.create(data),
       onSuccess: (res) => {
       enqueueSnackbar(res.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Project'] });
@@ -115,7 +115,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
     });
 
     const { mutate: updateProject, isPending: updateLoading } = useMutation<UpdateProjectResponse, unknown, Project>({
-        mutationFn: (data: Project) => projectServices.update({ id: data.id!, ...data }),
+        mutationFn: (data: Project) => projectsServices.update({ id: data.id!, ...data }),
         onSuccess: (res) => {
         enqueueSnackbar(res.message, { variant: 'success' });
         queryClient.invalidateQueries({ queryKey: ['Project'] });
