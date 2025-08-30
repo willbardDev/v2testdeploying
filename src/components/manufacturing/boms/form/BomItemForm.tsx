@@ -93,7 +93,6 @@ import { BOMItem } from '../BomType';
       ?? item?.measurement_unit?.conversion_factor 
       ?? item?.product?.primary_unit?.conversion_factor 
       ?? 1,
-   alternatives: item?.alternatives ?? [],
   },
   mode: 'onChange',
 });
@@ -111,6 +110,7 @@ const updateItems = useCallback<SubmitHandler<FormValues>>(async (data) => {
   try {
     const newItem = {
       ...data,
+      product: data.product,
       product_id: data.product?.id,
       measurement_unit_id: selectedUnit,
       measurement_unit: data.measurement_unit,
@@ -198,7 +198,7 @@ if (isAdding) return <LinearProgress />;
           <ProductSelect
             label="Input Product"
             frontError={errors.product_id}
-            value={product}
+            defaultValue={item ? item.product : product}
             addedProduct={addedProduct}
             onChange={(newValue: Product | null) => {
               if (newValue) {
@@ -268,7 +268,7 @@ if (isAdding) return <LinearProgress />;
                 label="Quantity"
                 fullWidth
                 size="small"
-                value={field.value ?? ''}
+                defaultValue={field.value ?? ''}
                 onChange={(e) => {
                   const value = e.target.value;
                   const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;

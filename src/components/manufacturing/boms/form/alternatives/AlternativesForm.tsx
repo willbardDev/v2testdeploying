@@ -157,7 +157,7 @@ import AlternativesRow from './AlternativesRow';
                 fullWidth
                 size="small"
                 type="number"
-                value={newAlternative.quantity ?? ''}
+                defaultValue={newAlternative.quantity ?? ''}
                 onChange={(e) =>
                   setNewAlternative((prev) => ({
                     ...prev,

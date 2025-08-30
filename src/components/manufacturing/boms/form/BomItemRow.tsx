@@ -93,12 +93,12 @@ export const BomFormItemEditor: React.FC<{
       measurement_unit: selectedUnitData ? {
         id: selectedUnitData.id,
         name: selectedUnitData.name || '',
-        symbol: selectedUnitData.symbol || selectedUnitData.symbol || '',
+        symbol: selectedUnitData.unit_symbol || selectedUnitData.unit_symbol || '',
         conversion_factor: selectedUnitData.conversion_factor ?? 1
       } : item.measurement_unit,
       symbol:
         selectedUnitData?.unit_symbol ??
-        selectedUnitData?.symbol ??
+        selectedUnitData?.unit_symbol ??
         item.symbol ??
         product?.primary_unit?.unit_symbol ??
         '',
@@ -116,7 +116,7 @@ export const BomFormItemEditor: React.FC<{
         <Grid size={{xs:12, md:isAlternative ? 5 : 5.5}}>
           <ProductSelect
             label={isAlternative ? 'Alternative Product' : 'Input Product'}
-            value={product}
+            defaultValue={product}
             onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
               const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit?.id ?? null;
@@ -132,7 +132,7 @@ export const BomFormItemEditor: React.FC<{
             size="small"
             fullWidth
             type="number"
-            value={quantity ?? ''}
+            defaultValue={quantity ?? ''}
             onChange={(e) => setQuantity(Number(e.target.value))}
             InputProps={{
             inputComponent: CommaSeparatedField as any,

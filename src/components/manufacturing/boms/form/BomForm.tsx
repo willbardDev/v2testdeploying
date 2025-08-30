@@ -312,7 +312,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                 <ProductSelect
                   label="Output Product"
                   frontError={errors.product_id}
-                  value={field.value}
+                  defaultValue={field.value}
                   onChange={(newValue: Product | null) => {
                     if (newValue) {
                       const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
@@ -392,7 +392,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                   label="Quantity"
                   fullWidth
                   size="small"
-                  value={field.value ?? ''}
+                  defaultValue={field.value ?? ''}
                   onChange={(e) => {
                     const value = e.target.value;
                     const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;

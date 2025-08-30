@@ -89,7 +89,7 @@ export const AlternativeItemEditor: React.FC<{
         <Grid size={{xs:12, md:5}}>
           <ProductSelect
             label="Alternative Product"
-            value={product}
+            defaultValue={product}
             onChange={(newProduct: Product | null) => {
               setProduct(newProduct);
               // Set default unit when product changes
@@ -110,7 +110,7 @@ export const AlternativeItemEditor: React.FC<{
             size="small"
             fullWidth
             type="number"
-            value={quantity ?? ''}
+            defaultValue={quantity ?? ''}
             onChange={(e) => setQuantity(Number(e.target.value))}
             InputProps={{
               inputComponent: CommaSeparatedField as any,
@@ -131,16 +131,6 @@ export const AlternativeItemEditor: React.FC<{
             }}
           />
         </Grid>
-
-        {/* Display current symbol if available */}
-        {item.symbol && (
-          <Grid size={{xs:12, md:2}}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Current: {item.symbol}
-            </Typography>
-          </Grid>
-        )}
-
         {/* Actions */}
         <Grid size={{xs:12, md:2}}>
           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
