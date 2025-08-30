@@ -3,7 +3,7 @@ import { Product } from "@/components/productAndServices/products/ProductType";
 export interface MeasurementUnit {
   id: number;
   name: string;
-  symbol?: string | null; 
+  symbol?: string ; 
   conversion_factor?: number;
 }
 

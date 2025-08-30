@@ -27,7 +27,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
-import { BOMPayload, BOMItem } from '../BomType';
+import { BOMPayload, BOMItem, MeasurementUnit } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
@@ -74,28 +74,28 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<BOMPayload>({
-    resolver: yupResolver(schema) as any,
-    defaultValues: {
-      product_id: null,
-      product: null,
-      quantity: null,
-      measurement_unit_id: null,
-      measurement_unit: null,
-      symbol: null,
-      conversion_factor: 1,
-      items: [],
-      alternatives: [],
-    },
-    mode: 'onChange',
-  });
+ const {
+  control,
+  handleSubmit,
+  setValue,
+  reset,
+  watch,
+  formState: { errors },
+} = useForm<BOMPayload>({
+  resolver: yupResolver(schema) as any,
+  defaultValues: {
+    product_id: bomData?.product?.id || null,
+    product: bomData?.product || null,
+    quantity: bomData?.quantity || null,
+    measurement_unit_id: bomData?.measurement_unit?.id || null,
+    measurement_unit: bomData?.measurement_unit || null,
+    symbol: bomData?.measurement_unit?.symbol || null,
+    conversion_factor: bomData?.conversion_factor || 1,
+    items: bomData?.items || [],
+    alternatives: bomData?.alternatives || [],
+  },
+  mode: 'onChange',
+});
 
   const prevItemsRef = useRef<any[]>([]);
   const product = watch('product');
@@ -316,23 +316,39 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                   onChange={(newValue: Product | null) => {
                     if (newValue) {
                       const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                      const unitObj = newValue.primary_unit ?? newValue.measurement_unit ?? null ;
-                      const symbol = unitObj?.unit_symbol ?? '';
-                      const conversionFactor = unitObj?.conversion_factor ?? 1;
                       
+                      // Handle type compatibility for measurement unit
+                      const primaryUnit = newValue.primary_unit;
+                      const measurementUnit = newValue.measurement_unit;
+                      
+                      // Create a compatible MeasurementUnit object
+                      const unitObj: MeasurementUnit | null = primaryUnit ? {
+                        id: primaryUnit.id,
+                        name: primaryUnit.name || '',
+                        symbol: primaryUnit.unit_symbol || '',
+                        conversion_factor: primaryUnit.conversion_factor ?? 1
+                      } : measurementUnit ? {
+                        id: measurementUnit.id,
+                        name: measurementUnit.name || '',
+                        symbol: measurementUnit.symbol || '',
+                        conversion_factor: measurementUnit.conversion_factor ?? 1
+                      } : null;
+
+                      const symbol = unitObj?.symbol || '';
+                      const conversionFactor = unitObj?.conversion_factor ?? 1;
 
                       field.onChange(newValue);
                       setValue('product_id', newValue.id);
-                      setValue('measurement_unit_id', unitId ?? undefined);
-                      setValue('measurement_unit', unitObj ?? null);
-                      setValue('symbol', symbol ?? undefined);
+                      setValue('measurement_unit_id', unitId ?? null);
+                      setValue('measurement_unit', unitObj);
+                      setValue('symbol', symbol);
                       setValue('conversion_factor', conversionFactor);
                       setSelectedUnit(unitId ?? null);
                     } else {
                       field.onChange(null);
                       setValue('product_id', null);
-                      setValue('measurement_unit_id', undefined);
-                      setValue('measurement_unit', undefined);
+                      setValue('measurement_unit_id', null);
+                      setValue('measurement_unit', null);
                       setValue('symbol', null);
                       setValue('conversion_factor', 1);
                       setSelectedUnit(null);
