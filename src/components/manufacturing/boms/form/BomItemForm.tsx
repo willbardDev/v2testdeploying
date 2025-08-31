@@ -27,7 +27,7 @@ import { BOMItem } from '../BomType';
 
     interface FormValues {
       product?: Product | null;
-      product_id?: number;
+      product_id?: number | null;
       quantity: number | null;
       measurement_unit_id?: number | null;
       measurement_unit: MeasurementUnit | null;
@@ -81,99 +81,114 @@ import { BOMItem } from '../BomType';
       const [isAdding, setIsAdding] = useState(false);
 
       const { register, handleSubmit, watch, reset, setValue, control, formState: { errors } } = useForm<FormValues>({
-        resolver: yupResolver(validationSchema) as any,
-        defaultValues: {
-          product: item?.product ?? null,
-          product_id: item?.product_id ?? item?.product?.id ?? undefined,
-          quantity: item?.quantity ?? null,
-          measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
-          measurement_unit: item?.measurement_unit ?? null,
-          symbol: item?.measurement_unit?.symbol ?? null,
-          conversion_factor: item?.conversion_factor
-            ?? item?.product?.primary_unit?.conversion_factor
-            ?? 1,
-        }
-      });
+      resolver: yupResolver(validationSchema) as any,
+      defaultValues: {
+        product: item?.product ?? null,
+        product_id: item?.product_id ?? item?.product?.id ?? null,
+        quantity: item?.quantity ?? null,
+        measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
+        measurement_unit: item?.measurement_unit ?? null,
+        symbol: item?.measurement_unit?.symbol ?? item?.symbol ?? null,
+        conversion_factor: item?.conversion_factor 
+          ?? item?.measurement_unit?.conversion_factor 
+          ?? item?.product?.primary_unit?.conversion_factor 
+          ?? 1,
+      },
+      mode: 'onChange',
+    });
 
-      const symbol = watch("measurement_unit")?.symbol;
-      const product = watch('product') as Product | undefined;
-      const quantity = watch('quantity');
-      const combinedUnits: MeasurementUnit[] = [
-        ...(product?.secondary_units || []),
-        ...(product?.primary_unit ? [product.primary_unit] : []),
-      ];
+const product = watch('product') as Product | undefined;
+const combinedUnits: MeasurementUnit[] = [
+  ...(product?.secondary_units || []),
+  ...(product?.primary_unit ? [product.primary_unit] : []),
+];
 
-      // Use useCallback to memoize the updateItems function
-      const updateItems = useCallback<SubmitHandler<FormValues>>(async (data) => {
-        setIsAdding(true);
+// Use useCallback to memoize the updateItems function
+const updateItems = useCallback<SubmitHandler<FormValues>>(async (data) => {
+  setIsAdding(true);
 
-        try {
-          const newItem = {
-            ...data,
-            product_id: data.product?.id,
-            measurement_unit_id: selectedUnit,
-            measurement_unit: data.measurement_unit,
-            symbol: data.symbol,
-            conversion_factor: data.conversion_factor ?? 1,
-          };
+  try {
+    const newItem = {
+      ...data,
+      product: data.product,
+      product_id: data.product?.id,
+      measurement_unit_id: selectedUnit,
+      measurement_unit: data.measurement_unit,
+      symbol: data.symbol,
+      conversion_factor: data.conversion_factor ?? 1,
+      // Include items and alternatives if they exist in the form data
+      items: data.items ?? [],
+      alternatives: data.alternatives ?? [],
+    };
 
-          if (index > -1) {
-            const updatedItems = [...items];
-            updatedItems[index] = newItem;
-            setItems(updatedItems);
-          } else {
-            setItems(prev => [...prev, newItem]);
-          }
+    if (index > -1) {
+      const updatedItems = [...items];
+      updatedItems[index] = newItem;
+      setItems(updatedItems);
+    } else {
+      setItems(prev => [...prev, newItem]);
+    }
 
-          // Only reset on success
-          setClearFormKey(k => k + 1);
-          reset();
-          setShowForm?.(false);
-          
-          if (submitItemForm) {
-            submitMainForm();
-          }
-        } catch (error) {
-          // On error, keep the form data
-          console.error("Submission failed:", error);
-        } finally {
-          setIsAdding(false);
-          setSubmitItemForm(false);
-        }
-      }, [selectedUnit, index, items, setItems, setClearFormKey, reset, setShowForm, submitItemForm, submitMainForm, setSubmitItemForm]);
+    // Only reset on success
+    setClearFormKey(k => k + 1);
+    reset({
+      product: null,
+      product_id: null,
+      quantity: null,
+      measurement_unit_id: null,
+      measurement_unit: null,
+      symbol: null,
+      conversion_factor: 1,
+      alternatives: [],
+    });
+    setShowForm?.(false);
+    
+    if (submitItemForm) {
+      submitMainForm();
+    }
+  } catch (error) {
+    // On error, keep the form data
+    console.error("Submission failed:", error);
+  } finally {
+    setIsAdding(false);
+    setSubmitItemForm(false);
+  }
+}, [selectedUnit, index, items, setItems, setClearFormKey, reset, setShowForm, submitItemForm, submitMainForm, setSubmitItemForm]);
 
-      // Handle the submitItemForm trigger differently
-      useEffect(() => {
-        if (submitItemForm) {
-          // Create a form submission handler
-          const submitForm = async () => {
-            const form = document.querySelector('form');
-            if (form) {
-              // This will trigger the form submission which will call handleSubmit
-              form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-            }
-          };
-          
-          submitForm();
-        }
-      }, [submitItemForm]); // Only depend on submitItemForm
+// Handle the submitItemForm trigger differently
+useEffect(() => {
+  if (submitItemForm) {
+    // Create a form submission handler
+    const submitForm = async () => {
+      const form = document.querySelector('form');
+      if (form) {
+        // This will trigger the form submission which will call handleSubmit
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    };
+    
+    submitForm();
+  }
+}, [submitItemForm]); // Only depend on submitItemForm
 
-      useEffect(() => {
-        if (addedProduct) {
-          const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
-          const unitSymbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.symbol ?? '';
+useEffect(() => {
+  if (addedProduct) {
+    const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
+    const Symbol = addedProduct.primary_unit?.unit_symbol ?? addedProduct.measurement_unit?.symbol ?? '';
+    const conversionFactor = addedProduct.primary_unit?.conversion_factor ?? 1;
 
-          setValue('product', addedProduct);
-          setValue('product_id', addedProduct.id);
-          setValue('measurement_unit_id', unitId);
-          setValue('symbol', unitSymbol);
-          setValue('conversion_factor', addedProduct.primary_unit?.conversion_factor ?? 1);
-          setSelectedUnit(unitId);
-          setOpenProductQuickAdd(false);
-        }
-      }, [addedProduct, setValue]);
+    setValue('product', addedProduct);
+    setValue('product_id', addedProduct.id);
+    setValue('measurement_unit_id', unitId);
+    setValue('measurement_unit', addedProduct.primary_unit ?? addedProduct.measurement_unit ?? null);
+    setValue('symbol', Symbol);
+    setValue('conversion_factor', conversionFactor);
+    setSelectedUnit(unitId);
+    setOpenProductQuickAdd(false);
+  }
+}, [addedProduct, setValue]);
 
-      if (isAdding) return <LinearProgress />;
+if (isAdding) return <LinearProgress />;
 
   return (
     <form onSubmit={handleSubmit(updateItems)} autoComplete="off">
@@ -183,7 +198,7 @@ import { BOMItem } from '../BomType';
           <ProductSelect
             label="Input Product"
             frontError={errors.product_id}
-            value={product}
+            defaultValue={item ? item.product : product}
             addedProduct={addedProduct}
             onChange={(newValue: Product | null) => {
               if (newValue) {
@@ -253,7 +268,7 @@ import { BOMItem } from '../BomType';
                 label="Quantity"
                 fullWidth
                 size="small"
-                value={field.value ?? ''}
+                defaultValue={field.value ?? ''}
                 onChange={(e) => {
                   const value = e.target.value;
                   const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;

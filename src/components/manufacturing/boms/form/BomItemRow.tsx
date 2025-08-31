@@ -25,233 +25,231 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
-import AlternativesForm from '../alternatives/AlternativesForm';
 import { BOMItem } from '../BomType';
+import AlternativesForm from './alternatives/AlternativesForm';
 
-      export interface BomFormRowProps {
-        item: BOMItem;
-        index: number;
-        items: BOMItem[];
-        setItems: React.Dispatch<React.SetStateAction<BOMItem[]>>;
-        setClearFormKey?: React.Dispatch<React.SetStateAction<number>>;
-        submitMainForm?: () => void;
-        submitItemForm?: boolean;
-        setSubmitItemForm?: React.Dispatch<React.SetStateAction<boolean>>;
-        setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
-      }
+export interface BomFormRowProps {
+  item: BOMItem;
+  index: number;
+  items: BOMItem[];
+  setItems: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+  setClearFormKey?: React.Dispatch<React.SetStateAction<number>>;
+  submitMainForm?: () => void;
+  submitItemForm?: boolean;
+  setSubmitItemForm?: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-      /*
-        Unified editor for BOM row (main or alternative).
-      */
-      const BomFormItemEditor: React.FC<{
-        item: BOMItem;
-        onUpdate: (item: BOMItem) => void;
-        onCancel: () => void;
-        isAlternative?: boolean;
-        showAlternatives?: boolean;
-        children?: React.ReactNode;
-      }> = ({ item, onUpdate, onCancel, isAlternative = false, showAlternatives = false, children }) => {
-        const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
-        const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
-        const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
-          item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null
-        );
+// Helper function to get combined units from a product
+const getCombinedUnits = (product: Product | null): MeasurementUnit[] => {
+  if (!product) return [];
+  const primary = product.primary_unit ? [product.primary_unit] : [];
+  const secondary = product.secondary_units || [];
+  return [...primary, ...secondary];
+};
 
-        // Only reset state when the component first mounts or when explicitly needed
-        React.useEffect(() => {
-          setProduct(item.product ?? null);
-          setQuantity(item.quantity ?? null);
-          setSelectedUnit(item.measurement_unit_id ?? item.product?.primary_unit?.id ?? null);
-        }, []);
-        
-        const combinedUnits: MeasurementUnit[] = React.useMemo(() => {
-          const primary = product?.primary_unit ? [product.primary_unit] : [];
-          const secondary = product?.secondary_units || [];
-          return [...primary, ...secondary];
-        }, [product]);
+/*
+  Independent editor for BOM row (main or alternative).
+*/
+export const BomFormItemEditor: React.FC<{
+  item: BOMItem;
+  onUpdate: (item: BOMItem) => void;
+  onCancel: () => void;
+  isAlternative?: boolean;
+  showAlternatives?: boolean;
+  children?: React.ReactNode;
+}> = ({ item, onUpdate, onCancel, isAlternative = false, showAlternatives = false, children }) => {
+  const [product, setProduct] = React.useState<Product | null>(item.product ?? null);
+  const [quantity, setQuantity] = React.useState<number | null>(item.quantity ?? null);
+  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(
+    item.measurement_unit_id ?? item.measurement_unit?.id ?? null
+  );
 
-        const handleDone = React.useCallback(() => {
-          if (!product || !quantity || quantity <= 0) {
-            console.error('Please fill all required fields');
-            return;
-          }
+  const combinedUnits = React.useMemo(() => getCombinedUnits(product), [product]);
 
-          const selectedUnitData =
-            combinedUnits.find((u) => u.id === selectedUnit) ??
-            product?.primary_unit ??
-            null;
+  // Reset state when item changes
+  React.useEffect(() => {
+    setProduct(item.product ?? null);
+    setQuantity(item.quantity ?? null);
+    setSelectedUnit(item.measurement_unit_id ?? item.measurement_unit?.id ?? null);
+  }, [item]);
 
-          onUpdate({
-            ...item,
-            product,
-            quantity,
-            measurement_unit_id: selectedUnit ?? product?.primary_unit?.id ?? item.measurement_unit_id,
-            symbol:
-              selectedUnitData?.unit_symbol ??
-              item.symbol ??
-              product?.primary_unit?.unit_symbol ??
-              '',
-            conversion_factor:
-              selectedUnitData?.conversion_factor ??
-              item.conversion_factor ??
-              1,
-          });
-        }, [product, quantity, selectedUnit, combinedUnits, onUpdate, item]);
+  const handleDone = React.useCallback(() => {
+    if (!product || !quantity || quantity <= 0) {
+      console.error('Please fill all required fields');
+      return;
+    }
 
-      return (
-        <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
-          <Grid container spacing={2} alignItems="flex-end">
-            {/* Product */}
-            <Grid size={{xs:12, md:isAlternative ? 5 : 5.5}}>
-              <ProductSelect
-                label={isAlternative ? 'Alternative Product' : 'Input Product'}
-                value={product}
-                onChange={(newProduct: Product | null) => {
-                  setProduct(newProduct);
-                  const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit?.id ?? null;
-                  setSelectedUnit(unitId);
-                }}
-              />
-            </Grid>
+    const selectedUnitData =
+      combinedUnits.find((u) => u.id === selectedUnit) ??
+      product?.primary_unit ??
+      null;
 
-            {/* Quantity + Unit */}
-            <Grid size={{xs:12, md:isAlternative ? 3 : 4}}>
-              <TextField
-                label="Quantity"
-                size="small"
-                fullWidth
-                type="number"
-                value={quantity ?? ''}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                InputProps={{
-                inputComponent: CommaSeparatedField as any,
-                endAdornment: product && selectedUnit ? (
-                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                      <Select
-                        value={selectedUnit ?? ''}
-                        onChange={(e) => setSelectedUnit(Number(e.target.value))}
-                      >
-                        {combinedUnits.map((unit) => (
-                          <MenuItem key={unit.id} value={unit.id}>
-                            {unit.unit_symbol}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ) : null,
-                }}
-              />
-            </Grid>
-            {/* Actions */}
-            <Grid size={{xs:12, md:isAlternative ? 2 : 2.5}}>
-              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                <Button variant="contained" size="small" onClick={handleDone} startIcon={<CheckOutlined />}>
-                  Done
-                </Button>
-                <IconButton
-                  size="small"
-                  onClick={onCancel}
-                  sx={{
-                    backgroundColor: green[500],
-                    color: '#fff',
-                    width: 32,
-                    height: 32,
-                    borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: green[700],
-                    },
-                  }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </Grid>
-          </Grid>
+    onUpdate({
+      ...item,
+      product,
+      quantity,
+      measurement_unit_id: selectedUnit ?? product?.primary_unit?.id ?? item.measurement_unit_id,
+      measurement_unit: selectedUnitData ? {
+        id: selectedUnitData.id,
+        name: selectedUnitData.name || '',
+        symbol: selectedUnitData.unit_symbol || selectedUnitData.unit_symbol || '',
+        conversion_factor: selectedUnitData.conversion_factor ?? 1
+      } : item.measurement_unit,
+      symbol:
+        selectedUnitData?.unit_symbol ??
+        selectedUnitData?.unit_symbol ??
+        item.symbol ??
+        product?.primary_unit?.unit_symbol ??
+        '',
+      conversion_factor:
+        selectedUnitData?.conversion_factor ??
+        item.conversion_factor ??
+        1,
+    });
+  }, [product, quantity, selectedUnit, combinedUnits, onUpdate, item]);
 
-          {showAlternatives && children && <Box sx={{ mt: 2 }}>{children}</Box>}
-        </Box>
-      );
-    };
+  return (
+    <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
+      <Grid container spacing={2} alignItems="flex-end">
+        {/* Product */}
+        <Grid size={{xs:12, md:isAlternative ? 5 : 5.5}}>
+          <ProductSelect
+            label={isAlternative ? 'Alternative Product' : 'Input Product'}
+            defaultValue={product}
+            onChange={(newProduct: Product | null) => {
+              setProduct(newProduct);
+              const unitId = newProduct?.primary_unit?.id ?? newProduct?.measurement_unit?.id ?? null;
+              setSelectedUnit(unitId);
+            }}
+          />
+        </Grid>
 
-    const BomItemRow: React.FC<BomFormRowProps> = ({
-      item,
-      index,
-      items,
-      setItems,
-    }) => {
-      const [isEditingMain, setIsEditingMain] = React.useState(false);
-      const [editingAlternativeIndex, setEditingAlternativeIndex] = React.useState<number | null>(null);
-      const [expanded, setExpanded] = React.useState(false);
-      const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
+        {/* Quantity + Unit */}
+        <Grid size={{xs:12, md:isAlternative ? 3 : 4}}>
+          <TextField
+            label="Quantity"
+            size="small"
+            fullWidth
+            type="number"
+            defaultValue={quantity ?? ''}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            InputProps={{
+            inputComponent: CommaSeparatedField as any,
+            endAdornment: product && selectedUnit ? (
+                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                  <Select
+                    value={selectedUnit ?? ''}
+                    onChange={(e) => setSelectedUnit(Number(e.target.value))}
+                  >
+                    {combinedUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.unit_symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : null,
+            }}
+          />
+        </Grid>
+        {/* Actions */}
+        <Grid size={{xs:12, md:isAlternative ? 2 : 2.5}}>
+          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+            <Button variant="contained" size="small" onClick={handleDone} startIcon={<CheckOutlined />}>
+              Done
+            </Button>
+            <IconButton
+              size="small"
+              onClick={onCancel}
+              sx={{
+                backgroundColor: green[500],
+                color: '#fff',
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: green[700],
+                },
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </Grid>
+      </Grid>
 
-      React.useEffect(() => {
-      const newAlts = item.alternatives || [];
+      {showAlternatives && children && <Box sx={{ mt: 2 }}>{children}</Box>}
+    </Box>
+  );
+};
 
-      const same =
-          alternatives.length === newAlts.length &&
-          alternatives.every((alt, i) => alt.id === newAlts[i]?.id);
+const BomItemRow: React.FC<BomFormRowProps> = ({
+  item,
+  index,
+  items,
+  setItems,
+}) => {
+  const [isEditingMain, setIsEditingMain] = React.useState(false);
+  const [editingAlternativeIndex, setEditingAlternativeIndex] = React.useState<number | null>(null);
+  const [expanded, setExpanded] = React.useState(false);
+  const [alternatives, setAlternatives] = React.useState<BOMItem[]>(item.alternatives || []);
 
-        if (!same) {
-          setAlternatives(newAlts);
-        }
-      }, [item.alternatives]);
+  // ✅ Use useEffect to sync alternatives with parent items
+  React.useEffect(() => {
+    setItems((prevItems) => {
+      const updated = [...prevItems];
+      updated[index] = { ...updated[index], alternatives };
+      return updated;
+    });
+  }, [alternatives, setItems, index]);
 
-      const handleRemove = React.useCallback(() => {
-        setItems(items.filter((_, i) => i !== index));
-      }, [items, setItems, index]);
+  const handleRemove = React.useCallback(() => {
+    setItems(items.filter((_, i) => i !== index));
+  }, [items, setItems, index]);
 
-      const handleUpdate = React.useCallback((updatedItem: BOMItem) => {
-        setItems((prev) => {
-          const updated = [...prev];
-          updated[index] = { ...updatedItem, alternatives };
-          return updated;
-        });
-        setIsEditingMain(false);
-        setExpanded(true);
-      }, [setItems, index, alternatives]);
+  const handleUpdate = React.useCallback((updatedItem: BOMItem) => {
+    setItems((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updatedItem, alternatives };
+      return updated;
+    });
+    setIsEditingMain(false);
+    setExpanded(true);
+  }, [setItems, index, alternatives]);
 
-      const handleUpdateAlternative = React.useCallback((updatedAlt: BOMItem, altIndex: number) => {
-        const updatedAlternatives = [...alternatives];
-        updatedAlternatives[altIndex] = updatedAlt;
-        setAlternatives(updatedAlternatives);
-        setItems((prev) => {
-          const updated = [...prev];
-          updated[index] = { ...updated[index], alternatives: updatedAlternatives };
-          return updated;
-        });
-        setEditingAlternativeIndex(null);
-      }, [alternatives, setItems, index]);
+  const handleUpdateAlternatives = React.useCallback(
+    (newAlts: BOMItem[]) => {
+      setAlternatives(newAlts);
+      setItems((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], alternatives: newAlts };
+        return updated;
+      });
+    },
+    [setItems, index]
+  );
 
-    return (
-      <>
-        {isEditingMain ? (
-          <BomFormItemEditor
+  return (
+    <>
+      {isEditingMain ? (
+        <BomFormItemEditor
+          item={item}
+          onUpdate={handleUpdate}
+          onCancel={() => setIsEditingMain(false)}
+          showAlternatives={true}
+        >
+          {/* Integrate AlternativesForm here */}
+           <AlternativesForm
             item={item}
-            onUpdate={handleUpdate}
-            onCancel={() => setIsEditingMain(false)}
-            showAlternatives={true}
-          >
-            <Box sx={{ mt: 2 }}>
-              {editingAlternativeIndex !== null && (
-                <Box sx={{ mb: 2 }}>
-                  <BomFormItemEditor
-                    item={alternatives[editingAlternativeIndex]}
-                    onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
-                    onCancel={() => setEditingAlternativeIndex(null)}
-                    isAlternative={true}
-                  />
-                </Box>
-              )}
-              <AlternativesForm
-                item={item}
-                alternatives={alternatives}
-                setAlternatives={setAlternatives}
-                onEditAlternative={setEditingAlternativeIndex}
-              />
-            </Box>
-          </BomFormItemEditor>
-        ) : (
-          <Accordion 
+            alternatives={alternatives}
+            setAlternatives={setAlternatives}
+            onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
+            isEditing={editingAlternativeIndex !== null}
+          />
+        </BomFormItemEditor>
+      ) : (
+        <Accordion 
             expanded={expanded} 
             onChange={(_, exp) => setExpanded(exp)}
             sx={{ 
@@ -326,7 +324,7 @@ import { BOMItem } from '../BomType';
                   {item.quantity}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {item.symbol || item.unit_symbol || item.measurement_unit?.symbol || ''}
+                  {item.symbol || item.symbol || item.measurement_unit?.symbol || ''}
                 </Typography>
               </Box>
               
@@ -387,28 +385,21 @@ import { BOMItem } from '../BomType';
               </Box>
             </AccordionSummary>
 
-            <AccordionDetails sx={{ pt: 1, pb: 2, borderTop: '1px solid #f0f0f0' }}>
-              {editingAlternativeIndex !== null && (
-                <Box sx={{ mb: 2 }}>
-                  <BomFormItemEditor
-                    item={alternatives[editingAlternativeIndex]}
-                    onUpdate={(updatedAlt) => handleUpdateAlternative(updatedAlt, editingAlternativeIndex)}
-                    onCancel={() => setEditingAlternativeIndex(null)}
-                    isAlternative={true}
-                  />
-                </Box>
-              )}
-              <AlternativesForm
-                item={item}
-                alternatives={alternatives}
-                setAlternatives={setAlternatives}
-                onEditAlternative={setEditingAlternativeIndex}
-              />
-            </AccordionDetails>
-          </Accordion>
-        )}
-      </>
-    );
-  };
+          <AccordionDetails sx={{ pt: 1, pb: 2 }}>
+            {/* Alternatives inside accordion details */}
+             <AlternativesForm
+              item={item}
+              alternatives={alternatives}
+              setAlternatives={setAlternatives}
+              onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
+              isEditing={editingAlternativeIndex !== null}
+            />
+
+          </AccordionDetails>
+        </Accordion>
+      )}
+    </>
+  );
+};
 
 export default BomItemRow;
