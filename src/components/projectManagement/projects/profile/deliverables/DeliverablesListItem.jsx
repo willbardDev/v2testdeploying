@@ -24,7 +24,6 @@ function DeliverablesListItem({ filteredDeliverables }) {
   const [expandedIndex, setExpandedIndex] = useState(-1);
   const [tabIndex, setTabIndex] = useState(0); 
 
-  // React Query v5 syntax for useQuery
   const { data: deliverableDetails, isLoading: isDetailsLoading } = useQuery({
     queryKey: ['deliverableDetails', expandedIndex],
     queryFn: () => {

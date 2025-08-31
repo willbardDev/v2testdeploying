@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, Grid, ListItemText, Stack, Typography, Divider, Tooltip } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -45,7 +45,7 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
 
   return (
     <Accordion
-      expanded={expanded}
+      expanded={expanded === true}
       onChange={handleChange}
       square
       sx={{
@@ -154,7 +154,7 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
                 <DeliverableGroupsAccordion
                   key={index}
                   group={child}
-                  expanded={!!childExpanded[index]}
+                  expanded={childExpanded[index] === true}
                   handleChange={() => handleChildChange(index)}
                   openDialog={openDialog}
                   setOpenDialog={setOpenDialog}
@@ -171,8 +171,16 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
 function DeliverableGroupsListItem() {
   const { deliverable_groups } = useProjectProfile();
   const [openDialog, setOpenDialog] = useState(false);
-  const [expanded, setExpanded] = useState(Array(deliverable_groups?.length).fill(false));
+  const [expanded, setExpanded] = useState([]);
   const [searchQuery, setSearchQuery] = useState(''); 
+
+  // Initialize expanded state with proper boolean values when data loads
+  useEffect(() => {
+    if (deliverable_groups) {
+      // Initialize with all accordions closed (false)
+      setExpanded(Array(deliverable_groups.length).fill(false));
+    }
+  }, [deliverable_groups]);
 
   const filteredGroups = deliverable_groups?.filter(group =>
     group.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,7 +199,6 @@ function DeliverableGroupsListItem() {
     setExpanded(newExpanded);
   };
 
-
   return (
     <React.Fragment>
       <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
@@ -208,12 +215,12 @@ function DeliverableGroupsListItem() {
         </Grid>
       </Grid>
       <Stack direction={'column'}>
-        {sortedDeliverableGroups?.length > 0 ? (
+        {sortedDeliverableGroups && sortedDeliverableGroups.length > 0 ? (
           sortedDeliverableGroups.map((group, index) => (
             <DeliverableGroupsAccordion
               key={index}
               group={group}
-              expanded={expanded[index]}
+              expanded={expanded[index] === true}
               handleChange={() => handleChange(index)}
               openDialog={openDialog}
               setOpenDialog={setOpenDialog}

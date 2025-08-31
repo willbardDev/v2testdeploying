@@ -155,7 +155,7 @@ function SubcontractListItem({ subContract }) {
                     </Grid>
                 </Grid>
 
-                <Grid container>
+                <Grid container width={'100%'}>
                     {activeTab === 0 && (
                         <SubContractTaskTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
                     )}
@@ -166,7 +166,7 @@ function SubcontractListItem({ subContract }) {
                         <SubContractMaterialIssuedTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
                     )}
                     {activeTab === 3 && (
-                        <Grid container columnSpacing={1} justifyContent="center" marginTop={1}>
+                        <Grid container width={'100%'} columnSpacing={1} justifyContent="center" marginTop={1}>
                             <Grid size={{xs: 12}}>
                                 <AttachmentForm
                                     hideFeatures={true}

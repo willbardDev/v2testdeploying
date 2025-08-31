@@ -16,6 +16,7 @@ function SubContractTasksListItem({ subContract, subContractTasks, isLoading }) 
                     subContractTasks?.length > 0 ? subContractTasks.map((subContractTask, index) => (
                         <Grid
                             key={index}
+                            width={'100%'}
                             sx={{
                                 cursor: 'pointer',
                                 borderTop: 1,
@@ -47,7 +48,7 @@ function SubContractTasksListItem({ subContract, subContractTasks, isLoading }) 
                             </Grid>
                             <Grid size={{xs: 12, md: 2.4, lg: 2.4}}>
                                 <Tooltip title={'Remarks'}>
-                                    <Typography variant='h6'>{subContractTask?.remarks || 'No remarks'}</Typography>
+                                    <Typography variant='h6'>{subContractTask?.remarks}</Typography>
                                 </Tooltip>
                             </Grid>
                             <Grid size={{xs: 6, md: 2, lg: 2}}>

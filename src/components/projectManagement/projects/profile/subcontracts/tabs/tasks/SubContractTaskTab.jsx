@@ -6,7 +6,6 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 import { useQuery } from '@tanstack/react-query';
 
 function SubContractTaskTab({subContract, isExpanded}) {
-    // React Query v5 syntax for useQuery
     const { data: subContractTasks, isLoading } = useQuery({
         queryKey: ['subContractTasks', { id: subContract.id }],
         queryFn: async () => projectsServices.getSubContractTasks(subContract.id),
@@ -14,7 +13,7 @@ function SubContractTaskTab({subContract, isExpanded}) {
     });
     
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} width={'100%'}>
         <Grid size={{xs: 12}} textAlign={'end'}>
             <SubContractTasksActionTail subContract={subContract} subContractTasks={subContractTasks}/>
         </Grid>
