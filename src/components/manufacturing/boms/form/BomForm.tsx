@@ -432,7 +432,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                         >
                           {getCombinedUnits(product).map((unit) => (
                             <MenuItem key={unit.id} value={unit.id}>
-                              {unit.symbol ?? unit.symbol}
+                              {unit.unit_symbol ?? unit.unit_symbol}
                             </MenuItem>
                           ))}
                         </Select>

@@ -165,8 +165,8 @@ export const BomFormItemEditor: React.FC<{
               sx={{
                 backgroundColor: green[500],
                 color: '#fff',
-                width: 32,
-                height: 32,
+                width: 24,
+                height: 24,
                 borderRadius: 1,
                 '&:hover': {
                   backgroundColor: green[700],

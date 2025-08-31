@@ -86,7 +86,7 @@ export const AlternativeItemEditor: React.FC<{
     <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 1, p: 2, backgroundColor: 'white' }}>
       <Grid container spacing={2} alignItems="flex-end">
         {/* Product */}
-        <Grid size={{xs:12, md:5}}>
+        <Grid size={{xs:12, md:6.5}}>
           <ProductSelect
             label="Alternative Product"
             defaultValue={product}
@@ -104,7 +104,7 @@ export const AlternativeItemEditor: React.FC<{
         </Grid>
 
         {/* Quantity + Unit */}
-        <Grid size={{xs:12, md:3}}>
+        <Grid size={{xs:12, md:3.5}}>
           <TextField
             label="Quantity"
             size="small"
@@ -147,13 +147,13 @@ export const AlternativeItemEditor: React.FC<{
               size="small"
               onClick={onCancel}
               sx={{
-                backgroundColor: 'error.main',
+                backgroundColor: green[500],
                 color: '#fff',
-                width: 32,
-                height: 32,
+                width: 24,
+                height: 24,
                 borderRadius: 1,
                 '&:hover': {
-                  backgroundColor: 'error.dark',
+                  backgroundColor:  green[700],
                 },
               }}
             >
