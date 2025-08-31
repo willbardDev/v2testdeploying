@@ -231,7 +231,7 @@ projectsServices.showDeliverableDetails = async (id) => {
 }
 
 projectsServices.showProject = async({queryKey}) => {
-    const {id} = queryKey[1];
+    const id = queryKey[1]?.id;
     const {data} = await axios.get(`/api/projectManagement/project/${id}/showProject`)
     return data;
 }

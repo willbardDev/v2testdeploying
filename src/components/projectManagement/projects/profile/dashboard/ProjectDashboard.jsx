@@ -17,8 +17,8 @@ const EditProject = ({ project, setOpenEditDialog }) => {
     isLoading,
     refetch: reFetchProjectAfterEdit,
   } = useQuery({
-    queryKey: ['showProject', project.id],
-    queryFn: () => projectsServices.showProject({ id: project.id }),
+    queryKey: ['showProject', { id: project.id }],
+    queryFn: projectsServices.showProject,
   });
 
   if (isLoading) {
@@ -36,7 +36,7 @@ const EditProject = ({ project, setOpenEditDialog }) => {
 
 function ProjectDashboard() {
   const { project, isDashboardTab, setIsDashboardTab, reFetchProject } =
-    useProjectProfile();
+  useProjectProfile();
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const menuItems = [{ icon: <EditOutlined />, title: 'Edit', action: 'edit' }];
@@ -58,7 +58,7 @@ function ProjectDashboard() {
 
   return (
     <>
-      <Grid container>
+      <Grid container width={'100%'}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <ProgressBullet />
           <BudgetBullet />
