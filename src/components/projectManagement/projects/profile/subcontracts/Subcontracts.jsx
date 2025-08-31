@@ -1,18 +1,18 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { Card, Stack } from '@mui/material';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
-import projectsServices from '../../projectsServices';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import SubcontractActionTail from './SubcontractActionTail';
 import SubcontractListItem from './SubcontractListItem';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
-import StakeholderSelectProvider from 'app/prosServices/prosERP/masters/stakeholders/StakeholderSelectProvider';
-import CurrencySelectProvider from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
-import LedgerSelectProvider from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider';
-import ProductsSelectProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
-import ProductsProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsProvider';
+import { useParams } from 'next/navigation';
+import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
+import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
+import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
+import projectsServices from '../../project-services';
 
 const Subcontracts = () => {
   const params = useParams();

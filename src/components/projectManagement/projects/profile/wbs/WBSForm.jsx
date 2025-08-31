@@ -1,6 +1,5 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -14,21 +13,24 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import Div from '@jumbo/shared/Div/Div';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import { useProjectProfile } from '../ProjectProfileProvider';
-import projectsServices from '../../projectsServices';
+import projectsServices from '../../project-services';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Div } from '@jumbo/shared';
 
 const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {project, projectTimelineActivities} = useProjectProfile();
 
-  const { mutate: addTimelineActivity, isLoading } = useMutation(projectsServices.addTimelineActivity, {
+  // React Query v5 syntax for useMutation
+  const { mutate: addTimelineActivity, isLoading } = useMutation({
+    mutationFn: projectsServices.addTimelineActivity,
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['projectTimelineActivities']);
+      queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
     },
     onError: (error) => {
       enqueueSnackbar(error.response.data.message, {
@@ -37,11 +39,12 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
     },
   });
 
-  const { mutate: updateTimelineActivity, isLoading : updateLoading } = useMutation(projectsServices.updateTimelineActivity, {
+  const { mutate: updateTimelineActivity, isLoading: updateLoading } = useMutation({
+    mutationFn: projectsServices.updateTimelineActivity,
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['projectTimelineActivities']);
+      queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
     },
     onError: (error) => {
       enqueueSnackbar(error.response.data.message, {
@@ -150,7 +153,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
       <DialogContent>
         <form autoComplete="off">
           <Grid container columnSpacing={1}>
-            <Grid item md={4} xs={12} >
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   size='small'
@@ -162,7 +165,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
                 />
               </Div>
             </Grid>
-            <Grid item md={4} xs={12} >
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   size='small'
@@ -172,7 +175,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   size="small"
@@ -185,7 +188,6 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
                     endAdornment: <span>%</span>
                   }}
                   onChange={(e) => {
-
                     setValue(`weighted_percentage`,e.target.value ? sanitizedNumber(e.target.value) : 0,{
                       shouldValidate: true,
                       shouldDirty: true
@@ -194,7 +196,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1}}>
                 <Autocomplete
                   options={timelineActivity ? 
@@ -221,7 +223,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid size={{xs: 12, md: 8}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   size="small"

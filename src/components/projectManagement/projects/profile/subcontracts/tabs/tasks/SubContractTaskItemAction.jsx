@@ -1,13 +1,13 @@
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import { useJumboTheme } from '@jumbo/hooks';
-import projectsServices from '../../../../projectsServices';
 import SubContractTasks from './SubContractTasks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { JumboDdMenu } from '@jumbo/components';
 
 const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTasks}) => {
     const [openEditDialog,setOpenEditDialog] = useState(false);
@@ -21,15 +21,17 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: deleteSubContractTask } = useMutation(projectsServices.deleteSubContractTask, {
+    // React Query v5 syntax for useMutation
+    const { mutate: deleteSubContractTask } = useMutation({
+        mutationFn: projectsServices.deleteSubContractTask,
         onSuccess: (data) => {
-            queryClient.invalidateQueries(['subContractTasks']);
+            queryClient.invalidateQueries({queryKey: ['subContractTasks']});
             enqueueSnackbar(data.message, {
                 variant: 'success',
             });
         },
         onError: (error) => {
-        enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+            enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
         },
     });
 
@@ -38,27 +40,27 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
         {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
     ];
 
-  const handleItemAction = (menuItem) => {
-    switch (menuItem.action) {
-      case 'edit':
-        setOpenEditDialog(true);
-        break;
-      case 'delete':
-        showDialog({
-            title: 'Confirm Delete',
-            content: 'Are you sure you want to delete this Task?',
-            onYes: () =>{ 
-                hideDialog();
-                deleteSubContractTask(subContractTask.id)
-            },
-            onNo: () => hideDialog(),
-            variant:'confirm'
-        });
-        break;
-        default:
-        break;
+    const handleItemAction = (menuItem) => {
+        switch (menuItem.action) {
+        case 'edit':
+            setOpenEditDialog(true);
+            break;
+        case 'delete':
+            showDialog({
+                title: 'Confirm Delete',
+                content: 'Are you sure you want to delete this Task?',
+                onYes: () =>{ 
+                    hideDialog();
+                    deleteSubContractTask(subContractTask.id)
+                },
+                onNo: () => hideDialog(),
+                variant:'confirm'
+            });
+            break;
+            default:
+            break;
+        }
     }
-  }
 
   return (
     <>

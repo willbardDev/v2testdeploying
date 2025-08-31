@@ -6,12 +6,12 @@ import dayjs from 'dayjs';
 import DescriptionTab from './tab/DescriptionTab';
 import TaskProgress from './tab/taskProgress/TaskProgress';
 import TaskProgressRow from './tab/taskProgress/TaskProgressRow';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
-import projectsServices from '../../projectsServices';
 import { LoadingButton } from '@mui/lab';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import projectsServices from '../../project-services';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const UpdateFormContext = createContext();
 export const useUpdateFormContext = () => useContext(UpdateFormContext);
@@ -28,11 +28,13 @@ function UpdatesForm({ setOpenDialog, update }) {
         project_task_id: task_execution.task?.id, 
     })) : []);
 
-    const { mutate: addProjectUpdates, isLoading } = useMutation(projectsServices.addProjectUpdates, {
+    // React Query v5 syntax for useMutation
+    const { mutate: addProjectUpdates, isPending } = useMutation({
+        mutationFn: projectsServices.addProjectUpdates,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectUpdates']);
+            queryClient.invalidateQueries({queryKey: ['projectUpdates']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -41,11 +43,12 @@ function UpdatesForm({ setOpenDialog, update }) {
         },
     });
 
-    const { mutate: updateProjectUpdates, isLoading: isEditUpdate } = useMutation(projectsServices.updateProjectUpdates, {
+    const { mutate: updateProjectUpdates, isPending: isEditUpdate } = useMutation({
+        mutationFn: projectsServices.updateProjectUpdates,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectUpdates']);
+            queryClient.invalidateQueries({queryKey: ['projectUpdates']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -119,11 +122,11 @@ function UpdatesForm({ setOpenDialog, update }) {
                 </Button>
                 <LoadingButton
                     type="submit"
-                    onClick={handleSubmit(onSubmit)}
+                    onClick={handleSubmit((data) => onSubmit(data))}
                     variant="contained"
                     size="small"
                     sx={{ display: 'flex' }}
-                    loading={isLoading || isEditUpdate}
+                    loading={isPending || isEditUpdate}
                 >
                     Submit
                 </LoadingButton>

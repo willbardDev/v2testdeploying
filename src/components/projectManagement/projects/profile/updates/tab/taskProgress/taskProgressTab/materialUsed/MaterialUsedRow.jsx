@@ -7,11 +7,20 @@ function MaterialUsedRow({ material, index, materialUsed=[], setMaterialUsed}) {
     const product = material.product;
     const [showForm, setShowForm] = useState(false);
 
+    const handleRemoveItem = () => {
+        setMaterialUsed(materialUsed => {
+            const newItems = [...materialUsed];
+            newItems.splice(index,1);
+            return newItems;
+        });
+    };
+
   return (
          <React.Fragment>
             <Divider/>
             { !showForm ? (
                     <Grid container 
+                        width={'100%'}
                         sx={{
                             cursor: 'pointer',
                             '&:hover': {
@@ -19,43 +28,37 @@ function MaterialUsedRow({ material, index, materialUsed=[], setMaterialUsed}) {
                             }
                         }}
                     >
-                        <Grid item xs={1} md={0.5}>
+                        <Grid size={{xs: 1, md: 0.5}}>
                             {index+1}.
                         </Grid>
-                        <Grid item xs={11} md={3.5}>
+                        <Grid size={{xs: 11, md: 3.5}}>
                             <Tooltip title="Product">
-                                <Typography>{product.name}</Typography>
+                                <Typography>{product?.name || 'N/A'}</Typography>
                             </Tooltip>
                         </Grid>
-                        <Grid item xs={6} md={2.5}>
+                        <Grid size={{xs: 6, md: 2.5}}>
                             <Tooltip title="Store">
-                                <Typography>{material.store?.name}</Typography>
+                                <Typography>{material.store?.name || 'N/A'}</Typography>
                             </Tooltip>
                         </Grid>
-                        <Grid textAlign={'end'} item xs={6} md={2}>
+                        <Grid size={{xs: 6, md: 2}} textAlign={'end'}>
                             <Tooltip title="Quantity">
-                                <Typography>{material.quantity} {material.unit_symbol || material.measurement_unit?.symbol}</Typography>
+                                <Typography>{material.quantity} {material.unit_symbol || material.measurement_unit?.symbol || ''}</Typography>
                             </Tooltip>
                         </Grid>
-                        <Grid item xs={12} md={2.5} paddingLeft={3}>
+                        <Grid size={{xs: 12, md: 2.5}} paddingLeft={3}>
                             <Tooltip title="Remarks">
-                                <Typography>{material.remarks}</Typography>
+                                <Typography>{material.remarks || 'No remarks'}</Typography>
                             </Tooltip>
                         </Grid>
-                        <Grid textAlign={'end'} item xs={12} md={1}>
+                        <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
                             <Tooltip title='Edit Item'>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title='Remove Item'>
-                                <IconButton size='small' 
-                                    onClick={() => setMaterialUsed(materialUsed => {
-                                        const newItems = [...materialUsed];
-                                        newItems.splice(index,1);
-                                        return newItems;
-                                    })}
-                                >
+                                <IconButton size='small' onClick={handleRemoveItem}>
                                     <DisabledByDefault fontSize='small' color='error'/>
                                 </IconButton>
                             </Tooltip>

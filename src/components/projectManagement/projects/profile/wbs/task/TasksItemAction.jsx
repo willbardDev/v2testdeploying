@@ -1,13 +1,13 @@
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import { useJumboTheme } from '@jumbo/hooks';
-import projectsServices from '../../../projectsServices';
 import TasksForm from './TasksForm';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import projectsServices from '../../../project-services';
+import { JumboDdMenu } from '@jumbo/components';
 
 const TasksItemAction = ({ task, activity}) => {
     const [openEditDialog,setOpenEditDialog] = useState(false);
@@ -19,15 +19,17 @@ const TasksItemAction = ({ task, activity}) => {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: deleteTask } = useMutation(projectsServices.deleteTask, {
+    // React Query v5 syntax for useMutation
+    const { mutate: deleteTask } = useMutation({
+        mutationFn: projectsServices.deleteTask,
         onSuccess: (data) => {
-            queryClient.invalidateQueries(['projectTimelineActivities']);
+            queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
             enqueueSnackbar(data.message, {
                 variant: 'success',
             });
         },
         onError: (error) => {
-        enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+            enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
         },
     });
 

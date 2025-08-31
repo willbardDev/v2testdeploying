@@ -3,20 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
 import { LoadingButton } from '@mui/lab';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import { useUpdateFormContext } from '../../../../UpdatesForm';
 import { useProjectProfile } from '../../../../../ProjectProfileProvider';
-import StoreSelector from 'app/prosServices/prosERP/procurement/stores/StoreSelector';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import productServices from '@/components/productAndServices/products/productServices';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import StoreSelector from '@/components/procurement/stores/StoreSelector';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, index = -1, setShowForm = null, materialUsed=[], setMaterialUsed}) {
   const { project} = useProjectProfile();
   const [isRetrieving, setIsRetrieving] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState(material && material.measurement_unit_id);
+  const [selectedUnit, setSelectedUnit] = useState(material?.measurement_unit_id);
   const { productOptions } = useProductsSelect();
   const { taskProgressItems, setTaskProgressItems} = useUpdateFormContext();
   const nonInventoryIds = productOptions.filter(product => product.type !== 'Inventory').map(product => product.id);
@@ -55,11 +55,11 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
   const {setValue, handleSubmit,register,  watch, clearErrors, reset, formState: {errors}} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      product: material && productOptions.find(product => product.id === material.product.id),
+      product: material && productOptions.find(product => product.id === material.product?.id),
       available_balance: 'N/A',
-      projectTaskIndex: material && material.projectTaskIndex,
-      store_id: material && material.store?.id,
-      store: material && material.store,
+      projectTaskIndex: material?.projectTaskIndex,
+      store_id: material?.store?.id,
+      store: material?.store,
       quantity: material ? material.quantity : null,
       conversion_factor: material ? material.conversion_factor : 1,
       measurement_unit_id: material && (material.measurement_unit_id || material.measurement_unit?.id),
@@ -97,9 +97,9 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
         return taskItem;
       });
     });
-  }, [materialUsed]);
+  }, [materialUsed, projectTaskIndex, setTaskProgressItems]);
 
-  const combinedUnits = product?.secondary_units.concat(product?.primary_unit);
+  const combinedUnits = product?.secondary_units?.concat(product?.primary_unit) || [];
 
   const retrieveBalances = async (storeId = null, product, measurement_unit_id) => {
     if (!!product && !!storeId && !isRetrieving) { 
@@ -107,7 +107,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
   
       try {
         const balances = await productServices.getStoreBalances({
-          as_at: taskProgressItem?.execution_date || material.execution_date,
+          as_at: taskProgressItem?.execution_date || material?.execution_date,
           productId: product.id,
           storeIds: [storeId],
           costCenterId: project?.cost_center?.id,
@@ -120,7 +120,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
 
           const existingItems = allMaterialUsed?.filter((existingItem, itemIndex) => {
             return existingItem?.store?.id === storeId 
-              && existingItem?.product.id === product?.id 
+              && existingItem?.product?.id === product?.id 
               && itemIndex !== index
               && !material?.id;
           });
@@ -128,7 +128,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
           const existingQuantity = existingItems.reduce((total, existingItem) => {
             const itemUnitFactor = combinedUnits.find(unit => unit.id === existingItem?.measurement_unit_id)?.conversion_factor || 1;
             const pickedUnitFactor = pickedUnit?.conversion_factor || 1;
-            const primaryUnitId = product?.primary_unit.id;
+            const primaryUnitId = product?.primary_unit?.id;
   
             const conversionFactor = pickedUnit?.id === primaryUnitId
               ? (existingItem?.measurement_unit_id !== primaryUnitId ? 1 / itemUnitFactor : 1) // Primary to secondary or same unit
@@ -137,8 +137,8 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
             return total + (existingItem.quantity * conversionFactor);
           }, 0);
   
-          const balance = balances?.stock_balances.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.balance;
-          const currentBalance = balances?.stock_balances.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.current_balance;
+          const balance = balances?.stock_balances?.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.balance;
+          const currentBalance = balances?.stock_balances?.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.current_balance;
   
           const updatedBalance = parseFloat((balance - existingQuantity).toFixed(6));
   
@@ -149,7 +149,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
   
         }
       } catch (error) {
-        console.clear()
+        console.error('Error retrieving balances:', error);
       } finally {
         setIsRetrieving(false);
       }
@@ -170,10 +170,10 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
   return (
     <form autoComplete='off' onSubmit={handleSubmit(updateItems)} >
       <Grid container columnSpacing={1} rowSpacing={1} mb={2} mt={1}>
-        <Grid item xs={12} md={!!product && !!store_id ? 3 : 4} lg={!!product && !!store_id ? 3 : 4}>
+        <Grid size={{xs: 12, md: !!product && !!store_id ? 3 : 4, lg: !!product && !!store_id ? 3 : 4}}>
           <ProductSelect
             frontError={errors.product}
-            defaultValue={material && material.product}
+            defaultValue={material?.product}
             excludeIds={nonInventoryIds}
             onChange={async(newValue) => {
               clearErrors('quantity');
@@ -183,7 +183,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
                   shouldDirty: true,
                   shouldValidate: true
                 });
-                await setSelectedUnit(newValue?.primary_unit.id)
+                await setSelectedUnit(newValue?.primary_unit?.id)
                 await setValue('measurement_unit_id', newValue.primary_unit?.id);
                 await setValue('unit_symbol', newValue.primary_unit?.unit_symbol);
                 await setValue(`product_id`,newValue.id);
@@ -200,11 +200,11 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
             }}
           />
         </Grid>
-        <Grid item xs={12} md={!!product && !!store_id ? 2 : 3}>
+        <Grid size={{xs: 12, md: !!product && !!store_id ? 2 : 3}}>
           <StoreSelector
             allowSubStores={true}
             proposedOptions={project?.stores}
-            defaultValue={material && material.store}
+            defaultValue={material?.store}
             onChange={(newValue) => {
               newValue !== null && retrieveBalances(newValue.id, product, measurement_unit_id);
                 setValue(`store`, newValue);
@@ -216,7 +216,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
           />
         </Grid>
         {!!product && !!store_id &&
-          <Grid item xs={12} md={2} lg={2}>
+          <Grid size={{xs: 12, md: 2, lg: 2}}>
             {
               isRetrieving ? <LinearProgress/> :
                 <TextField
@@ -232,7 +232,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
             }
           </Grid>
         }
-        <Grid item xs={12} md={2}>
+        <Grid size={{xs: 12, md: 2}}>
           <TextField
             label="Quantity"
             fullWidth
@@ -285,7 +285,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
             defaultValue={material ? material?.quantity : null}
           />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid size={{xs: 12, md: 3}}>
           <TextField
             label="Remarks"
             size="small"
@@ -295,7 +295,7 @@ function MaterialUsed({projectTaskIndex, taskProgressItem, material = null, inde
             {...register('remarks')}
           />
         </Grid>
-        <Grid textAlign={'end'} item xs={12}>
+        <Grid size={{xs: 12}} textAlign={'end'}>
           <LoadingButton
             loading={false}
             variant='contained'

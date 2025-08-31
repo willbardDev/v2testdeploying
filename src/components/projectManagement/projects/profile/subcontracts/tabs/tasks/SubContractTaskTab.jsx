@@ -2,23 +2,23 @@ import { Grid } from '@mui/material'
 import React from 'react'
 import SubContractTasksActionTail from './SubContractTasksActionTail'
 import SubContractTasksListItem from './SubContractTasksListItem'
-import projectsServices from '../../../../projectsServices';
-import { useQuery } from 'react-query';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { useQuery } from '@tanstack/react-query';
 
 function SubContractTaskTab({subContract, isExpanded}) {
-    const { data: subContractTasks, isLoading } = useQuery(
-        ['subContractTasks', { id: subContract.id }],
-        async () => projectsServices.getSubContractTasks(subContract.id),
-        {
-            enabled: !!isExpanded,
-        }
-    );
+    // React Query v5 syntax for useQuery
+    const { data: subContractTasks, isLoading } = useQuery({
+        queryKey: ['subContractTasks', { id: subContract.id }],
+        queryFn: async () => projectsServices.getSubContractTasks(subContract.id),
+        enabled: !!isExpanded,
+    });
+    
   return (
     <Grid container spacing={2}>
-        <Grid item xs={12} textAlign={'end'}>
+        <Grid size={{xs: 12}} textAlign={'end'}>
             <SubContractTasksActionTail subContract={subContract} subContractTasks={subContractTasks}/>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{xs: 12}}>
             <SubContractTasksListItem subContract={subContract} subContractTasks={subContractTasks} isLoading={isLoading}/>
         </Grid>
     </Grid>

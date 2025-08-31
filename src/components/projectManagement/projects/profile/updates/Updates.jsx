@@ -7,9 +7,9 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import UpdatesActionTail from './UpdatesActionTail';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import UpdateItemAction from './UpdateItemAction';
-import ProductsSelectProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 
 const UpdatesAccordion = ({ expanded, handleChange, update }) => {
 
@@ -59,15 +59,15 @@ const UpdatesAccordion = ({ expanded, handleChange, update }) => {
           },
         }}
       >
-        <Grid container paddingLeft={1} paddingRight={1} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
-          <Grid item xs={11} md={11}>
+        <Grid container paddingLeft={1} width={'100%'} paddingRight={1} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
+          <Grid size={11}>
             <Tooltip title='Start Date'>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                 {readableDate(update.update_date, false)}
               </Typography>
             </Tooltip>
           </Grid>
-          <Grid item xs={1} md={1} textAlign={'end'}>
+          <Grid size={1} textAlign={'end'}>
             <UpdateItemAction update={update}/>
           </Grid>
         </Grid>
@@ -79,6 +79,7 @@ const UpdatesAccordion = ({ expanded, handleChange, update }) => {
           marginBottom: 3,
         }}
       >
+
       </AccordionDetails>
     </Accordion>
   );
@@ -97,8 +98,8 @@ function Updates() {
 
   return (
     <ProductsSelectProvider>
-      <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
-        <Grid item>
+      <Grid container columnSpacing={1} width={'100%'} justifyContent="flex-end" alignItems="center">
+        <Grid>
           <UpdatesActionTail openDialog={openDialog} setOpenDialog={setOpenDialog}/>
         </Grid>
       </Grid>
@@ -115,7 +116,7 @@ function Updates() {
             />
           ))
         ) : (
-          <Alert variant="outlined" color="primary" severity="info">
+          <Alert variant="outlined" severity="info">
             No Updates Found
           </Alert>
         )}

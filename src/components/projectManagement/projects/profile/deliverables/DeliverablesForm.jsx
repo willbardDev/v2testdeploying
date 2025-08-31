@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -14,24 +14,26 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import Div from '@jumbo/shared/Div/Div';
 import { useProjectProfile } from '../ProjectProfileProvider';
-import projectsServices from '../../projectsServices';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import MeasurementSelector from 'app/prosServices/prosERP/masters/measurementUnits/MeasurementSelector';
+import projectsServices from '../../project-services';
+import { Div } from '@jumbo/shared';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
 
 const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
     const {project, deliverable_groups} = useProjectProfile();
 
-    const { mutate: addDeliverables, isLoading } = useMutation(projectsServices.addDeliverables, {
+    // React Query v5 syntax for useMutation
+    const { mutate: addDeliverables, isPending } = useMutation({
+        mutationFn: projectsServices.addDeliverables,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectDeliverableGroups']);
+            queryClient.invalidateQueries({queryKey: ['projectDeliverableGroups']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -40,11 +42,12 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
         },
     });
 
-    const { mutate: updateDeliverables, isLoading: updateIsLoading } = useMutation(projectsServices.updateDeliverables, {
+    const { mutate: updateDeliverables, isPending: updateIsLoading } = useMutation({
+        mutationFn: projectsServices.updateDeliverables,
         onSuccess: async(data) => {
             await setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectDeliverableGroups']);
+            queryClient.invalidateQueries({queryKey: ['projectDeliverableGroups']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -150,7 +153,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
             <DialogContent>
                 <form autoComplete="off">
                     <Grid container columnSpacing={1}>
-                        <Grid item xs={12}>
+                        <Grid size={{xs: 12}}>
                             <Div sx={{ mt: 1}}>
                                 <TextField
                                     size="small"
@@ -164,7 +167,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item md={4} xs={12} >
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{ mt: 1}}>
                                 <TextField
                                     size='small'
@@ -177,7 +180,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                         </Grid>
                         {!!project.client_id &&
                             <>
-                                <Grid item md={4} xs={12}>
+                                <Grid size={{xs: 12, md: 4}}>
                                     <Div sx={{ mt: 1}}>
                                         <CurrencySelector
                                             frontError={errors?.currency_id}
@@ -197,7 +200,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 </Grid>
                                 {
                                     watch('currency_id') > 1 && (
-                                        <Grid item md={4} xs={12}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1}}>
                                                 <TextField
                                                     label="Exchange Rate"
@@ -220,11 +223,11 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 }
                             </>
                         }
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{ mt: 1}}>
                                 <MeasurementSelector
                                     label='Measurement Unit'
-                                    frontError={errors && errors?.measurement_unit_id}
+                                    frontError={errors?.measurement_unit_id}
                                     defaultValue={deliverable?.measurement_unit_id}
                                     onChange={(newValue) => {
                                         newValue ? setValue(`measurement_unit_id`, newValue.id,{
@@ -238,20 +241,20 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{ mt: 1}}>
                                 <TextField
                                     size="small"
                                     fullWidth
-                                    error={errors && !!errors?.quantity}
-                                    helperText={errors && errors.quantity?.message}
+                                    error={!!errors?.quantity}
+                                    helperText={errors?.quantity?.message}
                                     label="Quantity"
                                     {...register(`quantity`)}
                                 />
                             </Div>
                         </Grid>
                         {!!project.client_id &&
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Div sx={{ mt: 1}}>
                                     <TextField
                                         size="small"
@@ -273,7 +276,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 </Div>
                             </Grid>
                         }
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{ mt: 1}}>
                                 <TextField
                                     size="small"
@@ -296,7 +299,7 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={watch('currency_id') > 1 ? 8 : !project.client_id && 8 }>
+                        <Grid size={{xs: 12, md: watch('currency_id') > 1 ? 8 : !project.client_id && 8 }}>
                             <Div sx={{ mt: 1}}>
                                 <Autocomplete
                                     options={deliverable ? 
@@ -333,10 +336,10 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                 <LoadingButton
                     type="submit"
                     variant="contained"
-                    onClick={handleSubmit(saveMutation)}
+                    onClick={handleSubmit((data) => saveMutation(data))}
                     size="small"
                     sx={{ display: 'flex' }}
-                    loading={isLoading || updateIsLoading}
+                    loading={isPending || updateIsLoading}
                 >
                     Submit
                 </LoadingButton>

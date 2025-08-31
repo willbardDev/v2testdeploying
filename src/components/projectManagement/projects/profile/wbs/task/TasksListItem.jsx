@@ -6,13 +6,13 @@ import {
   ListItemText,
   Chip,
 } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import TasksItemAction from './TasksItemAction';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function TasksListItem({ filteredTasks, activity }) {
 
   return (
-    <Grid item xs={12} padding={1}>
+    <Grid size={{xs: 12}} padding={1}>
       {filteredTasks.length > 0 && <Typography>Tasks</Typography>}
       {filteredTasks.map((task, index) => {
 
@@ -20,7 +20,8 @@ function TasksListItem({ filteredTasks, activity }) {
             <Grid
                 key={index}
                 container 
-                columnSpacing={2}   
+                columnSpacing={2}  
+                width={'100%'} 
                 alignItems={'center'}
                 sx={{
                     cursor: 'pointer',
@@ -32,7 +33,7 @@ function TasksListItem({ filteredTasks, activity }) {
                     padding: 1,
                 }}
             >
-                <Grid item xs={12} md={4}>
+                <Grid size={{xs: 12, md: 4}}>
                     <ListItemText
                         primary={
                         <Tooltip title="Name">
@@ -50,7 +51,7 @@ function TasksListItem({ filteredTasks, activity }) {
                         }
                     />
                 </Grid>
-                <Grid item xs={12} md={2}>
+                <Grid size={{xs: 12, md: 2}}>
                     <Tooltip title="Weighted Percentage">
                       <Chip
                         size='small'
@@ -59,21 +60,21 @@ function TasksListItem({ filteredTasks, activity }) {
                       />
                     </Tooltip>
                 </Grid>
-                <Grid item xs={6} md={2.5}>
+                <Grid size={{xs: 6, md: 2.5}}>
                     <Tooltip title='Start Date'>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                            {readableDate(task.start_date, false)}
                         </Typography>
                     </Tooltip>
                 </Grid>
-                <Grid item xs={6} md={2.5}>
+                <Grid size={{xs: 6, md: 2.5}}>
                     <Tooltip title='End Date'>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                            {readableDate(task.end_date, false)}
                         </Typography>
                     </Tooltip>
                 </Grid>
-                <Grid item xs={12} md={1} textAlign="end">
+                <Grid size={{xs: 12, md: 1}} textAlign="end">
                    <TasksItemAction task={task} activity={activity}/>
                 </Grid>
             </Grid>

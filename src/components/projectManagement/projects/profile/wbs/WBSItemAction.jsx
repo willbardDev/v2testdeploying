@@ -3,11 +3,11 @@ import React, {  useState} from 'react'
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined, PlaylistAddCheck} from '@mui/icons-material'
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog'
 import { useSnackbar } from 'notistack'
-import { useMutation, useQueryClient } from 'react-query'
-import { useJumboTheme } from '@jumbo/hooks'
-import JumboDdMenu from '@jumbo/components/JumboDdMenu'
-import projectsServices from '../../projectsServices'
 import WBSForm from './WBSForm'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import projectsServices from '../../project-services'
+import { JumboDdMenu } from '@jumbo/components'
 
 function WBSItemAction({activity, isAccDetails}) {
     const {showDialog,hideDialog} = useJumboDialog();
@@ -20,10 +20,12 @@ function WBSItemAction({activity, isAccDetails}) {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const deleteTimelineActivity = useMutation(projectsServices.deleteTimelineActivity,{
+    // React Query v5 syntax for useMutation
+    const deleteTimelineActivity = useMutation({
+        mutationFn: projectsServices.deleteTimelineActivity,
         onSuccess: (data) => {
             enqueueSnackbar(data.message,{variant : 'success'});
-            queryClient.invalidateQueries(['projectTimelineActivities']);
+            queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
         },
         onError: (error) => {
             enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
@@ -33,7 +35,7 @@ function WBSItemAction({activity, isAccDetails}) {
     const menuItems = [
         {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
         !(activity.children.length > 0 || activity.tasks.length > 0) &&{icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
-    ];
+    ].filter(Boolean);
 
     const handleItemAction = (menuItem) => {
         switch (menuItem.action) {

@@ -1,25 +1,29 @@
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog,LinearProgress,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import { useJumboTheme } from '@jumbo/hooks';
 import SubcontractForm from './SubcontractForm';
-import projectsServices from '../../projectsServices';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import projectsServices from '../../project-services';
+import { JumboDdMenu } from '@jumbo/components';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-  const EditSubContract = ({subContract,setOpenDialog}) => {
-    const {data:SubContractDetails,isFetching} = useQuery(['SubContractDetails',{id:subContract.id}],async() => projectsServices.getSubContractDetails(subContract.id));
+const EditSubContract = ({subContract,setOpenDialog}) => {
+  // React Query v5 syntax for useQuery
+  const {data:SubContractDetails,isFetching} = useQuery({
+    queryKey: ['SubContractDetails',{id:subContract.id}],
+    queryFn: async() => projectsServices.getSubContractDetails(subContract.id)
+  });
 
-    if(isFetching){
-      return <LinearProgress/>;
-    }
-
-    return (
-      <SubcontractForm setOpenDialog={setOpenDialog} subContract={SubContractDetails} />
-    )
+  if(isFetching){
+    return <LinearProgress/>;
   }
+
+  return (
+    <SubcontractForm setOpenDialog={setOpenDialog} subContract={SubContractDetails} />
+  )
+}
 
 const SubcontractItemAction = ({subContract}) => {
   const [openEditDialog,setOpenEditDialog] = useState(false);
@@ -30,9 +34,11 @@ const SubcontractItemAction = ({subContract}) => {
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { mutate: deleteSubContract } = useMutation(projectsServices.deleteSubContract, {
+  // React Query v5 syntax for useMutation
+  const { mutate: deleteSubContract } = useMutation({
+    mutationFn: projectsServices.deleteSubContract,
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['subcontracts']);
+      queryClient.invalidateQueries({queryKey: ['subcontracts']});
       enqueueSnackbar(data.message, {
         variant: 'success',
       });

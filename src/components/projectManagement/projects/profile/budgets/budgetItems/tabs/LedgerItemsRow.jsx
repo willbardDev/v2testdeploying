@@ -1,20 +1,21 @@
 import { DisabledByDefault } from '@mui/icons-material'
 import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React from 'react'
-import projectsServices from '../../../../projectsServices';
-import { useMutation, useQueryClient } from 'react-query';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import projectsServices from '@/components/projectManagement/projects/project-services';
 
 function LedgerItemsRow({ ledgerItem, index}) {
   const {enqueueSnackbar} = useSnackbar();
   const {showDialog,hideDialog} = useJumboDialog();
   const queryClient = useQueryClient();
 
-  const deleteExistingBudgetItem = useMutation(projectsServices.deleteExistingBudgetItem,{
+  const deleteExistingBudgetItem = useMutation({
+    mutationFn: (variables) => projectsServices.deleteExistingBudgetItem(variables),
     onSuccess: (data) => {
       enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['budgetItemsDetails']);
+      queryClient.invalidateQueries({queryKey: ['budgetItemsDetails']});
     },
     onError: (error) => {
       enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
@@ -38,6 +39,7 @@ function LedgerItemsRow({ ledgerItem, index}) {
     <React.Fragment>
       <Divider/>
         <Grid container 
+          width={'100%'}
           sx={{
             cursor: 'pointer',
             '&:hover': {
@@ -45,10 +47,10 @@ function LedgerItemsRow({ ledgerItem, index}) {
             }
           }}
         >
-          <Grid item xs={1} md={0.5}>
+          <Grid size={{xs: 1, md: 0.5}}>
             {index+1}.
           </Grid>
-          <Grid item xs={7} md={4.5}>
+          <Grid size={{xs: 7, md: 4.5}}>
             <ListItemText
               primary={
                 <Tooltip title="Expense name">
@@ -62,12 +64,12 @@ function LedgerItemsRow({ ledgerItem, index}) {
               }
             />
           </Grid>
-          <Grid item xs={4} md={2} textAlign={{md: 'right'}}>
+          <Grid size={{xs: 4, md: 2}} textAlign={{md: 'right'}}>
             <Tooltip title="Quantity">
               <Typography>{ledgerItem.quantity.toLocaleString()} {ledgerItem.measurement_unit?.symbol}</Typography>
             </Tooltip>
           </Grid>
-          <Grid item xs={6} md={2} textAlign={{md: 'right'}}>
+          <Grid size={{xs: 6, md: 2}} textAlign={{md: 'right'}}>
             <Tooltip title="Rate">
               <Typography>{ledgerItem.rate.toLocaleString('en-US', 
                 {
@@ -77,7 +79,7 @@ function LedgerItemsRow({ ledgerItem, index}) {
               </Typography>
             </Tooltip>
           </Grid>
-          <Grid item xs={6} md={2} textAlign={{md: 'right'}}>
+          <Grid size={{xs: 6, md: 2}} textAlign={{md: 'right'}}>
             <Tooltip title="Amount">
               <Typography>{(ledgerItem.quantity * ledgerItem.rate).toLocaleString('en-US', 
                 {
@@ -87,7 +89,7 @@ function LedgerItemsRow({ ledgerItem, index}) {
               </Typography>
             </Tooltip>
           </Grid>
-          <Grid textAlign={'end'} item xs={12} md={1}>
+          <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
             <Tooltip title='Remove Expense Item'>
               <IconButton size='small' 
                 onClick={() => {

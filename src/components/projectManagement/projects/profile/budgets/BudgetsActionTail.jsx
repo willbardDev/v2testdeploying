@@ -1,13 +1,13 @@
-import { useJumboTheme } from "@jumbo/hooks";
 import { AddOutlined } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
 import BudgetsForm from "./BudgetsForm";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 
 const BudgetsActionTail = () => {
-    const { theme } = useJumboTheme();
-    const [openDialog, setOpenDialog] = useState(false)
-    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { theme } = useJumboTheme();
+  const [openDialog, setOpenDialog] = useState(false)
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   
     return (
       <React.Fragment>

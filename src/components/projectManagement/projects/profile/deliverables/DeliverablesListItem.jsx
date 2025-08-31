@@ -14,28 +14,27 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeliverablesItemAction from './DeliverablesItemAction';
-import { useQuery } from 'react-query';
-import projectsServices from '../../projectsServices';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import DeliverableTasks from './tab/DeliverableTasks';
+import { useQuery } from '@tanstack/react-query';
+import projectsServices from '../../project-services';
 
 function DeliverablesListItem({ filteredDeliverables }) {
   const { activeTab } = useProjectProfile();
   const [expandedIndex, setExpandedIndex] = useState(-1);
   const [tabIndex, setTabIndex] = useState(0); 
 
-  const { data: deliverableDetails, isLoading: isDetailsLoading } = useQuery(
-    ['deliverableDetails', expandedIndex],
-    () => {
+  // React Query v5 syntax for useQuery
+  const { data: deliverableDetails, isLoading: isDetailsLoading } = useQuery({
+    queryKey: ['deliverableDetails', expandedIndex],
+    queryFn: () => {
       const deliverableId = filteredDeliverables[expandedIndex]?.id;
       return projectsServices.showDeliverableDetails(deliverableId);
     },
-    {
-      enabled: expandedIndex !== -1, 
-      staleTime: activeTab, 
-      cacheTime: activeTab,
-    }
-  );
+    enabled: expandedIndex !== -1, 
+    staleTime: activeTab, 
+    cacheTime: activeTab,
+  });
 
   const handleAccordionToggle = (index) => {
     setExpandedIndex((prevExpandedIndex) => (prevExpandedIndex === index ? -1 : index));
@@ -43,10 +42,10 @@ function DeliverablesListItem({ filteredDeliverables }) {
   };
 
   return (
-    <Grid item xs={12}>
+    <Grid size={{xs: 12}}>
       {filteredDeliverables.length > 0 && <Typography>Deliverables</Typography>}
       {filteredDeliverables.map((deliverable, index) => {
-        const currencyCode = deliverable.currency.code;
+        const currencyCode = deliverable.currency?.code;
 
         return (
           <Accordion
@@ -95,8 +94,8 @@ function DeliverablesListItem({ filteredDeliverables }) {
                 },
               }}
             >
-              <Grid container columnSpacing={1} rowSpacing={1}>
-                <Grid item xs={12} md={deliverable?.contract_rate ? 4 : 7.5}>
+              <Grid container width={'100%'} columnSpacing={1} rowSpacing={1}>
+                <Grid size={{xs: 12, md: deliverable?.contract_rate ? 4 : 7.5}}>
                   <ListItemText
                     primary={
                       <Tooltip title="Description">
@@ -110,15 +109,15 @@ function DeliverablesListItem({ filteredDeliverables }) {
                     }
                   />
                 </Grid>
-                <Grid item xs={6} md={deliverable?.contract_rate ? 2 : 3.5}>
+                <Grid size={{xs: 6, md: deliverable?.contract_rate ? 2 : 3.5}}>
                   <Tooltip title="Quantity">
                     <Typography textAlign={{ md: 'right' }}>
-                      {`${deliverable.quantity.toLocaleString()} ${deliverable.measurement_unit?.symbol}`}
+                      {`${deliverable.quantity?.toLocaleString()} ${deliverable.measurement_unit?.symbol}`}
                     </Typography>
                   </Tooltip>
                 </Grid>
                 {deliverable?.contract_rate && (
-                  <Grid item xs={6} md={2.5}>
+                  <Grid size={{xs: 6, md: 2.5}}>
                     <Tooltip title="Contract Rate">
                       <Typography textAlign="right">
                         {deliverable.contract_rate?.toLocaleString()}
@@ -127,11 +126,11 @@ function DeliverablesListItem({ filteredDeliverables }) {
                   </Grid>
                 )}
                 {deliverable?.contract_rate && (
-                  <Grid item xs={6} md={2.5}>
+                  <Grid size={{xs: 6, md: 2.5}}>
                     <Tooltip title="Amount">
                       <Typography textAlign="right">
                         {(
-                          deliverable.quantity * deliverable?.contract_rate
+                          (deliverable.quantity || 0) * (deliverable?.contract_rate || 0)
                         ).toLocaleString('en-US', {
                           style: 'currency',
                           currency: currencyCode,
@@ -140,7 +139,7 @@ function DeliverablesListItem({ filteredDeliverables }) {
                     </Tooltip>
                   </Grid>
                 )}
-                <Grid item xs={6} md={1} textAlign="end">
+                <Grid size={{xs: 6, md: 1}} textAlign="end">
                   <DeliverablesItemAction deliverable={deliverable} />
                 </Grid>
               </Grid>

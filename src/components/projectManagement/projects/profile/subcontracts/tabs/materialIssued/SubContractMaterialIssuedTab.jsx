@@ -1,12 +1,12 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { Card, Stack } from '@mui/material';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
 import SubContractMaterialIssuedActionTail from './SubContractMaterialIssuedActionTail';
 import SubContractMaterialIssuedListItem from './SubContractMaterialIssuedListItem';
-import projectsServices from '../../../../projectsServices';
+import { useParams } from 'next/navigation';
+import projectsServices from '@/components/projectManagement/projects/project-services';
 
 const SubContractMaterialIssuedTab = ({subContract}) => {
   const params = useParams();

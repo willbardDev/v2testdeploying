@@ -1,20 +1,23 @@
 import { DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog,DialogContent,Grid,IconButton,LinearProgress,Tab,Tabs,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import { useJumboTheme } from '@jumbo/hooks';
-import projectsServices from 'app/prosServices/prosERP/projectManagement/projects/projectsServices';
-import PDFContent from 'app/prosServices/prosERP/pdf/PDFContent';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import SubContractMaterialIssuedForm from './SubContractMaterialIssuedForm';
 import SubContractMaterialIssuedOnScreen from '../SubContractMaterialIssuedOnScreen';
 import SubContractMaterialIssuedPDF from '../SubContractMaterialIssuedPDF';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import PDFContent from '@/components/pdf/PDFContent';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { JumboDdMenu } from '@jumbo/components';
+import projectsServices from '@/components/projectManagement/projects/project-services';
 
 const EditSubContractMaterialIssued = ({SubContractMaterialIssued, setOpenDialog}) => {
-    const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery(['SubContractMaterialIssuedDetails',{id:SubContractMaterialIssued.id}],async() => projectsServices.getSubContractMaterialIssuedDetails(SubContractMaterialIssued.id));
+    const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery({
+      queryKey: ['SubContractMaterialIssuedDetails',{id:SubContractMaterialIssued.id}],
+      queryFn: async() => projectsServices.getSubContractMaterialIssuedDetails(SubContractMaterialIssued.id)
+    });
 
     if(isFetching){
       return <LinearProgress/>;
@@ -26,7 +29,10 @@ const EditSubContractMaterialIssued = ({SubContractMaterialIssued, setOpenDialog
 }
 
 const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, organization }) => {
-    const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery(['SubContractMaterialIssuedDetails',{id:SubContractMaterialIssued.id}],async() => projectsServices.getSubContractMaterialIssuedDetails(SubContractMaterialIssued.id));
+    const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery({
+        queryKey: ['SubContractMaterialIssuedDetails',{id:SubContractMaterialIssued.id}],
+        queryFn: async() => projectsServices.getSubContractMaterialIssuedDetails(SubContractMaterialIssued.id)
+    });
     const [selectedTab, setSelectedTab] = useState(0);
   
     //Screen handling constants
@@ -48,7 +54,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
           {belowLargeScreen ? (
               <Box>
                 <Grid container alignItems="center" justifyContent="space-between">
-                  <Grid item xs={belowLargeScreen ? 11 : 12}>
+                  <Grid size={{xs: belowLargeScreen ? 11 : 12}}>
                     <Tabs value={selectedTab} onChange={handleTabChange}>
                       <Tab label="On Screen" />
                       <Tab label="PDF" />
@@ -56,7 +62,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
                   </Grid>
   
                   {belowLargeScreen && (
-                    <Grid item xs={1} textAlign="right">
+                    <Grid size={{xs: 1}} textAlign="right">
                       <Tooltip title="Close">
                         <IconButton
                           size="small"
@@ -111,15 +117,17 @@ const SubContractMaterialIssuedItemAction = ({ SubContractMaterialIssued}) => {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: deleteSubContractMaterialIssued } = useMutation(projectsServices.deleteSubContractMaterialIssued, {
+    // React Query v5 syntax for useMutation
+    const { mutate: deleteSubContractMaterialIssued } = useMutation({
+        mutationFn: projectsServices.deleteSubContractMaterialIssued,
         onSuccess: (data) => {
-            queryClient.invalidateQueries(['SubContractMaterialIssued']);
+            queryClient.invalidateQueries({queryKey: ['SubContractMaterialIssued']});
             enqueueSnackbar(data.message, {
                 variant: 'success',
             });
         },
         onError: (error) => {
-        enqueueSnackbar(error?.response?.message,{variant : 'error'});
+            enqueueSnackbar(error?.response?.message,{variant : 'error'});
         },
     });
 

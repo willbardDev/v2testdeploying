@@ -1,8 +1,8 @@
-import { useJumboTheme } from "@jumbo/hooks";
 import { PlaylistAdd } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/material";
 import React from "react";
 import DeliverableGroupForm from "./DeliverableGroupForm";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 
 const DeliverableGroupActionTail = ({ openDialog, setOpenDialog, group }) => {
     const { theme } = useJumboTheme();

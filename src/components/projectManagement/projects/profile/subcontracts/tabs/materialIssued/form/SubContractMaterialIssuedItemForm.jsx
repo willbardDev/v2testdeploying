@@ -4,12 +4,12 @@ import { useForm } from 'react-hook-form';
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import productServices from 'app/prosServices/prosERP/productAndServices/products/product-services';
 import { useProjectProfile } from '../../../../ProjectProfileProvider';
-import StoreSelector from 'app/prosServices/prosERP/procurement/stores/StoreSelector';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import productServices from '@/components/productAndServices/products/productServices';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import StoreSelector from '@/components/procurement/stores/StoreSelector';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 
 function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, issue_date, item = null, index = -1, setItems, items = [], setShowForm = null}) {
@@ -17,7 +17,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
     const nonInventoryIds = productOptions.filter(product => product.type !== 'Inventory').map(product => product.id);
     const { project} = useProjectProfile();
     const [isRetrieving, setIsRetrieving] = useState(false);
-    const [selectedUnit, setSelectedUnit] = useState(item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit.id));
+    const [selectedUnit, setSelectedUnit] = useState(item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit?.id));
 
     const validationSchema = yup.object({
         product: yup.object().required("Material is required").typeError('Material is required'),
@@ -53,12 +53,12 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
     const {setValue, clearErrors, handleSubmit, watch, reset, formState: {errors, dirtyFields}} = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            product: item && productOptions.find(product => product.id === (item.product_id || item.product.id)),
+            product: item && productOptions.find(product => product.id === (item.product_id || item.product?.id)),
             product_id: item && item.product_id,
             store: item && item.store,
-            store_id: item && (item.store_id || item.store.id),
+            store_id: item && (item.store_id || item.store?.id),
             quantity: item && item.quantity,
-            measurement_unit_id: item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit.id),
+            measurement_unit_id: item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit?.id),
             conversion_factor: item ? item.conversion_factor : 1,
             unit_symbol: item && (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.unit_symbol),
         }
@@ -103,9 +103,9 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
           setSubmitItemForm(false); // Reset submitItemForm if there are errors
         })();
       }
-    }, [submitItemForm]);
+    }, [submitItemForm, handleSubmit]);
 
-    const combinedUnits = product?.secondary_units?.concat(product?.primary_unit);
+    const combinedUnits = product?.secondary_units?.concat(product?.primary_unit) || [];
 
     const retrieveBalances = async (issue_date, storeId = null, product, measurement_unit_id) => {
         if (!!product && !!storeId && !isRetrieving) { 
@@ -125,14 +125,14 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
 
                 const existingItems = items?.filter((existingItem, itemIndex) => {
                     return existingItem?.store?.id === storeId 
-                    && existingItem.product.id === product?.id 
+                    && existingItem.product?.id === product?.id 
                     && itemIndex !== index
                 });
 
                 const existingQuantity = existingItems.reduce((total, existingItem) => {
                     const itemUnitFactor = combinedUnits.find(unit => unit.id === existingItem?.measurement_unit_id)?.conversion_factor || 1;
                     const pickedUnitFactor = pickedUnit?.conversion_factor || 1;
-                    const primaryUnitId = product?.primary_unit.id;
+                    const primaryUnitId = product?.primary_unit?.id;
         
                     const conversionFactor = pickedUnit?.id === primaryUnitId
                     ? (existingItem?.measurement_unit_id !== primaryUnitId ? 1 / itemUnitFactor : 1) // Primary to secondary or same unit
@@ -141,8 +141,8 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                     return total + (existingItem.quantity * conversionFactor);
                 }, 0);
 
-                const balance = balances?.stock_balances.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.balance;
-                const currentBalance = balances?.stock_balances.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.current_balance;
+                const balance = balances?.stock_balances?.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.balance;
+                const currentBalance = balances?.stock_balances?.find(storeBalance => storeBalance.cost_center_id === project?.cost_center?.id)?.current_balance;
 
                 const updatedBalance = parseFloat((balance - existingQuantity).toFixed(6));
 
@@ -153,7 +153,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
 
             }
           } catch (error) {
-            console.clear()
+            console.error('Error retrieving balances:', error);
           } finally {
             setIsRetrieving(false);
           }
@@ -174,11 +174,11 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
   return (
     <form autoComplete='off' onSubmit={handleSubmit(updateItems)} >
         <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
                 <ProductSelect
                     label='Material'
                     frontError={errors.product}
-                    defaultValue={item && item.product}
+                    defaultValue={item?.product}
                     excludeIds={nonInventoryIds}
                     onChange={async(newValue) => {
                         if (!!newValue) {
@@ -189,7 +189,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                             });
                             setSelectedUnit(newValue.primary_unit ? newValue?.primary_unit?.id : newValue?.measurement_unit_id)
                             setValue(`measurement_unit_id`, newValue.primary_unit ? newValue?.primary_unit?.id : newValue?.measurement_unit_id);
-                            setValue(`unit_symbol`, newValue.primary_unit ? newValue?.primary_unit?.unit_symbol : newValue?.measurement_unit.symbol)
+                            setValue(`unit_symbol`, newValue.primary_unit ? newValue?.primary_unit?.unit_symbol : newValue?.measurement_unit?.symbol)
                             setValue(`product_id`,newValue?.id);
 
                             await retrieveBalances(issue_date, store_id, newValue, newValue.primary_unit?.id);
@@ -206,11 +206,11 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                     }}
                 />
             </Grid>
-            <Grid item xs={12} md={!!product && !!store_id ? 3 : 4}>
+            <Grid size={{xs: 12, md: !!product && !!store_id ? 3 : 4}}>
                 <StoreSelector
                     allowSubStores={true}
                     proposedOptions={project?.stores}
-                    defaultValue={item && item.store}
+                    defaultValue={item?.store}
                     onChange={(newValue) => {
                     newValue !== null && retrieveBalances(issue_date, newValue.id, product, measurement_unit_id);
                         setValue(`store`, newValue);
@@ -222,7 +222,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                 />
             </Grid>
             {!!product && !!store_id &&
-                <Grid item xs={12} md={2}>
+                <Grid size={{xs: 12, md: 2}}>
                     {
                         isRetrieving ? <LinearProgress/> :
                             <TextField
@@ -238,12 +238,12 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                     }
                 </Grid>
             }
-            <Grid item xs={12} md={!!product && !!store_id ? 3 : 4}>
+            <Grid size={{xs: 12, md: !!product && !!store_id ? 3 : 4}}>
                 <TextField
                     label="Quantity"
                     fullWidth
                     size='small'
-                    defaultValue={item && item.quantity}
+                    defaultValue={item?.quantity}
                     InputProps={{ 
                         endAdornment: (
                             !!product && !!selectedUnit &&
@@ -259,7 +259,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                                                 await setValue(`conversion_factor`, selectedUnit.conversion_factor);
                                                 await setValue(`measurement_unit_id`, selectedUnit.id);
                                                 setValue(`unit_symbol`, selectedUnit?.unit_symbol);
-                                                retrieveBalances(store_id, product, selectedUnit.id);
+                                                retrieveBalances(issue_date, store_id, product, selectedUnit.id);
                                             }
                                         }}
                                         variant="standard"
@@ -280,7 +280,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                                             ))
                                         ) : (
                                             <MenuItem key={product.measurement_unit?.id} value={product.measurement_unit?.id}>
-                                                {product.measurement_unit.symbol}
+                                                {product.measurement_unit?.symbol}
                                             </MenuItem>
                                         )}
                                     </Select>
@@ -298,7 +298,7 @@ function SubContractMaterialIssuedItemForm({setClearFormKey, submitMainForm, sub
                     }}
                 />
             </Grid>
-            <Grid item xs={12} md={12} textAlign={'end'}>
+            <Grid size={{xs: 12, md: 12}} textAlign={'end'}>
                 <Button
                     variant='contained'
                     size='small'

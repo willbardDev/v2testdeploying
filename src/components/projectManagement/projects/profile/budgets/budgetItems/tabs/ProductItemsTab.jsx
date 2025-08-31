@@ -1,22 +1,22 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import Div from '@jumbo/shared/Div';
 import { FormControl, Grid, MenuItem, Select, TextField, Tooltip } from '@mui/material';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { AddOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import ProductSelect from 'app/prosServices/prosERP/productAndServices/products/ProductSelect';
-import { useProductsSelect } from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import ProductQuickAdd from 'app/prosServices/prosERP/productAndServices/products/ProductQuickAdd';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
-import projectsServices from '../../../../projectsServices';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { Div } from '@jumbo/shared';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
     const {productOptions} = useProductsSelect();
@@ -28,31 +28,32 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
   
-    const { mutate: addBudgetItem, isLoading } = useMutation(projectsServices.addBudgetItems, {
-        onSuccess: (data) => {
-          enqueueSnackbar(data.message, { variant: 'success' });
-          queryClient.invalidateQueries(['budgetItemsDetails']);
-          reset({
-            type: 'product',
-            budget_id: budget.id,
-            product_id: null,
-            currency_id: 1,
-            exchange_rate: 1,
-            rate: '',
-            quantity: '',
-            alternative_product_ids: [],
-            description: '',
-            unit_symbol: '',
-            measurement_unit_id: null,
-            budget_itemable_id: selectedItemable?.id,
-            bound_to: selectedBoundTo,
-          }); 
-          setTriggerKey(prevKey => prevKey + 1);
-        },
-        onError: (error) => {
-          enqueueSnackbar(error.response.data.message, {variant: 'error'});
-        },
-      });
+    const { mutate: addBudgetItem, isPending } = useMutation({
+      mutationFn: projectsServices.addBudgetItems,
+      onSuccess: (data) => {
+        enqueueSnackbar(data.message, { variant: 'success' });
+        queryClient.invalidateQueries({queryKey: ['budgetItemsDetails']});
+        reset({
+          type: 'product',
+          budget_id: budget.id,
+          product_id: null,
+          currency_id: 1,
+          exchange_rate: 1,
+          rate: '',
+          quantity: '',
+          alternative_product_ids: [],
+          description: '',
+          unit_symbol: '',
+          measurement_unit_id: null,
+          budget_itemable_id: selectedItemable?.id,
+          bound_to: selectedBoundTo,
+        }); 
+        setTriggerKey(prevKey => prevKey + 1);
+      },
+      onError: (error) => {
+        enqueueSnackbar(error.response.data.message, {variant: 'error'});
+      },
+    });
   
     const saveMutation = React.useMemo(() => {
       return addBudgetItem;
@@ -129,7 +130,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
             {
                 !openProductQuickAdd &&
                     <>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{ mt: 1 }}>
                                 <ProductSelect
                                     multiple={false}
@@ -171,7 +172,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Div sx={{mt: 1}}>
                                 <TextField
                                     label="Description"
@@ -186,7 +187,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={watch(`currency_id`) > 1 ? 2 : 4}>
+                        <Grid size={{xs: 12, md: watch(`currency_id`) > 1 ? 2 : 4}}>
                             <Div sx={{mt: 1}}>
                                 <CurrencySelector
                                     frontError={errors?.currency_id}
@@ -203,7 +204,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                         </Grid>
                         {
                             watch(`currency_id`) > 1 &&
-                            <Grid item xs={6} md={2}>
+                            <Grid size={{xs: 6, md: 2}}>
                                 <Div sx={{mt: 1}}>
                                     <TextField
                                         label="Exchange Rate"
@@ -225,7 +226,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 </Div>
                             </Grid>
                         }
-                        <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={2}>
+                        <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: 2}}>
                             <Div sx={{mt: 1}}>
                                 <TextField
                                     label="Quantity"
@@ -286,7 +287,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={2}>
+                        <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: 2}}>
                             <Div sx={{mt: 1}}>
                                 <TextField
                                     label="Rate"
@@ -306,7 +307,7 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={8}>
+                        <Grid size={{xs: 12, md: 8}}>
                             <Div sx={{ mt: 1 }}>
                                 <ProductSelect
                                     multiple={true}
@@ -329,9 +330,9 @@ function ProductItemsTab({budget, selectedBoundTo, selectedItemable}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid item xs={12} md={12} textAlign={'end'} paddingTop={0.5}>
+                        <Grid size={{xs: 12, md: 12}} textAlign={'end'} paddingTop={0.5}>
                             <LoadingButton
-                                loading={isLoading}
+                                loading={isPending}
                                 variant='contained'
                                 size='small'
                                 type='submit'

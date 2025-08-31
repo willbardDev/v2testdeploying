@@ -9,18 +9,17 @@ import {
 } from '@mui/material';
 
 function DeliverableTasks({ deliverableDetails }) {
-
   return (
-    <Grid item xs={12} padding={1}>
+    <Grid size={{ xs: 12 }} padding={1}>
       {deliverableDetails?.tasks.length > 0 ? (
         <>
           <Typography>Tasks</Typography>
           {deliverableDetails.tasks.map((task, index) => (
             <Grid
               key={index}
-              container 
-              columnSpacing={2}   
-              alignItems={'center'}
+              container
+              columnSpacing={2}
+              alignItems="center"
               sx={{
                 cursor: 'pointer',
                 borderTop: 1,
@@ -31,7 +30,7 @@ function DeliverableTasks({ deliverableDetails }) {
                 padding: 1,
               }}
             >
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <ListItemText
                   primary={
                     <Tooltip title="Name">
@@ -49,18 +48,26 @@ function DeliverableTasks({ deliverableDetails }) {
                   }
                 />
               </Grid>
-              <Grid item xs={6} md={4}>
-                <Tooltip title='Quantity'>
-                  <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
+
+              <Grid size={{ xs: 6, md: 4 }}>
+                <Tooltip title="Quantity">
+                  <Typography
+                    variant="h5"
+                    fontSize={14}
+                    lineHeight={1.25}
+                    mb={0}
+                    noWrap
+                  >
                     {task.quantity?.toLocaleString()} {task.measurement_unit?.symbol}
                   </Typography>
                 </Tooltip>
               </Grid>
-              <Grid item xs={6} md={4}>
+
+              <Grid size={{ xs: 6, md: 4 }}>
                 <Tooltip title="Contribution Percentage">
                   <Chip
-                    size='small'
-                    color='default'
+                    size="small"
+                    color="default"
                     label={`${task.contribution_percentage?.toLocaleString()}%`}
                   />
                 </Tooltip>
@@ -69,7 +76,7 @@ function DeliverableTasks({ deliverableDetails }) {
           ))}
         </>
       ) : (
-        <Alert variant="outlined" color="primary" severity="info">
+        <Alert variant="outlined" severity="info">
           This Deliverable has no Task to contribute
         </Alert>
       )}

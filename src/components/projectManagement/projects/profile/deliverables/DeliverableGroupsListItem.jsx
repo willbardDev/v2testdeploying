@@ -17,20 +17,20 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
   const [searchQuery, setSearchQuery] = useState(''); 
 
   const filteredDeliverables = group?.deliverables?.filter(deliverable =>
-    deliverable.description.toLowerCase().includes(searchQuery.toLowerCase())
+    deliverable.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filterChildrenGroups = (children) => {
     return children
       .filter(child => 
-        child.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        child.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
         (child.description && child.description.toLowerCase().includes(searchQuery.toLowerCase())) || 
-        child.deliverables?.some(d => d.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        child.deliverables?.some(d => d.description?.toLowerCase().includes(searchQuery.toLowerCase()))
       )
       .map(child => ({
         ...child,
-        deliverables: child.deliverables?.filter(d => d.description.toLowerCase().includes(searchQuery.toLowerCase())),
-        children: filterChildrenGroups(child.children)
+        deliverables: child.deliverables?.filter(d => d.description?.toLowerCase().includes(searchQuery.toLowerCase())),
+        children: filterChildrenGroups(child.children || [])
       }));
   };  
 
@@ -89,8 +89,8 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
           },
         }}
       >
-        <Grid container paddingLeft={1} paddingRight={1} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
-          <Grid item xs={8} md={5.5}>
+        <Grid container paddingLeft={1} paddingRight={1} width={'100%'} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
+          <Grid size={{xs: 8, md: 5.5}}>
             <ListItemText
               primary={
                 <Tooltip title={'Group Name'}>
@@ -105,7 +105,7 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
             />
           </Grid>
           {group.description &&
-            <Grid item xs={8} md={5.5}>
+            <Grid size={{xs: 8, md: 5.5}}>
               <ListItemText
                 secondary={
                   <Tooltip title={'Description'}>
@@ -115,7 +115,7 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
               />
             </Grid>
           }
-          <Grid item xs={4} md={group.description ? 1 : 6.5} textAlign={'end'}>
+          <Grid size={{xs: 4, md: group.description ? 1 : 6.5}} textAlign={'end'}>
             <DeliverableGroupItemAction group={group} />
           </Grid>
         </Grid>
@@ -129,28 +129,28 @@ const DeliverableGroupsAccordion = ({ group, expanded, handleChange }) => {
         }}
       >
         <Grid container>
-          <Grid item xs={12} textAlign={'end'} display="flex" justifyContent="flex-end" alignItems="center">
-            {(group.children?.length > 0 || group.deliverables.length > 0) &&
-              <Grid item paddingBottom={1} >
+          <Grid size={{xs: 12}} textAlign={'end'} display="flex" justifyContent="flex-end" alignItems="center">
+            {(group.children?.length > 0 || group.deliverables?.length > 0) &&
+              <Grid paddingBottom={1} >
                 <JumboSearch
                   value={searchQuery}
                   onChange={(value) => setSearchQuery(value)}
                 />
               </Grid>
             }
-            <Grid item>
-              {!group.deliverables.length > 0 && <DeliverableGroupActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} group={group} />} {/*Action Tail for New Deliverable Group inside deliverable group*/}
+            <Grid>
+              {!group.deliverables?.length && <DeliverableGroupActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} group={group} />} {/*Action Tail for New Deliverable Group inside deliverable group*/}
             </Grid>
-            <Grid item>
-              {!group.children?.length > 0 && <DeliverableGroupItemAction group={group} isAccDetails={true} />}
+            <Grid>
+              {!group.children?.length && <DeliverableGroupItemAction group={group} isAccDetails={true} />}
             </Grid>
           </Grid>
 
           <DeliverablesListItem filteredDeliverables={filteredDeliverables} />
 
-          {filteredChildren.length > 0 && (
-            <Grid item xs={12}>
-              {filteredChildren.map((child, index) => (
+          {filteredChildren?.length > 0 && (
+            <Grid size={{xs: 12}}>
+              {filteredChildren?.map((child, index) => (
                 <DeliverableGroupsAccordion
                   key={index}
                   group={child}
@@ -175,7 +175,7 @@ function DeliverableGroupsListItem() {
   const [searchQuery, setSearchQuery] = useState(''); 
 
   const filteredGroups = deliverable_groups?.filter(group =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    group.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (group.description && group.description.toLowerCase().includes(searchQuery.toLowerCase())) 
   );
 
@@ -196,14 +196,14 @@ function DeliverableGroupsListItem() {
     <React.Fragment>
       <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
         {deliverable_groups?.length > 0 &&
-          <Grid item>
+          <Grid>
             <JumboSearch
               value={searchQuery}
               onChange={(value) => setSearchQuery(value)}
             />
           </Grid>
         }
-        <Grid item>
+        <Grid>
           <DeliverableGroupActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} group={null} />
         </Grid>
       </Grid>
@@ -220,7 +220,7 @@ function DeliverableGroupsListItem() {
             />
           ))
         ) : (
-          <Alert variant="outlined" color="primary" severity="info">
+          <Alert variant="outlined" severity="info">
             No Deliverable Group Found
           </Alert>
         )}

@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react';
+import React, { lazy, useState, useMemo, useEffect } from 'react';
 import { Alert, Grid, ListItemText, Stack, Typography, Divider, Tooltip, useMediaQuery } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -6,13 +6,13 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import { useJumboTheme } from '@jumbo/hooks';
 import WBSActionTail from './WBSActionTail';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import WBSItemAction from './WBSItemAction';
 import TasksActionTail from './task/TasksActionTail';
 import TasksListItem from './task/TasksListItem';
 import TasksTreeViewActionTail from './tasksTreeView/TasksTreeViewActionTail';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 const GanttChartActionTail = lazy(() => import('./ganttChart/GanttChartActionTail'));
 
@@ -54,13 +54,13 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
 
   return (
     <Accordion
-      expanded={expanded}
+      expanded={expanded === true} // Ensure it's always a boolean
       onChange={handleChange}
       square
       sx={{
         borderRadius: 2,
         borderTop: 2,
-        width: '100%',  // Ensure it takes the full width of the container
+        width: '100%',
         paddingLeft: 1,
         paddingRight: 1,
         borderColor: 'divider',
@@ -100,8 +100,8 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
           },
         }}
       >
-        <Grid container paddingLeft={0.1} paddingRight={0.1} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
-          <Grid item xs={8} md={5.5}>
+        <Grid container paddingLeft={0.1} width={'100%'} paddingRight={0.1} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
+          <Grid size={{xs: 8, md: 5.5}}>
             <ListItemText
               primary={
                 <Tooltip title={'Activity Name'}>
@@ -116,7 +116,7 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
             />
           </Grid>
           {activity.description &&
-            <Grid item xs={8} md={5.5}>
+            <Grid size={{xs: 8, md: 5.5}}>
               <ListItemText
                 secondary={
                   <Tooltip title={'Description'}>
@@ -126,7 +126,7 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
               />
             </Grid>
           }
-          <Grid item xs={4} md={activity.description ? 1 : 6.5} textAlign={'end'}>
+          <Grid size={{xs: 4, md: activity.description ? 1 : 6.5}} textAlign={'end'}>
             <WBSItemAction activity={activity} />
           </Grid>
         </Grid>
@@ -141,21 +141,21 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
           paddingRight: 0,
         }}
       >
-        <Grid container>
-          <Grid item xs={12} textAlign={'end'} display="flex" justifyContent="flex-end" alignItems="center">
-            {(activity.children?.length > 0 || activity.tasks.length > 0) &&
-              <Grid item paddingBottom={1} >
+        <Grid container width={'100%'}>
+          <Grid size={{xs: 12}} textAlign={'end'} display="flex" justifyContent="flex-end" alignItems="center">
+            {((activity.children?.length > 0) || (activity.tasks?.length > 0)) &&
+              <Grid paddingBottom={1} >
                 <JumboSearch
                   value={searchQuery}
                   onChange={(value) => setSearchQuery(value)}
                 />
               </Grid>
             }
-            <Grid item>
-              {!activity.children.length > 0 && <TasksActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} activity={activity} />}
+            <Grid>
+              {!activity.children?.length && <TasksActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} activity={activity} />}
             </Grid>
-            <Grid item>
-              {!activity.tasks?.length > 0 && <WBSItemAction activity={activity} isAccDetails={true} />}
+            <Grid>
+              {!activity.tasks?.length && <WBSItemAction activity={activity} isAccDetails={true} />}
             </Grid>
           </Grid>
 
@@ -163,13 +163,13 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
           <TasksListItem filteredTasks={filteredTasks} activity={activity}/>
 
           {/* Render child activity as nested Accordions */}
-          {filteredChildren.length > 0 && (
-            <Grid item xs={12}>
-              {filteredChildren.map((child, index) => (
+          {filteredChildren?.length > 0 && (
+            <Grid size={{xs: 12}}>
+              {filteredChildren?.map((child, index) => (
                 <TimelineActivityAccordion
-                  key={index}
+                  key={child.id || index}
                   activity={child}
-                  expanded={!!childExpanded[index]} 
+                  expanded={childExpanded[index] === true} // Ensure boolean
                   handleChange={() => handleChildChange(index)}
                   openDialog={openDialog}
                   setOpenDialog={setOpenDialog}
@@ -184,10 +184,18 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
 };
 
 function WBSListItem() {
-  const { projectTimelineActivities } = useProjectProfile();
+  const { projectTimelineActivities, timelineLoading } = useProjectProfile();
   const [openDialog, setOpenDialog] = useState(false);
-  const [expanded, setExpanded] = useState(Array(projectTimelineActivities?.length).fill(false));
+  const [expanded, setExpanded] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Initialize expanded state with proper boolean values when data loads
+  useEffect(() => {
+    if (projectTimelineActivities) {
+      // Initialize with all accordions closed (false)
+      setExpanded(Array(projectTimelineActivities.length).fill(false));
+    }
+  }, [projectTimelineActivities]);
 
   const filteredTimelineActivity = projectTimelineActivities?.filter(activity =>
     activity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -209,11 +217,15 @@ function WBSListItem() {
   const { theme } = useJumboTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));
 
+  if (timelineLoading) {
+    return <Alert variant="outlined" color="info" severity="info">Loading timeline activities...</Alert>;
+  }
+
   return (
     <React.Fragment>
-      <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
+      <Grid container columnSpacing={1} width={'100%'} justifyContent="flex-end" alignItems="center">
         {projectTimelineActivities?.length > 0 &&
-          <Grid item>
+          <Grid>
             <JumboSearch
               value={searchQuery}
               onChange={(value) => setSearchQuery(value)}
@@ -221,33 +233,33 @@ function WBSListItem() {
           </Grid>
         }
         {isLargeScreen &&
-          <Grid item>
+          <Grid>
             <GanttChartActionTail/>
           </Grid>
         }
         {isLargeScreen &&
-          <Grid item>
+          <Grid>
             <TasksTreeViewActionTail/>
           </Grid>
         }
-        <Grid item>
+        <Grid>
           <WBSActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} activity={null}/>
         </Grid>
       </Grid>
       <Stack direction={'column'}>
-        {sortedTimelineActivity?.length > 0 ? (
+        {sortedTimelineActivity && sortedTimelineActivity.length > 0 ? (
           sortedTimelineActivity.map((activity, index) => (
             <TimelineActivityAccordion
-              key={index}
+              key={activity.id || index}
               activity={activity}
-              expanded={expanded[index]}
+              expanded={expanded[index] === true} // Ensure boolean
               handleChange={() => handleChange(index)}
               openDialog={openDialog}
               setOpenDialog={setOpenDialog}
             />
           ))
         ) : (
-          <Alert variant="outlined" color="primary" severity="info">
+          <Alert variant="outlined" severity="info">
             No Timeline Activity Found
           </Alert>
         )}

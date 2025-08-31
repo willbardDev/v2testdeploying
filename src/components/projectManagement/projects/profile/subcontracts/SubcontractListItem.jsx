@@ -1,12 +1,12 @@
 import { Accordion, AccordionSummary, AccordionDetails, Grid, ListItemText, Tooltip, Typography, Tabs, Tab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import React, { useState } from 'react';
 import SubcontractItemAction from './SubcontractItemAction';
-import AttachmentForm from 'app/prosServices/prosERP/filesShelf/attachments/AttachmentForm';
 import SubContractTaskTab from './tabs/tasks/SubContractTaskTab';
 import SubContractMaterialIssuedTab from './tabs/materialIssued/SubContractMaterialIssuedTab';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 
 function SubcontractListItem({ subContract }) {
     const [expanded, setExpanded] = useState({});
@@ -70,8 +70,8 @@ function SubcontractListItem({ subContract }) {
                     },
                 }}
             >
-                <Grid container alignItems={'center'} columnSpacing={2}>
-                    <Grid item xs={12} md={6} lg={3}>
+                <Grid container width={'100%'} alignItems={'center'} columnSpacing={2}>
+                    <Grid size={{xs: 12, md: 6, lg: 3}}>
                         <ListItemText
                             primary={
                                 <Tooltip title="Sub Contractor">
@@ -89,14 +89,14 @@ function SubcontractListItem({ subContract }) {
                             }
                         />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+                    <Grid size={{xs: 12, md: 6, lg: 3}}>
                         <Tooltip title={`Contract Period`}>
                             <Typography component="span" fontSize={14} lineHeight={1.5} noWrap>
                                 {`${subContract.commencement_date ? readableDate(subContract.commencement_date,false) : ''} ${subContract.completion_date ? '→ ' + readableDate(subContract.completion_date,false) : ''}`}
                             </Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3.5}>
+                    <Grid size={{xs: 12, md: 6, lg: 3.5}}>
                         <ListItemText
                             primary={
                                 <Tooltip title="Reference">
@@ -108,23 +108,23 @@ function SubcontractListItem({ subContract }) {
                             secondary={
                                 <Tooltip title="Remarks">
                                     <Typography component="span">
-                                        {subContract.remarks}
+                                        {subContract.remarks || 'No remarks'}
                                     </Typography>
                                 </Tooltip>
                             }
                         />
                     </Grid>
-                    <Grid item xs={6} md={5} lg={2}>
+                    <Grid size={{xs: 6, md: 5, lg: 2}}>
                         <Tooltip title="Amount">
                             <Typography variant="h6">
-                                {subContract?.contract_sum.toLocaleString('en-US', {
+                                {subContract?.contract_sum?.toLocaleString('en-US', {
                                     style: 'currency',
                                     currency: subContract.currency?.code,
                                 })}
                             </Typography>
                         </Tooltip>
                     </Grid>
-                    <Grid item xs={6} md={1} lg={0.5} textAlign="end">
+                    <Grid size={{xs: 6, md: 1, lg: 0.5}} textAlign="end">
                         <SubcontractItemAction subContract={subContract} />
                     </Grid>
                 </Grid>
@@ -138,7 +138,7 @@ function SubcontractListItem({ subContract }) {
                 }}
                 >
                 <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={{xs: 12}}>
                         <Tabs
                             value={activeTab}
                             onChange={handleTabChange}
@@ -167,7 +167,7 @@ function SubcontractListItem({ subContract }) {
                     )}
                     {activeTab === 3 && (
                         <Grid container columnSpacing={1} justifyContent="center" marginTop={1}>
-                            <Grid item xs={12}>
+                            <Grid size={{xs: 12}}>
                                 <AttachmentForm
                                     hideFeatures={true}
                                     attachment_sourceNo={subContract.subcontractNo}

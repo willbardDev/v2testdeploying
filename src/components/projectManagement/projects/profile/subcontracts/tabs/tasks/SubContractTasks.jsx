@@ -1,21 +1,21 @@
-import Div from '@jumbo/shared/Div'
 import { LoadingButton } from '@mui/lab'
 import { Autocomplete, Button, DialogActions, DialogContent, DialogTitle, Grid, InputAdornment, LinearProgress, TextField } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
-import { useMutation,  useQueryClient } from 'react-query'
 import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { DateTimePicker } from '@mui/x-date-pickers'
-import useJumboAuth from '@jumbo/hooks/useJumboAuth'
-import projectsServices from '../../../../projectsServices'
 import { useProjectProfile } from '../../../ProjectProfileProvider'
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers'
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField'
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect'
-import { useLedgerSelect } from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider'
+import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { Div } from '@jumbo/shared';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 function SubContractTasks({setOpenDialog, subContract = null, subContractTask = null, existingTasks}) {
   const queryClient = useQueryClient();
@@ -24,7 +24,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
   const {authOrganization: {organization}} = useJumboAuth();
   const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
   const { deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
-  const [unitToDisplay, setUnitToDisplay] = useState(subContractTask ? subContractTask.project_task.measurement_unit.symbol : null);
+  const [unitToDisplay, setUnitToDisplay] = useState(subContractTask ? subContractTask.project_task?.measurement_unit?.symbol : null);
 
   useEffect(() => {
     if (!deliverable_groups) {
@@ -39,12 +39,14 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
       setFetchTimelineActivities(false)
     }
 
-  }, [projectTimelineActivities, setFetchTimelineActivities]);
+  }, [projectTimelineActivities, deliverable_groups, setFetchDeliverables, setFetchTimelineActivities]);
 
-  const addSubContractTask = useMutation(projectsServices.addSubContractTask,{
+  // React Query v5 syntax for useMutation
+  const { mutate: addSubContractTask, isPending: isAdding } = useMutation({
+    mutationFn: projectsServices.addSubContractTask,
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message,{variant:'success'});
-      queryClient.invalidateQueries('subContractTasks');
+      queryClient.invalidateQueries({queryKey: ['subContractTasks']});
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -52,10 +54,11 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
     }
   }); 
   
-  const updateSubContractTask = useMutation(projectsServices.updateSubContractTask,{
+  const { mutate: updateSubContractTask, isPending: isUpdating } = useMutation({
+    mutationFn: projectsServices.updateSubContractTask,
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message,{variant:'success'});
-      queryClient.invalidateQueries('subContractTasks');
+      queryClient.invalidateQueries({queryKey: ['subContractTasks']});
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -64,8 +67,8 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
   });
 
   const saveMutation = React.useMemo(() => {
-    return subContractTask ? updateSubContractTask.mutate : addSubContractTask.mutate;
-}, [addSubContractTask, updateSubContractTask, subContractTask]);
+    return subContractTask ? updateSubContractTask : addSubContractTask;
+  }, [addSubContractTask, updateSubContractTask, subContractTask]);
 
   const validationSchema = yup.object({
     rate: yup.number().required("Rate is required").typeError('Rate is required'),
@@ -81,7 +84,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
         const { existingTasks, subContractTask } = this.options.context;
         
         const isTaskExist = existingTasks?.some(task => {
-          if (subContractTask && subContractTask.project_task.id === task.id) {
+          if (subContractTask && subContractTask.project_task?.id === task.id) {
             return false;
           }
           return task.id === value;
@@ -169,7 +172,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
         shouldDirty: true
       });
     }
-  }, [watch(`unsubcontracted_quantity`)])
+  }, [watch(`unsubcontracted_quantity`), setValue, watch]);
 
   return (
     <>
@@ -178,8 +181,8 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
       </DialogTitle>
       <DialogContent>
         <form autoComplete='false'>
-          <Grid container  columnSpacing={1} marginBottom={2}>
-            <Grid item xs={12} md={6}>
+          <Grid container columnSpacing={1} marginBottom={2}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{ mt: 1 }}>
                 <Autocomplete
                   options={allTasks}
@@ -198,17 +201,17 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                   )}
                   onChange={(e, newValue) => {
                     if (!!newValue) {
-                      setUnitToDisplay(newValue.measurement_unit.symbol)
+                      setUnitToDisplay(newValue.measurement_unit?.symbol)
                       setValue('unsubcontracted_quantity', newValue.quantity)
-                      setValue('project_task_id',!!newValue && newValue.id, {
+                      setValue('project_task_id', newValue?.id, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
 
-                      retrieveTaskDetails({ taskId: newValue.id });
+                      retrieveTaskDetails(newValue.id);
                     } else {
                       setUnitToDisplay(null)
-                      setValue('project_task_id',null, {
+                      setValue('project_task_id', null, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
@@ -222,7 +225,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{mt: 1}}>
                 <LedgerSelect
                   label='Expense'
@@ -238,7 +241,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{ mt: 1 }}>
                 {isRetrievingDetails ? (
                   <LinearProgress />
@@ -256,8 +259,8 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                         </InputAdornment>
                       ),
                     }}
-                    error={errors && !!errors?.quantity}
-                    helperText={errors && errors?.quantity?.message}
+                    error={!!errors?.quantity}
+                    helperText={errors?.quantity?.message}
                     onChange={(e) => {
                       setValue(`quantity`, e.target.value ? sanitizedNumber(e.target.value) : 0, {
                         shouldValidate: true,
@@ -268,7 +271,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 )}
               </Div>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{mt: 1}}>
                 <TextField
                   label="Rate"
@@ -278,8 +281,8 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                   InputProps={{
                       inputComponent: CommaSeparatedField,
                   }}
-                  error={errors && !!errors?.rate}
-                  helperText={errors && errors?.rate?.message}
+                  error={!!errors?.rate}
+                  helperText={errors?.rate?.message}
                   onChange={(e) => {
                     setValue(`rate`,e.target.value ? sanitizedNumber(e.target.value) : 0,{
                       shouldValidate: true,
@@ -289,7 +292,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 />
               </Div>
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
                   label='Start Date'
@@ -315,7 +318,7 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 />
               </Div>
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid size={{xs: 12, md: 6}}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
                   label='End Date'
@@ -340,14 +343,14 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={12}>
+            <Grid size={{xs: 12, md: 12}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   label="Remarks"
                   size="small"
                   defaultValue={subContractTask?.remarks}
-                  error={errors && !!errors?.remarks}
-                  helperText={errors && errors?.remarks?.message}
+                  error={!!errors?.remarks}
+                  helperText={errors?.remarks?.message}
                   multiline={true}
                   minRows={2}
                   fullWidth
@@ -364,8 +367,8 @@ function SubContractTasks({setOpenDialog, subContract = null, subContractTask = 
           </Button>
           <LoadingButton
               type='submit'
-              onClick={handleSubmit(saveMutation)}
-              loading={addSubContractTask.isLoading || updateSubContractTask.isLoading}
+              onClick={handleSubmit((data) => saveMutation(data))}
+              loading={isAdding || isUpdating}
               size="small"
               variant='contained'
           >Submit</LoadingButton>

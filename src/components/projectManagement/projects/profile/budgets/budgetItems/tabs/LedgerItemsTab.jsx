@@ -1,28 +1,29 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import Div from '@jumbo/shared/Div';
 import { Grid, TextField } from '@mui/material';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
-import projectsServices from '../../../../projectsServices';
-import MeasurementSelector from 'app/prosServices/prosERP/masters/measurementUnits/MeasurementSelector';
+import { Div } from '@jumbo/shared';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [triggerKey, setTriggerKey] = useState(0);
 
-  const { mutate: addBudgetItem, isLoading } = useMutation(projectsServices.addBudgetItems, {
+  const { mutate: addBudgetItem, isPending } = useMutation({
+    mutationFn: projectsServices.addBudgetItems,
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries(['budgetItemsDetails']);
+      queryClient.invalidateQueries({queryKey: ['budgetItemsDetails']});
       reset({ type: 'ledger', budget_id: budget.id, ledger_id: '', measurement_unit_id: '', currency_id: 1, exchange_rate: 1, quantity: 0, rate: 0, description: '', budget_itemable_id: selectedItemable?.id, bound_to: selectedBoundTo, });
       setTriggerKey(prevKey => prevKey + 1);
     },
@@ -75,7 +76,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
   return (
     <form autoComplete='off' onSubmit={handleSubmit(saveMutation)} >
       <Grid container spacing={1} key={triggerKey}>
-        <Grid item xs={12} md={3.5}>
+        <Grid size={{xs: 12, md: 3.5}}>
           <Div sx={{ mt: 1 }}>
             <LedgerSelect
               multiple={false}
@@ -91,7 +92,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
             />
           </Div>
         </Grid>
-        <Grid item xs={12} md={watch(`currency_id`) > 1 ? 2.5 : 3}>
+        <Grid size={{xs: 12, md: watch(`currency_id`) > 1 ? 2.5 : 3}}>
           <Div sx={{mt: 1}}>
             <CurrencySelector
               frontError={errors?.currency_id}
@@ -107,7 +108,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
         </Grid>
         {
           watch(`currency_id`) > 1 &&
-          <Grid item xs={6} md={2} lg={1.5}>
+          <Grid size={{xs: 6, md: 2, lg: 1.5}}>
             <Div sx={{mt: 1}}>
               <TextField
                 label="Exchange Rate"
@@ -129,7 +130,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
             </Div>
           </Grid>
         }
-          <Grid item xs={12} md={1.5}>
+          <Grid size={{xs: 12, md: 1.5}}>
             <Div sx={{ mt: 1}}>
               <MeasurementSelector
                 label='Unit'
@@ -143,7 +144,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
               />
             </Div>
           </Grid>
-          <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={watch(`currency_id`) > 1 ? 1.5 : 2}>
+          <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 1.5 : 2}}>
             <Div sx={{mt: 1}}>
               <TextField
                 label="Quantity"
@@ -163,7 +164,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
               />
             </Div>
           </Grid>
-          <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={watch(`currency_id`) > 1 ? 1.5 : 2}>
+          <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 1.5 : 2}}>
             <Div sx={{mt: 1}}>
               <TextField
                 label="Rate"
@@ -183,7 +184,7 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
               />
             </Div>
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid size={{xs: 12, md: 12}}>
             <Div sx={{mt: 0.3}}>
               <TextField
                 label="Description"
@@ -201,9 +202,9 @@ function LedgerItemsTab({budget, selectedBoundTo, selectedItemable}) {
             </Div>
           </Grid>
       </Grid>
-      <Grid item xs={12} md={12} lg={12} textAlign={'end'} paddingTop={0.5}>
+      <Grid size={{xs: 12, md: 12, lg: 12}} textAlign={'end'} paddingTop={0.5}>
         <LoadingButton
-          loading={isLoading}
+          loading={isPending}
           variant='contained'
           size='small'
           type='submit'

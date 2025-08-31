@@ -1,18 +1,18 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import Div from '@jumbo/shared/Div';
 import { Grid, TextField, useMediaQuery } from '@mui/material';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
-import projectsServices from '../../../../projectsServices';
-import { useJumboTheme } from '@jumbo/hooks';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import { Div } from '@jumbo/shared';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
     const { enqueueSnackbar } = useSnackbar();
@@ -21,10 +21,12 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: addBudgetItem, isLoading } = useMutation(projectsServices.addBudgetItems, {
+    // React Query v5 syntax for useMutation
+    const { mutate: addBudgetItem, isPending } = useMutation({
+        mutationFn: projectsServices.addBudgetItems,
         onSuccess: (data) => {
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['budgetItemsDetails']);
+            queryClient.invalidateQueries({queryKey: ['budgetItemsDetails']});
             reset({ type: 'subcontract_task', budget_id: budget.id, expense_ledger_id: '', currency_id: 1, exchange_rate: 1, quantity: 0, rate: 0 });
             setTriggerKey(prevKey => prevKey + 1);
         },
@@ -72,9 +74,9 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
     }, [selectedBoundTo, selectedItemable, triggerKey, setValue]);
 
   return (
-  <form autoComplete='off' onSubmit={handleSubmit(saveMutation)} >
-    <Grid container spacing={1} key={triggerKey}>
-        <Grid item xs={12} md={5}>
+  <form autoComplete='off' onSubmit={handleSubmit((data) => saveMutation(data))} >
+    <Grid container width={'100%'} spacing={1} key={triggerKey}>
+        <Grid size={{xs: 12, md: 5}}>
             <Div sx={{ mt: 1 }}>
                 <LedgerSelect
                     multiple={false}
@@ -92,7 +94,7 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                 />
             </Div>
         </Grid>
-        <Grid item xs={12} md={watch(`currency_id`) > 1 ? 2.5 : 3}>
+        <Grid size={{xs: 12, md: watch(`currency_id`) > 1 ? 2.5 : 3}}>
             <Div sx={{mt: 1}}>
                 <CurrencySelector
                     frontError={errors?.currency_id}
@@ -109,14 +111,14 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
         </Grid>
         {
             watch(`currency_id`) > 1 &&
-            <Grid item xs={6} md={2} lg={1.5}>
+            <Grid size={{xs: 6, md: 2, lg: 1.5}}>
                 <Div sx={{mt: 1}}>
                     <TextField
                         label="Exchange Rate"
                         fullWidth
                         size='small'
-                        error={errors && !!errors.exchange_rate}
-                        helperText={errors && errors.exchange_rate?.message}
+                        error={!!errors?.exchange_rate}
+                        helperText={errors?.exchange_rate?.message}
                         InputProps={{
                             inputComponent: CommaSeparatedField,
                         }}
@@ -131,7 +133,7 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                 </Div>
             </Grid>
         }
-        <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={watch(`currency_id`) > 1 ? 1.5 : 2}>
+        <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 1.5 : 2}}>
             <Div sx={{mt: 1}}>
                 <TextField
                     label="Quantity"
@@ -140,8 +142,8 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                     InputProps={{
                         inputComponent: CommaSeparatedField,
                     }}
-                    error={errors && !!errors?.quantity}
-                    helperText={errors && errors?.quantity?.message}
+                    error={!!errors?.quantity}
+                    helperText={errors?.quantity?.message}
                     onChange={(e) => {
                         setValue(`quantity`,e.target.value ? sanitizedNumber(e.target.value) : 0,{
                             shouldValidate: true,
@@ -151,7 +153,7 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                 />
             </Div>
         </Grid>
-        <Grid item xs={watch(`currency_id`) > 1 ? 6 : 12} md={watch(`currency_id`) > 1 ? 1.5 : 2}>
+        <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 1.5 : 2}}>
             <Div sx={{mt: 1}}>
                 <TextField
                     label="Rate"
@@ -160,8 +162,8 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                     InputProps={{
                         inputComponent: CommaSeparatedField,
                     }}
-                    error={errors && !!errors?.rate}
-                    helperText={errors && errors?.rate?.message}
+                    error={!!errors?.rate}
+                    helperText={errors?.rate?.message}
                     onChange={(e) => {
                         setValue(`rate`,e.target.value ? sanitizedNumber(e.target.value) : 0,{
                             shouldValidate: true,
@@ -171,7 +173,7 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                 />
             </Div>
         </Grid>
-        <Grid item xs={12} md={12} lg={10}>
+        <Grid size={{xs: 12, md: 12, lg: 10}}>
             <Div sx={{mt: 0.3}}>
                 <TextField
                     label="Description"
@@ -188,9 +190,9 @@ function SubContractTasksTab({budget, selectedBoundTo, selectedItemable}) {
                 />
             </Div>
         </Grid>
-        <Grid item xs={12} md={12} lg={2} textAlign={'end'} paddingTop={0.5}>
+        <Grid size={{xs: 12, md: 12, lg: 2}} textAlign={'end'} paddingTop={0.5}>
             <LoadingButton
-                loading={isLoading}
+                loading={isPending}
                 variant='contained'
                 size='small'
                 type='submit'

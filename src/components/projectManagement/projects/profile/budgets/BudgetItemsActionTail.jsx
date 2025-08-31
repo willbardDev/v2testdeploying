@@ -1,8 +1,8 @@
-import { useJumboTheme } from "@jumbo/hooks";
 import { VisibilityOutlined } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
 import BudgetItemsForm from "./budgetItems/BudgetItemsForm";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 
 const BudgetItemsActionTail = ({budget}) => {
     const { theme } = useJumboTheme();
@@ -11,7 +11,7 @@ const BudgetItemsActionTail = ({budget}) => {
   
     return (
       <React.Fragment>
-        <Dialog maxWidth="lg" fullWidth scroll={belowLargeScreen ? 'body' : 'paper'} fullScreen={belowLargeScreen} open={openDialog}>
+        <Dialog maxWidth="xl" width={'100%'} fullWidth scroll={belowLargeScreen ? 'body' : 'paper'} fullScreen={belowLargeScreen} open={openDialog}>
           <BudgetItemsForm setOpenDialog={setOpenDialog} budget={budget}/>
         </Dialog>
   

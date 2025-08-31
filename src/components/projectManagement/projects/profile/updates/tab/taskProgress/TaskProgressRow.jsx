@@ -16,27 +16,27 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import TaskProgress from './TaskProgress';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import MaterialUsed from './taskProgressTab/materialUsed/MaterialUsed';
 import MaterialUsedRow from './taskProgressTab/materialUsed/MaterialUsedRow';
 import { useUpdateFormContext } from '../../UpdatesForm';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function TaskProgressRow({ taskProgressItem, index }) {
   const { taskProgressItems, setTaskProgressItems } = useUpdateFormContext();
   const [expanded, setExpanded] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  
   const taskMaterialUsed = taskProgressItems
-    .flatMap((task) => task.material_used)
+    .flatMap((task) => task.material_used || [])
     .filter((material) => material.projectTaskIndex === index);
 
-  const [materialUsed, setMaterialUsed] = useState(taskProgressItem ? 
-    taskProgressItem.material_used.map(material => {
-    return {
-     ...material,
-      execution_date:taskProgressItem.execution_date,
-    };
-  }) : taskMaterialUsed);
+  const [materialUsed, setMaterialUsed] = useState(taskProgressItem?.material_used ? 
+    taskProgressItem.material_used.map(material => ({
+      ...material,
+      execution_date: taskProgressItem.execution_date,
+    })) : taskMaterialUsed
+  );
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -44,6 +44,14 @@ function TaskProgressRow({ taskProgressItem, index }) {
 
   const handleChange = (currentIndex) => {
     setExpanded((prevExpanded) => (prevExpanded === currentIndex ? null : currentIndex));
+  };
+
+  const handleRemoveItem = () => {
+    setTaskProgressItems((items) => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      return newItems;
+    });
   };
 
   return (
@@ -92,28 +100,30 @@ function TaskProgressRow({ taskProgressItem, index }) {
       >
         <Divider />
         {!showForm ? (
-          <Grid container sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}>
-            <Grid item xs={6} md={2} lg={2}>
+          <Grid container width={'100%'} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}>
+            <Grid size={{xs: 6, md: 2}}>
               <Tooltip title="Execution Date">
                 <Typography>{readableDate(taskProgressItem.execution_date, false)}</Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{xs: 6, md: 3}}>
               <Tooltip title="Task Name">
-                <Typography>{taskProgressItem.task.name}</Typography>
+                <Typography>{taskProgressItem.task?.name || 'N/A'}</Typography>
               </Tooltip>
             </Grid>
-            <Grid textAlign={{md: 'end'}} item xs={5} md={3}>
+            <Grid textAlign={{md: 'end'}} size={{xs: 5, md: 3}}>
               <Tooltip title="Executed Quantity">
-                <Typography>{taskProgressItem.quantity_executed} {taskProgressItem.unit_symbol || taskProgressItem.task.measurement_unit.symbol}</Typography>
+                <Typography>
+                  {taskProgressItem.quantity_executed} {taskProgressItem.unit_symbol || taskProgressItem.task?.measurement_unit?.symbol || ''}
+                </Typography>
               </Tooltip>
             </Grid>
-            <Grid item xs={7} md={3} paddingLeft={3}>
+            <Grid size={{xs: 7, md: 3}} paddingLeft={3}>
               <Tooltip title="Remarks">
-                <Typography>{taskProgressItem.remarks}</Typography>
+                <Typography>{taskProgressItem.remarks || 'No remarks'}</Typography>
               </Tooltip>
             </Grid>
-            <Grid textAlign={'end'} item xs={12} md={1}>
+            <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
               <Tooltip title="Edit Item">
                 <IconButton size="small" onClick={() => setShowForm(true)}>
                   <EditOutlined fontSize="small" />
@@ -122,13 +132,7 @@ function TaskProgressRow({ taskProgressItem, index }) {
               <Tooltip title="Remove Item">
                 <IconButton
                   size="small"
-                  onClick={() =>
-                    setTaskProgressItems((items) => {
-                      const newItems = [...items];
-                      newItems.splice(index, 1);
-                      return newItems;
-                    })
-                  }
+                  onClick={handleRemoveItem}
                 >
                   <DisabledByDefault fontSize="small" color="error" />
                 </IconButton>
@@ -137,7 +141,13 @@ function TaskProgressRow({ taskProgressItem, index }) {
           </Grid>
         ) : (
           <Box sx={{ width: '100%' }}>
-            <TaskProgress taskProgressItem={taskProgressItem} setShowForm={setShowForm} index={index} taskProgressItems={taskProgressItems} setTaskProgressItems={setTaskProgressItems} />
+            <TaskProgress 
+              taskProgressItem={taskProgressItem} 
+              setShowForm={setShowForm} 
+              index={index} 
+              taskProgressItems={taskProgressItems} 
+              setTaskProgressItems={setTaskProgressItems} 
+            />
           </Box>
         )}
       </AccordionSummary>
@@ -146,10 +156,23 @@ function TaskProgressRow({ taskProgressItem, index }) {
           <Tab label="Material Used" />
         </Tabs>
 
-        {tabValue === 0 && <MaterialUsed projectTaskIndex={index} taskProgressItem={taskProgressItem} materialUsed={materialUsed} setMaterialUsed={setMaterialUsed}/>}
+        {tabValue === 0 && (
+          <MaterialUsed 
+            projectTaskIndex={index} 
+            taskProgressItem={taskProgressItem} 
+            materialUsed={materialUsed} 
+            setMaterialUsed={setMaterialUsed}
+          />
+        )}
         {tabValue === 0 && 
-          materialUsed.map((material,index) => (
-            <MaterialUsedRow key={index} index={index} material={material} materialUsed={materialUsed} setMaterialUsed={setMaterialUsed}/>
+          materialUsed.map((material, materialIndex) => (
+            <MaterialUsedRow 
+              key={materialIndex} 
+              index={materialIndex} 
+              material={material} 
+              materialUsed={materialUsed} 
+              setMaterialUsed={setMaterialUsed}
+            />
           ))
         }
       </AccordionDetails>

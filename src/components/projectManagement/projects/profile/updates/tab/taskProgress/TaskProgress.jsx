@@ -1,23 +1,23 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import Div from '@jumbo/shared/Div';
 import { Autocomplete, Button, Grid, IconButton, InputAdornment, LinearProgress, TextField, Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import * as yup  from "yup";
 import { useProjectProfile } from '../../../ProjectProfileProvider';
 import dayjs from 'dayjs';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import projectsServices from '../../../../projectsServices';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import { useUpdateFormContext } from '../../UpdatesForm';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { Div } from '@jumbo/shared';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
-function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) {
+function TaskProgress({taskProgressItem = null, index = -1, setShowForm = null}) {
     const { taskProgressItems, setTaskProgressItems } = useUpdateFormContext();
     const [isAdding, setIsAdding] = useState(false);
     const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
-    const [unitToDisplay, setUnitToDisplay] = useState(taskProgressItem && taskProgressItem.unit_symbol);
+    const [unitToDisplay, setUnitToDisplay] = useState(taskProgressItem?.unit_symbol);
     const {deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
 
     useEffect(() => {
@@ -32,7 +32,7 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
       } else {
         setFetchTimelineActivities(false)
       }
-    }, [projectTimelineActivities, setFetchTimelineActivities]);
+    }, [projectTimelineActivities, deliverable_groups, setFetchDeliverables, setFetchTimelineActivities]);
 
     //Define validation Schema
     const validationSchema = yup.object({
@@ -67,13 +67,13 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
     const {setValue, handleSubmit, watch, reset, register, formState: {errors}} = useForm({
       resolver: yupResolver(validationSchema),
       defaultValues: {
-        quantity_executed: taskProgressItem && taskProgressItem.quantity_executed, 
-        unexcuted_task_quantity: taskProgressItem && taskProgressItem.unexcuted_task_quantity,
-        project_task_id: taskProgressItem && taskProgressItem.project_task_id, 
-        task: taskProgressItem && taskProgressItem.task,
+        quantity_executed: taskProgressItem?.quantity_executed, 
+        unexcuted_task_quantity: taskProgressItem?.unexcuted_task_quantity,
+        project_task_id: taskProgressItem?.project_task_id, 
+        task: taskProgressItem?.task,
         execution_date: taskProgressItem ? dayjs(taskProgressItem.execution_date) : dayjs().toISOString(),
-        remarks: taskProgressItem && taskProgressItem.remarks,
-        unit_symbol: taskProgressItem && taskProgressItem.unit_symbol,
+        remarks: taskProgressItem?.remarks,
+        unit_symbol: taskProgressItem?.unit_symbol,
         material_used: []
       },
       context: { taskProgressItems, taskProgressItem }
@@ -100,14 +100,14 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
 
     const retrieveTaskDetails = async (taskId) => {
       setIsRetrievingDetails(true);
-      const details =  await projectsServices.showTaskDetails(taskId)
+      const details = await projectsServices.showTaskDetails(taskId);
       setValue('unexcuted_task_quantity', details?.unexecuted_quantity);
       setIsRetrievingDetails(false);
     }
 
     useEffect(() => {
       if (taskProgressItem?.id) {
-        retrieveTaskDetails({ taskId: taskProgressItem.task.id });
+        retrieveTaskDetails(taskProgressItem.task.id);
       }
     }, [taskProgressItem])
 
@@ -147,23 +147,23 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
           shouldDirty: true
         });
       }
-    }, [watch(`unexcuted_task_quantity`)])
-    
+    }, [watch(`unexcuted_task_quantity`), setValue, watch]);
+
     if(isAdding){
       return <LinearProgress/>
     }
 
   return (
     <form autoComplete='off' onSubmit={handleSubmit(updateItems)}>
-        <Grid container columnSpacing={1} rowSpacing={1}>
-            <Grid item xs={12} md={4} lg={2.5}>
+        <Grid container columnSpacing={1} width={'100%'} rowSpacing={1}>
+            <Grid size={{xs: 12, md: 4, lg: 2.5}}>
               <Div sx={{mt: 1}}>
                 <DateTimePicker
                   fullWidth={true}
                   label="Execution Date"
                   defaultValue={taskProgressItem ? dayjs(taskProgressItem.execution_date) : dayjs()}
                   maxDate={dayjs()}
-                  disabled={taskProgressItem && taskProgressItem.material_used.length > 0}
+                  disabled={taskProgressItem && taskProgressItem.material_used?.length > 0}
                   slotProps={{
                   textField : {
                     size: 'small',
@@ -182,13 +182,13 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1 }}>
                 <Autocomplete
                   options={allTasks}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                   getOptionLabel={(option) => option.name}
-                  defaultValue={taskProgressItem && taskProgressItem.task}
+                  defaultValue={taskProgressItem?.task}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -201,19 +201,19 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                   )}
                   onChange={(e, newValue) => {
                     if (!!newValue) {
-                      setUnitToDisplay(newValue.measurement_unit.symbol)
+                      setUnitToDisplay(newValue.measurement_unit?.symbol)
                       setValue('task', newValue)
-                      setValue('project_task_id',!!newValue && newValue.id, {
+                      setValue('project_task_id', newValue?.id, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
 
-                      retrieveTaskDetails({ taskId: newValue.id });
+                      retrieveTaskDetails(newValue.id);
                     } else {
                       setUnitToDisplay(null)
                       setValue('task', null)
                       setValue('unit_symbol', null)
-                      setValue('project_task_id',null, {
+                      setValue('project_task_id', null, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
@@ -227,7 +227,7 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{xs: 12, md: 2}}>
               <Div sx={{ mt: 1 }}>
                 {isRetrievingDetails ? (
                   <LinearProgress />
@@ -245,8 +245,8 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                       </InputAdornment>
                     ),
                   }}
-                  error={errors && !!errors?.quantity_executed}
-                  helperText={errors && errors?.quantity_executed?.message}
+                  error={!!errors?.quantity_executed}
+                  helperText={errors?.quantity_executed?.message}
                   onChange={(e) => {
                     setValue('unit_symbol', unitToDisplay)
                     setValue(`quantity_executed`, e.target.value ? sanitizedNumber(e.target.value) : 0, {
@@ -258,7 +258,7 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                 )}
               </Div>
             </Grid>
-            <Grid item xs={12} md={3.5}>
+            <Grid size={{xs: 12, md: 3.5}}>
               <Div sx={{ mt: 1}}>
                 <TextField
                   label="Remarks"
@@ -270,7 +270,7 @@ function TaskProgress({taskProgressItem = null,index = -1, setShowForm = null}) 
                 />
               </Div>
             </Grid>
-            <Grid item xs={12} md={12} textAlign={'end'} paddingBottom={0.5}>
+            <Grid size={12} textAlign={'end'} paddingBottom={0.5}>
               <Button
                 variant='contained'
                 size='small'

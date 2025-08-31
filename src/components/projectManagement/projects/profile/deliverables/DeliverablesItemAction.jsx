@@ -1,13 +1,13 @@
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog,Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQueryClient } from 'react-query';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import JumboDdMenu from '@jumbo/components/JumboDdMenu/JumboDdMenu';
-import projectsServices from '../../projectsServices';
-import { useJumboTheme } from '@jumbo/hooks';
 import DeliverablesForm from './DeliverablesForm';
+import projectsServices from '../../project-services';
+import { JumboDdMenu } from '@jumbo/components';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const DeliverablesItemAction = ({ deliverable}) => {
     const [openEditDialog,setOpenEditDialog] = useState(false);
@@ -19,15 +19,17 @@ const DeliverablesItemAction = ({ deliverable}) => {
     const {theme} = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const { mutate: deleteDeliverable } = useMutation(projectsServices.deleteDeliverable, {
+    // React Query v5 syntax for useMutation
+    const { mutate: deleteDeliverable } = useMutation({
+        mutationFn: projectsServices.deleteDeliverable,
         onSuccess: (data) => {
-        queryClient.invalidateQueries(['projectDeliverableGroups']);
-        enqueueSnackbar(data.message, {
-            variant: 'success',
-        });
+            queryClient.invalidateQueries({queryKey: ['projectDeliverableGroups']});
+            enqueueSnackbar(data.message, {
+                variant: 'success',
+            });
         },
         onError: (error) => {
-        enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
+            enqueueSnackbar(error?.response?.data.message,{variant : 'error'});
         },
     });
 

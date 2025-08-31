@@ -1,16 +1,23 @@
-import { Accordion, AccordionSummary, AccordionDetails, Grid, Tooltip, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Grid,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
-import React, { useState } from 'react';
 import BudgetsItemAction from './BudgetsItemAction';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import BudgetsActionTail from './BudgetsActionTail';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import BudgetsAccordionDetails from './BudgetsAccordionDetails';
-import ProductsProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsProvider';
-import LedgerSelectProvider from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelectProvider';
-import ProductsSelectProvider from 'app/prosServices/prosERP/productAndServices/products/ProductsSelectProvider';
+import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
+import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function BudgetsListItem() {
   const { projectBudgets } = useProjectProfile();
@@ -30,16 +37,16 @@ function BudgetsListItem() {
 
   return (
     <LedgerSelectProvider>
-     <ProductsSelectProvider>
+      <ProductsSelectProvider>
         <ProductsProvider>
-          <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
-            <Grid item>
+          <Grid container columnSpacing={1} width={'100%'} justifyContent="flex-end" alignItems="center">
+            <Grid>
               <JumboSearch
                 value={searchQuery}
                 onChange={(value) => setSearchQuery(value)}
               />
             </Grid>
-            <Grid item>
+            <Grid>
               <BudgetsActionTail />
             </Grid>
           </Grid>
@@ -92,29 +99,29 @@ function BudgetsListItem() {
                     },
                   }}
                 >
-                  <Grid container columnSpacing={2} alignItems="center">
-                    <Grid item xs={12} md={4}>
+                  <Grid container width={'100%'} columnSpacing={2} alignItems="center">
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Tooltip title="Name">
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {budget.name}
                         </Typography>
                       </Tooltip>
                     </Grid>
-                    <Grid item xs={6} md={3.5}>
+                    <Grid size={{ xs: 6, md: 3.5 }}>
                       <Tooltip title="Start Date">
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {readableDate(budget.start_date, false)}
                         </Typography>
                       </Tooltip>
                     </Grid>
-                    <Grid item xs={6} md={3.5}>
+                    <Grid size={{ xs: 6, md: 3.5 }}>
                       <Tooltip title="End Date">
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {readableDate(budget.end_date, false)}
                         </Typography>
                       </Tooltip>
                     </Grid>
-                    <Grid item xs={12} md={1} textAlign="end">
+                    <Grid size={{ xs: 12, md: 1 }} textAlign="end">
                       <BudgetsItemAction budget={budget} />
                     </Grid>
                   </Grid>
@@ -124,11 +131,11 @@ function BudgetsListItem() {
                   sx={{
                     backgroundColor: 'background.paper',
                     marginBottom: 3,
-                    padding: 0.5
+                    padding: 0.5,
                   }}
                 >
                   <Grid container>
-                    <BudgetsAccordionDetails budget={budget} expanded={expanded[index]}/>
+                    <BudgetsAccordionDetails budget={budget} expanded={expanded[index]} />
                   </Grid>
                 </AccordionDetails>
               </Accordion>

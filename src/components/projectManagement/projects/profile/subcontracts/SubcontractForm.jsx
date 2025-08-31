@@ -1,24 +1,24 @@
-import Div from '@jumbo/shared/Div/Div'
 import { LoadingButton } from '@mui/lab'
 import { Button, DialogActions, DialogContent, DialogTitle, Grid, TextField, Tooltip } from '@mui/material'
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup';
-import { useMutation, useQueryClient } from 'react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
 import { AddOutlined } from '@mui/icons-material';
-import { PERMISSIONS } from 'app/utils/constants/permissions';
-import StakeholderSelector from 'app/prosServices/prosERP/masters/stakeholders/StakeholderSelector';
-import StakeholderQuickAdd from 'app/prosServices/prosERP/masters/stakeholders/StakeholderQuickAdd';
-import projectsServices from '../../projectsServices';
 import { useProjectProfile } from '../ProjectProfileProvider';
-import CurrencySelector from 'app/prosServices/prosERP/masters/Currencies/CurrencySelector';
-import CommaSeparatedField from 'app/shared/Inputs/CommaSeparatedField';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
+import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
+import { Div } from '@jumbo/shared';
+import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import projectsServices from '../../project-services';
 
 function SubcontractForm({setOpenDialog, subContract = null }) {
     const queryClient = useQueryClient();
@@ -28,11 +28,13 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
     const [stakeholderQuickAddDisplay, setStakeholderQuickAddDisplay] = useState(false);
     const [addedStakeholder, setAddedStakeholder] = useState(null);
 
-    const { mutate: addSubcontract, isLoading } = useMutation(projectsServices.addSubcontract, {
+    // React Query v5 syntax for useMutation
+    const { mutate: addSubcontract, isPending } = useMutation({
+        mutationFn: projectsServices.addSubcontract,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['subcontracts']);
+            queryClient.invalidateQueries({queryKey: ['subcontracts']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -41,11 +43,12 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
         },
     });
 
-    const { mutate: updateSubcontract, isLoading: updateIsLoading } = useMutation(projectsServices.updateSubcontract, {
+    const { mutate: updateSubcontract, isPending: updateIsLoading } = useMutation({
+        mutationFn: projectsServices.updateSubcontract,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['subcontracts']);
+            queryClient.invalidateQueries({queryKey: ['subcontracts']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {
@@ -83,17 +86,17 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
             setValue('subcontractor_id', addedStakeholder.id);
             setStakeholderQuickAddDisplay(false)
         }
-    }, [addedStakeholder])
+    }, [addedStakeholder, setValue])
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit(saveMutation)}>
+    <form autoComplete="off" onSubmit={handleSubmit((data) => saveMutation(data))}>
       {!stakeholderQuickAddDisplay && 
         <DialogTitle textAlign={'center'}>{subContract ? `Edit: ${subContract.subcontractNo}` : 'New Sub Contract'}</DialogTitle>
       }
       <DialogContent>
         <Grid container spacing={1}>
           {!stakeholderQuickAddDisplay &&
-            <Grid item md={4} xs={12} >
+            <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <StakeholderSelector
                   label='Sub Contractor Name'
@@ -128,7 +131,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
 
             {!stakeholderQuickAddDisplay &&
                 <>
-                    <Grid item md={4} xs={12}>
+                    <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{ mt: 1}}>
                             <CurrencySelector
                                 frontError={errors?.currency_id}
@@ -149,7 +152,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                     </Grid>
                     {
                         watch('currency_id') > 1 && (
-                            <Grid item md={4} xs={12}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Div sx={{ mt: 1}}>
                                     <TextField
                                         label="Exchange Rate"
@@ -181,7 +184,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                             />
                         </Div>
                     </Grid>
-                    <Grid item md={4} xs={12}>
+                    <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                             <DateTimePicker
                                 label='Commencement Date'
@@ -204,7 +207,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                             />
                         </Div>
                     </Grid>
-                    <Grid item md={4} xs={12}>
+                    <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                             <DateTimePicker
                                 label='Completion Date'
@@ -227,7 +230,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                             />
                         </Div>
                     </Grid>
-                    <Grid item xs={12} md={watch('currency_id') > 1 ? 12 : 4}>
+                    <Grid size={{xs: 12, md: watch('currency_id') > 1 ? 12 : 4}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                             <TextField
                                 label="Remarks"
@@ -254,7 +257,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                     variant="contained"
                     size="small"
                     sx={{ display: 'flex' }}
-                    loading={isLoading || updateIsLoading}
+                    loading={isPending || updateIsLoading}
                 >
                     Submit
                 </LoadingButton>

@@ -1,7 +1,7 @@
 import { Grid, Tooltip, Typography } from '@mui/material';
 import React from 'react';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
 import SubContractMaterialIssuedItemAction from './form/SubContractMaterialIssuedItemAction';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SubContractMaterialIssuedListItem({ subContractMaterialsUsed }) {
     return (
@@ -15,37 +15,38 @@ function SubContractMaterialIssuedListItem({ subContractMaterialsUsed }) {
                 },
                 padding: 1,
             }}
+            width={'100%'}
             columnSpacing={2}
             alignItems={'center'}
             container
         >
-            <Grid item xs={6} md={3}>
+            <Grid size={{xs: 6, md: 3}}>
                 <Tooltip title="Issue No.">
                     <Typography component="span">
                         {subContractMaterialsUsed.issueNo}
                     </Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{xs: 6, md: 3}}>
                 <Tooltip title={'Issue Date.'}>
                     <Typography variant='h6'>{readableDate(subContractMaterialsUsed?.issue_date, false)}</Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={6} md={2.5}>
+            <Grid size={{xs: 6, md: 2.5}}>
                 <Tooltip title="Reference">
                     <Typography component="span">
                         {subContractMaterialsUsed.reference}
                     </Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={6} md={2.5}>
+            <Grid size={{xs: 6, md: 2.5}}>
                 <Tooltip title="Remarks">
                     <Typography component="span">
                         {subContractMaterialsUsed.remarks}
                     </Typography>
                 </Tooltip>
             </Grid>
-            <Grid item xs={12} md={1} textAlign={'right'}>
+            <Grid size={{xs: 12, md: 1}} textAlign={'right'}>
                 <SubContractMaterialIssuedItemAction SubContractMaterialIssued={subContractMaterialsUsed}/>
             </Grid>
         </Grid>

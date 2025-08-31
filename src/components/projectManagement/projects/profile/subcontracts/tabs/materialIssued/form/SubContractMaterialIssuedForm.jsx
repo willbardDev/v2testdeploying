@@ -1,27 +1,27 @@
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, TextField, Tooltip } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import dayjs from 'dayjs'; 
-import Div from '@jumbo/shared/Div/Div';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { LoadingButton } from '@mui/lab';
 import * as yup  from "yup";
 import {yupResolver} from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import projectsServices from '../../../../../projectsServices';
 import SubContractMaterialIssuedItemForm from './SubContractMaterialIssuedItemForm';
 import SubContractMaterialIssuedItemRow from './SubContractMaterialIssuedItemRow';
 import { HighlightOff } from '@mui/icons-material';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { Div } from '@jumbo/shared';
 
 function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMaterialIssued}) {
   const [issue_date] = useState(SubContractMaterialIssued ? dayjs(SubContractMaterialIssued.issue_date) : dayjs());
   const [items, setItems] = useState(SubContractMaterialIssued ? SubContractMaterialIssued.items.map(item => {
     return {
      ...item,
-      product_id: item.product.id,
-      store_id: item.store.id,
-      measurement_unit_id: item.measurement_unit.id
+      product_id: item.product?.id,
+      store_id: item.store?.id,
+      measurement_unit_id: item.measurement_unit?.id
     }
   }) : []);
 
@@ -40,38 +40,41 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
   const {setValue, setError, handleSubmit, watch, register, formState : {errors}} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      id: SubContractMaterialIssued && SubContractMaterialIssued.id,
-      subcontract_id: SubContractMaterialIssued ? SubContractMaterialIssued.subcontract?.id : subContract.id,
+      id: SubContractMaterialIssued?.id,
+      subcontract_id: SubContractMaterialIssued ? SubContractMaterialIssued.subcontract?.id : subContract?.id,
       issue_date: issue_date.toISOString(),
-      remarks: SubContractMaterialIssued && SubContractMaterialIssued.remarks,
-      reference: SubContractMaterialIssued && SubContractMaterialIssued.reference,
+      remarks: SubContractMaterialIssued?.remarks,
+      reference: SubContractMaterialIssued?.reference,
       items: SubContractMaterialIssued ? SubContractMaterialIssued.items.map(item => {
         return {
          ...item,
-          product_id: item.product.id,
-          store_id: item.store.id,
-          measurement_unit_id: item.measurement_unit.id
+          product_id: item.product?.id,
+          store_id: item.store?.id,
+          measurement_unit_id: item.measurement_unit?.id
         }
       }) : [],
     }
   });
 
-  const addSubContractMaterialIssued = useMutation(projectsServices.addSubContractMaterialIssued,{
+  // React Query v5 syntax for useMutation
+  const { mutate: addSubContractMaterialIssued, isPending: isAdding } = useMutation({
+    mutationFn: projectsServices.addSubContractMaterialIssued,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['SubContractMaterialIssued']);
+      queryClient.invalidateQueries({queryKey: ['SubContractMaterialIssued']});
     },
     onError: (error) => {
       error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
     }
   })
   
-  const updateSubContractMaterialIssued = useMutation(projectsServices.updateSubContractMaterialIssued,{
+  const { mutate: updateSubContractMaterialIssued, isPending: isUpdating } = useMutation({
+    mutationFn: projectsServices.updateSubContractMaterialIssued,
     onSuccess: (data) => {
       toggleOpen(false);
       enqueueSnackbar(data.message,{variant : 'success'});
-      queryClient.invalidateQueries(['SubContractMaterialIssued']);
+      queryClient.invalidateQueries({queryKey: ['SubContractMaterialIssued']});
     },
     onError: (error) => {
       error?.response?.data?.message && enqueueSnackbar(error.response.data.message,{variant:'error'});
@@ -80,11 +83,11 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
 
   useEffect(() => {
     setValue(`items`, items);
-  }, [items]);
+  }, [items, setValue]);
 
   const saveMutation = React.useMemo(() => {
     return SubContractMaterialIssued ? updateSubContractMaterialIssued : addSubContractMaterialIssued
-  },[updateSubContractMaterialIssued,addSubContractMaterialIssued, SubContractMaterialIssued]);
+  },[updateSubContractMaterialIssued, addSubContractMaterialIssued, SubContractMaterialIssued]);
 
   const onSubmit = (data) => {
     if (items.length === 0) {
@@ -97,12 +100,16 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
       setShowWarning(true);
     } else {
       data.items = items;
-      handleSubmit((data) => saveMutation.mutate(data))();
+      saveMutation(data);
     }
   };  
 
   const handleConfirmSubmitWithoutAdd = () => {
-    handleSubmit((data) => saveMutation.mutate(data))();
+    const formData = {
+      ...watch(),
+      items: items
+    };
+    saveMutation(formData);
     setIsDirty(false);
     setShowWarning(false);
     setClearFormKey(prev => prev + 1)
@@ -112,13 +119,13 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
     <React.Fragment>
       <DialogTitle>
         <Grid container columnSpacing={2}>
-          <Grid item xs={12} textAlign={"center"} mb={2}>
+          <Grid size={{xs: 12}} textAlign={"center"} mb={2}>
             {!SubContractMaterialIssued ? 'New Material Issued' : `Edit ${SubContractMaterialIssued.issueNo}`}
           </Grid>
-          <Grid item xs={12} mb={1}>
+          <Grid size={{xs: 12}} mb={1}>
             <form autoComplete='off'>
               <Grid container columnSpacing={1} rowSpacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{xs: 12, md: 4}}>
                   <Div sx={{ mt: 0.3}}>
                     <DateTimePicker
                       fullWidth
@@ -140,7 +147,7 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                <Grid size={{xs: 12, md: 3}}>
                   <Div sx={{ mt: 0.3}}>
                     <TextField
                       label="Reference"
@@ -151,14 +158,14 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
                     />
                   </Div>
                 </Grid>
-                <Grid item xs={12} md={5}>
+                <Grid size={{xs: 12, md: 5}}>
                   <Div sx={{ mt: 0.3}}>
                     <TextField
                       label="Remarks"
                       size="small"
                       defaultValue={SubContractMaterialIssued?.remarks}
-                      error={errors && !!errors?.remarks}
-                      helperText={errors && errors?.remarks?.message}
+                      error={!!errors?.remarks}
+                      helperText={errors?.remarks?.message}
                       multiline={true}
                       minRows={2}
                       fullWidth
@@ -169,9 +176,25 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
               </Grid>
             </form>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{xs: 12}}>
             <Divider />
-            <SubContractMaterialIssuedItemForm setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} setItems={setItems} items={items} issue_date={watch(`issue_date`)}/>
+            <SubContractMaterialIssuedItemForm 
+              setClearFormKey={setClearFormKey} 
+              submitMainForm={() => {
+                const formData = {
+                  ...watch(),
+                  items: items
+                };
+                saveMutation(formData);
+              }} 
+              submitItemForm={submitItemForm} 
+              setSubmitItemForm={setSubmitItemForm} 
+              key={clearFormKey} 
+              setIsDirty={setIsDirty} 
+              setItems={setItems} 
+              items={items} 
+              issue_date={watch(`issue_date`)}
+            />
           </Grid>
         </Grid>
       </DialogTitle>
@@ -181,17 +204,35 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
         }
         {
           items.map((item,index) => (
-            <SubContractMaterialIssuedItemRow setClearFormKey={setClearFormKey} submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} setIsDirty={setIsDirty} key={index} index={index} setItems={setItems} items={items} item={item} issue_date={watch(`issue_date`)}/>
+            <SubContractMaterialIssuedItemRow 
+              setClearFormKey={setClearFormKey} 
+              submitMainForm={() => {
+                const formData = {
+                  ...watch(),
+                  items: items
+                };
+                saveMutation(formData);
+              }} 
+              submitItemForm={submitItemForm} 
+              setSubmitItemForm={setSubmitItemForm} 
+              setIsDirty={setIsDirty} 
+              key={index} 
+              index={index} 
+              setItems={setItems} 
+              items={items} 
+              item={item} 
+              issue_date={watch(`issue_date`)}
+            />
           ))
         }
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={11}>
+              <Grid size={{xs: 11}}>
                 Unsaved Changes
               </Grid>
-              <Grid item xs={1} textAlign="right">
+              <Grid size={{xs: 1}} textAlign="right">
                 <Tooltip title="Close">
                   <IconButton
                     size="small" 
@@ -221,7 +262,7 @@ function SubContractMaterialIssuedForm({toggleOpen, subContract, SubContractMate
           Cancel
         </Button>
         <LoadingButton
-          loading={addSubContractMaterialIssued.isLoading || updateSubContractMaterialIssued.isLoading}
+          loading={isAdding || isUpdating}
           variant='contained' 
           onClick={onSubmit}
           size='small'

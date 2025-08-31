@@ -16,10 +16,8 @@ import {
   MenuItem,
   Typography,
   Alert,
-  Divider,
   Tooltip,
 } from '@mui/material';
-import Div from '@jumbo/shared/Div/Div';
 import LedgerItemsTab from './tabs/LedgerItemsTab';
 import LedgerItemsRow from './tabs/LedgerItemsRow';
 import ProductItemsTab from './tabs/ProductItemsTab';
@@ -28,8 +26,9 @@ import { useProjectProfile } from '../../ProjectProfileProvider';
 import dayjs from 'dayjs';
 import SubContractTasksTab from './tabs/SubContractTasksTab';
 import SubContractTasksRow from './tabs/SubContractTasksRow';
-import LedgerSelect from 'app/prosServices/prosERP/accounts/ledgers/forms/LedgerSelect';
-import { useCurrencySelect } from 'app/prosServices/prosERP/masters/Currencies/CurrencySelectProvider';
+import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
+import { Div } from '@jumbo/shared';
+import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
 const BudgetItemsForm = ({ budget, setOpenDialog }) => {
   const { deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
@@ -54,7 +53,7 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
       setFetchTimelineActivities(false)
     }
 
-  }, [projectTimelineActivities, setFetchTimelineActivities]);
+  }, [projectTimelineActivities, deliverable_groups, setFetchDeliverables, setFetchTimelineActivities]);
 
   const deliverablesOptions = (groups, depth = 0) => {
     if (!Array.isArray(groups)) {
@@ -108,9 +107,9 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
   const [existingSubContractTasks, setExistingSubContractTasks] = useState([]);
 
   useEffect(() => {
-    setExistingLedgerItems(budget.ledger_items)
-    setExistingProductItems(budget.product_items)
-    setExistingSubContractTasks(budget.subcontract_task_items)
+    setExistingLedgerItems(budget.ledger_items || [])
+    setExistingProductItems(budget.product_items || [])
+    setExistingSubContractTasks(budget.subcontract_task_items || [])
   }, [budget])
 
   const filteredExistingLedgerItems = selectedItemable?.id
@@ -132,19 +131,19 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
     : existingSubContractTasks;   
 
   const filteredLedgerItemsByExpense = filteredExistingLedgerItems?.filter(ledgerItem =>
-    searchQueryIds.length === 0 || searchQueryIds.includes(ledgerItem.ledger.id)
+    searchQueryIds.length === 0 || searchQueryIds.includes(ledgerItem.ledger?.id)
   );  
 
-  const totalExpenseTabAmount = filteredLedgerItemsByExpense.reduce((total, item) => total + (item.quantity * item.rate * item.exchange_rate), 0);
-  const totalProductTabAmount = filteredExistingProductItems.reduce((total, item) => total + (item.quantity * item.rate * item.exchange_rate), 0);
-  const totalSubContractTabAmount = filteredExistingSubContractTasks.reduce((total, item) => total + (item.quantity * item.rate * item.exchange_rate), 0);
+  const totalExpenseTabAmount = filteredLedgerItemsByExpense.reduce((total, item) => total + ((item.quantity || 0) * (item.rate || 0) * (item.exchange_rate || 1)), 0);
+  const totalProductTabAmount = filteredExistingProductItems.reduce((total, item) => total + ((item.quantity || 0) * (item.rate || 0) * (item.exchange_rate || 1)), 0);
+  const totalSubContractTabAmount = filteredExistingSubContractTasks.reduce((total, item) => total + ((item.quantity || 0) * (item.rate || 0) * (item.exchange_rate || 1)), 0);
 
   return (
     <>
       <Typography textAlign={'center'} variant='h4' paddingTop={3}>{`Budget For ${selectedItemable ? selectedItemable?.label : `Project`}`}</Typography>
       <DialogTitle textAlign={'center'}>
-        <Grid container justifyContent="center" alignItems="center" columnSpacing={1}>
-          <Grid item xs={12} md={3.5} textAlign="center">
+        <Grid container width={'100%'} justifyContent="center" alignItems="center" columnSpacing={1}>
+          <Grid size={{xs: 12, md: 3.5}} textAlign="center">
             <Div sx={{mt: 1}}>
               <FormControl fullWidth>
                 <InputLabel id="bound-to-label" sx={{ textAlign: 'center', margin: -1 }}>Bound To</InputLabel>
@@ -166,7 +165,7 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
               </FormControl>
             </Div>
           </Grid>
-          <Grid item xs={12} md={8.5} textAlign="center">
+          <Grid size={{xs: 12, md: 8.5}} textAlign="center">
             <Div sx={{ mt: 1 }}>
               <Autocomplete
                 options={boundToOption === 'Task' ? allTasks : boundToOption === 'Deliverable' ? deliverables : []}
@@ -212,19 +211,19 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
 
       </DialogTitle>
       <DialogContent>
-        <Grid container columnSpacing={1} justifyContent="center" marginTop={2}>
-          <Grid item xs={12}>
+        <Grid container width={'100%'} columnSpacing={1} justifyContent="center" marginTop={2}>
+          <Grid size={{xs: 12}}>
             {activeTab === 0 && filteredExistingLedgerItems.length > 0 && (
               <>
-                <Grid container paddingBottom={1} columnSpacing={1} justifyContent="flex-end" alignItems="center">
-                  <Grid item xs={12} md={6}>
+                <Grid container width={'100%'} paddingBottom={1} columnSpacing={1} justifyContent="flex-end" alignItems="center">
+                  <Grid size={{xs: 12, md: 6}}>
                     <Tooltip title='Total Expenses Items'>
                       <Typography fontWeight="bold" variant="h4" component="span">
                         {totalExpenseTabAmount.toLocaleString('en-US', { style: 'currency', currency: baseCurrency?.code })}
                       </Typography>
                     </Tooltip>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{xs: 12, md: 6}}>
                     <LedgerSelect
                       multiple={true}
                       label="Filter by Expense"
@@ -251,8 +250,8 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
             )}
             {activeTab === 1 && filteredExistingProductItems.length > 0 && (
               <>
-                <Grid container paddingBottom={1} columnSpacing={1}>
-                  <Grid item xs={12} md={6}>
+                <Grid container width={'100%'} paddingBottom={1} columnSpacing={1}>
+                  <Grid size={{xs: 12, md: 6}}>
                     <Tooltip title='Total Product Items'>
                       <Typography fontWeight="bold" variant="h4" component="span">
                         {totalProductTabAmount.toLocaleString('en-US', { style: 'currency', currency: baseCurrency?.code })}
@@ -272,8 +271,8 @@ const BudgetItemsForm = ({ budget, setOpenDialog }) => {
             )}
             {activeTab === 2 && filteredExistingSubContractTasks.length > 0 && (
               <>
-                <Grid container paddingBottom={1} columnSpacing={1}>
-                  <Grid item xs={12} md={6}>
+                <Grid container width={'100%'} paddingBottom={1} columnSpacing={1}>
+                  <Grid size={{xs: 12, md: 6}}>
                     <Tooltip title='Total Subcontract Tasks'>
                       <Typography fontWeight="bold" variant="h4" component="span">
                         {totalSubContractTabAmount.toLocaleString('en-US', { style: 'currency', currency: baseCurrency?.code })}

@@ -1,8 +1,8 @@
-import { useJumboTheme } from "@jumbo/hooks";
 import { AddTask } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
 import TasksForm from "./TasksForm";
+import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 
 const TasksActionTail = ({activity}) => { 
   const { theme } = useJumboTheme();

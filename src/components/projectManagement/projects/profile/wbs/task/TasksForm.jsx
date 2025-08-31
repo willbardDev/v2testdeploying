@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -20,16 +20,16 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
-import Div from '@jumbo/shared/Div/Div';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import useJumboAuth from '@jumbo/hooks/useJumboAuth';
-import { sanitizedNumber } from 'app/helpers/input-sanitization-helpers';
-import MeasurementSelector from 'app/prosServices/prosERP/masters/measurementUnits/MeasurementSelector';
-import UsersSelector from 'app/prosServices/prosERP/sharedComponents/UsersSelector';
 import { useProjectProfile } from '../../ProjectProfileProvider';
-import projectsServices from '../../../projectsServices';
 import { AddOutlined, DisabledByDefault } from '@mui/icons-material';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import projectsServices from '../../../project-services';
+import { Div } from '@jumbo/shared';
+import UsersSelector from '@/components/sharedComponents/UsersSelector';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
 
 const TasksForm = ({ setOpenDialog, task, activity }) => {
     const queryClient = useQueryClient();
@@ -50,11 +50,13 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
         }
     }, [deliverable_groups]);
 
-    const { mutate: addTask, isLoading } = useMutation(projectsServices.addTask, {
+    // React Query v5 syntax for useMutation
+    const { mutate: addTask, isLoading } = useMutation({
+        mutationFn: projectsServices.addTask,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectTimelineActivities']);
+            queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
         },
         onError: (error) => {
             if (error.response) {
@@ -67,11 +69,12 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
         }
     });
 
-    const { mutate: EditTask, isLoading : isEdit  } = useMutation(projectsServices.EditTask, {
+    const { mutate: EditTask, isLoading: isEdit } = useMutation({
+        mutationFn: projectsServices.EditTask,
         onSuccess: (data) => {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
-            queryClient.invalidateQueries(['projectTimelineActivities']);
+            queryClient.invalidateQueries({queryKey: ['projectTimelineActivities']});
         },
         onError: (error) => {
             if (error.response) {
@@ -260,7 +263,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                             <form autoComplete="off">
                                 <Grid container columnSpacing={1}>
                                     <Grid container spacing={1} alignItems="center" justifyContent="center">
-                                        <Grid item xs={12} md={4} lg={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <TextField
                                                     label="Task Name"
@@ -272,7 +275,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4} lg={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <TextField
                                                     label="Code"
@@ -282,7 +285,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1, mb: 1 }}>
                                                 <Checkbox
                                                     checked={is_milestone}
@@ -313,7 +316,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 Milestone
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4} lg={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1}}>
                                                 <TextField
                                                     label="Quantity"
@@ -331,7 +334,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1}}>
                                                 <MeasurementSelector
                                                     label='Measurement Unit'
@@ -349,7 +352,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <Autocomplete
                                                     multiple
@@ -383,7 +386,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <UsersSelector
                                                     label='Handlers'
@@ -399,7 +402,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item md={4} lg={4} xs={12}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <DateTimePicker
                                                     label='Start Date'
@@ -432,7 +435,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item md={4} lg={4} xs={12}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <DateTimePicker
                                                     label='End Date'
@@ -458,7 +461,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1}}>
                                                 <TextField
                                                     size="small"
@@ -479,7 +482,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={4}>
+                                        <Grid size={{xs: 12, md: 4}}>
                                             <Div sx={{ mt: 1}}>
                                                 <Autocomplete
                                                     options={task ? 
@@ -506,7 +509,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12} md={8} lg={4}>
+                                        <Grid size={{xs: 12, md: 8, lg: 4}}>
                                             <Div sx={{ mt: 1 }}>
                                                 <TextField
                                                     label="Description"
@@ -518,17 +521,17 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                 />
                                             </Div>
                                         </Grid>
-                                        <Grid item xs={12}>
-                                            <Grid item xs={12} textAlign={'center'}>
+                                        <Grid size={12}>
+                                            <Grid size={12} textAlign={'center'}>
                                                <Typography variant='h4'>Deliverable Contributions</Typography>
                                             </Grid>
                                             <Divider />
                                             {fields.map((field, index) => (
                                                 <Grid key={field.id} container columnSpacing={1}>
-                                                    <Grid item xs={11} marginBottom={0.5}>
+                                                    <Grid size={11} marginBottom={0.5}>
                                                         <Divider />
                                                         <Grid container columnSpacing={1}>
-                                                            <Grid item xs={12} md={8}>
+                                                            <Grid size={{xs: 12, md: 8}}>
                                                                 <Div sx={{ mt: 1 }}>
                                                                     <Autocomplete
                                                                         options={deliverables}
@@ -582,7 +585,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                                     />
                                                                 </Div>
                                                             </Grid>
-                                                            <Grid item xs={12} md={4}>
+                                                            <Grid size={{xs: 12, md: 4}}>
                                                                 <Div sx={{ mt: 1 }}>
                                                                     <TextField
                                                                         label="Contribution Percentage"
@@ -636,7 +639,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                     </Grid>
 
                                                     {fields.length > 0 && (
-                                                        <Grid item xs={1}>
+                                                        <Grid size={1}>
                                                             <Div sx={{ mt: 1 }}>
                                                                 <Tooltip title="Remove deliverable contribution">
                                                                     <IconButton size="small" onClick={() => remove(index)}>
@@ -648,7 +651,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                                     )}
                                                 </Grid>
                                             ))}
-                                            <Grid item xs={12} sx={{ display: 'flex', direction: 'row', justifyContent: 'flex-end' }}>
+                                            <Grid size={12} sx={{ display: 'flex', direction: 'row', justifyContent: 'flex-end' }}>
                                                 <Div sx={{ mt: 1 }}>
                                                     <Tooltip title="Add deliverable contribution">
                                                         <Button
@@ -672,7 +675,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                             </Button>
                             <LoadingButton
                                 type="submit"
-                                onClick={handleSubmit(saveMutation)}
+                                onClick={handleSubmit((data) => saveMutation(data))}
                                 variant="contained"
                                 size="small"
                                 sx={{ display: 'flex' }}

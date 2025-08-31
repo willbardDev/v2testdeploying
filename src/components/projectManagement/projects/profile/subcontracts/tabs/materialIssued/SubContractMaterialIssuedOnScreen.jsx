@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { readableDate } from 'app/helpers/input-sanitization-helpers';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, organization }) {
     const mainColor = organization.settings?.main_color || "#2113AD";
@@ -10,31 +10,31 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
     return (
         <div>
             <Grid container spacing={2} style={{ marginTop: 20 }}>
-                <Grid item xs={12} style={{ textAlign: 'center' }}>
+                <Grid size={12} style={{ textAlign: 'center' }}>
                     <Typography variant="h4" color={mainColor}>Subcontract Materials Issued</Typography>
                     <Typography variant="subtitle1" fontWeight="bold">{SubContractMaterialIssuedDetails.proformaNo}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Issue No</Typography>
                     <Typography variant="body2">{SubContractMaterialIssuedDetails.issueNo}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Issue Date</Typography>
                     <Typography variant="body2">{readableDate(SubContractMaterialIssuedDetails.issue_date)}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Project</Typography>
                     <Typography variant="body2">{SubContractMaterialIssuedDetails.subcontract.project.name}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Reference</Typography>
                     <Typography variant="body2">{SubContractMaterialIssuedDetails.reference}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Subcontract No</Typography>
                     <Typography variant="body2">{SubContractMaterialIssuedDetails.subcontract.subcontractNo}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                     <Typography variant="body2" color={mainColor}>Subcontractor name</Typography>
                     <Typography variant="body2">{SubContractMaterialIssuedDetails.subcontract.subcontractor.name}</Typography>
                 </Grid>

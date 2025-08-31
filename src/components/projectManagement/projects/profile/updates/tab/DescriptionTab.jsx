@@ -10,8 +10,8 @@ import Quote from '@editorjs/quote';
 import InlineCode from '@editorjs/inline-code';
 import Marker from '@editorjs/marker';
 import Underline from '@editorjs/underline';
-import { useJumboTheme } from '@jumbo/hooks';
 import { useMediaQuery } from '@mui/material';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function DescriptionTab({ descriptionContent, setDescriptionContent, update }) {
     const { theme } = useJumboTheme();
