@@ -121,7 +121,7 @@ import AlternativesRow from './AlternativesRow';
                 onChange={(product: Product | null) => {
                   if (product) {
                     const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                    const Symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? null;
+                    const Symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? '';
                     const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
                     setNewAlternative((prev) => ({

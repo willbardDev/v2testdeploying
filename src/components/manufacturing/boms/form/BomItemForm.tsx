@@ -31,7 +31,7 @@ import { BOMItem } from '../BomType';
       quantity: number | null;
       measurement_unit_id?: number | null;
       measurement_unit: MeasurementUnit | null;
-      symbol: string | null;
+      symbol: string ;
       conversion_factor?: number | null;
       items: BOMItem[];
       alternatives?: BOMItem[];
@@ -47,9 +47,9 @@ import { BOMItem } from '../BomType';
         product?: Product;
         quantity: number;
         measurement_unit_id?: number;
-        measurement_unit?: MeasurementUnit | null | undefined;
+        measurement_unit?: MeasurementUnit | null ;
         conversion_factor?: number | null;
-        symbol?: string | null | undefined;
+        symbol?: string;
       };
       index?: number;
       setItems: React.Dispatch<React.SetStateAction<any[]>>;
@@ -88,7 +88,7 @@ import { BOMItem } from '../BomType';
         quantity: item?.quantity ?? null,
         measurement_unit_id: item?.measurement_unit_id ?? item?.measurement_unit?.id ?? null,
         measurement_unit: item?.measurement_unit ?? null,
-        symbol: item?.measurement_unit?.symbol ?? item?.symbol ?? null,
+        symbol: item?.measurement_unit?.symbol ?? item?.symbol ?? '',
         conversion_factor: item?.conversion_factor 
           ?? item?.measurement_unit?.conversion_factor 
           ?? item?.product?.primary_unit?.conversion_factor 
@@ -137,7 +137,7 @@ const updateItems = useCallback<SubmitHandler<FormValues>>(async (data) => {
       quantity: null,
       measurement_unit_id: null,
       measurement_unit: null,
-      symbol: null,
+      symbol: '',
       conversion_factor: 1,
       alternatives: [],
     });
@@ -210,20 +210,20 @@ if (isAdding) return <LinearProgress />;
                 setAddedProduct(newValue);
                 setValue('product', newValue);
                 setValue('product_id', newValue.id);
-                setValue('measurement_unit_id', unitId ?? undefined);
-                setValue('measurement_unit', unitObj ?? undefined);
-                setValue('symbol', symbol ?? undefined);
+                setValue('measurement_unit_id', unitId ?? null);
+                setValue('measurement_unit', unitObj ?? null);
+                setValue('symbol', symbol ?? '');
                 setValue('conversion_factor', conversionFactor);
                 setSelectedUnit(unitId ?? null);
               } else {
                 setAddedProduct(null);
                 reset({
                   product: null,
-                  product_id: undefined,
+                  product_id: null,
                   quantity: 0,
-                  measurement_unit_id: undefined,
+                  measurement_unit_id: null,
                   measurement_unit: null,
-                  symbol: null,
+                  symbol: '',
                   conversion_factor: 1,
                   items: [],
                   alternatives: [],
@@ -283,7 +283,7 @@ if (isAdding) return <LinearProgress />;
                     >
                       <Select
                         size="small"
-                        value={watch('measurement_unit_id') ?? ''}
+                        value={watch('measurement_unit_id') || ''}
                         onChange={(e) => {
                           const selectedUnitId = e.target.value as number;
                           setValue('measurement_unit_id', selectedUnitId);
