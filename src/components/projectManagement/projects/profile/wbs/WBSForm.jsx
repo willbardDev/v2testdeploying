@@ -25,7 +25,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
   const {project, projectTimelineActivities} = useProjectProfile();
 
   // React Query v5 syntax for useMutation
-  const { mutate: addTimelineActivity, isLoading } = useMutation({
+  const { mutate: addTimelineActivity, isPending } = useMutation({
     mutationFn: projectsServices.addTimelineActivity,
     onSuccess: (data) => {
       setOpenDialog(false);
@@ -39,7 +39,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
     },
   });
 
-  const { mutate: updateTimelineActivity, isLoading: updateLoading } = useMutation({
+  const { mutate: updateTimelineActivity, isPending: updateLoading } = useMutation({
     mutationFn: projectsServices.updateTimelineActivity,
     onSuccess: (data) => {
       setOpenDialog(false);
@@ -248,7 +248,7 @@ const WBSForm = ({ setOpenDialog, timelineActivity=null, parentActivity=null}) =
           variant="contained"
           size="small"
           sx={{ display: 'flex' }}
-          loading={isLoading || updateLoading}
+          loading={isPending || updateLoading}
         >
           Submit
         </LoadingButton>

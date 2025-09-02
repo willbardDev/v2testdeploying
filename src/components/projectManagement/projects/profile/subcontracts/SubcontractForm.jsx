@@ -173,7 +173,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                             </Grid>
                         )
                     }
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                             <TextField
                                 label="Reference"

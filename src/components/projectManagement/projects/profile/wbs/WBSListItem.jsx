@@ -27,7 +27,7 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
 
     return description.includes(searchQuery.toLowerCase()) ||
            name.includes(searchQuery.toLowerCase());
-  });
+    });
 
   const filterActivityChildren = (children) => {
     return children
@@ -54,7 +54,7 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
 
   return (
     <Accordion
-      expanded={expanded === true} // Ensure it's always a boolean
+      expanded={expanded === true}
       onChange={handleChange}
       square
       sx={{
@@ -169,7 +169,7 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
                 <TimelineActivityAccordion
                   key={child.id || index}
                   activity={child}
-                  expanded={childExpanded[index] === true} // Ensure boolean
+                  expanded={childExpanded[index] === true}
                   handleChange={() => handleChildChange(index)}
                   openDialog={openDialog}
                   setOpenDialog={setOpenDialog}
@@ -252,7 +252,7 @@ function WBSListItem() {
             <TimelineActivityAccordion
               key={activity.id || index}
               activity={activity}
-              expanded={expanded[index] === true} // Ensure boolean
+              expanded={expanded[index] === true}
               handleChange={() => handleChange(index)}
               openDialog={openDialog}
               setOpenDialog={setOpenDialog}
