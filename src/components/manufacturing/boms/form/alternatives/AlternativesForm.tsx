@@ -2,26 +2,17 @@ import {
   Grid,
   TextField,
   Button,
-  Box,
-  Tooltip,
-  IconButton,
   FormControl,
   Select,
   MenuItem,
-  Alert,
-  Typography,
-  Stack
+  Typography
 } from '@mui/material';
 import React, { useState } from 'react';
-import { CheckOutlined, DisabledByDefault, AddOutlined, EditOutlined, DeleteOutlined } from '@mui/icons-material';
+import { AddOutlined } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { BOMItem } from '../../BomType';
-import AlternativesRow from './AlternativesRow';
 
 interface AlternativesFormProps {
   item: BOMItem;
@@ -31,86 +22,80 @@ interface AlternativesFormProps {
   isEditing: boolean;
 }
 
-const validationSchema = yup.object({
-  product: yup.object().required("Product is required"),
-  quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-  measurement_unit_id: yup.number().required("Unit is required")
-});
-
 const AlternativesForm: React.FC<AlternativesFormProps> = ({
-      item,
-      alternatives,
-      setAlternatives,
-      onEditAlternative,
-      isEditing = false
-    }) => {
-      const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
-        product_id: null,
-        product: null,
-        quantity: null,
-        measurement_unit_id: null,
-        conversion_factor: 1,
-        symbol: '',
-      });
-      const [warning, setWarning] = React.useState<string | null>(null);
-      const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
-      const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+  item,
+  alternatives,
+  setAlternatives,
+  onEditAlternative,
+  isEditing = false
+}) => {
+  const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
+    product_id: null,
+    product: null,
+    quantity: null,
+    measurement_unit_id: null,
+    conversion_factor: 1,
+    symbol: '',
+  });
+  const [warning, setWarning] = React.useState<string | null>(null);
+  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
+  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
 
-      const handleAddAlternative = () => {
-        if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
-          setWarning("Please select a product and enter a valid quantity.");
-          return;
-        }
+  const handleAddAlternative = () => {
+    if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+      setWarning("Please select a product and enter a valid quantity.");
+      return;
+    }
 
-        if (newAlternative.product.id === item.product?.id) {
-          setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
-          return;
-        }
+    if (newAlternative.product.id === item.product?.id) {
+      setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+      return;
+    }
 
-        if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
-          setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-          return;
-        }
+    if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
+      setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+      return;
+    }
 
-        if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
-          setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
-          return;
-        }
+    if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
+      setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
+      return;
+    }
 
-        setAlternatives((prev) => [...prev, { ...newAlternative }]);
+    setAlternatives((prev) => [...prev, { ...newAlternative }]);
 
-        setNewAlternative({
-          product_id: null,
-          product: null,
-          quantity: null,
-          measurement_unit_id: null,
-          conversion_factor: 1,
-          symbol: '',
-        });
-        setSelectedUnit(null);
-        setWarning(null);
-      };
+    setNewAlternative({
+      product_id: null,
+      product: null,
+      quantity: null,
+      measurement_unit_id: null,
+      conversion_factor: 1,
+      symbol: '',
+    });
+    setSelectedUnit(null);
+    setWarning(null);
+  };
 
-      const handleRemoveAlternative = (altIndex: number) => {
-        setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
-        if (editingIndex === altIndex) setEditingIndex(null);
-      };
+  const handleRemoveAlternative = (altIndex: number) => {
+    setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
+    if (editingIndex === altIndex) setEditingIndex(null);
+  };
 
-      const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
-        setAlternatives(prev => {
-          const updated = [...prev];
-          updated[altIndex] = updatedItem;
-          return updated;
-        });
-        setEditingIndex(null);
-      };
+  const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
+    setAlternatives(prev => {
+      const updated = [...prev];
+      updated[altIndex] = updatedItem;
+      return updated;
+    });
+    setEditingIndex(null);
+  };
 
-      const handleStartEdit = (index: number) => {
-        setEditingIndex(index);
-        onEditAlternative(index);
-      };
+  const handleStartEdit = (index: number) => {
+    setEditingIndex(index);
+    onEditAlternative(index);
+  };
 
-      const handleCancelEdit = () => setEditingIndex(null);
+  const handleCancelEdit = () => setEditingIndex(null);
 
   return (
     <>
@@ -229,6 +214,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
             </Grid>
           </Grid>
         </>
+      )}
     </>
   );
 };
