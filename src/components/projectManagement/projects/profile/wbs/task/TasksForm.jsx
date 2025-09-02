@@ -51,7 +51,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
     }, [deliverable_groups]);
 
     // React Query v5 syntax for useMutation
-    const { mutate: addTask, isLoading } = useMutation({
+    const { mutate: addTask, isPending } = useMutation({
         mutationFn: projectsServices.addTask,
         onSuccess: (data) => {
             setOpenDialog(false);
@@ -69,7 +69,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
         }
     });
 
-    const { mutate: EditTask, isLoading: isEdit } = useMutation({
+    const { mutate: EditTask, isPending: isEdit } = useMutation({
         mutationFn: projectsServices.EditTask,
         onSuccess: (data) => {
             setOpenDialog(false);
@@ -169,14 +169,14 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
             .test('check-total', function (value) {
                 const context = this.options.context || {};
                 const { activityTasks, task } = context;
-    
+
                 if (!activityTasks) return true;
-    
+
                 const totalWeightPercentages = activityTasks.reduce(
                     (total, tsk) => total + (task && tsk.id === task.id ? 0 : tsk.weighted_percentage),
                     0
                 );
-    
+
                 if ((totalWeightPercentages + value) > 100) {
                     return this.createError({
                         message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated for this Activity.`,
@@ -196,17 +196,17 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                         .number()
                         .nullable()
                         .when('deliverable_id', {
-                            is: (val) => val !== null,
-                            then: yup
-                                .number()
+                            is: (val) => val !== null && val !== undefined,
+                            then: (schema) => schema
                                 .min(0, 'Contribution Percentage must be greater than or equal to 0')
+                                .max(100, 'Contribution Percentage must be less than or equal to 100')
                                 .required("Contribution Percentage is required when Deliverable is selected")
                                 .typeError('Contribution Percentage is Required'),
-                            otherwise: yup.number().nullable(),
+                            otherwise: (schema) => schema.nullable(),
                         }),
                 })
             )
-    });       
+    });     
 
     const {register, setValue, setError, clearErrors, trigger, control, watch, handleSubmit, formState: { errors }} = useForm({
         resolver: yupResolver(validationSchema),
@@ -679,7 +679,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                 variant="contained"
                                 size="small"
                                 sx={{ display: 'flex' }}
-                                loading={isLoading || isEdit}
+                                loading={isPending || isEdit}
                             >
                                 Submit
                             </LoadingButton>

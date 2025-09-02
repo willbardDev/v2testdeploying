@@ -27,7 +27,6 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
     const { enqueueSnackbar } = useSnackbar();
     const {project, deliverable_groups} = useProjectProfile();
 
-    // React Query v5 syntax for useMutation
     const { mutate: addDeliverables, isPending } = useMutation({
         mutationFn: projectsServices.addDeliverables,
         onSuccess: (data) => {
@@ -106,14 +105,14 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
             .test('check-total', function (value) {
                 const context = this.options.context || {};
                 const { sameLevelDeliverables, deliverable } = context;
-    
+
                 if (!sameLevelDeliverables) return true;
-    
+
                 const totalWeightPercentages = sameLevelDeliverables.reduce(
                     (total, del) => total + (deliverable && del.position_index === deliverable.position_index ? 0 : del.weighted_percentage),
                     0
                 );
-    
+
                 if ((totalWeightPercentages + value) > 100) {
                     return this.createError({
                         message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated.`,
@@ -121,12 +120,16 @@ const DeliverablesForm = ({ setOpenDialog, group=null, deliverable=null }) => {
                 }
                 return true;
             }),
-        contract_rate: yup.number().when('client_id', {
-            is: (client_id) => !!client_id,
-            then: yup.number().required("Contract rate is required").typeError('Contract rate is required'),
-            otherwise: yup.number(),
-        }),
-    });         
+        contract_rate: yup.number()
+            .test('contract-rate-required', 'Contract rate is required when client is selected', function(value) {
+                const client_id = this.parent.client_id;
+                if (client_id) {
+                    return value !== null && value !== undefined;
+                }
+                return true;
+            })
+            .typeError('Contract rate must be a number'),
+    });     
 
     const { register, setValue, watch, clearErrors, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
