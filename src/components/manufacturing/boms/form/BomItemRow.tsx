@@ -204,7 +204,6 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           item={item}
           alternatives={alternatives}
           setAlternatives={setAlternatives}
-          onEditAlternative={(idx) => setEditingAlternativeIndex(idx)}
           isEditing={editingAlternativeIndex !== null}
         />
       </AccordionDetails>

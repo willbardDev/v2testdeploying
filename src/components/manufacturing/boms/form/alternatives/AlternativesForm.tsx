@@ -2,13 +2,17 @@ import {
   Grid,
   TextField,
   Button,
+  Box,
+  Alert,
+  Typography,
   FormControl,
   Select,
   MenuItem,
-  Typography
+  Tooltip,
+  IconButton
 } from '@mui/material';
 import React, { useState } from 'react';
-import { AddOutlined } from '@mui/icons-material';
+import { AddOutlined, CheckOutlined, CancelOutlined, EditOutlined, DeleteOutlined } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
@@ -18,7 +22,6 @@ interface AlternativesFormProps {
   item: BOMItem;
   alternatives: BOMItem[];
   setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
-  onEditAlternative: (index: number) => void;
   isEditing: boolean;
 }
 
@@ -26,10 +29,9 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   item,
   alternatives,
   setAlternatives,
-  onEditAlternative,
   isEditing = false
 }) => {
-  const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
+  const [newAlternative, setNewAlternative] = useState<BOMItem>({
     product_id: null,
     product: null,
     quantity: null,
@@ -37,9 +39,10 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     conversion_factor: 1,
     symbol: '',
   });
-  const [warning, setWarning] = React.useState<string | null>(null);
-  const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
-  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editFormData, setEditFormData] = useState<BOMItem | null>(null);
 
   const handleAddAlternative = () => {
     if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
@@ -54,11 +57,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
     if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
       setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-      return;
-    }
-
-    if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
-      setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
       return;
     }
 
@@ -78,36 +76,94 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
   const handleRemoveAlternative = (altIndex: number) => {
     setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
-    if (editingIndex === altIndex) setEditingIndex(null);
+    if (editingIndex === altIndex) {
+      setEditingIndex(null);
+      setEditFormData(null);
+    }
   };
 
-  const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
+  const handleUpdateAlternative = () => {
+    if (editingIndex === null || !editFormData) return;
+
+    if (!editFormData.product || editFormData.quantity === null || editFormData.quantity <= 0) {
+      setWarning("Please select a product and enter a valid quantity.");
+      return;
+    }
+
+    if (editFormData.product.id === item.product?.id) {
+      setWarning(`⚠️ ${editFormData.product.name} is already the main input product.`);
+      return;
+    }
+
+    // Check if another alternative already has this product (excluding the one being edited)
+    if (alternatives.some((alt, index) => 
+      index !== editingIndex && alt.product?.id === editFormData.product?.id)) {
+      setWarning(`⚠️ ${editFormData.product.name} has already been added as an alternative.`);
+      return;
+    }
+
     setAlternatives(prev => {
       const updated = [...prev];
-      updated[altIndex] = updatedItem;
+      updated[editingIndex] = { ...editFormData };
       return updated;
     });
+
     setEditingIndex(null);
+    setEditFormData(null);
+    setWarning(null);
   };
 
   const handleStartEdit = (index: number) => {
+    const alternative = alternatives[index];
     setEditingIndex(index);
-    onEditAlternative(index);
+    setEditFormData({ ...alternative });
+    setWarning(null);
   };
 
-  const handleCancelEdit = () => setEditingIndex(null);
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditFormData(null);
+    setWarning(null);
+  };
+
+  const handleEditFormChange = (field: keyof BOMItem, value: any) => {
+    if (editFormData) {
+      setEditFormData(prev => ({
+        ...prev!,
+        [field]: value
+      }));
+    }
+  };
+
+  const handleEditUnitChange = (product: Product | null) => {
+    if (product && editFormData) {
+      const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
+      const symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? '';
+      const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
+
+      setEditFormData(prev => ({
+        ...prev!,
+        product,
+        measurement_unit_id: unitId,
+        symbol,
+        conversion_factor: conversionFactor
+      }));
+    }
+  };
 
   return (
-    <>
-      {/* Only show the title if not in edit mode */}
-      {!isEditing && (
-        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
-          Alternative Input Products
-        </Typography>
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+        Alternative Input Products
+      </Typography>
+
+      {warning && (
+        <Alert severity="error" sx={{ mb: 1 }}>
+          {warning}
+        </Alert>
       )}
 
-      {/* Only show the add form if not in edit mode */}
-      {!isEditing && (
+      {!isEditing && editingIndex === null && (
         <>
           <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
             <Grid size={{xs:12, md:8}}>
@@ -118,14 +174,14 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 onChange={(product: Product | null) => {
                   if (product) {
                     const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                    const Symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? '';
+                    const symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? '';
                     const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
                     setNewAlternative((prev) => ({
                       ...prev,
                       product,
                       measurement_unit_id: unitId,
-                      symbol: Symbol,
+                      symbol,
                       conversion_factor: conversionFactor
                     }));
                     setSelectedUnit(unitId);
@@ -140,13 +196,9 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                     });
                     setSelectedUnit(null);
                   }
+                  setWarning(null);
                 }}
               />
-              {warning && (
-                <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
-                  {warning}
-                </Typography>
-              )}
             </Grid>
             <Grid size={{xs:12, md:4}}>
               <TextField
@@ -154,7 +206,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 fullWidth
                 size="small"
                 type="number"
-                defaultValue={newAlternative.quantity ?? ''}
+                value={newAlternative.quantity ?? ''}
                 onChange={(e) =>
                   setNewAlternative((prev) => ({
                     ...prev,
@@ -164,40 +216,9 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 InputProps={{
                   inputComponent: CommaSeparatedField,
                   endAdornment: newAlternative.product ? (
-                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                      <Select
-                        value={selectedUnit ?? ''}
-                        onChange={(e) => {
-                          const unitId = e.target.value as number;
-                          setSelectedUnit(unitId);
-
-                          const combinedUnits = [
-                            ...(newAlternative.product?.secondary_units || []),
-                            ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                          ];
-
-                          const unit = combinedUnits.find((u) => u.id === unitId);
-                          if (unit) {
-                            setNewAlternative((prev) => ({
-                              ...prev,
-                              measurement_unit_id: unit.id,
-                              symbol:unit.unit_symbol,
-                              conversion_factor: unit.conversion_factor ?? 1
-                            }));
-                          }
-                        }}
-                        size="small"
-                      >
-                        {[
-                          ...(newAlternative.product?.secondary_units || []),
-                          ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                        ].map((unit) => (
-                          <MenuItem key={unit.id} value={unit.id}>
-                            {unit.unit_symbol}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Box sx={{ minWidth: 80, ml: 1, display: 'inline-flex', alignItems: 'center' }}>
+                      {newAlternative.symbol}
+                    </Box>
                   ) : null
                 }}
               />
@@ -208,6 +229,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 size="small"
                 startIcon={<AddOutlined />}
                 onClick={handleAddAlternative}
+                sx={{ mt: 1 }}
               >
                 Add
               </Button>
@@ -215,7 +237,115 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
           </Grid>
         </>
       )}
-    </>
+
+      {/* Edit Form */}
+      {editingIndex !== null && editFormData && (
+        <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.main', borderRadius: 1, mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+            Editing Alternative
+          </Typography>
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid size={{xs:12, md:6}}>
+              <ProductSelect
+                label="Alternative Input Product"
+                defaultValue={editFormData.product}
+                onChange={(product: Product | null) => {
+                  handleEditUnitChange(product);
+                  setWarning(null);
+                }}
+              />
+            </Grid>
+            <Grid size={{xs:12, md:4}}>
+              <TextField
+                label="Quantity"
+                fullWidth
+                size="small"
+                value={editFormData.quantity ?? ''}
+                onChange={(e) =>
+                  handleEditFormChange('quantity', e.target.value === '' ? null : Number(e.target.value))
+                }
+                InputProps={{
+                  inputComponent: CommaSeparatedField,
+                  endAdornment: editFormData.product ? (
+                    <Box sx={{ minWidth: 80, ml: 1, display: 'inline-flex', alignItems: 'center' }}>
+                      {editFormData.symbol}
+                    </Box>
+                  ) : null
+                }}
+              />
+            </Grid>
+            <Grid size={{xs:12, md:2}}>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<CheckOutlined />}
+                  onClick={handleUpdateAlternative}
+                >
+                  Done
+                </Button>
+                <Tooltip title="Cancel">
+                  <IconButton size="small" onClick={handleCancelEdit}>
+                    <CancelOutlined fontSize="small" color="error" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
+      {alternatives.length > 0 && (
+        <Box>
+          {alternatives.map((alternative, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                p: 1.5,
+                border: '1px solid',
+                borderColor: 'grey.300',
+                borderRadius: 1,
+                mb: 1,
+                backgroundColor: 'grey.50'
+              }}
+            >
+              <Box>
+                <Typography variant="body2" fontWeight="medium">
+                  {alternative.product?.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {alternative.quantity} {alternative.symbol}
+                </Typography>
+              </Box>
+              <Box>
+                <Tooltip title="Edit">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleStartEdit(index)}
+                    disabled={isEditing && editingIndex !== null && editingIndex !== index}
+                    sx={{ mr: 0.5 }}
+                  >
+                    <EditOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemoveAlternative(index)}
+                    disabled={isEditing && editingIndex !== null}
+                  >
+                    <DeleteOutlined fontSize="small" color="error" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
+    </Box>
   );
 };
 

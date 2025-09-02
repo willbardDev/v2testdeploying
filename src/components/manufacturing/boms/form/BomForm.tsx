@@ -41,19 +41,12 @@ interface BomFormProps {
   onSuccess?: () => void;
 }
 
+// Remove the items validation from the schema since we handle it manually
 const schema = yup.object().shape({
   product_id: yup.number().required().positive(),
   quantity: yup.number().required().min(0),
   measurement_unit_id: yup.number().required().positive(),
   conversion_factor: yup.number().required().min(1),
-  items: yup.array().min(1, 'Please add at least one item').of(
-    yup.object().shape({
-      product_id: yup.number().required().positive(),
-      quantity: yup.number().required().min(0),
-      measurement_unit_id: yup.number().required().positive(),
-      conversion_factor: yup.number().required().min(1),
-    })
-  ),
 });
 
 function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
@@ -73,7 +66,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
     enabled: !!bomId && open,
   });
 
-  const { control, handleSubmit, setValue, reset, watch, setError, formState: { errors } } = useForm<BOMPayload>({
+  const { control, handleSubmit, setValue, reset, watch, setError, clearErrors, formState: { errors } } = useForm<BOMPayload>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       product_id: null,
@@ -107,6 +100,15 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
       setItems(bomData.items || []);
     }
   }, [bomData, reset]);
+
+  // Update the form value when items change
+  useEffect(() => {
+    setValue('items', items);
+    // Clear the items error when items are added
+    if (items.length > 0) {
+      clearErrors('items');
+    }
+  }, [items, setValue, clearErrors]);
 
   const handleClose = () => {
     reset();
@@ -149,6 +151,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   });
 
   const onSubmit = (data: BOMPayload) => {
+    // Manual validation for items instead of using yup
     if (items.length === 0) {
       setError('items', {
         type: 'manual',
