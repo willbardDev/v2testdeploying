@@ -1,31 +1,43 @@
-import * as React from 'react';
 import {
-  Typography,
-  Box,
   Grid,
+  TextField,
   Button,
+  Box,
+  Tooltip,
+  IconButton,
   FormControl,
   Select,
   MenuItem,
-  TextField,
+  Alert,
+  Typography,
   Stack
 } from '@mui/material';
-import { AddOutlined } from '@mui/icons-material';
-import ProductSelect from '@/components/productAndServices/products/ProductSelect';
-import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import React, { useState } from 'react';
+import { CheckOutlined, DisabledByDefault, AddOutlined, EditOutlined, DeleteOutlined } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
+import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { BOMItem } from '../../BomType';
 import AlternativesRow from './AlternativesRow';
 
-    interface AlternativesFormProps {
-      item: BOMItem;
-      alternatives: BOMItem[];
-      setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
-      onEditAlternative: (index: number) => void;
-      isEditing: boolean; 
-    }
+interface AlternativesFormProps {
+  item: BOMItem;
+  alternatives: BOMItem[];
+  setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+  onEditAlternative: (index: number) => void;
+  isEditing: boolean;
+}
 
-    const AlternativesForm: React.FC<AlternativesFormProps> = ({
+const validationSchema = yup.object({
+  product: yup.object().required("Product is required"),
+  quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
+  measurement_unit_id: yup.number().required("Unit is required")
+});
+
+const AlternativesForm: React.FC<AlternativesFormProps> = ({
       item,
       alternatives,
       setAlternatives,
@@ -217,22 +229,6 @@ import AlternativesRow from './AlternativesRow';
             </Grid>
           </Grid>
         </>
-      )}
-      {alternatives.length > 0 && (
-        <Stack spacing={1}>
-          {alternatives.map((alt, idx) => (
-            <AlternativesRow
-              key={idx}
-              alternative={alt}
-              index={idx}
-              onEdit={(updatedItem) => handleUpdateAlternative(idx, updatedItem)}
-              onRemove={() => handleRemoveAlternative(idx)}
-              isEditing={editingIndex === idx}
-              onCancelEdit={handleCancelEdit}
-            />
-          ))}
-        </Stack>
-      )}
     </>
   );
 };
