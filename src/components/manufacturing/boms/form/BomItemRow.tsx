@@ -1,4 +1,3 @@
-// BomItemRow.tsx
 import {
   Accordion,
   AccordionSummary,
@@ -86,90 +85,94 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
         >
           {expanded ? '−' : '+'}
         </Box>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 500,
-            minWidth: 120,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            flex: 1,
-            mr: 2,
-          }}
-        >
-          {item.product?.name}
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-            minWidth: 80,
-            flexShrink: 0,
-            mr: 18,
-          }}
-        >
-          <Typography variant="body2" fontWeight="medium">
-            {item.quantity}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {item.symbol || item.measurement_unit?.unit_symbol || ''}
-          </Typography>
-        </Box>
-        <Box
-          component="div"
-          onClick={(e) => e.stopPropagation()}
-          onFocus={(e) => e.stopPropagation()}
-          sx={{
-            display: 'flex',
-            gap: 1,
-            ml: 1,
-          }}
-        >
-          <Tooltip title="Edit">
-            <IconButton
-              aria-label="Edit item"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-                setExpanded(true);
-              }}
-              component="div"
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.stopPropagation();
-                  setIsEditing(true);
-                  setExpanded(true);
-                }
+        {!isEditing && (
+          <>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 500,
+                minWidth: 120,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+                mr: 2,
               }}
             >
-              <EditOutlined fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton
-              aria-label="Delete item"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}
-              component="div"
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.stopPropagation();
-                  handleRemove();
-                }
+              {item.product?.name}
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                minWidth: 80,
+                flexShrink: 0,
+                mr: 18,
               }}
             >
-              <DeleteOutlined fontSize="small" color="error" />
-            </IconButton>
-          </Tooltip>
-        </Box>
+              <Typography variant="body2" fontWeight="medium">
+                {item.quantity}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {item.symbol || item.measurement_unit?.unit_symbol || ''}
+              </Typography>
+            </Box>
+            <Box
+              component="div"
+              onClick={(e) => e.stopPropagation()}
+              onFocus={(e) => e.stopPropagation()}
+              sx={{
+                display: 'flex',
+                gap: 1,
+                ml: 1,
+              }}
+            >
+              <Tooltip title="Edit">
+                <IconButton
+                  aria-label="Edit item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditing(true);
+                    setExpanded(true);
+                  }}
+                  component="div"
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                      setIsEditing(true);
+                      setExpanded(true);
+                    }
+                  }}
+                >
+                  <EditOutlined fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton
+                  aria-label="Delete item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove();
+                  }}
+                  component="div"
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                      handleRemove();
+                    }
+                  }}
+                >
+                  <DeleteOutlined fontSize="small" color="error" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </>
+        )}
       </AccordionSummary>
       <AccordionDetails sx={{ pt: 1, pb: 2 }}>
         {isEditing && (
@@ -191,8 +194,8 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           item={item}
           alternatives={alternatives}
           setAlternatives={setAlternatives}
-          setItems={setItems} // Pass setItems
-          index={index} // Pass index
+          setItems={setItems}
+          index={index}
           isEditing={editingAlternativeIndex !== null}
         />
       </AccordionDetails>

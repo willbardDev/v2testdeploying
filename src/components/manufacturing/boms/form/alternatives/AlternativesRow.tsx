@@ -157,7 +157,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
         display: 'flex',
         alignItems: 'center',
         gap: 1,
-        p: 1.5,
+        p: 1,
         bgcolor: 'action.hover',
         borderRadius: 1
       }}
