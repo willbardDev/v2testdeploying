@@ -1,3 +1,4 @@
+// BomItemRow.tsx
 import {
   Accordion,
   AccordionSummary,
@@ -7,11 +8,8 @@ import {
   Tooltip,
   Box,
 } from '@mui/material';
-import {
-  EditOutlined,
-  DeleteOutlined,
-} from '@mui/icons-material';
-import React from 'react';
+import { EditOutlined, DeleteOutlined } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 import { BOMItem } from '../BomType';
 import BomItemForm from './BomItemForm';
 import AlternativesForm from './alternatives/AlternativesForm';
@@ -31,33 +29,19 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
   setItems,
   setClearFormKey,
 }) => {
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [expanded, setExpanded] = React.useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [alternatives, setAlternatives] = useState<BOMItem[]>(item.alternatives || []);
+  const [editingAlternativeIndex, setEditingAlternativeIndex] = useState<number | null>(null);
 
-  // Local state for alternatives
-  const [alternatives, setAlternatives] = React.useState<any[]>([]);
-  const [editingAlternativeIndex, setEditingAlternativeIndex] =
-    React.useState<number | null>(null);
+  // Sync alternatives with item.alternatives when item changes
+  useEffect(() => {
+    setAlternatives(item.alternatives || []);
+  }, [item.alternatives]);
 
   const handleRemove = () => {
-    setItems(items.filter((_, i) => i !== index));
+    setItems((prevItems) => prevItems.filter((_, i) => i !== index));
   };
-
-  if (isEditing) {
-    return (
-      <BomItemForm
-        item={item}
-        index={index}
-        setItems={setItems}
-        items={items}
-        setShowForm={setIsEditing}
-        setClearFormKey={setClearFormKey}
-        submitMainForm={() => {}}
-        submitItemForm={false}
-        setSubmitItemForm={() => {}}
-      />
-    );
-  }
 
   return (
     <Accordion
@@ -84,7 +68,6 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           },
         }}
       >
-        {/* +/- box */}
         <Box
           sx={{
             width: 20,
@@ -103,8 +86,6 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
         >
           {expanded ? '−' : '+'}
         </Box>
-
-        {/* Product name */}
         <Typography
           variant="body2"
           sx={{
@@ -119,8 +100,6 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
         >
           {item.product?.name}
         </Typography>
-
-        {/* Quantity + Unit */}
         <Box
           sx={{
             display: 'flex',
@@ -135,13 +114,9 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
             {item.quantity}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {item.symbol ||
-              item.measurement_unit?.unit_symbol ||
-              ''}
+            {item.symbol || item.measurement_unit?.unit_symbol || ''}
           </Typography>
         </Box>
-
-        {/* Action buttons */}
         <Box
           component="div"
           onClick={(e) => e.stopPropagation()}
@@ -174,7 +149,6 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
               <EditOutlined fontSize="small" />
             </IconButton>
           </Tooltip>
-
           <Tooltip title="Delete">
             <IconButton
               aria-label="Delete item"
@@ -197,13 +171,28 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           </Tooltip>
         </Box>
       </AccordionSummary>
-
       <AccordionDetails sx={{ pt: 1, pb: 2 }}>
-        {/* Alternatives inside accordion details */}
+        {isEditing && (
+          <Box sx={{ mb: 2 }}>
+            <BomItemForm
+              item={item}
+              index={index}
+              setItems={setItems}
+              items={items}
+              setShowForm={setIsEditing}
+              setClearFormKey={setClearFormKey}
+              submitMainForm={() => {}}
+              submitItemForm={false}
+              setSubmitItemForm={() => {}}
+            />
+          </Box>
+        )}
         <AlternativesForm
           item={item}
           alternatives={alternatives}
           setAlternatives={setAlternatives}
+          setItems={setItems} // Pass setItems
+          index={index} // Pass index
           isEditing={editingAlternativeIndex !== null}
         />
       </AccordionDetails>
