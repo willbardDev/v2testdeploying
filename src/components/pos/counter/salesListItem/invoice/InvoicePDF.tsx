@@ -11,7 +11,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 
 interface InvoiceItem {
   id: number;
-  product: string;
+  product:{ name: string};
   description: string;
   measurement_unit?: {
     symbol: string;
@@ -183,7 +183,7 @@ function InvoicePDF({ invoice, organization }: InvoicePDFProps) {
                                 }}
                             >
                                 <Text>
-                                    {invoiceItem.product}
+                                    {invoiceItem.product.name}
                                 </Text>
                                 {invoiceItem.description && <Text>{`(${invoiceItem.description})`}</Text>}
                             </View>

@@ -1,9 +1,9 @@
-import Dashboard from '@/components/dashboard/Dashboard'
+import NextSMS from '@/components/prosControl/nextSMS/nextSMS'
 import React from 'react'
 
 function page() {
   return (
-    <Dashboard/>
+    <NextSMS/>
   )
 }
 
