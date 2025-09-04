@@ -106,6 +106,9 @@
     "yup": "^1.7.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/minimatch": "^6.0.0",
     "@types/negotiator": "^0.6.3",
@@ -118,6 +121,7 @@
     "@types/recharts": "^1.8.29",
     "@types/stylis": "^4.2.7",
     "@types/web-app-manifest": "^1.0.9",
+    "babel-loader": "^10.0.0",
     "eslint": "^9.15.0",
     "eslint-config-next": "^15.1.6",
     "eslint-config-prettier": "^9.1.0",

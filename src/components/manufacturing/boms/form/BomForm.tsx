@@ -84,22 +84,25 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
   const product = watch('product');
 
   useEffect(() => {
-    if (bomData) {
-      reset({
-        product_id: bomData.product_id ?? bomData.product?.id,
-        product: bomData.product || null,
-        quantity: bomData.quantity ?? null,
-        measurement_unit_id: bomData.measurement_unit_id ?? bomData.measurement_unit?.id,
-        measurement_unit: bomData.measurement_unit,
-        symbol: bomData.measurement_unit?.unit_symbol || bomData.symbol,
-        conversion_factor: bomData.conversion_factor ?? 1,
-        items: bomData.items ?? [],
-        alternatives: bomData.alternatives ?? [],
-      });
-      
-      setItems(bomData.items || []);
-    }
-  }, [bomData, reset]);
+  if (bomData) {
+    const measurementUnit = bomData.measurement_unit;
+    const symbol = measurementUnit?.unit_symbol || bomData.symbol || '';
+    
+    reset({
+      product_id: bomData.product_id ?? bomData.product?.id,
+      product: bomData.product || null,
+      quantity: bomData.quantity ?? null,
+      measurement_unit_id: bomData.measurement_unit_id ?? measurementUnit?.id,
+      measurement_unit: measurementUnit,
+      symbol: symbol,
+      conversion_factor: bomData.conversion_factor ?? 1,
+      items: bomData.items ?? [],
+      alternatives: bomData.alternatives ?? [],
+    });
+    
+    setItems(bomData.items || []);
+  }
+}, [bomData, reset]);
 
   // Update the form value when items change
   useEffect(() => {
@@ -227,20 +230,20 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
               defaultValue={bomData?.product}
               addedProduct={addedProduct}
               onChange={(newValue: Product | null) => {
-                if (newValue) {
-                  const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                  const unitObj = newValue.primary_unit ?? newValue.measurement_unit;
-                  const Symbol = unitObj?.unit_symbol ?? '';
-                  const conversionFactor = unitObj?.conversion_factor ?? 1;
+                  if (newValue) {
+                    const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
+                    const unitObj = newValue.primary_unit ?? newValue.measurement_unit;
+                    const symbol = unitObj?.unit_symbol ?? '';
+                    const conversionFactor = unitObj?.conversion_factor ?? 1;
 
-                  setValue('product', newValue);
-                  setValue('product_id', newValue.id);
-                  setValue('measurement_unit_id', unitId);
-                  setValue('measurement_unit', unitObj);
-                  setValue('symbol', Symbol);
-                  setValue('conversion_factor', conversionFactor);
-                }
-              }}
+                    setValue('product', newValue);
+                    setValue('product_id', newValue.id);
+                    setValue('measurement_unit_id', unitId);
+                    setValue('measurement_unit', unitObj);
+                    setValue('symbol', symbol); // Make sure this is set
+                    setValue('conversion_factor', conversionFactor);
+                  }
+                }}
               startAdornment={
                 checkOrganizationPermission(['products_create']) && (
                   <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
