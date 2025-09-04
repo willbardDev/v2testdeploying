@@ -94,9 +94,6 @@ const SignupForm = () => {
             </Link>
           </Stack>
           <Stack mt="auto">
-            <Typography variant="h3" mb={3}>
-              Sign Up
-            </Typography>
             <Typography variant="body1" mb={2}>
               Create your ProsID Account
             </Typography>
