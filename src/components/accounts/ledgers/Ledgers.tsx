@@ -9,7 +9,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 
 export default function Ledgers() {
-    const { organizationHasSubscribed } = useJumboAuth();
+    const { organizationHasSubscribed } = ();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
