@@ -50,7 +50,7 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         </Grid>
          {/* Actions */}
         <Grid size={{xs: 12, md: 2}}textAlign="end">
-          <BomsListItemAction bom={bom} />
+          <BomsListItemAction bom={bom as any} />
         </Grid>
       </Grid>
     </React.Fragment>

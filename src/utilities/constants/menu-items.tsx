@@ -21,6 +21,7 @@ import {
   ManageAccountsOutlined,
   TroubleshootOutlined,
   CardMembershipOutlined,
+  SmsOutlined,
 } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -78,6 +79,7 @@ export const iconMap: Record<string, React.ReactNode> = {
   invitations: muiIcon(ShareOutlined),
   filesShelf: faIcon(faFolderOpen),
   usersManagement: muiIcon(ManageAccountsOutlined),
+  nextSMS: muiIcon(SmsOutlined),
   prosAfricans: faIcon(faUsersGear),
   troubleshooting: muiIcon(TroubleshootOutlined),
   subscriptions: muiIcon(CardMembershipOutlined),
@@ -404,6 +406,12 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           label: sidebar.menuItem.usersManagement,
           type: 'nav-item',
           icon: iconMap.usersManagement,
+        },
+        {
+          uri: `/${locale}/prosControl/nextSMS`,
+          label: sidebar.menuItem.nextSMS,
+          type: 'nav-item',
+          icon: iconMap.nextSMS,
         },
       ],
     },

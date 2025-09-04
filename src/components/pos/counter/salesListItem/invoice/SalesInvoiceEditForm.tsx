@@ -325,7 +325,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                     primary={
                                         <Tooltip title={'Product'}>
                                             <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
-                                                {item.product as any}
+                                                {item.product.name}
                                             </Typography>
                                         </Tooltip>
                                     }

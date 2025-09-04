@@ -3,7 +3,6 @@
 import { Alert, Card, Grid, Typography } from '@mui/material'
 import React, { createContext, lazy, useContext, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
-import QuickLinks from './QuickLinks'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { MODULES } from '@/utilities/constants/modules';
@@ -11,6 +10,21 @@ import { useRouter } from 'next/navigation';
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import { AuthUser } from '@/types/auth-types';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext'
+import QuickLinks from './QuickLinks';
+
+const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
+const Filters = lazy(() => import('./Filters'));
+const LowStockAlerts = lazy(() => import('./procurementCards/LowStockAlerts'));
+const DueInvoices = lazy(() => import('./accountsCards/DueInvoices'));
+const ExpenseDistributionCard = lazy(() => import('./accountsCards/ExpenseDistributionCard'));
+const InventoryValueTrend = lazy(() => import('./procurementCards/InventoryValueTrend'));
+const PurchasesAndGrns = lazy(() => import('./procurementCards/PurchasesAndGrns'));
+const ProductSalesCard = lazy(() => import('./posCards/ProductSalesCard'));
+const ProfitAndLossTrendCard = lazy(() => import('./accountsCards/ProfitAndLossTrendCard'));
+const BalanceSheetTrend = lazy(() => import('./accountsCards/BalanceSheetTrend'));
+const RevenueDistributionCard = lazy(() => import('./accountsCards/RevenueDistributionCard'));
+const DippingsCard = lazy(() => import('./fuelStationCards/DippingsCard'));
+const QuickReports = lazy(() => import('./QuickReports'));
 
 interface DashboardContextType {
   chartFilters: ChartFilters;
@@ -36,20 +50,6 @@ interface Subscription {
 const DashboardContext = createContext<DashboardContextType>({} as DashboardContextType);
 
 export const useDashboardSettings = () => useContext(DashboardContext);
-
-const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
-const Filters = lazy(() => import('./Filters'));
-const LowStockAlerts = lazy(() => import('./procurementCards/LowStockAlerts'));
-const DueInvoices = lazy(() => import('./accountsCards/DueInvoices'));
-const ExpenseDistributionCard = lazy(() => import('./accountsCards/ExpenseDistributionCard'));
-const InventoryValueTrend = lazy(() => import('./procurementCards/InventoryValueTrend'));
-const PurchasesAndGrns = lazy(() => import('./procurementCards/PurchasesAndGrns'));
-const ProductSalesCard = lazy(() => import('./posCards/ProductSalesCard'));
-const ProfitAndLossTrendCard = lazy(() => import('./accountsCards/ProfitAndLossTrendCard'));
-const BalanceSheetTrend = lazy(() => import('./accountsCards/BalanceSheetTrend'));
-const RevenueDistributionCard = lazy(() => import('./accountsCards/RevenueDistributionCard'));
-const DippingsCard = lazy(() => import('./fuelStationCards/DippingsCard'));
-const QuickReports = lazy(() => import('./QuickReports'));
 
 function Dashboard() {
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed, authUser } = useJumboAuth();
