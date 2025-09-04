@@ -53,7 +53,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
 
   if (isEditing) {
     return (
-      <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'primary.main', borderRadius: 1 }}>
+      <Box sx={{ mb: 2, p: 2 }}>
         <Grid container spacing={2} alignItems="flex-end">
           <Grid size={{xs:12, md:6}}>
             <ProductSelect

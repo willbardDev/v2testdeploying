@@ -230,14 +230,14 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                 if (newValue) {
                   const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
                   const unitObj = newValue.primary_unit ?? newValue.measurement_unit;
-                  const symbol = unitObj?.unit_symbol ?? '';
+                  const Symbol = unitObj?.unit_symbol ?? '';
                   const conversionFactor = unitObj?.conversion_factor ?? 1;
 
                   setValue('product', newValue);
                   setValue('product_id', newValue.id);
                   setValue('measurement_unit_id', unitId);
                   setValue('measurement_unit', unitObj);
-                  setValue('symbol', symbol);
+                  setValue('symbol', Symbol);
                   setValue('conversion_factor', conversionFactor);
                 }
               }}
@@ -279,7 +279,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                   <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
                     <Select
                       size="small"
-                      defaultValue={watch('measurement_unit_id') || ''}
+                      value={watch('measurement_unit_id') || ''}
                       onChange={(e) => {
                         const selectedUnitId = e.target.value as number;
                         setValue('measurement_unit_id', selectedUnitId);
@@ -305,7 +305,7 @@ function BomForm({ open, toggleOpen, bomId, onSuccess }: BomFormProps) {
                         ...(product?.primary_unit ? [product.primary_unit] : []),
                       ].map((unit) => (
                         <MenuItem key={unit.id} value={unit.id}>
-                          {unit.unit_symbol}
+                          {unit.unit_symbol }
                         </MenuItem>
                       ))}
                     </Select>
