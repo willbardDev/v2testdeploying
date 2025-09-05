@@ -23,6 +23,8 @@ interface QueryOptions<TQueryKey> {
   queryParams: {
     id?: string;
     keyword: string;
+    lang: string;
+    router: any;
   };
   countKey: string;
   dataKey: string;
@@ -60,7 +62,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     QueryOptions<[string, { id?: string; keyword: string }]>
   >({
     queryKey: 'organizations',
-    queryParams: { id: user?.id, keyword: '' },
+    queryParams: { id: user?.id, keyword: '', lang, router },
     countKey: 'total',
     dataKey: 'data',
   });

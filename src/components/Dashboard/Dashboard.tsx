@@ -70,7 +70,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (!authOrganization?.organization) {
-      router.push(`/${lang}/dashboard`);
+      router.push(`/${lang}/organizations`);
     }
   }, [authOrganization]);
 
