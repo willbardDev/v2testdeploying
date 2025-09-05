@@ -9,7 +9,7 @@ export interface BOM {
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   measurement_unit?: MeasurementUnit | null;
-  symbol?: string | null ;
+  symbol?: string;
   items: BOMItem[];
   alternatives?: BOMItem[];
   bomNo?: string;
@@ -20,7 +20,7 @@ export interface BomFormValues {
   quantity?: number | null;
   measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;
-  symbol:string | null;
+  symbol:string;
   conversion_factor: number;
   items: BOMItem[];
   alternatives?: BOMItem[];
@@ -59,7 +59,7 @@ export interface BOMItem {
   quantity: number | null;
   measurement_unit_id: number | null;
   measurement_unit?: MeasurementUnit | null;
-  symbol?:string | null;
+  symbol?:string;
   conversion_factor: number;
   alternatives?: BOMItem[];
 }
@@ -71,7 +71,7 @@ export interface BOMPayload {
   quantity: number |null;
   measurement_unit?: MeasurementUnit | null;
   measurement_unit_id?: number | null;
-  symbol?:string | null;
+  symbol?:string;
   conversion_factor?: number | null;
   items: BOMItem[];
   alternatives?: BOMItem[]

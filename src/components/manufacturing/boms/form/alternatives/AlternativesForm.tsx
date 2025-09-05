@@ -1,239 +1,245 @@
-import * as React from 'react';
 import {
-  Typography,
-  Box,
   Grid,
-  Button,
-  FormControl,
-  Select,
-  MenuItem,
   TextField,
-  Stack
+  Button,
+  Box,
+  Alert,
+  Typography,
 } from '@mui/material';
 import { AddOutlined } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { Product } from '@/components/productAndServices/products/ProductType';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
-import { Product } from '@/components/productAndServices/products/ProductType';
 import { BOMItem } from '../../BomType';
 import AlternativesRow from './AlternativesRow';
 
-    interface AlternativesFormProps {
-      item: BOMItem;
-      alternatives: BOMItem[];
-      setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
-      onEditAlternative: (index: number) => void;
-      isEditing: boolean; 
+interface AlternativesFormProps {
+  item: BOMItem;
+  alternatives: BOMItem[];
+  setAlternatives: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+  setItems: React.Dispatch<React.SetStateAction<BOMItem[]>>;
+  index: number;
+  isEditing: boolean;
+}
+
+const AlternativesForm: React.FC<AlternativesFormProps> = ({
+  item,
+  alternatives,
+  setAlternatives,
+  setItems,
+  index,
+  isEditing,
+}) => {
+  const [newAlternative, setNewAlternative] = useState<BOMItem>({
+    product_id: null,
+    product: null,
+    quantity: null,
+    measurement_unit_id: null,
+    conversion_factor: 1,
+    symbol: '',
+  });
+  const [warning, setWarning] = useState<string | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const handleAddAlternative = () => {
+    if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
+      setWarning('Please select a product and enter a valid quantity.');
+      return;
     }
 
-    const AlternativesForm: React.FC<AlternativesFormProps> = ({
-      item,
-      alternatives,
-      setAlternatives,
-      onEditAlternative,
-      isEditing = false
-    }) => {
-      const [newAlternative, setNewAlternative] = React.useState<BOMItem>({
-        product_id: null,
-        product: null,
-        quantity: null,
-        measurement_unit_id: null,
-        conversion_factor: 1,
-        symbol: '',
-      });
-      const [warning, setWarning] = React.useState<string | null>(null);
-      const [selectedUnit, setSelectedUnit] = React.useState<number | null>(null);
-      const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+    if (newAlternative.product.id === item.product?.id) {
+      setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
+      return;
+    }
 
-      const handleAddAlternative = () => {
-        if (!newAlternative.product || newAlternative.quantity === null || newAlternative.quantity <= 0) {
-          setWarning("Please select a product and enter a valid quantity.");
-          return;
-        }
+    if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
+      setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
+      return;
+    }
 
-        if (newAlternative.product.id === item.product?.id) {
-          setWarning(`⚠️ ${newAlternative.product.name} is already the main input product.`);
-          return;
-        }
+    const newAlternatives = [...alternatives, { ...newAlternative }];
+    setAlternatives(newAlternatives);
+    setItems((prevItems) =>
+      prevItems.map((prevItem, i) =>
+        i === index ? { ...prevItem, alternatives: newAlternatives } : prevItem
+      )
+    );
 
-        if (alternatives.some((alt) => alt.product?.id === newAlternative.product?.id)) {
-          setWarning(`⚠️ ${newAlternative.product.name} has already been added as an alternative.`);
-          return;
-        }
+    setNewAlternative({
+      product_id: null,
+      product: null,
+      quantity: null,
+      measurement_unit_id: null,
+      conversion_factor: 1,
+      symbol: '',
+    });
+    setSelectedUnit(null);
+    setWarning(null);
+  };
 
-        if (alternatives.some((alt) => alt.symbol === newAlternative.symbol)) {
-          setWarning(`⚠️ Unit "${newAlternative.symbol}" is already used by another alternative.`);
-          return;
-        }
+  const handleRemoveAlternative = (altIndex: number) => {
+    const newAlternatives = alternatives.filter((_, i) => i !== altIndex);
+    setAlternatives(newAlternatives);
+    setItems((prevItems) =>
+      prevItems.map((prevItem, i) =>
+        i === index ? { ...prevItem, alternatives: newAlternatives } : prevItem
+      )
+    );
 
-        setAlternatives((prev) => [...prev, { ...newAlternative }]);
+    if (editingIndex === altIndex) {
+      setEditingIndex(null);
+    }
+  };
 
-        setNewAlternative({
-          product_id: null,
-          product: null,
-          quantity: null,
-          measurement_unit_id: null,
-          conversion_factor: 1,
-          symbol: '',
-        });
-        setSelectedUnit(null);
-        setWarning(null);
-      };
+  const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
+    if (!updatedItem.product || updatedItem.quantity === null || updatedItem.quantity <= 0) {
+      setWarning('Please select a product and enter a valid quantity.');
+      return;
+    }
 
-      const handleRemoveAlternative = (altIndex: number) => {
-        setAlternatives(prev => prev.filter((_, i) => i !== altIndex));
-        if (editingIndex === altIndex) setEditingIndex(null);
-      };
+    if (updatedItem.product.id === item.product?.id) {
+      setWarning(`⚠️ ${updatedItem.product.name} is already the main input product.`);
+      return;
+    }
 
-      const handleUpdateAlternative = (altIndex: number, updatedItem: BOMItem) => {
-        setAlternatives(prev => {
-          const updated = [...prev];
-          updated[altIndex] = updatedItem;
-          return updated;
-        });
-        setEditingIndex(null);
-      };
+    if (
+      alternatives.some(
+        (alt, index) => index !== altIndex && alt.product?.id === updatedItem.product?.id
+      )
+    ) {
+      setWarning(`⚠️ ${updatedItem.product.name} has already been added as an alternative.`);
+      return;
+    }
 
-      const handleStartEdit = (index: number) => {
-        setEditingIndex(index);
-        onEditAlternative(index);
-      };
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex] = { ...updatedItem };
+    setAlternatives(updatedAlternatives);
+    setItems((prevItems) =>
+      prevItems.map((prevItem, i) =>
+        i === index ? { ...prevItem, alternatives: updatedAlternatives } : prevItem
+      )
+    );
 
-      const handleCancelEdit = () => setEditingIndex(null);
+    setEditingIndex(null);
+    setWarning(null);
+  };
+
+  const handleStartEdit = (altIndex: number) => {
+    setEditingIndex(altIndex);
+    setWarning(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setWarning(null);
+  };
 
   return (
-    <>
-      {/* Only show the title if not in edit mode */}
-      {!isEditing && (
-        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
-          Alternative Input Products
-        </Typography>
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+        Alternative Input Products
+      </Typography>
+
+      {warning && (
+        <Alert severity="error" sx={{ mb: 1 }}>
+          {warning}
+        </Alert>
       )}
 
-      {/* Only show the add form if not in edit mode */}
       {!isEditing && (
-        <>
-          <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
-            <Grid size={{xs:12, md:8}}>
-              <ProductSelect
-                key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : "alt-product-empty"}
-                label="Alternative Input Product"
-                defaultValue={newAlternative.product}
-                onChange={(product: Product | null) => {
-                  if (product) {
-                    const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
-                    const Symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? null;
-                    const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
+        <Grid container spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
+          <Grid size={{ xs: 12, md: 8 }}>
+            <ProductSelect
+              key={newAlternative.product ? `alt-product-${newAlternative.product.id}` : 'alt-product-empty'}
+              label="Alternative Input Product"
+              defaultValue={newAlternative.product}
+              onChange={(product: Product | null) => {
+                if (product) {
+                  const unitId = product.primary_unit?.id ?? product.measurement_unit_id ?? null;
+                  const symbol = product.primary_unit?.unit_symbol ?? product.measurement_unit?.symbol ?? '';
+                  const conversionFactor = product.primary_unit?.conversion_factor ?? 1;
 
-                    setNewAlternative((prev) => ({
-                      ...prev,
-                      product,
-                      measurement_unit_id: unitId,
-                      symbol: Symbol,
-                      conversion_factor: conversionFactor
-                    }));
-                    setSelectedUnit(unitId);
-                  } else {
-                    setNewAlternative({
-                      product: null,
-                      product_id: null,
-                      quantity: null,
-                      measurement_unit_id: null,
-                      conversion_factor: 1,
-                      symbol: '',
-                    });
-                    setSelectedUnit(null);
-                  }
-                }}
-              />
-              {warning && (
-                <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
-                  {warning}
-                </Typography>
-              )}
-            </Grid>
-            <Grid size={{xs:12, md:4}}>
-              <TextField
-                label="Quantity"
-                fullWidth
-                size="small"
-                type="number"
-                defaultValue={newAlternative.quantity ?? ''}
-                onChange={(e) =>
                   setNewAlternative((prev) => ({
                     ...prev,
-                    quantity: e.target.value === '' ? null : Number(e.target.value)
-                  }))
+                    product,
+                    product_id: product.id,
+                    measurement_unit_id: unitId,
+                    symbol,
+                    conversion_factor: conversionFactor,
+                  }));
+                  setSelectedUnit(unitId);
+                } else {
+                  setNewAlternative({
+                    product: null,
+                    product_id: null,
+                    quantity: null,
+                    measurement_unit_id: null,
+                    conversion_factor: 1,
+                    symbol: '',
+                  });
+                  setSelectedUnit(null);
                 }
-                InputProps={{
-                  inputComponent: CommaSeparatedField,
-                  endAdornment: newAlternative.product ? (
-                    <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
-                      <Select
-                        value={selectedUnit ?? ''}
-                        onChange={(e) => {
-                          const unitId = e.target.value as number;
-                          setSelectedUnit(unitId);
-
-                          const combinedUnits = [
-                            ...(newAlternative.product?.secondary_units || []),
-                            ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                          ];
-
-                          const unit = combinedUnits.find((u) => u.id === unitId);
-                          if (unit) {
-                            setNewAlternative((prev) => ({
-                              ...prev,
-                              measurement_unit_id: unit.id,
-                              symbol:unit.unit_symbol,
-                              conversion_factor: unit.conversion_factor ?? 1
-                            }));
-                          }
-                        }}
-                        size="small"
-                      >
-                        {[
-                          ...(newAlternative.product?.secondary_units || []),
-                          ...(newAlternative.product?.primary_unit ? [newAlternative.product.primary_unit] : [])
-                        ].map((unit) => (
-                          <MenuItem key={unit.id} value={unit.id}>
-                            {unit.unit_symbol}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ) : null
-                }}
-              />
-            </Grid>
-            <Grid size={12} container justifyContent="flex-end">
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<AddOutlined />}
-                onClick={handleAddAlternative}
-              >
-                Add
-              </Button>
-            </Grid>
+                setWarning(null);
+              }}
+            />
           </Grid>
-        </>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField
+              label="Quantity"
+              fullWidth
+              size="small"
+              type="number"
+              value={newAlternative.quantity ?? ''}
+              onChange={(e) =>
+                setNewAlternative((prev) => ({
+                  ...prev,
+                  quantity: e.target.value === '' ? null : Number(e.target.value),
+                }))
+              }
+              InputProps={{
+                inputComponent: CommaSeparatedField,
+                endAdornment: newAlternative.product ? (
+                  <Box sx={{ minWidth: 80, ml: 1, display: 'inline-flex', alignItems: 'center' }}>
+                    {newAlternative.symbol}
+                  </Box>
+                ) : null,
+              }}
+            />
+          </Grid>
+          <Grid size={12} container justifyContent="flex-end">
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddOutlined />}
+              onClick={handleAddAlternative}
+              sx={{ mt: 1 }}
+            >
+              Add
+            </Button>
+          </Grid>
+        </Grid>
       )}
+
       {alternatives.length > 0 && (
-        <Stack spacing={1}>
-          {alternatives.map((alt, idx) => (
+        <Box>
+          {alternatives.map((alternative, altIndex) => (
             <AlternativesRow
-              key={idx}
-              alternative={alt}
-              index={idx}
-              onEdit={(updatedItem) => handleUpdateAlternative(idx, updatedItem)}
-              onRemove={() => handleRemoveAlternative(idx)}
-              isEditing={editingIndex === idx}
+              key={altIndex}
+              alternative={alternative}
+              index={altIndex}
+              onUpdate={(updatedItem) => handleUpdateAlternative(altIndex, updatedItem)}
+              onRemove={() => handleRemoveAlternative(altIndex)}
+              onStartEdit={() => handleStartEdit(altIndex)}
               onCancelEdit={handleCancelEdit}
+              isEditing={editingIndex === altIndex}
+              isDisabled={isEditing && editingIndex !== altIndex}
             />
           ))}
-        </Stack>
+        </Box>
       )}
-    </>
+    </Box>
   );
 };
 
