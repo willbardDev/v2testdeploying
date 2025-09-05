@@ -8,17 +8,21 @@ import {
   Box,
 } from '@mui/material';
 import { EditOutlined, DeleteOutlined } from '@mui/icons-material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, BaseSyntheticEvent } from 'react';
 import { BOMItem } from '../BomType';
 import BomItemForm from './BomItemForm';
 import AlternativesForm from './alternatives/AlternativesForm';
 
 interface BomItemRowProps {
-  item: BOMItem;
+  key: number;
   index: number;
+  item: BOMItem;
   items: BOMItem[];
   setItems: React.Dispatch<React.SetStateAction<BOMItem[]>>;
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
+  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
+  submitItemForm: boolean;
+  submitMainForm: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>;
 }
 
 const BomItemRow: React.FC<BomItemRowProps> = ({
@@ -115,7 +119,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
                 {item.quantity}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.symbol || item.measurement_unit?.unit_symbol || ''}
+                {item.symbol || item.measurement_unit?.unit_symbol || item.product?.primary_unit?.unit_symbol || ''}
               </Typography>
             </Box>
             <Box

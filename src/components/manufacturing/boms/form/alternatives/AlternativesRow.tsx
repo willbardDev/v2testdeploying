@@ -39,7 +39,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
   isDisabled
 }) => {
   const [editAlternative, setEditAlternative] = useState<BOMItem>({...alternative});
-  const [selectedUnit, setSelectedUnit] = useState<number | null>(alternative.measurement_unit_id);
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(alternative.measurement_unit_id || null );
 
   const handleSaveEdit = () => {
     onUpdate(editAlternative);
@@ -47,7 +47,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
 
   const handleCancel = () => {
     setEditAlternative({...alternative});
-    setSelectedUnit(alternative.measurement_unit_id);
+    setSelectedUnit(alternative.measurement_unit_id || null);
     onCancelEdit();
   };
 
