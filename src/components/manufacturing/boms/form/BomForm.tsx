@@ -8,7 +8,6 @@ import {
   Divider,
   FormControl,
   Grid,
-  LinearProgress,
   MenuItem,
   Select,
   TextField,
@@ -18,12 +17,12 @@ import {
   IconButton,
 } from '@mui/material';
 import { AddOutlined } from '@mui/icons-material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
@@ -63,10 +62,11 @@ interface BomFormProps {
   open: boolean;
   toggleOpen: (open: boolean) => void;
   bomId?: number | null;
+  bomData?: BOMPayload | null;
   onSuccess?: () => void;
 }
 
-const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, onSuccess }) => {
+const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, bomData, onSuccess }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -78,13 +78,6 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, onSuccess })
   const { productOptions } = useProductsSelect();
   const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
-
-  // Fetch BOM data for editing
-  const { data: bomData, isLoading, isError } = useQuery({
-    queryKey: ['bom', bomId],
-    queryFn: () => bomsServices.show(bomId!),
-    enabled: !!bomId && open,
-  });
 
   const {
     control,
@@ -110,47 +103,47 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, onSuccess })
   ];
 
   // Handle unit changes
-    useEffect(() => {
-      if (selectedUnitId && combinedUnits.length > 0) {
-        const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
-        if (selectedUnit) {
-          setValue('symbol', selectedUnit.unit_symbol ?? '', { shouldValidate: true });
-          setValue('conversion_factor', selectedUnit.conversion_factor ?? 1, { shouldValidate: true });
-          setValue('measurement_unit', selectedUnit, { shouldValidate: true });
-        }
-      }
-    }, [selectedUnitId]);
-
-  // Sync form with fetched BOM data
   useEffect(() => {
-  if (bomData) {
-    const measurementUnit = bomData.measurement_unit ?? bomData.product?.primary_unit;
-    const symbol = measurementUnit?.unit_symbol ?? bomData.symbol ?? '';
-    
-    reset({
-      ...defaultValues,
-      product_id: bomData.product_id ?? bomData.product?.id ?? null,
-      product: bomData.product && productOptions.find((product: Product) => product.id === (bomData.product_id ?? bomData.product?.id)),
-      quantity: bomData.quantity ?? null,
-      measurement_unit_id: bomData.measurement_unit_id ?? measurementUnit?.id ?? null,
-      measurement_unit: measurementUnit ?? null,
-      symbol: symbol,
-      conversion_factor: bomData.conversion_factor ?? measurementUnit?.conversion_factor ?? 1,
-      items: bomData.items ?? [],
-      alternatives: bomData.alternatives ?? [],
-    });
+    if (selectedUnitId && combinedUnits.length > 0) {
+      const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
+      if (selectedUnit) {
+        setValue('symbol', selectedUnit.unit_symbol ?? '', { shouldValidate: true });
+        setValue('conversion_factor', selectedUnit.conversion_factor ?? 1, { shouldValidate: true });
+        setValue('measurement_unit', selectedUnit, { shouldValidate: true });
+      }
+    }
+  }, [selectedUnitId]);
+
+  // Sync form with provided BOM data
+  useEffect(() => {
+    if (bomData) {
+      const measurementUnit = bomData.measurement_unit ?? bomData.product?.primary_unit;
+      const symbol = measurementUnit?.unit_symbol ?? bomData.symbol ?? '';
+      
+      reset({
+        ...defaultValues,
+        product_id: bomData.product_id ?? bomData.product?.id ?? null,
+        product: bomData.product && productOptions.find((product: Product) => product.id === (bomData.product_id ?? bomData.product?.id)),
+        quantity: bomData.quantity ?? null,
+        measurement_unit_id: bomData.measurement_unit_id ?? measurementUnit?.id ?? null,
+        measurement_unit: measurementUnit ?? null,
+        symbol: symbol,
+        conversion_factor: bomData.conversion_factor ?? measurementUnit?.conversion_factor ?? 1,
+        items: bomData.items ?? [],
+        alternatives: bomData.alternatives ?? [],
+      });
       setItems(
-      (bomData.items || []).map(item => ({
-        ...item,
-        symbol: item.symbol ?? item.measurement_unit?.symbol ?? '',
-        alternatives: (item.alternatives || []).map(alt => ({
-          ...alt,
-          symbol: alt.symbol ?? alt.measurement_unit?.symbol ?? '',
-        })),
-      }))
-    );
-  }
-}, [bomData, reset]);
+        (bomData.items || []).map(item => ({
+          ...item,
+          symbol: item.symbol ?? item.measurement_unit?.symbol ?? '',
+          alternatives: (item.alternatives || []).map(alt => ({
+            ...alt,
+            symbol: alt.symbol ?? alt.measurement_unit?.symbol ?? '',
+          })),
+        }))
+      );
+    }
+  }, [bomData, reset]);
 
   // Sync items with form state
   useEffect(() => {
@@ -233,28 +226,6 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, onSuccess })
     setIsSubmitting(true);
     bomMutation.mutate(payload);
   };
-
-  // Loading and error states
-  if (isLoading) {
-    return (
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogContent>
-          <Typography>Loading BOM data...</Typography>
-          <LinearProgress />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogContent>
-          <Alert severity="error">Error loading BOM data</Alert>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
