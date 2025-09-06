@@ -1,7 +1,7 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
 import { AutoStoriesOutlined, FormatListNumberedRtl, Inventory2Outlined, ListOutlined, LocalGasStation, PointOfSaleOutlined, QrCodeOutlined, QrCode2Rounded, ReceiptOutlined, ShoppingCartOutlined } from '@mui/icons-material'
-import { Grid, Typography } from '@mui/material'
-import React from 'react'
+import { Grid, LinearProgress, Typography } from '@mui/material'
+import React, { useState } from 'react'
 import DashboardQuickLink from '../procurement/reports/productInsights/DashboardQuickLink'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import { MODULES } from '@/utilities/constants/modules'
@@ -13,11 +13,19 @@ function QuickLinks() {
     const router = useRouter();
     const lang = useLanguage();
     const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
-    
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleNavigation = (path: string) => {
+        setIsLoading(true);
+        router.push(`/${lang}${path}`);
+        setTimeout(() => setIsLoading(false), 500); // Simulate loading time; adjust as needed
+    };
+
     return (
         <JumboCardQuick
             title={'Quick Links'}
         >
+            {isLoading && <LinearProgress />}
             <Grid container columnSpacing={1} rowSpacing={1} justifyContent={'center'}>
                 {
                     organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT) && checkOrganizationPermission([
@@ -36,7 +44,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/projectManagement/projects`)}
+                        onClick={() => handleNavigation('/projectManagement/projects')}
                     >
                         <ListOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Projects</Typography>
@@ -54,7 +62,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/manufacturing/batches`)}
+                        onClick={() => handleNavigation('/manufacturing/batches')}
                     >
                         <QrCodeOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Batches</Typography>
@@ -78,7 +86,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        // onClick={() => router.push(`/${lang}/fuel-station/sales-shifts`)}
+                        // onClick={() => handleNavigation('/fuel-station/sales-shifts')} // Uncomment and adjust path if needed
                     >
                         <LocalGasStation sx={{ fontSize: '40px' }} />
                         <Typography>Sales Shift</Typography>
@@ -101,7 +109,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/pos/sales-counters`)}
+                        onClick={() => handleNavigation('/pos/sales-counters')}
                     >
                         <PointOfSaleOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Sales</Typography>
@@ -123,7 +131,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/procurement/purchases`)}
+                        onClick={() => handleNavigation('/procurement/purchases')}
                     >
                         <ShoppingCartOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Purchases</Typography>
@@ -146,7 +154,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/requisitions`)}
+                        onClick={() => handleNavigation('/requisitions')}
                     >
                         <FormatListNumberedRtl sx={{ fontSize: '40px' }} />
                         <Typography>Requisitions</Typography>
@@ -164,7 +172,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/accounts/transactions`)}
+                        onClick={() => handleNavigation('/accounts/transactions')}
                     >
                         <ReceiptOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Transactions</Typography>
@@ -182,7 +190,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/accounts/ledgers`)}
+                        onClick={() => handleNavigation('/accounts/ledgers')}
                     >
                         <AutoStoriesOutlined sx={{ fontSize: '40px' }} />
                         <Typography>Ledgers</Typography>
@@ -203,7 +211,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/procurement/stores`)}
+                        onClick={() => handleNavigation('/procurement/stores')}
                     >
                         <Inventory2Outlined sx={{ fontSize: '40px' }} />
                         <Typography>Stores</Typography>
@@ -245,7 +253,7 @@ function QuickLinks() {
                                 bgcolor: 'action.hover',
                             }
                         }}
-                        onClick={() => router.push(`/${lang}/procurement/products`)}
+                        onClick={() => handleNavigation('/procurement/products')}
                     >
                         <QrCode2Rounded sx={{ fontSize: '40px' }} />
                         <Typography>Products</Typography>

@@ -92,7 +92,6 @@ const organizationServices = {
   },
 
   inviteUsers: async (organizationId, invitationsData) => {
-    console.log(invitationsData)
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
       const {data} = await axios.post(`/api/organizations/${organizationId}/invite_users`,{invitees: invitationsData});
       return data;

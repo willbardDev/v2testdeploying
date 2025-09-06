@@ -630,7 +630,6 @@ const SalesManifest: React.FC<SalesManifestProps> = ({ setOpenSalesManifest }) =
                     onChange={(newValue: any) => {
                       setValue('sales_outlet_id', newValue ? newValue.id : null);
                       if (newValue) {
-                        console.log(newValue)
                         setCounters(newValue.counters);
                       } else {
                         setCounters([]);
