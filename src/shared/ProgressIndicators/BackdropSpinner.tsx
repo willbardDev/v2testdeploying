@@ -94,7 +94,6 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
             height: 100,
             borderRadius: "50%",
             overflow: "hidden",
-            backgroundColor: "#fff",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -103,7 +102,7 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
           }}
         >
           <Image
-            src={`${ASSET_IMAGES}/logos/proserp-logo.jpeg`}
+            src={`${ASSET_IMAGES}/logos/proserp-blue.png`}
             alt="ProsERP"
             width={95}
             height={95}

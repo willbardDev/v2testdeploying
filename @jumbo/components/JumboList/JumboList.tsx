@@ -285,7 +285,6 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                                 height: 100,
                                 borderRadius: "50%",
                                 overflow: "hidden",
-                                backgroundColor: "#fff",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -294,7 +293,7 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                             }}
                         >
                             <Image
-                                src={`${ASSET_IMAGES}/logos/proserp-logo.jpeg`}
+                                src={`${ASSET_IMAGES}/logos/proserp-blue.png`}
                                 alt="ProsERP"
                                 width={95}
                                 height={95}
