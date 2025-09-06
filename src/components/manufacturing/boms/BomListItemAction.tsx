@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Dialog, Tooltip, useMediaQuery, LinearProgress, Alert } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
@@ -61,10 +61,11 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
-    switch (menuItem.action) {
-      case 'edit':
-        setOpenEditDialog(true);
-        break;
+  if (openEditDialog) return; // Prevent multiple dialog openings
+  switch (menuItem.action) {
+    case 'edit':
+      setOpenEditDialog(true);
+      break;
       case 'delete':
         showDialog({
           title: 'Confirm BOM Deletion',
@@ -82,6 +83,12 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
     }
   };
 
+useEffect(() => {
+  return () => {
+    setOpenEditDialog(false); // Ensure dialog is closed on unmount
+  };
+}, []);
+
   return (
     <>
       {/* Edit Dialog */}
@@ -94,14 +101,13 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
       >
         {isLoading ? (
           <div>
-            <p>Loading BOM data...</p>
             <LinearProgress />
           </div>
         ) : isError ? (
           <Alert severity="error">Error loading BOM data</Alert>
         ) : (
           <BomsForm
-            open={true}
+            open={openEditDialog}
             bomId={bom.id}
             bomData={bomData}
             toggleOpen={setOpenEditDialog}
