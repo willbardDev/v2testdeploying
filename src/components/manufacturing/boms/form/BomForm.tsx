@@ -32,7 +32,6 @@ import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { MeasurementUnit } from "@/components/masters/measurementUnits/MeasurementUnitType";
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 
 // Validation schema
