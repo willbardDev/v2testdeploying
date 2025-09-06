@@ -55,12 +55,12 @@ export interface BOMItem {
   id?: number;
   product?: Product | null;
   bom_id?: number;
-  product_id: number | null;
+  product_id: number | undefined | null;
   quantity: number | null;
-  measurement_unit_id: number | null;
+  conversion_factor: number;
+  measurement_unit_id: number |undefined | null;
   measurement_unit?: MeasurementUnit | null;
   symbol?:string;
-  conversion_factor: number;
   alternatives?: BOMItem[];
 }
 
