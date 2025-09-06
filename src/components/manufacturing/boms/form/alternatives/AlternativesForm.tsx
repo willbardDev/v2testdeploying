@@ -157,6 +157,13 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     }
   }, [addedProduct, setValue]);
 
+  // Reset form when editingIndex changes
+  useEffect(() => {
+    if (editingIndex !== null) {
+      reset(defaultValues); // Reset to default values (clear product) when entering edit mode
+    }
+  }, [editingIndex, reset]);
+
   // Handle form submission
   const onSubmit = (data: BOMItem) => {
     if (!data.product) {
@@ -190,7 +197,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       setEditingIndex(null);
     } else {
       updatedAlternatives = [...alternatives, newAlternative];
-      reset(defaultValues);
     }
 
     setAlternatives(updatedAlternatives);
@@ -199,6 +205,8 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
         i === index ? { ...prevItem, alternatives: updatedAlternatives } : prevItem
       )
     );
+    setAddedProduct(null); // Clear added product to prevent persistence
+    reset(defaultValues); // Reset form to default values after submission
     setWarning(null);
   };
 
@@ -237,6 +245,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
     setEditingIndex(null);
     setWarning(null);
+    reset(defaultValues); // Reset form after updating an alternative
   };
 
   const handleRemoveAlternative = (altIndex: number) => {
@@ -250,6 +259,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
     if (editingIndex === altIndex) {
       setEditingIndex(null);
+      reset(defaultValues);
     }
   };
 
@@ -259,15 +269,9 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       return;
     }
 
-    const alternative = alternatives[altIndex];
     setEditingIndex(altIndex);
     setWarning(null);
-    reset({
-      ...defaultValues,
-      ...resolveUnitDetails(alternative, productOptions),
-      quantity: alternative.quantity ?? null,
-      alternatives: alternative.alternatives ?? [],
-    });
+    reset(defaultValues); // Reset form to default values when starting edit
   };
 
   const handleCancelEdit = () => {
@@ -415,7 +419,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
                 startIcon={<AddOutlined />}
                 sx={{ mt: 1 }}
               >
-                {editingIndex !== null ? 'Update' : 'Add'}
+                Add
               </Button>
             </Grid>
           </Grid>

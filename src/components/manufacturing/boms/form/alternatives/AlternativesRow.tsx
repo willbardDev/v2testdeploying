@@ -184,7 +184,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
       <Box sx={{ mb: 2, p: 2 }}>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 8}}>
               <Controller
                 name="product"
                 control={control}
@@ -281,15 +281,15 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 2 }} textAlign="right">
+            <Grid size={{ xs: 12, md: 12 }} textAlign="right">
               <Button variant="contained" size="small" type="submit">
                 <CheckOutlined fontSize="small" /> Done
               </Button>
               <Tooltip title="Cancel">
-                <IconButton size="small" onClick={onCancelEdit}>
-                  <DisabledByDefault fontSize="small" color="error" />
-                </IconButton>
-              </Tooltip>
+              <IconButton size="small" onClick={onCancelEdit}>
+                <DisabledByDefault fontSize="small" color="success" />
+              </IconButton>
+            </Tooltip>
             </Grid>
           </Grid>
         </form>
