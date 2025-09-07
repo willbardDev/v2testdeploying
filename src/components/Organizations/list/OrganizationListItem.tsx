@@ -45,7 +45,7 @@ export const OrganizationListItem: React.FC<OrganizationListItemProps> = ({ orga
   useEffect(() => {
     if (!authUser?.user) {
       signOut({
-        callbackUrl: 'http://localhost:3000/en-US/auth/signin',
+        callbackUrl: `http://localhost:3000/${lang}/auth/signin`,
       });
     }
   }, [authUser, router]);
