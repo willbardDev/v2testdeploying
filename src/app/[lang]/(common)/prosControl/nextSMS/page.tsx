@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import NextSMS from '@/components/prosControl/nextSMS/nextSMS'
 import React from 'react'
 

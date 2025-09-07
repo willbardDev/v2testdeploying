@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import OrganizationInvitations from '@/components/Invitations/Invitations'
 import React from 'react'
 

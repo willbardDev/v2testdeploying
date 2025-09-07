@@ -10,11 +10,11 @@ import { SessionProvider } from 'next-auth/react';
 import { AppSnackbar } from '@/components/AppSnackbar';
 import { AuthInitializer } from '@/components/AuthInitializer/AuthInitializer';
 import { Suspense } from 'react';
-import { Spinner } from '@/components/Spinner';
 import { CONFIG } from '@/config';
 import { JumboAuthProvider } from './providers/JumboAuthProvider';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -38,7 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <JumboDialogProvider>
                       <AuthInitializer>
                         <JumboDialog />
-                          <Suspense fallback={<Spinner />}>
+                          <Suspense fallback={<BackdropSpinner />}>
                             {children}
                           </Suspense>
                       </AuthInitializer>

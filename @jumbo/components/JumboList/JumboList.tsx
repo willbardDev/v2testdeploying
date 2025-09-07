@@ -258,7 +258,7 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                                 width: 120,
                                 height: 120,
                                 border: "5px solid transparent",
-                                borderTopColor: lightColor,
+                                borderBottomColor: lightColor,
                                 borderRadius: "50%",
                                 animation: `${spiralRotate} 2s linear infinite 0.3s`,
                                 boxShadow: `0 0 10px ${lightColor}80`,
@@ -295,8 +295,8 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                             <Image
                                 src={`${ASSET_IMAGES}/logos/proserp-blue.png`}
                                 alt="ProsERP"
-                                width={95}
-                                height={95}
+                                width={85}
+                                height={85}
                                 style={{ objectFit: "contain" }}
                                 unoptimized
                             />
