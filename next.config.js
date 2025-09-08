@@ -14,7 +14,8 @@ const withPWA = withPWAInit({
 
 const nextConfig = {
   reactStrictMode: true,
-  distDir: "build",
+  // Remove or comment out distDir: "build"
+  // distDir: "build",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -36,7 +37,7 @@ const nextConfig = {
     return [
       {
         source: '/manifest.json',
-        destination: '/manifest.json',
+        destination: '/api/manifest?lang=en-US', // Adjust to match PWA manifest generation
       },
     ];
   },
